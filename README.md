@@ -2,7 +2,7 @@
 
 A complete wiki platform built with FastAPI and MongoDB, designed for easy local deployment and customization.
 
-![Cryptopedia Screenshot](https://example.com/screenshot.png)
+<img width="1259" alt="Screenshot 2025-04-07 at 10 20 40 PM" src="https://github.com/user-attachments/assets/3d806199-6804-4e83-94eb-d118957446c1" />
 
 ## Features
 
