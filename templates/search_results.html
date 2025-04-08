@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Cryptopedia</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <span class="logo">Cryptopedia</span>
+        
+        <div class="search-bar">
+            <input type="text" id="search-input" placeholder="Search the wiki..." value="{{ query }}">
+            <button id="search-button">Search</button>
+        </div>
+        
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/articles">Articles</a></li>
+                <li><a href="/api/articles/random" id="random-article">Random</a></li>
+                <li><a href="/contribute" id="contribute-link">Contribute</a></li>
+                <li><a href="#" id="login-link">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <!-- Main Content -->
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <h3>Navigation</h3>
+            <ul>
+                <li><a href="/">Main Page</a></li>
+                <li><a href="/api/special/recentchanges" id="recent-changes">Recent Changes</a></li>
+                <li><a href="/help">Help</a></li>
+                <li><a href="/community">Community Portal</a></li>
+            </ul>
+            
+            <h3>Search Options</h3>
+            <ul>
+                <li><a href="/articles">Browse All Articles</a></li>
+                <li><a href="/categories">Browse Categories</a></li>
+                <li><a href="/tags">Browse Tags</a></li>
+            </ul>
+        </div>
+        
+        <!-- Main Wiki Content -->
+        <div class="main-content">
+            <h1>Search Results for "{{ query }}"</h1>
+            
+            <div class="search-stats">
+                <p>Found {{ results|length }} results</p>
+            </div>
+            
+            {% if results %}
+                <div class="search-results">
+                    {% for article in results %}
+                    <div class="search-result">
+                        <h3><a href="/articles/{{ article.slug }}">{{ article.title }}</a></h3>
+                        <p class="search-result-summary">{{ article.summary }}</p>
+                        
+                        {% if article.categories %}
+                        <div class="result-categories">
+                            Categories:
+                            {% for category in article.categories %}
+                            <a href="/articles?category={{ category }}" class="category-tag">{{ category }}</a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-results">
+                    <p>No articles found matching your search.</p>
+                    <p>Suggestions:</p>
+                    <ul>
+                        <li>Make sure all words are spelled correctly</li>
+                        <li>Try different keywords</li>
+                        <li>Try more general keywords</li>
+                        <li>Try fewer keywords</li>
+                    </ul>
+                    <p><a href="/create-article" class="create-article-link">Create an article about "{{ query }}"</a></p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <p>Cryptopedia - A collaborative knowledge base</p>
+        <ul>
+            <li><a href="/about">About</a></li>
+            <li><a href="/privacy">Privacy Policy</a></li>
+            <li><a href="/terms">Terms of Use</a></li>
+            <li><a href="/contact">Contact</a></li>
+        </ul>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

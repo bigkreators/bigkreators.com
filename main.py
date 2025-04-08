@@ -40,6 +40,20 @@ try:
     S3_AVAILABLE = True
 except ImportError:
     S3_AVAILABLE = False
+    
+# Add datetime formatting filter for templates
+def strftime_filter(date, format_str):
+    """Format a datetime object for Jinja2 templates"""
+    if not date:
+        return ""
+    if isinstance(date, str):
+        try:
+            # Try to parse ISO format date
+            from dateutil import parser
+            date = parser.parse(date)
+        except:
+            return date
+    return date.strftime(format_str)
 
 # Load environment variables
 load_dotenv()
@@ -573,6 +587,9 @@ async def startup_db_client():
 async def shutdown_db_client():
     app.mongodb_client.close()
 
+# Importing our API redirect helpers
+from api_redirect import redirect_to_random_article
+
 # Routes
 @app.get("/", response_class=templates.TemplateResponse)
 async def root(request: Request, db=Depends(get_mongo_db), redis_client=Depends(get_redis)):
@@ -622,9 +639,136 @@ async def root(request: Request, db=Depends(get_mongo_db), redis_client=Depends(
         }
     )
 
-@app.get("/api")
-async def api_root():
-    return {"message": "Welcome to the Cryptopedia API"}
+@app.get("/articles/{slug}", response_class=templates.TemplateResponse)
+async def get_article_page(request: Request, slug: str, db=Depends(get_mongo_db)):
+    """Article page - renders the article template with article data"""
+    # Try to find article by slug
+    article = await db["articles"].find_one({"slug": slug})
+    
+    # If not found by slug, check if it's a valid ID
+    if not article and ObjectId.is_valid(slug):
+        article = await db["articles"].find_one({"_id": ObjectId(slug)})
+    
+    # Return 404 if article not found
+    if not article:
+        return templates.TemplateResponse(
+            "404.html",
+            {"request": request, "message": "Article not found"}
+        )
+    
+    # Increment view count
+    await db["articles"].update_one(
+        {"_id": article["_id"]},
+        {"$inc": {"views": 1}}
+    )
+    
+    # Return article template
+    return templates.TemplateResponse(
+        "article.html",
+        {"request": request, "article": article}
+    )
+
+@app.get("/create-article", response_class=templates.TemplateResponse)
+async def create_article_page(request: Request):
+    """Create article page - renders the article creation form"""
+    return templates.TemplateResponse(
+        "create_article.html",
+        {"request": request}
+    )
+
+@app.get("/search", response_class=templates.TemplateResponse)
+async def search_page(
+    request: Request,
+    q: str = Query(None),
+    db=Depends(get_mongo_db),
+    es=Depends(get_elasticsearch)
+):
+    """Search results page"""
+    results = []
+    
+    if q:
+        try:
+            # Search using the search service (Elasticsearch or simple search)
+            search_results = await es.search(
+                index="articles",
+                body={
+                    "query": {
+                        "multi_match": {
+                            "query": q,
+                            "fields": ["title^3", "content", "summary^2", "categories", "tags"]
+                        }
+                    },
+                    "size": 10
+                }
+            )
+            
+            # Get article IDs from search results
+            article_ids = [hit["_id"] for hit in search_results["hits"]["hits"]]
+            
+            # Get full articles from MongoDB
+            if article_ids:
+                results = []
+                for article_id in article_ids:
+                    if ObjectId.is_valid(article_id):
+                        article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+                        if article:
+                            results.append(article)
+        except Exception as e:
+            print(f"Search error: {str(e)}")
+            # Fallback to simple MongoDB text search
+            try:
+                cursor = db["articles"].find(
+                    {"$text": {"$search": q}, "status": "published"},
+                    {"score": {"$meta": "textScore"}}
+                ).sort([("score", {"$meta": "textScore"})]).limit(10)
+                
+                results = await cursor.to_list(length=10)
+            except Exception as e:
+                print(f"Fallback search error: {str(e)}")
+    
+    # Return search results template
+    return templates.TemplateResponse(
+        "search_results.html",
+        {"request": request, "query": q, "results": results}
+    )
+
+@app.get("/articles", response_class=templates.TemplateResponse)
+async def list_articles_page(
+    request: Request,
+    category: Optional[str] = None,
+    tag: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 20,
+    db=Depends(get_mongo_db)
+):
+    """Articles listing page"""
+    # Build query
+    query = {"status": "published"}
+    if category:
+        query["categories"] = category
+    if tag:
+        query["tags"] = tag
+    
+    # Get total count for pagination
+    total_count = await db["articles"].count_documents(query)
+    
+    # Get articles
+    cursor = db["articles"].find(query).sort("createdAt", -1).skip(skip).limit(limit)
+    articles = await cursor.to_list(length=limit)
+    
+    # Return template
+    return templates.TemplateResponse(
+        "articles_list.html",
+        {
+            "request": request,
+            "articles": articles,
+            "total": total_count,
+            "skip": skip,
+            "limit": limit,
+            "category": category,
+            "tag": tag
+        }
+    )
 
 # Auth Routes
 @app.post("/api/auth/register", response_model=User)
@@ -1135,20 +1279,10 @@ if __name__ == "__main__":
     
     return article
 
-@app.get("/api/articles/random", response_model=Article)
-async def get_random_article(db=Depends(get_mongo_db)):
-    # Get a random article using MongoDB's aggregation framework
-    pipeline = [
-        {"$match": {"status": "published"}},
-        {"$sample": {"size": 1}}
-    ]
-    
-    result = await db["articles"].aggregate(pipeline).to_list(length=1)
-    
-    if not result:
-        raise HTTPException(status_code=404, detail="No articles found")
-    
-    return result[0]
+@app.get("/api/articles/random")
+async def get_random_article_redirect(db=Depends(get_mongo_db)):
+    """Random article - redirects to a random article page"""
+    return await redirect_to_random_article(db)
 
 @app.get("/api/articles/{id}", response_model=Article)
 async def get_article(
