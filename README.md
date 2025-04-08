@@ -1,4 +1,4 @@
-# Cryptopedia Wiki Platform
+# Kryptopedia Wiki Platform
 
 A complete wiki platform built with FastAPI and MongoDB, designed for easy local deployment and customization.
 
@@ -137,3 +137,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Copyright/Copyleft
+bigkreators Kryptopedia (c)2025
+
