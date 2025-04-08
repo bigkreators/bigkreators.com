@@ -1,0 +1,92 @@
+// MongoDB Schema Example
+
+// Users Collection
+const UserSchema = {
+  username: String,
+  email: String,
+  passwordHash: String,
+  role: { type: String, enum: ['user', 'editor', 'admin'], default: 'user' },
+  joinDate: { type: Date, default: Date.now },
+  lastLogin: Date,
+  reputation: { type: Number, default: 0 },
+  contributions: {
+    articlesCreated: { type: Number, default: 0 },
+    editsPerformed: { type: Number, default: 0 },
+    rewardsReceived: { type: Number, default: 0 }
+  }
+}
+
+// Articles Collection
+const ArticleSchema = {
+  title: String,
+  slug: { type: String, unique: true },
+  content: String, // Stores HTML/Markdown content
+  summary: String,
+  createdBy: { type: ObjectId, ref: 'User' },
+  createdAt: { type: Date, default: Date.now },
+  lastUpdatedAt: Date,
+  lastUpdatedBy: { type: ObjectId, ref: 'User' },
+  featuredUntil: Date, // For featured articles
+  status: { type: String, enum: ['draft', 'published', 'archived'] },
+  categories: [String],
+  tags: [String],
+  views: { type: Number, default: 0 },
+  metadata: {
+    hasAudio: Boolean,
+    hasSpecialSymbols: Boolean,
+    containsMadeUpContent: Boolean
+  }
+}
+
+// Revisions Collection
+const RevisionSchema = {
+  articleId: { type: ObjectId, ref: 'Article' },
+  content: String, // The content at this revision
+  createdBy: { type: ObjectId, ref: 'User' },
+  createdAt: { type: Date, default: Date.now },
+  comment: String, // Description of changes
+  diff: String // Stored diff from previous version
+}
+
+// Edit Proposals Collection
+const ProposalSchema = {
+  articleId: { type: ObjectId, ref: 'Article' },
+  proposedBy: { type: ObjectId, ref: 'User' },
+  proposedAt: { type: Date, default: Date.now },
+  content: String, // Proposed content
+  summary: String, // Explanation of proposal
+  status: { type: String, enum: ['pending', 'approved', 'rejected'] },
+  reviewedBy: { type: ObjectId, ref: 'User' },
+  reviewedAt: Date,
+  reviewComment: String
+}
+
+// Media Collection
+const MediaSchema = {
+  filename: String,
+  originalName: String,
+  mimeType: String,
+  size: Number,
+  path: String, // Storage path/URL
+  uploadedBy: { type: ObjectId, ref: 'User' },
+  uploadedAt: { type: Date, default: Date.now },
+  metadata: {
+    duration: Number, // For audio files
+    dimensions: {
+      width: Number,
+      height: Number
+    }
+  },
+  usedInArticles: [{ type: ObjectId, ref: 'Article' }]
+}
+
+// Rewards Collection
+const RewardSchema = {
+  articleId: { type: ObjectId, ref: 'Article' },
+  revisionId: { type: ObjectId, ref: 'Revision' },
+  rewardedUser: { type: ObjectId, ref: 'User' },
+  rewardedBy: { type: ObjectId, ref: 'User' },
+  rewardedAt: { type: Date, default: Date.now },
+  rewardType: { type: String, enum: ['helpful', 'insightful', 'comprehensive'] },
+  points: Number
+}

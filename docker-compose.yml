@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - media_data:/app/media
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - DB_NAME=cryptopedia
+      - JWT_SECRET=your-secret-key-change-this-in-production
+      - STORAGE_TYPE=local
+      - MEDIA_FOLDER=media
+      - USE_ELASTICSEARCH=false
+      - USE_REDIS=false
+    depends_on:
+      - mongodb
+    restart: always
+
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    restart: always
+
+  # Optional services - commented out by default for local development
+  # Uncomment to use them
+  
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:8.10.4
+  #   environment:
+  #     - discovery.type=single-node
+  #     - xpack.security.enabled=false
+  #     - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #   ports:
+  #     - "9200:9200"
+  #   volumes:
+  #     - elasticsearch_data:/usr/share/elasticsearch/data
+  #   restart: always
+
+  # redis:
+  #   image: redis:7.0
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   restart: always
+
+volumes:
+  mongodb_data:
+  media_data:
+  # elasticsearch_data:
+  # redis_data:
