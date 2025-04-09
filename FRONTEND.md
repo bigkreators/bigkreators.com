@@ -1,4 +1,4 @@
-# Cryptopedia Frontend
+# Kryptopedia Frontend
 
 Cryptopedia uses a template-based frontend system that integrates directly with the FastAPI backend. This document describes the frontend architecture and how to work with it.
 

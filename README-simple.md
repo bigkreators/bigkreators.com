@@ -1,4 +1,4 @@
-# Cryptopedia Wiki
+# Kryptopedia Wiki
 
 A simple wiki platform built with FastAPI and MongoDB.
 
