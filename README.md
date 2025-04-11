@@ -44,14 +44,13 @@ cd cryptopedia
 ```
 For more information on setup, see [TOC.md](TOC.md).
 For more information on the implementation, see [FRONTEND.md](FRONTEND.md).[BACKEND.md](BACKEND.md)..
-
-Once started, visit http://localhost:8000 in your browser.
+See [STORAGE.md](STORAGE.md) for more details on storage configuration.
 
 Default admin login:
 - Username: admin
 - Password: admin123
 
-## Manual Installation
+## Post Install
 
 If you prefer to set things up manually:
 
@@ -60,8 +59,8 @@ If you prefer to set things up manually:
 3. Activate the virtual environment: `source venv/bin/activate`
 4. Install dependencies: `pip install -r requirements.txt`
 5. Create a `.env` file (see `.env.example`)
-6. Run the initialization script: `python init_cryptopedia.py`
 7. Start the application: `uvicorn main:app --reload`
+8. Once started, visit http://localhost:8000 in your browser.
 
 ## System Requirements
 
@@ -85,8 +84,6 @@ Configuration is done through environment variables or a `.env` file:
 | MEDIA_FOLDER | Local media folder path | media |
 | USE_ELASTICSEARCH | Enable Elasticsearch | false |
 | USE_REDIS | Enable Redis caching | false |
-
-See [STORAGE.md](STORAGE.md) for more details on storage configuration.
 
 ## Project Structure
 
