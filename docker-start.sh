@@ -85,7 +85,7 @@ setup_docker_env() {
         cat > .env << EOL
 # Database Configuration
 MONGO_URI=mongodb://mongodb:27017
-DB_NAME=cryptopedia
+DB_NAME=kryptopedia
 
 # JWT Configuration
 JWT_SECRET=${JWT_SECRET}

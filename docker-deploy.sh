@@ -43,7 +43,7 @@ if [ ! -f ".env" ]; then
     cat > .env << EOL
 # Database Configuration
 MONGO_URI=mongodb://localhost:27017
-DB_NAME=cryptopedia
+DB_NAME=kryptopedia
 
 # JWT Configuration
 JWT_SECRET=your-secret-key-change-this-in-production
@@ -53,7 +53,7 @@ STORAGE_TYPE=local  # Options: local, s3
 MEDIA_FOLDER=media
 
 # S3 Configuration (only used if STORAGE_TYPE=s3)
-S3_BUCKET=cryptopedia-media
+S3_BUCKET=kryptopedia-media
 AWS_ACCESS_KEY=
 AWS_SECRET_KEY=
 AWS_REGION=us-east-1

@@ -51,7 +51,7 @@ echo "Creating .env file..."
 cat > .env << EOL
 # Database Configuration
 MONGO_URI=mongodb://localhost:27017
-DB_NAME=cryptopedia
+DB_NAME=kryptopedia
 
 # JWT Configuration
 JWT_SECRET=$(openssl rand -hex 32)
@@ -67,7 +67,7 @@ EOL
 
 # Initialize database with sample content
 echo "Initializing database with sample content..."
-python3 init_cryptopedia.py
+python3 init_kryptopedia.py
 
 echo ""
 echo "=== Installation Complete! ==="
