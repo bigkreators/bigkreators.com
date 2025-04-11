@@ -42,8 +42,8 @@ The easiest way to get started is to use the setup script:
 git clone https://github.com/yourusername/cryptopedia.git
 cd cryptopedia
 ```
-For more information on setup, see [TOC.md].
-For more information on the implementation, see [FRONTEND.md][BACKEND.md].
+For more information on setup, see [TOC.md](TOC.md).
+For more information on the implementation, see [FRONTEND.md](FRONTEND.md).[BACKEND.md](BACKEND.md)..
 
 Once started, visit http://localhost:8000 in your browser.
 
