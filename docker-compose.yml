@@ -10,7 +10,7 @@ services:
       - media_data:/app/media
     environment:
       - MONGO_URI=mongodb://mongodb:27017
-      - DB_NAME=cryptopedia
+      - DB_NAME=kryptopedia
       - JWT_SECRET=your-secret-key-change-this-in-production
       - STORAGE_TYPE=local
       - MEDIA_FOLDER=media

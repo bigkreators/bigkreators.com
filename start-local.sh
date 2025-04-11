@@ -114,23 +114,8 @@ initialize_app() {
         echo -e "${YELLOW}First-time initialization...${NC}"
         
         # Run initialization script if it exists
-        if [ -f "setup-data.sh" ]; then
-            echo -e "${YELLOW}Running database initialization script...${NC}"
-            python3 setup-data.sh
-            
-            if [ $? -ne 0 ]; then
-                echo -e "${RED}Database initialization failed.${NC}"
-                exit 1
-            fi
-            
-            # Create the initialized marker file
-            touch .initialized
-            
-            echo -e "${GREEN}Application initialized successfully.${NC}"
-        else
-            echo -e "${YELLOW}No initialization script found (setup-data.sh). Skipping initialization.${NC}"
-            touch .initialized
-        fi
+        echo -e "${YELLOW}No initialization script found (setup-data.sh). Skipping initialization.${NC}"
+        touch .initialized
     else
         echo -e "${GREEN}Application already initialized.${NC}"
     fi

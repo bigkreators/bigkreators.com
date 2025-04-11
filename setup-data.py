@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Initialization script for Cryptopedia
+Initialization script for Kryptopedia
 
-This script sets up the required directories and initial data for Cryptopedia.
+This script sets up the required directories and initial data for Kryptopedia.
 It creates:
 1. Required directories (templates, static, media)
 2. Initial demo article
 3. Admin user
 
-Usage: python init_cryptopedia.py
+Usage: python setup-data.py
 """
 
 import os
@@ -20,19 +20,27 @@ from bson import ObjectId
 from datetime import datetime, timedelta
 import json
 import uuid
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Get database connection info from environment or use defaults
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+DB_NAME = os.getenv("DB_NAME", "kryptopedia")
 
 # Initial demo article content
 DEMO_ARTICLE = {
-    "title": "Welcome to Cryptopedia",
-    "slug": "welcome-to-cryptopedia",
+    "title": "Welcome to Kryptopedia",
+    "slug": "welcome-to-kryptopedia",
     "content": """
-<h1>Welcome to Cryptopedia!</h1>
+<h1>Welcome to Kryptopedia!</h1>
 
-<p>Cryptopedia is a collaborative knowledge base dedicated to your favorite topics. Our goal is to create a comprehensive resource where enthusiasts and experts can share information, discoveries, and insights.</p>
+<p>Kryptopedia is a collaborative knowledge base dedicated to your favorite topics. Our goal is to create a comprehensive resource where enthusiasts and experts can share information, discoveries, and insights.</p>
 
-<h2>What is Cryptopedia?</h2>
+<h2>What is Kryptopedia?</h2>
 
-<p>Cryptopedia is a wiki-style platform where users can:</p>
+<p>Kryptopedia is a wiki-style platform where users can:</p>
 
 <ul>
     <li>Create and edit articles on various topics</li>
@@ -95,7 +103,7 @@ DEMO_ARTICLE = {
 # Admin user
 ADMIN_USER = {
     "username": "admin",
-    "email": "admin@cryptopedia.local",
+    "email": "admin@kryptopedia.local",
     "password": "admin123",  # This will be hashed before storage
     "role": "admin",
     "joinDate": datetime.now(),
@@ -142,6 +150,23 @@ async def init_database(mongo_uri, db_name):
     else:
         print(f"Demo article already exists: {DEMO_ARTICLE['title']}")
     
+    # Create indices for collections
+    print("Creating database indices...")
+    await db["articles"].create_index([("title", "text"), ("content", "text"), ("summary", "text")])
+    await db["articles"].create_index([("slug", 1)], unique=True)
+    await db["articles"].create_index([("status", 1)])
+    await db["articles"].create_index([("categories", 1)])
+    await db["articles"].create_index([("tags", 1)])
+    
+    await db["users"].create_index([("username", 1)], unique=True)
+    await db["users"].create_index([("email", 1)], unique=True)
+    
+    await db["revisions"].create_index([("articleId", 1)])
+    await db["proposals"].create_index([("articleId", 1)])
+    await db["proposals"].create_index([("status", 1)])
+    
+    await db["media"].create_index([("filename", 1)], unique=True)
+    
     client.close()
     print("Database initialization complete!")
 
@@ -186,18 +211,14 @@ def check_template_files():
         print("\nAll required template and static files exist.")
 
 async def main():
-    # Get database connection info from environment or use defaults
-    mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-    db_name = os.getenv("DB_NAME", "cryptopedia")
-    
-    print("\n=== Cryptopedia Initialization ===\n")
+    print("\n=== Kryptopedia Initialization ===\n")
     
     # Create directories
     create_directories()
     
     # Initialize database
     try:
-        await init_database(mongo_uri, db_name)
+        await init_database(MONGO_URI, DB_NAME)
     except Exception as e:
         print(f"\nERROR: Failed to initialize database: {str(e)}")
         print("Make sure MongoDB is running and the connection URI is correct.")
@@ -207,7 +228,7 @@ async def main():
     check_template_files()
     
     print("\nInitialization complete! You can now start the application.")
-    print("Run: uvicorn main:app --reload")
+    print("Run: python main.py")
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Cryptopedia Deployment Script
+# Kryptopedia Deployment Script
 # This script sets up the environment and starts the FastAPI service
 
-echo "===== Cryptopedia Backend Deployment ====="
+echo "===== Kryptopedia Backend Deployment ====="
 
 # Check if Python is installed
 if ! command -v python3 &> /dev/null; then
@@ -17,9 +17,9 @@ if ! command -v pip3 &> /dev/null; then
     exit 1
 fi
 
-# Create virtual environment if it doesn't exist
+# Kryptopedia virtual environment if it doesn't exist
 if [ ! -d "venv" ]; then
-    echo "Creating virtual environment..."
+    echo "Kryptopedia virtual environment..."
     python3 -m venv venv
 fi
 
@@ -71,5 +71,5 @@ EOL
 fi
 
 # Start the FastAPI application
-echo "Starting Cryptopedia backend service..."
+echo "Starting Kryptopedia backend service..."
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload

@@ -1,3 +1,4 @@
+# Kryptopedia requirements file
 fastapi==0.104.1
 uvicorn==0.23.2
 motor==3.3.1
@@ -13,7 +14,7 @@ passlib==1.7.4
 jinja2==3.1.2
 python-dateutil==2.8.2
 
-# Optional dependencies - uncomment to enable
+# Optional dependencies - uncomment to enable as needed
 # boto3==1.28.65  # For S3 storage
-# elasticsearch[async]==8.10.1  # For Elasticsearch
+# elasticsearch==8.10.0  # For Elasticsearch
 # redis==5.0.1  # For Redis caching

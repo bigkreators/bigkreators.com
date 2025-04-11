@@ -1,8 +1,6 @@
 # Kryptopedia Wiki Platform
 
-A complete wiki platform built with FastAPI and MongoDB, designed for easy local deployment and customization.
-
-<img width="1259" alt="Screenshot 2025-04-07 at 10 20 40 PM" src="https://github.com/user-attachments/assets/3d806199-6804-4e83-94eb-d118957446c1" />
+A complete wiki platform built with FastAPI and MongoDB, designed for easy deployment and customization.
 
 ## Features
 
@@ -33,46 +31,9 @@ A complete wiki platform built with FastAPI and MongoDB, designed for easy local
   - MongoDB text search (with optional Elasticsearch)
   - Optimized database queries
 
-## Quick Start
+## Installation
 
-The easiest way to get started is to use the setup script:
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/cryptopedia.git
-cd cryptopedia
-
-# Run the setup script
-chmod +x setup.sh
-./setup.sh
-```
-
-The setup script will:
-1. Create a virtual environment
-2. Install dependencies
-3. Set up the database
-4. Initialize the wiki with sample content
-5. Start the application
-
-Once started, visit http://localhost:8000 in your browser.
-
-Default admin login:
-- Username: admin
-- Password: admin123
-
-## Manual Installation
-
-If you prefer to set things up manually:
-
-1. Clone the repository
-2. Create a virtual environment: `python -m venv venv`
-3. Activate the virtual environment: `source venv/bin/activate`
-4. Install dependencies: `pip install -r requirements.txt`
-5. Create a `.env` file (see `.env.example`)
-6. Run the initialization script: `python init_cryptopedia.py`
-7. Start the application: `uvicorn main:app --reload`
-
-## System Requirements
+### Requirements
 
 - Python 3.8+
 - MongoDB 4.0+
@@ -81,46 +42,76 @@ If you prefer to set things up manually:
   - Elasticsearch (for advanced search)
   - AWS S3 account (for S3 storage)
 
-## Configuration
+### Setup
 
-Configuration is done through environment variables or a `.env` file:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/kryptopedia.git
+   cd kryptopedia
+   ```
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| MONGO_URI | MongoDB connection URI | mongodb://localhost:27017 |
-| DB_NAME | Database name | cryptopedia |
-| JWT_SECRET | Secret key for JWT tokens | (random generated) |
-| STORAGE_TYPE | Storage type (local or s3) | local |
-| MEDIA_FOLDER | Local media folder path | media |
-| USE_ELASTICSEARCH | Enable Elasticsearch | false |
-| USE_REDIS | Enable Redis caching | false |
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-See [STORAGE.md](STORAGE.md) for more details on storage configuration.
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Project Structure
+4. Create a `.env` file with your configuration:
+   ```
+   # Database Configuration
+   MONGO_URI=mongodb://localhost:27017
+   DB_NAME=kryptopedia
 
-- **Backend**: FastAPI application in `main.py`
-- **Frontend**: HTML templates in `templates/` directory
-- **Database**: MongoDB schemas and models
-- **Static Assets**: CSS and JavaScript in `static/` directory
-- **Media**: Uploaded files in `media/` directory (when using local storage)
+   # JWT Configuration
+   JWT_SECRET=your-secret-key-change-this-in-production
 
-For more information on the frontend implementation, see [FRONTEND.md](FRONTEND.md).
+   # Storage Configuration
+   STORAGE_TYPE=local  # Options: local, s3
+   MEDIA_FOLDER=media
+
+   # Optional External Services (set to true to enable)
+   USE_ELASTICSEARCH=false
+   USE_REDIS=false
+   ```
+
+5. Initialize the database:
+   ```bash
+   python setup-data.py
+   ```
+
+6. Run the application:
+   ```bash
+   python main.py
+   ```
+
+7. Access the wiki at http://localhost:8000
+
+## Directory Structure
+
+```
+kryptopedia/
+├── main.py                  # Application entry point
+├── config.py                # Configuration settings
+├── models/                  # Pydantic models
+├── routes/                  # API routes
+├── services/                # Business logic
+├── dependencies/            # FastAPI dependencies
+├── utils/                   # Utility functions
+├── static/                  # Static assets (CSS, JS)
+├── templates/               # HTML templates
+└── media/                   # Uploaded files
+```
 
 ## API Documentation
 
 Once the application is running, API documentation is available at:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
-
-## Customization
-
-Cryptopedia is designed to be easily customizable:
-
-- **Templates**: Modify HTML templates in the `templates/` directory
-- **Styling**: Customize CSS in `static/style.css`
-- **Functionality**: Extend JavaScript in `static/script.js`
-- **Backend**: Modify API endpoints in `main.py`
 
 ## Docker Deployment
 
@@ -130,6 +121,22 @@ A Docker Compose configuration is included for containerized deployment:
 docker-compose up -d
 ```
 
+## Default Admin Account
+
+- Username: admin
+- Password: admin123
+
+Be sure to change the default admin password after first login.
+
+## Customization
+
+Cryptopedia is designed to be easily customizable:
+
+- **Templates**: Modify HTML templates in the `templates/` directory
+- **Styling**: Customize CSS in `static/style.css`
+- **Functionality**: Extend JavaScript in `static/script.js`
+- **Backend**: Modify API endpoints in the `routes/` directory
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -137,7 +144,3 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Copyright/Copyleft
-bigkreators Kryptopedia (c)2025
-
