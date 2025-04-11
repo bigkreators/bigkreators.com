@@ -1,9 +1,9 @@
 """
-Revision-related models for the Cryptopedia application.
+Revision-related models for the Kryptopedia application.
 """
 from datetime import datetime
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, Annotated
 from .base import DBModel, PyObjectId
 
 class RevisionCreate(BaseModel):
@@ -22,9 +22,9 @@ class Revision(RevisionCreate, DBModel):
     created_at: datetime = Field(default_factory=datetime.now, alias="createdAt")
     diff: Optional[str] = None
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
             "example": {
                 "_id": "60d21b4967d0d8992e610c85",
                 "articleId": "60d21b4967d0d8992e610c86",
@@ -35,6 +35,7 @@ class Revision(RevisionCreate, DBModel):
                 "diff": "Diff content here showing changes"
             }
         }
+    )
 
 class RevisionWithMetadata(Revision):
     """
@@ -43,5 +44,6 @@ class RevisionWithMetadata(Revision):
     article_title: str = Field(..., alias="articleTitle")
     creator_username: str = Field(..., alias="creatorUsername")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        populate_by_name=True
+    )

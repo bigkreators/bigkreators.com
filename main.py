@@ -30,13 +30,13 @@ app.add_middleware(
 )
 
 # Initialize templates
-templates = Jinja2Templates(directory=config.TEMPLATES_DIR)
+all_templates = Jinja2Templates(directory=config.TEMPLATES_DIR)
 
 # Add template filters
-templates.env.filters["strftime"] = strftime_filter
-templates.env.filters["truncate"] = truncate_filter
-templates.env.filters["strip_html"] = strip_html_filter
-templates.env.filters["format_number"] = format_number_filter
+all_templates.env.filters["strftime"] = strftime_filter
+all_templates.env.filters["truncate"] = truncate_filter
+all_templates.env.filters["strip_html"] = strip_html_filter
+all_templates.env.filters["format_number"] = format_number_filter
 
 # Initialize database service
 db_service = Database(mongo_uri=config.MONGO_URI, db_name=config.DB_NAME)
@@ -56,6 +56,7 @@ app.include_router(media.router, prefix=f"{config.API_PREFIX}/media", tags=["Med
 app.include_router(proposals.router, prefix=f"{config.API_PREFIX}/proposals", tags=["Proposals"])
 app.include_router(rewards.router, prefix=f"{config.API_PREFIX}/rewards", tags=["Rewards"])
 app.include_router(special.router, prefix=f"{config.API_PREFIX}/special", tags=["Special Pages"])
+#app.include_router(templates.router, prefix=f"{config.API_PREFIX}/templates", tags=["Template Pages"])
 
 # Include template routes at root level
 app.include_router(templates.router)

@@ -1,9 +1,9 @@
 """
-User-related models for the Cryptopedia application.
+User-related models for the Kryptopedia application.
 """
 from datetime import datetime
-from pydantic import BaseModel, EmailStr, Field
-from typing import Dict, Optional, List
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from typing import Dict, Optional, List, Annotated
 from .base import DBModel, PyObjectId
 
 class UserBase(BaseModel):
@@ -42,8 +42,9 @@ class UserContributions(BaseModel):
     edits_performed: int = Field(default=0, alias="editsPerformed")
     rewards_received: int = Field(default=0, alias="rewardsReceived")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        populate_by_name=True
+    )
 
 class User(UserBase, DBModel):
     """
@@ -55,9 +56,9 @@ class User(UserBase, DBModel):
     reputation: int = 0
     contributions: UserContributions = Field(default_factory=UserContributions)
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
             "example": {
                 "_id": "60d21b4967d0d8992e610c85",
                 "username": "johndoe",
@@ -73,6 +74,7 @@ class User(UserBase, DBModel):
                 }
             }
         }
+    )
 
 class Token(BaseModel):
     """

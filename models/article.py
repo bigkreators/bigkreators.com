@@ -1,9 +1,9 @@
 """
-Article-related models for the Cryptopedia application.
+Article-related models for the Kryptopedia application.
 """
 from datetime import datetime
-from pydantic import BaseModel, Field
-from typing import Dict, List, Optional, Any
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Dict, List, Optional, Any, Annotated
 from .base import DBModel, PyObjectId
 
 class ArticleMetadata(BaseModel):
@@ -14,8 +14,9 @@ class ArticleMetadata(BaseModel):
     has_special_symbols: bool = Field(default=False, alias="hasSpecialSymbols")
     contains_made_up_content: bool = Field(default=False, alias="containsMadeUpContent")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        populate_by_name=True
+    )
 
 class ArticleBase(BaseModel):
     """
@@ -58,9 +59,9 @@ class Article(ArticleBase, DBModel):
     status: str = "published"
     views: int = 0
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
             "example": {
                 "_id": "60d21b4967d0d8992e610c85",
                 "title": "Introduction to Cryptography",
@@ -83,6 +84,7 @@ class Article(ArticleBase, DBModel):
                 "views": 150
             }
         }
+    )
 
 class ArticleWithCreator(Article):
     """
@@ -91,5 +93,6 @@ class ArticleWithCreator(Article):
     creator_username: str = Field(..., alias="creatorUsername")
     creator_reputation: int = Field(..., alias="creatorReputation")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        populate_by_name=True
+    )

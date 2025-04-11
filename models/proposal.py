@@ -1,9 +1,9 @@
 """
-Proposal-related models for the Cryptopedia application.
+Proposal-related models for the Kryptopedia application.
 """
 from datetime import datetime
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Optional, Annotated
 from .base import DBModel, PyObjectId
 
 class ProposalCreate(BaseModel):
@@ -25,9 +25,9 @@ class Proposal(ProposalCreate, DBModel):
     reviewed_at: Optional[datetime] = Field(default=None, alias="reviewedAt")
     review_comment: Optional[str] = Field(default=None, alias="reviewComment")
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
             "example": {
                 "_id": "60d21b4967d0d8992e610c85",
                 "articleId": "60d21b4967d0d8992e610c86",
@@ -41,6 +41,7 @@ class Proposal(ProposalCreate, DBModel):
                 "reviewComment": None
             }
         }
+    )
 
 class ProposalWithMetadata(Proposal):
     """
@@ -50,5 +51,6 @@ class ProposalWithMetadata(Proposal):
     proposer_username: str = Field(..., alias="proposerUsername")
     reviewer_username: Optional[str] = Field(default=None, alias="reviewerUsername")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        populate_by_name=True
+    )

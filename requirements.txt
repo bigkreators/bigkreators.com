@@ -2,7 +2,7 @@
 fastapi==0.104.1
 uvicorn==0.23.2
 motor==3.7
-pydantic==2.4.2
+pydantic>=2.4.2
 pydantic[email]==2.4.2
 python-multipart==0.0.6
 python-dotenv==1.0.0
@@ -13,8 +13,7 @@ python-jose[cryptography]==3.3.0
 passlib==1.7.4
 jinja2==3.1.2
 python-dateutil==2.8.2
-
-# Optional dependencies - uncomment to enable as needed
-# boto3==1.28.65  # For S3 storage
-# elasticsearch==8.10.0  # For Elasticsearch
-# redis==5.0.1  # For Redis caching
+boto3>=1.28  # For S3 storage
+aioboto3>=11.3.0  # For async S3 operations
+elasticsearch==8.10.0  # For Elasticsearch
+redis==5.0.1  # For Redis caching

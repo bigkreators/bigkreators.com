@@ -1,25 +1,22 @@
 """
-Storage dependencies for FastAPI.
+Cache dependencies for FastAPI.
 """
 import config
-from services.storage import get_storage_service, StorageInterface
+from services.cache import get_cache_service, CacheInterface
 
-# Create storage service based on configuration
-storage_service = get_storage_service(
-    storage_type=config.STORAGE_TYPE,
-    media_folder=config.MEDIA_FOLDER,
-    s3_bucket=config.S3_BUCKET,
-    aws_region=config.AWS_REGION,
-    aws_access_key=config.AWS_ACCESS_KEY,
-    aws_secret_key=config.AWS_SECRET_KEY
+# Create cache service based on configuration
+cache_service = get_cache_service(
+    use_redis=config.USE_REDIS,
+    redis_host=config.REDIS_HOST,
+    redis_port=config.REDIS_PORT
 )
 
-async def get_storage() -> StorageInterface:
+async def get_cache() -> CacheInterface:
     """
-    Dependency to get the storage service.
-    Used in route functions that handle file operations.
+    Dependency to get the cache service.
+    Used in route functions that need caching.
     
     Returns:
-        StorageInterface: The storage service
+        CacheInterface: The cache service
     """
-    return storage_service
+    return cache_service

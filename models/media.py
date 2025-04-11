@@ -1,9 +1,9 @@
 """
-Media-related models for the Cryptopedia application.
+Media-related models for the Kryptopedia application.
 """
 from datetime import datetime
-from pydantic import BaseModel, Field
-from typing import Dict, List, Any, Optional
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Dict, List, Any, Optional, Annotated
 from .base import DBModel, PyObjectId
 
 class MediaMetadata(BaseModel):
@@ -13,8 +13,8 @@ class MediaMetadata(BaseModel):
     duration: Optional[int] = None  # For audio/video files, in seconds
     dimensions: Optional[Dict[str, int]] = None  # For images, width/height
     
-    class Config:
-        schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "duration": 120,  # 2 minutes
                 "dimensions": {
@@ -23,6 +23,7 @@ class MediaMetadata(BaseModel):
                 }
             }
         }
+    )
 
 class MediaCreate(BaseModel):
     """
@@ -35,8 +36,9 @@ class MediaCreate(BaseModel):
     path: str
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        populate_by_name=True
+    )
 
 class Media(MediaCreate, DBModel):
     """
@@ -46,9 +48,9 @@ class Media(MediaCreate, DBModel):
     uploaded_at: datetime = Field(default_factory=datetime.now, alias="uploadedAt")
     used_in_articles: List[PyObjectId] = Field(default_factory=list, alias="usedInArticles")
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,
+        json_schema_extra={
             "example": {
                 "_id": "60d21b4967d0d8992e610c85",
                 "filename": "1624356169-example.jpg",
@@ -70,6 +72,7 @@ class Media(MediaCreate, DBModel):
                 ]
             }
         }
+    )
 
 class MediaWithUploader(Media):
     """
@@ -77,5 +80,6 @@ class MediaWithUploader(Media):
     """
     uploader_username: str = Field(..., alias="uploaderUsername")
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(
+        populate_by_name=True
+    )

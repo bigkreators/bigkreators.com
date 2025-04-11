@@ -1,5 +1,5 @@
 """
-Models package for the Cryptopedia application.
+Models package for the Kryptopedia application.
 """
 from .base import PyObjectId, DBModel
 from .user import (
