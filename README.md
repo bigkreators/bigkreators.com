@@ -41,18 +41,9 @@ The easiest way to get started is to use the setup script:
 # Clone the repository
 git clone https://github.com/yourusername/cryptopedia.git
 cd cryptopedia
-
-# Run the setup script
-chmod +x setup.sh
-./setup.sh
 ```
-
-The setup script will:
-1. Create a virtual environment
-2. Install dependencies
-3. Set up the database
-4. Initialize the wiki with sample content
-5. Start the application
+For more information on setup, see [TOC.md].
+For more information on the implementation, see [FRONTEND.md][BACKEND.md].
 
 Once started, visit http://localhost:8000 in your browser.
 
@@ -104,8 +95,6 @@ See [STORAGE.md](STORAGE.md) for more details on storage configuration.
 - **Database**: MongoDB schemas and models
 - **Static Assets**: CSS and JavaScript in `static/` directory
 - **Media**: Uploaded files in `media/` directory (when using local storage)
-
-For more information on the frontend implementation, see [FRONTEND.md](FRONTEND.md).
 
 ## API Documentation
 
