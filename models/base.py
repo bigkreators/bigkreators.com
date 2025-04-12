@@ -1,3 +1,4 @@
+# File: models/base.py
 """
 Base models and shared data types for the Kryptopedia application.
 Pydantic v2 compatible version.
@@ -16,7 +17,7 @@ class PyObjectId(ObjectId):
         yield cls.validate
 
     @classmethod
-    def validate(cls, v):
+    def validate(cls, v, info=None):
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid ObjectId")
         return ObjectId(v)

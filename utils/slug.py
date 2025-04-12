@@ -1,5 +1,6 @@
+# File: utils/slug.py
 """
-Slug generation utilities for the Cryptopedia application.
+Slug generation utilities for the Kryptopedia application.
 """
 import re
 import unicodedata
