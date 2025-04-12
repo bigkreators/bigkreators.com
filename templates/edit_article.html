@@ -6,6 +6,8 @@
 {% set active_page = 'articles' %}
 
 {% block extra_css %}
+<!-- Include a WYSIWYG editor -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <style>
     .editor-container {
         margin-bottom: 20px;
@@ -68,6 +70,23 @@
         border-radius: 8px;
         margin: 20px 0;
     }
+    
+    /* Loading indicator */
+    .loading-indicator {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        border-left-color: #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
 </style>
 {% endblock %}
 
@@ -75,6 +94,7 @@
 <h3>Article Actions</h3>
 <ul>
     <li><a href="/articles/{{ article.slug }}">View Article</a></li>
+    <li><a href="/articles/{{ article._id }}/history">History</a></li>
     <li><a href="/articles">All Articles</a></li>
 </ul>
 {% endblock %}
@@ -106,7 +126,9 @@
     <div class="form-section">
         <div class="form-group">
             <label for="article-content">Content:</label>
-            <textarea id="article-content" name="content" rows="20" required>{{ article.content }}</textarea>
+            <div class="editor-container">
+                <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
+            </div>
         </div>
     </div>
     
@@ -135,6 +157,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- jQuery (required for Summernote) -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<!-- Summernote WYSIWYG editor JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
@@ -143,6 +169,24 @@ document.addEventListener('DOMContentLoaded', function() {
     const editForm = document.getElementById('edit-article-form');
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
+    
+    // Initialize WYSIWYG editor if jQuery and Summernote are available
+    if (typeof $ !== 'undefined' && $.fn.summernote) {
+        $('#article-content').summernote({
+            placeholder: 'Write your article content here...',
+            tabsize: 2,
+            height: 400,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+    }
     
     // Handle auth state
     if (!token) {
@@ -164,9 +208,18 @@ document.addEventListener('DOMContentLoaded', function() {
         editForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const articleTitle = document.getElementById('article-title').value;
-            const articleSummary = document.getElementById('article-summary').value;
-            const articleContent = document.getElementById('article-content').value;
+            // Get form values
+            let articleTitle = document.getElementById('article-title').value;
+            let articleSummary = document.getElementById('article-summary').value;
+            
+            // Get content from WYSIWYG editor if available, otherwise from textarea
+            let articleContent;
+            if (typeof $ !== 'undefined' && $.fn.summernote) {
+                articleContent = $('#article-content').summernote('code');
+            } else {
+                articleContent = document.getElementById('article-content').value;
+            }
+            
             const categoriesInput = document.getElementById('article-categories').value;
             const tagsInput = document.getElementById('article-tags').value;
             const editComment = document.getElementById('edit-comment').value;
@@ -204,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show loading state
             const saveButton = document.getElementById('save-article');
             const originalText = saveButton.textContent;
-            saveButton.textContent = 'Saving...';
+            saveButton.innerHTML = '<span class="loading-indicator"></span>Saving...';
             saveButton.disabled = true;
             
             // Send API request
@@ -242,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .finally(() => {
                 // Reset button state
-                saveButton.textContent = originalText;
+                saveButton.innerHTML = originalText;
                 saveButton.disabled = false;
             });
         });

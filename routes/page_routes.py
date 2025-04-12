@@ -1,3 +1,4 @@
+# File: routes/page_routes.py
 """
 Fixed page_routes.py with restored create article functionality
 """
@@ -7,11 +8,13 @@ from bson import ObjectId
 from typing import Optional, List, Dict, Any
 from datetime import datetime, timedelta
 import random
+import logging
 
 import config
 from dependencies import get_db, get_cache, get_current_user, get_search
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 @router.get("/", response_class=HTMLResponse)
 async def homepage(request: Request, db=Depends(get_db), cache=Depends(get_cache)):
@@ -547,3 +550,417 @@ async def categories_page(request: Request, db=Depends(get_db)):
 async def tags_page(request: Request, db=Depends(get_db)):
     """Redirect to tags page."""
     return RedirectResponse(url="/tags")
+
+@router.get("/categories", response_class=HTMLResponse)
+async def categories_list_page(
+    request: Request,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=200),
+    db=Depends(get_db)
+):
+    """
+    Render the categories list page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Use aggregation to get unique categories and their count
+        pipeline = [
+            {"$match": {"status": "published"}},
+            {"$unwind": "$categories"},
+            {"$group": {"_id": "$categories", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$skip": skip},
+            {"$limit": limit},
+            {"$project": {"name": "$_id", "count": 1, "_id": 0}}
+        ]
+        
+        categories = await db["articles"].aggregate(pipeline).to_list(length=limit)
+        
+        # Get total count
+        total_pipeline = [
+            {"$match": {"status": "published"}},
+            {"$unwind": "$categories"},
+            {"$group": {"_id": "$categories"}},
+            {"$count": "total"}
+        ]
+        
+        total_result = await db["articles"].aggregate(total_pipeline).to_list(length=1)
+        total = total_result[0]["total"] if total_result else 0
+        
+        # Render template
+        return templates.TemplateResponse(
+            "categories.html",
+            {
+                "request": request,
+                "categories": categories,
+                "total": total,
+                "skip": skip,
+                "limit": limit
+            }
+        )
+    except Exception as e:
+        print(f"Error getting categories: {e}")
+        return templates.TemplateResponse(
+            "categories.html",
+            {
+                "request": request,
+                "categories": [],
+                "total": 0,
+                "skip": skip,
+                "limit": limit
+            }
+        )
+
+@router.get("/tags", response_class=HTMLResponse)
+async def tags_list_page(
+    request: Request,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=500),
+    db=Depends(get_db)
+):
+    """
+    Render the tags list page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Use aggregation to get unique tags and their count
+        pipeline = [
+            {"$match": {"status": "published"}},
+            {"$unwind": "$tags"},
+            {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+            {"$sort": {"count": -1}},
+            {"$skip": skip},
+            {"$limit": limit},
+            {"$project": {"name": "$_id", "count": 1, "_id": 0}}
+        ]
+        
+        tags = await db["articles"].aggregate(pipeline).to_list(length=limit)
+        
+        # Get total count
+        total_pipeline = [
+            {"$match": {"status": "published"}},
+            {"$unwind": "$tags"},
+            {"$group": {"_id": "$tags"}},
+            {"$count": "total"}
+        ]
+        
+        total_result = await db["articles"].aggregate(total_pipeline).to_list(length=1)
+        total = total_result[0]["total"] if total_result else 0
+        
+        # Render template
+        return templates.TemplateResponse(
+            "tags.html",
+            {
+                "request": request,
+                "tags": tags,
+                "total": total,
+                "skip": skip,
+                "limit": limit
+            }
+        )
+    except Exception as e:
+        print(f"Error getting tags: {e}")
+        return templates.TemplateResponse(
+            "tags.html",
+            {
+                "request": request,
+                "tags": [],
+                "total": 0,
+                "skip": skip,
+                "limit": limit
+            }
+        )
+
+@router.get("/articles/{article_id}/history", response_class=HTMLResponse)
+async def article_history_page(
+    request: Request,
+    article_id: str,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    db=Depends(get_db)
+):
+    """
+    Render the article history page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Check if article exists
+        if not ObjectId.is_valid(article_id):
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Invalid article ID"},
+                status_code=404
+            )
+        
+        article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+        if not article:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Article not found"},
+                status_code=404
+            )
+        
+        # Get revisions
+        cursor = db["revisions"].find({"articleId": ObjectId(article_id)}).sort("createdAt", -1).skip(skip).limit(limit)
+        revisions = await cursor.to_list(length=limit)
+        
+        # Enhance with user info
+        enhanced_revisions = []
+        for rev in revisions:
+            user = await db["users"].find_one({"_id": rev["createdBy"]})
+            username = user["username"] if user else "Unknown"
+            
+            enhanced_revisions.append({
+                **rev,
+                "creatorUsername": username
+            })
+        
+        # Get total count
+        total = await db["revisions"].count_documents({"articleId": ObjectId(article_id)})
+        
+        # Get current user to check if they're an editor
+        current_user = None
+        try:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.replace("Bearer ", "")
+                from dependencies.auth import get_current_user
+                current_user = await get_current_user(token=token, db=db)
+        except:
+            pass
+        
+        is_editor = current_user and current_user.get("role") in ["admin", "editor"]
+        
+        # Render template
+        return templates.TemplateResponse(
+            "article_history.html",
+            {
+                "request": request,
+                "article": article,
+                "revisions": enhanced_revisions,
+                "total": total,
+                "skip": skip,
+                "limit": limit,
+                "is_editor": is_editor
+            }
+        )
+    except Exception as e:
+        print(f"Error getting article history: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": f"Error loading article history: {str(e)}"},
+            status_code=500
+        )
+
+@router.get("/articles/{article_id}/revisions/{revision_id}", response_class=HTMLResponse)
+async def article_revision_page(
+    request: Request,
+    article_id: str,
+    revision_id: str,
+    db=Depends(get_db)
+):
+    """
+    Render the article revision page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Check if article and revision exist
+        if not ObjectId.is_valid(article_id) or not ObjectId.is_valid(revision_id):
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Invalid ID format"},
+                status_code=404
+            )
+        
+        article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+        if not article:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Article not found"},
+                status_code=404
+            )
+        
+        revision = await db["revisions"].find_one({
+            "_id": ObjectId(revision_id),
+            "articleId": ObjectId(article_id)
+        })
+        
+        if not revision:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Revision not found"},
+                status_code=404
+            )
+        
+        # Get user info
+        user = await db["users"].find_one({"_id": revision["createdBy"]})
+        username = user["username"] if user else "Unknown"
+        
+        # Check if user is editor
+        current_user = None
+        try:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.replace("Bearer ", "")
+                from dependencies.auth import get_current_user
+                current_user = await get_current_user(token=token, db=db)
+        except:
+            pass
+        
+        is_editor = current_user and current_user.get("role") in ["admin", "editor"]
+        
+        # Render template
+        return templates.TemplateResponse(
+            "article_revision.html",
+            {
+                "request": request,
+                "article": article,
+                "revision": {**revision, "creatorUsername": username},
+                "is_editor": is_editor
+            }
+        )
+    except Exception as e:
+        print(f"Error getting article revision: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": f"Error loading revision: {str(e)}"},
+            status_code=500
+        )
+
+@router.get("/articles/{article_id}/compare/{old_id}/{new_id}", response_class=HTMLResponse)
+async def article_compare_page(
+    request: Request,
+    article_id: str,
+    old_id: str,
+    new_id: str,
+    db=Depends(get_db)
+):
+    """
+    Render the article comparison page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Check if article and revisions exist
+        if not ObjectId.is_valid(article_id) or not ObjectId.is_valid(old_id) or not ObjectId.is_valid(new_id):
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Invalid ID format"},
+                status_code=404
+            )
+        
+        article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+        if not article:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Article not found"},
+                status_code=404
+            )
+        
+        old_revision = await db["revisions"].find_one({
+            "_id": ObjectId(old_id),
+            "articleId": ObjectId(article_id)
+        })
+        
+        new_revision = await db["revisions"].find_one({
+            "_id": ObjectId(new_id),
+            "articleId": ObjectId(article_id)
+        })
+        
+        if not old_revision or not new_revision:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "One or both revisions not found"},
+                status_code=404
+            )
+        
+        # Get user info
+        old_user = await db["users"].find_one({"_id": old_revision["createdBy"]})
+        new_user = await db["users"].find_one({"_id": new_revision["createdBy"]})
+        
+        old_revision["creatorUsername"] = old_user["username"] if old_user else "Unknown"
+        new_revision["creatorUsername"] = new_user["username"] if new_user else "Unknown"
+        
+        # Render template
+        return templates.TemplateResponse(
+            "article_compare.html",
+            {
+                "request": request,
+                "article": article,
+                "old_revision": old_revision,
+                "new_revision": new_revision
+            }
+        )
+    except Exception as e:
+        print(f"Error comparing revisions: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": f"Error comparing revisions: {str(e)}"},
+            status_code=500
+        )
+
+@router.get("/articles/{article_id}/revisions/{revision_id}/restore", response_class=HTMLResponse)
+async def article_restore_page(
+    request: Request,
+    article_id: str,
+    revision_id: str,
+    db=Depends(get_db)
+):
+    """
+    Render the article restore confirmation page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Check if article and revision exist
+        if not ObjectId.is_valid(article_id) or not ObjectId.is_valid(revision_id):
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Invalid ID format"},
+                status_code=404
+            )
+        
+        article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+        if not article:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Article not found"},
+                status_code=404
+            )
+        
+        revision = await db["revisions"].find_one({
+            "_id": ObjectId(revision_id),
+            "articleId": ObjectId(article_id)
+        })
+        
+        if not revision:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Revision not found"},
+                status_code=404
+            )
+        
+        # Get user info
+        user = await db["users"].find_one({"_id": revision["createdBy"]})
+        username = user["username"] if user else "Unknown"
+        
+        # Render template
+        return templates.TemplateResponse(
+            "article_restore_confirm.html",
+            {
+                "request": request,
+                "article": article,
+                "revision": {**revision, "creatorUsername": username}
+            }
+        )
+    except Exception as e:
+        print(f"Error loading restore page: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": f"Error loading restore page: {str(e)}"},
+            status_code=500
+        )

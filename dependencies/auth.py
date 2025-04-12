@@ -47,16 +47,23 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db=Depends(get_d
         
         user_id = payload.get("sub")
         if user_id is None:
+            logger.warning("Token missing 'sub' claim")
             raise credentials_exception
-    except JWTError:
+    except JWTError as e:
+        logger.warning(f"JWT error: {e}")
         raise credentials_exception
     
-    # Get user from database
-    user = await db["users"].find_one({"_id": ObjectId(user_id)})
-    if user is None:
+    try:
+        # Get user from database
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if user is None:
+            logger.warning(f"User with ID {user_id} not found")
+            raise credentials_exception
+        
+        return user
+    except Exception as e:
+        logger.error(f"Error retrieving user: {e}")
         raise credentials_exception
-    
-    return user
 
 async def get_current_admin(current_user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
     """
@@ -72,6 +79,7 @@ async def get_current_admin(current_user: Dict[str, Any] = Depends(get_current_u
         HTTPException: If the user is not an admin
     """
     if current_user["role"] != "admin":
+        logger.warning(f"User {current_user['username']} attempted admin action without admin role")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required"
@@ -93,6 +101,7 @@ async def get_current_editor(current_user: Dict[str, Any] = Depends(get_current_
         HTTPException: If the user is not an editor or admin
     """
     if current_user["role"] not in ["admin", "editor"]:
+        logger.warning(f"User {current_user['username']} attempted editor action without editor/admin role")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Editor privileges required"
