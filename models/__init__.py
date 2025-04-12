@@ -1,7 +1,11 @@
+# File: models/__init__.py
 """
 Models package for the Kryptopedia application.
 """
+# First import base models to avoid circular imports
 from .base import PyObjectId, DBModel
+
+# Then import specific models
 from .user import (
     UserBase, UserCreate, UserLogin, UserUpdate, User, 
     UserContributions, Token, TokenData
@@ -22,3 +26,16 @@ from .media import (
 from .reward import (
     RewardCreate, Reward, RewardWithMetadata
 )
+
+# Export all models
+__all__ = [
+    'PyObjectId', 'DBModel',
+    'UserBase', 'UserCreate', 'UserLogin', 'UserUpdate', 'User', 
+    'UserContributions', 'Token', 'TokenData',
+    'ArticleBase', 'ArticleCreate', 'ArticleUpdate', 'Article', 
+    'ArticleWithCreator', 'ArticleMetadata',
+    'RevisionCreate', 'Revision', 'RevisionWithMetadata',
+    'ProposalCreate', 'Proposal', 'ProposalWithMetadata',
+    'MediaCreate', 'Media', 'MediaWithUploader', 'MediaMetadata',
+    'RewardCreate', 'Reward', 'RewardWithMetadata'
+]

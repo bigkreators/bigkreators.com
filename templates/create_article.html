@@ -1,3 +1,4 @@
+```html
 {% extends "base.html" %}
 
 {% block title %}Create Article - Kryptopedia{% endblock %}
@@ -20,6 +21,26 @@
         margin-bottom: 20px;
         font-size: 1.1em;
     }
+
+    /* Added styles for status messages */
+    .status-message {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
 </style>
 {% endblock %}
 
@@ -41,7 +62,11 @@
     <button id="login-to-create" class="primary-button">Login</button>
 </div>
 
-<div id="create-article-form">
+<!-- Status messages -->
+<div id="error-message" class="status-message error-message"></div>
+<div id="success-message" class="status-message success-message"></div>
+
+<form id="create-article-form">
     <div class="form-group">
         <label for="article-title">Title:</label>
         <input type="text" id="article-title" name="title" required>
@@ -83,8 +108,8 @@
         </div>
     </div>
     
-    <button type="button" id="save-article" class="primary-button">Create Article</button>
-</div>
+    <button type="submit" id="save-article" class="primary-button">Create Article</button>
+</form>
 {% endblock %}
 
 {% block modals %}
@@ -142,7 +167,7 @@
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
     $(document).ready(function() {
-        // First, check if user is logged in
+        // Check if user is logged in
         const token = localStorage.getItem('token');
         if (!token) {
             // Show a message that login is required
@@ -152,14 +177,6 @@
             $('#login-to-create').click(function() {
                 // Open login modal
                 $('#login-modal').css('display', 'block');
-                
-                // When login is successful, reload the page
-                $('#login-form').off('submit').on('submit', function(e) {
-                    e.preventDefault();
-                    login(function() {
-                        window.location.reload();
-                    });
-                });
             });
             
             return;
@@ -181,8 +198,23 @@
             ]
         });
         
+        // Show error message function
+        function showError(message) {
+            $('#error-message').text(message).show();
+            setTimeout(function() {
+                $('#error-message').fadeOut();
+            }, 5000);
+        }
+        
+        // Show success message function
+        function showSuccess(message) {
+            $('#success-message').text(message).show();
+        }
+        
         // Handle article creation
-        $('#save-article').click(function() {
+        $('#create-article-form').submit(function(e) {
+            e.preventDefault();
+            
             // Get form values
             const title = $('#article-title').val();
             const summary = $('#article-summary').val();
@@ -198,8 +230,18 @@
             };
             
             // Validate form
-            if (!title || !summary || !content) {
-                alert('Please fill in all required fields.');
+            if (!title) {
+                showError('Please enter a title for the article.');
+                return;
+            }
+            
+            if (!summary) {
+                showError('Please provide a summary for the article.');
+                return;
+            }
+            
+            if (!content || content === '<p><br></p>') {
+                showError('Please enter content for the article.');
                 return;
             }
             
@@ -216,7 +258,7 @@
             // Check token again before submitting
             const currentToken = localStorage.getItem('token');
             if (!currentToken) {
-                alert('Your session has expired. Please login again.');
+                showError('Your session has expired. Please login again.');
                 $('#login-modal').css('display', 'block');
                 return;
             }
@@ -237,18 +279,26 @@
                 if (response.status === 401) {
                     // Token is invalid or expired
                     localStorage.removeItem('token');
-                    alert('Your session has expired. Please login again.');
+                    showError('Your session has expired. Please login again.');
                     $('#login-modal').css('display', 'block');
                     throw new Error('Unauthorized');
                 }
+                
                 if (!response.ok) {
-                    throw new Error('Failed to create article');
+                    return response.json().then(data => {
+                        throw new Error(data.detail || 'Failed to create article');
+                    });
                 }
+                
                 return response.json();
             })
             .then(data => {
-                // Redirect to the new article
-                window.location.href = `/articles/${data.slug}`;
+                showSuccess('Article created successfully!');
+                
+                // Redirect to the new article after a brief delay
+                setTimeout(function() {
+                    window.location.href = `/articles/${data.slug}`;
+                }, 1000);
             })
             .catch(error => {
                 // Reset button
@@ -256,28 +306,67 @@
                 
                 if (error.message !== 'Unauthorized') {
                     console.error('Error creating article:', error);
-                    alert('Failed to create article. Please try again.');
+                    showError(error.message || 'Failed to create article. Please try again.');
                 }
             });
         });
         
-        // Close buttons for modals
+        // Modal functions
         $('.close').click(function() {
             $(this).closest('.modal').css('display', 'none');
         });
         
-        // Close modal when clicking outside
         $(window).click(function(event) {
             if ($(event.target).hasClass('modal')) {
                 $('.modal').css('display', 'none');
             }
         });
         
-        // Register link in login modal
         $('#register-link').click(function(e) {
             e.preventDefault();
             $('#login-modal').css('display', 'none');
             $('#register-modal').css('display', 'block');
+        });
+        
+        // Handle login form submission
+        $('#login-form').submit(function(e) {
+            e.preventDefault();
+            
+            const email = $('#email').val();
+            const password = $('#password').val();
+            
+            // Create form data for OAuth2 format
+            const formData = new URLSearchParams();
+            formData.append('username', email); // API expects username field
+            formData.append('password', password);
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Login failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Store token
+                localStorage.setItem('token', data.access_token);
+                
+                // Close modal
+                $('#login-modal').css('display', 'none');
+                
+                // Reload page
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error logging in:', error);
+                showError('Login failed. Please check your credentials and try again.');
+            });
         });
         
         // Handle register form submission
@@ -290,7 +379,7 @@
             const confirmPassword = $('#reg-confirm-password').val();
             
             if (password !== confirmPassword) {
-                alert('Passwords do not match!');
+                showError('Passwords do not match!');
                 return;
             }
             
@@ -309,61 +398,23 @@
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Registration failed');
+                    return response.json().then(data => {
+                        throw new Error(data.detail || 'Registration failed');
+                    });
                 }
                 return response.json();
             })
             .then(data => {
                 $('#register-modal').css('display', 'none');
-                alert('Registration successful! Please log in.');
+                showSuccess('Registration successful! Please log in.');
                 $('#login-modal').css('display', 'block');
             })
             .catch(error => {
                 console.error('Error registering:', error);
-                alert('Registration failed. Please try again with a different username or email.');
+                showError(error.message || 'Registration failed. Please try again with a different username or email.');
             });
         });
     });
-
-    // Helper function for login
-    function login(callback) {
-        const email = $('#email').val();
-        const password = $('#password').val();
-        
-        // Create form data
-        const formData = new FormData();
-        formData.append('username', email);
-        formData.append('password', password);
-        
-        fetch('/api/auth/login', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Login failed');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Store token
-            localStorage.setItem('token', data.access_token);
-            
-            // Close modal
-            $('#login-modal').css('display', 'none');
-            
-            // Call the callback function if provided
-            if (typeof callback === 'function') {
-                callback();
-            } else {
-                // Reload page if no callback
-                window.location.reload();
-            }
-        })
-        .catch(error => {
-            console.error('Error logging in:', error);
-            alert('Login failed. Please check your credentials and try again.');
-        });
-    }
 </script>
 {% endblock %}
+```

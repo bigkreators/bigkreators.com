@@ -1,0 +1,67 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Forbidden - Kryptopedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 40px 20px;
+    }
+    
+    .error-code {
+        font-size: 6em;
+        font-weight: bold;
+        color: #ddd;
+        margin-bottom: 10px;
+    }
+    
+    .error-message {
+        font-size: 1.5em;
+        margin-bottom: 30px;
+    }
+    
+    .error-details {
+        margin-bottom: 20px;
+        color: #666;
+    }
+    
+    .error-actions {
+        margin-top: 30px;
+    }
+    
+    .error-actions a {
+        margin: 0 10px;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    
+    .error-actions a:hover {
+        background-color: #053a7a;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-code">403</div>
+    <div class="error-message">{{ message or 'Access Forbidden' }}</div>
+    <div class="error-details">
+        You don't have permission to access this page.
+    </div>
+    
+    <div class="error-actions">
+        <a href="/">Go to Homepage</a>
+        <a href="javascript:history.back()">Go Back</a>
+        <a href="/login" id="login-link">Login</a>
+    </div>
+</div>
+{% endblock %}
+```

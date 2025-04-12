@@ -1,78 +1,55 @@
-/* Recent Changes Page Styles - Add these to the end of your style.css file */
+/* File: static/style.css */
+/* Add these styles to your existing CSS */
 
-/* Table styles for the recent changes page */
-.changes-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-}
-
-.changes-table th,
-.changes-table td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-}
-
-.changes-table th {
+/* Code block styling */
+pre {
     background-color: #f5f5f5;
-    font-weight: bold;
-}
-
-.changes-table tr:hover {
-    background-color: #f9f9f9;
-}
-
-/* Pagination for recent changes */
-.pagination {
-    display: flex;
-    justify-content: center;
-    margin: 20px 0;
-}
-
-.page-link {
-    padding: 8px 12px;
-    margin: 0 5px;
     border: 1px solid #ddd;
-    color: #0645ad;
-    text-decoration: none;
-    border-radius: 3px;
+    border-radius: 4px;
+    padding: 10px;
+    overflow-x: auto;
+    font-family: monospace;
+    margin: 15px 0;
 }
 
-.page-link:hover {
+code {
+    font-family: monospace;
     background-color: #f5f5f5;
-}
-
-.page-info {
-    padding: 8px 12px;
-    margin: 0 10px;
-}
-
-/* Message for when no changes are found */
-.no-changes {
-    text-align: center;
-    padding: 30px;
-    background-color: #f9f9f9;
+    padding: 2px 4px;
     border-radius: 4px;
 }
 
-/* Styles for the filter buttons */
-.filter-active {
-    font-weight: bold;
-    background-color: #e9ecef;
-    padding: 3px 8px;
-    border-radius: 3px;
+pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    display: block;
 }
 
-/* Different colors for different activity types */
-.activity-new {
-    color: #28a745;
+/* Language-specific code highlighting */
+.language-html, .language-css, .language-javascript, .language-python {
+    color: #333;
 }
 
-.activity-edit {
-    color: #007bff;
+.language-html .tag {
+    color: #0000ff;
 }
 
-.activity-proposal {
-    color: #fd7e14;
+.language-css .property {
+    color: #0000ff;
+}
+
+.language-javascript .keyword {
+    color: #0000ff;
+}
+
+.language-python .keyword {
+    color: #0000ff;
+}
+
+/* Fix for code block display issues */
+.article-content pre,
+.article-content code {
+    white-space: pre-wrap;
+    word-break: break-word;
 }

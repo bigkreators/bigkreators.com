@@ -1,8 +1,11 @@
+# File: utils/template_filters.py
 """
 Template filters for the Kryptopedia application.
 """
 from datetime import datetime
 from typing import Optional, Any
+import re
+import html
 
 def strftime_filter(date: Any, format_str: str = '%Y-%m-%d %H:%M:%S') -> str:
     """
@@ -124,3 +127,25 @@ def format_number_filter(number: Any, decimals: int = 0, thousands_sep: str = ',
         return formatted
     except (ValueError, TypeError):
         return str(number)
+
+def safe_code_blocks_filter(text: str) -> str:
+    """
+    Safely escape code blocks in text to prevent rendering issues.
+    
+    Args:
+        text: The text that may contain code blocks
+        
+    Returns:
+        str: Text with safely escaped code blocks
+    """
+    if not text:
+        return ""
+    
+    # Fix markdown-style code blocks
+    pattern = r'```(\w*)\n(.*?)```'
+    replacement = r'<pre><code class="language-\1">\2</code></pre>'
+    
+    # Replace with re.DOTALL to match across multiple lines
+    result = re.sub(pattern, replacement, text, flags=re.DOTALL)
+    
+    return result

@@ -1,10 +1,11 @@
+# File: config.py
 """
 Configuration settings for the Kryptopedia application.
 Loads environment variables and provides configuration for various components.
 """
 import os
 from dotenv import load_dotenv
-from typing import Optional
+from typing import Optional, List
 
 # Load environment variables from .env file
 load_dotenv()
@@ -37,8 +38,10 @@ USE_REDIS = os.getenv("USE_REDIS", "False").lower() == "true"
 REDIS_HOST = os.getenv("REDIS_HOST", "localhost") if USE_REDIS else None
 REDIS_PORT = int(os.getenv("REDIS_PORT", "6379")) if USE_REDIS else None
 
-# Template directory
+# Template directory and settings
 TEMPLATES_DIR = os.getenv("TEMPLATES_DIR", "templates")
+TEMPLATES_AUTO_RELOAD = os.getenv("TEMPLATES_AUTO_RELOAD", "True").lower() == "true"
+TEMPLATES_CACHE_SIZE = int(os.getenv("TEMPLATES_CACHE_SIZE", "300"))
 
 # API settings
 API_PREFIX = os.getenv("API_PREFIX", "/api")
@@ -67,6 +70,8 @@ def get_settings():
         "redis_host": REDIS_HOST,
         "redis_port": REDIS_PORT,
         "templates_dir": TEMPLATES_DIR,
+        "templates_auto_reload": TEMPLATES_AUTO_RELOAD,
+        "templates_cache_size": TEMPLATES_CACHE_SIZE,
         "api_prefix": API_PREFIX,
         "api_debug": API_DEBUG,
         "cors_origins": CORS_ORIGINS,

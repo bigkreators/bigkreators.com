@@ -1,18 +1,20 @@
-"""
-Routes package for the Kryptopedia application.
-"""
-# Import route modules to make them available for including in the main app
 try:
-    from . import auth, articles, media, proposals, rewards, special, templates
+    from . import special
 except ImportError as e:
-    print(f"Warning: Could not import all routes: {e}")
+    print(f"Warning: Could not import special routes: {e}")
 
+try:
+    from . import page_routes
+except ImportError as e:
+    print(f"Warning: Could not import page routes: {e}")
+
+# Export modules
 __all__ = [
-    'auth', 
-    'articles', 
-    'media', 
-    'proposals', 
-    'rewards', 
-    'special', 
-    'templates'
+    'auth',
+    'articles',
+    'media',
+    'proposals',
+    'rewards',
+    'special',
+    'page_routes'
 ]

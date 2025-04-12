@@ -1,0 +1,263 @@
+<!-- File: templates/edit_article.html -->
+{% extends "base.html" %}
+
+{% block title %}Edit Article - Kryptopedia{% endblock %}
+
+{% set active_page = 'articles' %}
+
+{% block extra_css %}
+<!-- Include a WYSIWYG editor -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<style>
+    .status-message {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .edit-summary {
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Article Actions</h3>
+<ul>
+    <li><a href="/articles/{{ article.slug }}">View Article</a></li>
+    <li><a href="/articles/{{ article.slug }}/history">View History</a></li>
+    <li><a href="/articles">All Articles</a></li>
+</ul>
+
+<h3>Editing Guidelines</h3>
+<ul>
+    <li><a href="/help/formatting">Formatting Guide</a></li>
+    <li><a href="/help/references">Adding References</a></li>
+    <li><a href="/help/media">Adding Media</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1>Edit Article: {{ article.title }}</h1>
+
+<!-- Status messages -->
+<div id="error-message" class="status-message error-message"></div>
+<div id="success-message" class="status-message success-message"></div>
+
+<form id="edit-article-form">
+    <div class="form-group">
+        <label for="article-title">Title:</label>
+        <input type="text" id="article-title" name="title" value="{{ article.title }}" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="article-summary">Summary:</label>
+        <textarea id="article-summary" name="summary" rows="3" required>{{ article.summary }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="article-content">Content:</label>
+        <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="article-categories">Categories (comma-separated):</label>
+        <input type="text" id="article-categories" name="categories" value="{{ article.categories|join(', ') }}">
+    </div>
+    
+    <div class="form-group">
+        <label for="article-tags">Tags (comma-separated):</label>
+        <input type="text" id="article-tags" name="tags" value="{{ article.tags|join(', ') }}">
+    </div>
+    
+    <div class="form-group metadata-checkboxes">
+        <label>Article Contains:</label>
+        <div>
+            <input type="checkbox" id="has-audio" name="hasAudio" {% if article.metadata.hasAudio %}checked{% endif %}>
+            <label for="has-audio">Audio</label>
+        </div>
+        <div>
+            <input type="checkbox" id="has-special-symbols" name="hasSpecialSymbols" {% if article.metadata.hasSpecialSymbols %}checked{% endif %}>
+            <label for="has-special-symbols">Special Symbols</label>
+        </div>
+        <div>
+            <input type="checkbox" id="contains-made-up-content" name="containsMadeUpContent" {% if article.metadata.containsMadeUpContent %}checked{% endif %}>
+            <label for="contains-made-up-content">Made-up Content</label>
+        </div>
+    </div>
+
+    <div class="form-group edit-summary">
+        <label for="edit-comment">Edit Summary (briefly describe your changes):</label>
+        <input type="text" id="edit-comment" name="editComment" placeholder="E.g., Fixed typos, added new section, etc.">
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" id="save-article" class="primary-button">Save Changes</button>
+        <a href="/articles/{{ article.slug }}" class="action-button">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery and Summernote -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Check if user is logged in
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // Redirect to article view if not logged in
+            window.location.href = '/articles/{{ article.slug }}';
+            return;
+        }
+
+        // Initialize Summernote editor
+        $('#article-content').summernote({
+            placeholder: 'Write your article content here...',
+            tabsize: 2,
+            height: 400,
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'underline', 'clear']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture']],
+                ['view', ['fullscreen', 'codeview', 'help']]
+            ]
+        });
+        
+        // Show error message function
+        function showError(message) {
+            $('#error-message').text(message).show();
+            setTimeout(function() {
+                $('#error-message').fadeOut();
+            }, 5000);
+        }
+        
+        // Show success message function
+        function showSuccess(message) {
+            $('#success-message').text(message).show();
+        }
+        
+        // Handle article update
+        $('#edit-article-form').submit(function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            const title = $('#article-title').val();
+            const summary = $('#article-summary').val();
+            const content = $('#article-content').summernote('code');
+            const categories = $('#article-categories').val().split(',').map(item => item.trim()).filter(item => item !== '');
+            const tags = $('#article-tags').val().split(',').map(item => item.trim()).filter(item => item !== '');
+            
+            // Get metadata
+            const metadata = {
+                hasAudio: $('#has-audio').is(':checked'),
+                hasSpecialSymbols: $('#has-special-symbols').is(':checked'),
+                containsMadeUpContent: $('#contains-made-up-content').is(':checked')
+            };
+            
+            // Get edit comment
+            const editComment = $('#edit-comment').val() || 'Updated article';
+            
+            // Validate form
+            if (!title) {
+                showError('Please enter a title for the article.');
+                return;
+            }
+            
+            if (!summary) {
+                showError('Please provide a summary for the article.');
+                return;
+            }
+            
+            if (!content || content === '<p><br></p>') {
+                showError('Please enter content for the article.');
+                return;
+            }
+            
+            // Create article data object
+            const articleData = {
+                title,
+                summary,
+                content,
+                categories,
+                tags,
+                metadata,
+                editComment
+            };
+            
+            // Check token again before submitting
+            const currentToken = localStorage.getItem('token');
+            if (!currentToken) {
+                showError('Your session has expired. Please login again.');
+                return;
+            }
+            
+            // Show loading indicator
+            $('#save-article').text('Saving...').prop('disabled', true);
+            
+            // Send API request
+            fetch('/api/articles/{{ article._id }}', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`
+                },
+                body: JSON.stringify(articleData)
+            })
+            .then(response => {
+                if (response.status === 401) {
+                    // Token is invalid or expired
+                    localStorage.removeItem('token');
+                    showError('Your session has expired. Please login again.');
+                    throw new Error('Unauthorized');
+                }
+                
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.detail || 'Failed to update article');
+                    });
+                }
+                
+                return response.json();
+            })
+            .then(data => {
+                showSuccess('Article updated successfully!');
+                
+                // Redirect to the article page after a brief delay
+                setTimeout(function() {
+                    window.location.href = `/articles/${data.slug}`;
+                }, 1000);
+            })
+            .catch(error => {
+                // Reset button
+                $('#save-article').text('Save Changes').prop('disabled', false);
+                
+                if (error.message !== 'Unauthorized') {
+                    console.error('Error updating article:', error);
+                    showError(error.message || 'Failed to update article. Please try again.');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,9 +1,10 @@
+# File: models/article.py
 """
 Article-related models for the Kryptopedia application.
 """
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Dict, List, Optional, Any, Annotated
+from typing import Dict, List, Optional, Any, Union
 from .base import DBModel, PyObjectId
 
 class ArticleMetadata(BaseModel):
@@ -27,7 +28,11 @@ class ArticleBase(BaseModel):
     summary: str
     categories: List[str] = []
     tags: List[str] = []
-    metadata: ArticleMetadata = Field(default_factory=ArticleMetadata)
+    metadata: Union[ArticleMetadata, Dict[str, Any]] = Field(default_factory=ArticleMetadata)
+
+    model_config = ConfigDict(
+        populate_by_name=True
+    )
 
 class ArticleCreate(ArticleBase):
     """
@@ -44,7 +49,12 @@ class ArticleUpdate(BaseModel):
     summary: Optional[str] = None
     categories: Optional[List[str]] = None
     tags: Optional[List[str]] = None
-    metadata: Optional[ArticleMetadata] = None
+    metadata: Optional[Union[ArticleMetadata, Dict[str, Any]]] = None
+    editComment: Optional[str] = None  # Comment describing the edit
+
+    model_config = ConfigDict(
+        populate_by_name=True
+    )
 
 class Article(ArticleBase, DBModel):
     """

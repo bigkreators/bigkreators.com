@@ -1,0 +1,58 @@
+```html
+{% extends "base.html" %}
+
+{% block title %}Error - Kryptopedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 40px 20px;
+    }
+    
+    .error-code {
+        font-size: 6em;
+        font-weight: bold;
+        color: #ddd;
+        margin-bottom: 10px;
+    }
+    
+    .error-message {
+        font-size: 1.5em;
+        margin-bottom: 30px;
+    }
+    
+    .error-actions {
+        margin-top: 30px;
+    }
+    
+    .error-actions a {
+        margin: 0 10px;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    
+    .error-actions a:hover {
+        background-color: #053a7a;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-code">Error</div>
+    <div class="error-message">{{ message or 'An unexpected error occurred' }}</div>
+    
+    <div class="error-actions">
+        <a href="/">Go to Homepage</a>
+        <a href="javascript:history.back()">Go Back</a>
+    </div>
+</div>
+{% endblock %}
+```
