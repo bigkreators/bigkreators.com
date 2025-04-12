@@ -1,4 +1,4 @@
-```html
+<!-- File: templates/create_article.html -->
 {% extends "base.html" %}
 
 {% block title %}Create Article - Kryptopedia{% endblock %}
@@ -22,7 +22,7 @@
         font-size: 1.1em;
     }
 
-    /* Added styles for status messages */
+    /* Status messages */
     .status-message {
         padding: 10px 15px;
         border-radius: 4px;
@@ -40,6 +40,23 @@
         background-color: #d4edda;
         border: 1px solid #c3e6cb;
         color: #155724;
+    }
+    
+    /* Loading indicator */
+    .loading-indicator {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        border-left-color: #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
 </style>
 {% endblock %}
@@ -112,55 +129,6 @@
 </form>
 {% endblock %}
 
-{% block modals %}
-<!-- Login Modal -->
-<div id="login-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Login to Kryptopedia</h2>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="#" id="register-link">Register</a></p>
-    </div>
-</div>
-
-<!-- Register Modal -->
-<div id="register-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Register for Kryptopedia</h2>
-        <form id="register-form">
-            <div class="form-group">
-                <label for="reg-username">Username:</label>
-                <input type="text" id="reg-username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="reg-email">Email:</label>
-                <input type="email" id="reg-email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="reg-password">Password:</label>
-                <input type="password" id="reg-password" name="password" required>
-            </div>
-            <div class="form-group">
-                <label for="reg-confirm-password">Confirm Password:</label>
-                <input type="password" id="reg-confirm-password" name="confirm-password" required>
-            </div>
-            <button type="submit">Register</button>
-        </form>
-    </div>
-</div>
-{% endblock %}
-
 {% block extra_js %}
 <!-- jQuery and Summernote -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -177,6 +145,14 @@
             $('#login-to-create').click(function() {
                 // Open login modal
                 $('#login-modal').css('display', 'block');
+                
+                // When login is successful, reload the page
+                $('#login-form').off('submit').on('submit', function(e) {
+                    e.preventDefault();
+                    login(function() {
+                        window.location.reload();
+                    });
+                });
             });
             
             return;
@@ -264,10 +240,12 @@
             }
             
             // Show loading indicator
-            $('#save-article').text('Creating...').prop('disabled', true);
+            const saveButton = $('#save-article');
+            const originalButtonText = saveButton.text();
+            saveButton.html('<span class="loading-indicator"></span> Creating...').prop('disabled', true);
             
-            // Send API request
-            fetch('/api/articles', {
+            // Send API request with trailing slash
+            fetch('/api/articles/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -276,6 +254,8 @@
                 body: JSON.stringify(articleData)
             })
             .then(response => {
+                console.log('Status code:', response.status);
+                
                 if (response.status === 401) {
                     // Token is invalid or expired
                     localStorage.removeItem('token');
@@ -285,14 +265,21 @@
                 }
                 
                 if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.detail || 'Failed to create article');
+                    return response.text().then(text => {
+                        console.error('Error response:', text);
+                        try {
+                            const data = JSON.parse(text);
+                            throw new Error(data.detail || 'Failed to create article');
+                        } catch (e) {
+                            throw new Error('Failed to create article: ' + text);
+                        }
                     });
                 }
                 
                 return response.json();
             })
             .then(data => {
+                console.log('Article created successfully:', data);
                 showSuccess('Article created successfully!');
                 
                 // Redirect to the new article after a brief delay
@@ -302,7 +289,7 @@
             })
             .catch(error => {
                 // Reset button
-                $('#save-article').text('Create Article').prop('disabled', false);
+                saveButton.text(originalButtonText).prop('disabled', false);
                 
                 if (error.message !== 'Unauthorized') {
                     console.error('Error creating article:', error);
@@ -310,111 +297,50 @@
                 }
             });
         });
-        
-        // Modal functions
-        $('.close').click(function() {
-            $(this).closest('.modal').css('display', 'none');
-        });
-        
-        $(window).click(function(event) {
-            if ($(event.target).hasClass('modal')) {
-                $('.modal').css('display', 'none');
-            }
-        });
-        
-        $('#register-link').click(function(e) {
-            e.preventDefault();
-            $('#login-modal').css('display', 'none');
-            $('#register-modal').css('display', 'block');
-        });
-        
-        // Handle login form submission
-        $('#login-form').submit(function(e) {
-            e.preventDefault();
-            
-            const email = $('#email').val();
-            const password = $('#password').val();
-            
-            // Create form data for OAuth2 format
-            const formData = new URLSearchParams();
-            formData.append('username', email); // API expects username field
-            formData.append('password', password);
-            
-            fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Login failed');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Store token
-                localStorage.setItem('token', data.access_token);
-                
-                // Close modal
-                $('#login-modal').css('display', 'none');
-                
-                // Reload page
-                window.location.reload();
-            })
-            .catch(error => {
-                console.error('Error logging in:', error);
-                showError('Login failed. Please check your credentials and try again.');
-            });
-        });
-        
-        // Handle register form submission
-        $('#register-form').submit(function(e) {
-            e.preventDefault();
-            
-            const username = $('#reg-username').val();
-            const email = $('#reg-email').val();
-            const password = $('#reg-password').val();
-            const confirmPassword = $('#reg-confirm-password').val();
-            
-            if (password !== confirmPassword) {
-                showError('Passwords do not match!');
-                return;
-            }
-            
-            const userData = {
-                username: username,
-                email: email,
-                password: password
-            };
-            
-            fetch('/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(userData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.detail || 'Registration failed');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                $('#register-modal').css('display', 'none');
-                showSuccess('Registration successful! Please log in.');
-                $('#login-modal').css('display', 'block');
-            })
-            .catch(error => {
-                console.error('Error registering:', error);
-                showError(error.message || 'Registration failed. Please try again with a different username or email.');
-            });
-        });
     });
+
+    // Helper function for login
+    function login(callback) {
+        const email = $('#email').val();
+        const password = $('#password').val();
+        
+        // Create form data for OAuth2 format
+        const formData = new URLSearchParams();
+        formData.append('username', email); // API expects username field
+        formData.append('password', password);
+        
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Login failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Store token
+            localStorage.setItem('token', data.access_token);
+            
+            // Close modal
+            $('#login-modal').css('display', 'none');
+            
+            // Call the callback function if provided
+            if (typeof callback === 'function') {
+                callback();
+            } else {
+                // Reload page if no callback
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error logging in:', error);
+            alert('Login failed. Please check your credentials and try again.');
+        });
+    }
 </script>
 {% endblock %}
-```

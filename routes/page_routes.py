@@ -1,6 +1,6 @@
 """
-Template routes for the Kryptopedia application.
-Uses the shared template engine instance.
+Page routes for the Kryptopedia application.
+Uses the template engine instance from the main application.
 """
 from fastapi import APIRouter, Depends, HTTPException, Request, Path, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -11,9 +11,6 @@ from datetime import datetime
 import config
 from dependencies import get_db, get_cache
 
-# Import the shared template instance
-from template_engine import templates
-
 router = APIRouter()
 
 @router.get("/", response_class=HTMLResponse)
@@ -21,6 +18,9 @@ async def homepage(request: Request, db=Depends(get_db), cache=Depends(get_cache
     """
     Render the homepage template.
     """
+    # Get the templates instance from the app state
+    templates = request.app.state.templates
+    
     # Try to get featured article from cache
     featured_article = await cache.get("featured_article")
     
@@ -67,6 +67,8 @@ async def article_page(
     """
     Render an article page.
     """
+    templates = request.app.state.templates
+    
     # Try to find article by slug
     article = await db["articles"].find_one({"slug": slug, "status": "published"})
     
@@ -109,6 +111,8 @@ async def articles_list_page(
     """
     Render the articles list page.
     """
+    templates = request.app.state.templates
+    
     # Build query
     query = {"status": "published"}
     if category:
@@ -142,6 +146,7 @@ async def create_article_page(request: Request):
     """
     Render the article creation page.
     """
+    templates = request.app.state.templates
     return templates.TemplateResponse(
         "create_article.html",
         {"request": request}
@@ -156,6 +161,7 @@ async def search_page(
     """
     Render the search results page.
     """
+    templates = request.app.state.templates
     results = []
     
     if q:
@@ -195,73 +201,3 @@ async def random_article(db=Depends(get_db)):
     
     # Redirect to the random article
     return RedirectResponse(url=f"/articles/{results[0]['slug']}")
-
-@router.get("/recent-changes", response_class=HTMLResponse)
-async def recent_changes_page(
-    request: Request,
-    filter: Optional[str] = None,
-    skip: int = Query(0, ge=0),
-    limit: int = Query(20, ge=1, le=100),
-    db=Depends(get_db),
-    cache=Depends(get_cache)
-):
-    """
-    Render the recent changes page.
-    """
-    # Try to get from cache
-    cache_key = f"recentchanges:{filter}:{skip}:{limit}"
-    changes = await cache.get(cache_key)
-    total = await cache.get(f"recentchanges_total:{filter}")
-    
-    # If not in cache, fetch from database
-    if changes is None:
-        # Build filter query
-        query = {}
-        if filter == "edits":
-            query["type"] = "revision"
-        elif filter == "new":
-            query["isNew"] = True
-        elif filter == "proposals":
-            query["type"] = "proposal"
-        
-        # Get recent revisions
-        rev_cursor = db["revisions"].find().sort("createdAt", -1).skip(skip).limit(limit)
-        revisions = await rev_cursor.to_list(length=limit)
-        
-        # Get total count for pagination
-        total = await db["revisions"].count_documents({})
-        
-        # Enhance with article info
-        changes = []
-        for rev in revisions:
-            article = await db["articles"].find_one({"_id": rev["articleId"]})
-            user = await db["users"].find_one({"_id": rev["createdBy"]})
-            
-            if article and user:
-                changes.append({
-                    "type": "revision",
-                    "id": str(rev["_id"]),
-                    "timestamp": rev["createdAt"],
-                    "articleId": str(rev["articleId"]),
-                    "articleTitle": article.get("title", "Unknown"),
-                    "userId": str(rev["createdBy"]),
-                    "username": user.get("username", "Unknown"),
-                    "comment": rev.get("comment", "")
-                })
-        
-        # Cache results for 5 minutes
-        await cache.set(cache_key, changes, 300)
-        await cache.set(f"recentchanges_total:{filter}", total, 300)
-    
-    # Render template
-    return templates.TemplateResponse(
-        "recent_changes.html",
-        {
-            "request": request,
-            "changes": changes,
-            "total": total,
-            "skip": skip,
-            "limit": limit,
-            "filter": filter
-        }
-    )
