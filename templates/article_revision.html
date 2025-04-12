@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}Revision: {{ article.title }} - Kryptopedia{% endblock %}
+
+{% set active_page = 'articles' %}
+
+{% block sidebar_extra %}
+<h3>Article Actions</h3>
+<ul>
+    <li><a href="/articles/{{ article.slug }}">Current Version</a></li>
+    <li><a href="/articles/{{ article._id }}/history">History</a></li>
+    {% if is_editor %}
+    <li><a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="auth-required">Restore This Version</a></li>
+    {% endif %}
+</ul>
+
+<div class="revision-info">
+    <h3>Revision Information</h3>
+    <dl>
+        <dt>Date:</dt>
+        <dd>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</dd>
+        
+        <dt>Author:</dt>
+        <dd>{{ revision.creatorUsername }}</dd>
+        
+        <dt>Comment:</dt>
+        <dd>{{ revision.comment or "No comment" }}</dd>
+    </dl>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="article-header">
+    <h1>{{ article.title }} <small>(Revision)</small></h1>
+    <div class="revision-banner">
+        <div class="revision-notice">
+            <strong>Note:</strong> You are viewing an old version of this article.
+            <a href="/articles/{{ article.slug }}">View current version</a>
+        </div>
+    </div>
+</div>
+
+{% if article.categories %}
+<div class="article-categories">
+    Categories:
+    {% for category in article.categories %}
+    <a href="/articles?category={{ category }}" class="category-tag">{{ category }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="article-content">
+    {{ revision.content|safe }}
+</div>
+
+{% if article.tags %}
+<div class="article-tags">
+    Tags:
+    {% for tag in article.tags %}
+    <a href="/articles?tag={{ tag }}" class="tag">{{ tag }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="revision-actions">
+    <a href="/articles/{{ article.slug }}" class="action-button">View Current Version</a>
+    <a href="/articles/{{ article._id }}/history" class="action-button">View History</a>
+    {% if is_editor %}
+    <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="action-button auth-required">Restore This Version</a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .revision-banner {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        padding: 10px 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+    
+    .revision-notice {
+        color: #856404;
+    }
+    
+    .revision-notice a {
+        color: #0645ad;
+        text-decoration: underline;
+    }
+    
+    .revision-info {
+        margin-top: 20px;
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    
+    .revision-info dt {
+        font-weight: bold;
+        margin-top: 8px;
+    }
+    
+    .revision-info dd {
+        margin-left: 10px;
+        margin-bottom: 5px;
+    }
+    
+    .revision-actions {
+        margin-top: 30px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .action-button {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .action-button:hover {
+        background-color: #053a7a;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle auth-required elements visibility
+    const token = localStorage.getItem('token');
+    const authElements = document.querySelectorAll('.auth-required');
+    
+    if (token) {
+        authElements.forEach(element => {
+            element.classList.remove('hidden');
+        });
+    }
+});
+</script>
+{% endblock %}

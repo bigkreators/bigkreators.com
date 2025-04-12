@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Revision History: {{ article.title }} - Kryptopedia{% endblock %}
+
+{% set active_page = 'articles' %}
+
+{% block sidebar_extra %}
+<h3>Article Actions</h3>
+<ul>
+    <li><a href="/articles/{{ article.slug }}">View Article</a></li>
+    <li><a href="/edit-article/{{ article._id }}" class="auth-required">Edit Article</a></li>
+    <li><a href="/articles/{{ article._id }}/propose" class="auth-required">Propose Edit</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="article-header">
+    <h1>Revision History: {{ article.title }}</h1>
+    <p class="article-info">
+        Showing the edit history for this article. Select any two revisions to compare them.
+    </p>
+</div>
+
+<div class="revision-controls">
+    <form id="compare-form">
+        <button type="submit" id="compare-button" disabled>Compare Selected Revisions</button>
+    </form>
+</div>
+
+<div class="history-list">
+    {% if revisions %}
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Compare</th>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Comment</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for revision in revisions %}
+                <tr>
+                    <td class="compare-checkbox">
+                        <input type="checkbox" name="compare" value="{{ revision._id }}" class="revision-checkbox">
+                    </td>
+                    <td>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ revision.creatorUsername }}</td>
+                    <td>{{ revision.comment or "No comment" }}</td>
+                    <td class="revision-actions">
+                        <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}" class="action-link">View</a>
+                        {% if is_editor %}
+                        <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="action-link auth-required">Restore</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        {% if total > limit %}
+        <div class="pagination">
+            {% if skip > 0 %}
+            <a href="/articles/{{ article._id }}/history?skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
+            {% endif %}
+            
+            <span class="page-info">Showing {{ skip + 1 }}-{{ min(skip + limit, total) }} of {{ total }}</span>
+            
+            {% if skip + limit < total %}
+            <a href="/articles/{{ article._id }}/history?skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="no-revisions">
+            <p>No revision history found for this article.</p>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    
+    .history-table th, .history-table td {
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .history-table th {
+        background-color: #f5f5f5;
+        text-align: left;
+    }
+    
+    .history-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .compare-checkbox {
+        text-align: center;
+    }
+    
+    .revision-actions {
+        white-space: nowrap;
+    }
+    
+    .action-link {
+        display: inline-block;
+        padding: 3px 8px;
+        margin: 0 2px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 3px;
+        font-size: 12px;
+    }
+    
+    .action-link:hover {
+        background-color: #053a7a;
+    }
+    
+    .revision-controls {
+        margin: 20px 0;
+    }
+    
+    #compare-button {
+        padding: 8px 16px;
+    }
+    
+    .article-info {
+        color: #666;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle revision comparison checkboxes
+    const checkboxes = document.querySelectorAll('.revision-checkbox');
+    const compareButton = document.getElementById('compare-button');
+    const compareForm = document.getElementById('compare-form');
+    
+    // Track selected revisions
+    let selectedRevisions = [];
+    
+    // Update button state based on selection
+    function updateCompareButton() {
+        compareButton.disabled = selectedRevisions.length !== 2;
+    }
+    
+    // Add event listeners to checkboxes
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                // Add to selected revisions
+                selectedRevisions.push(this.value);
+                
+                // Limit to two selections
+                if (selectedRevisions.length > 2) {
+                    // Uncheck the first one
+                    const firstId = selectedRevisions.shift();
+                    const firstCheckbox = document.querySelector(`.revision-checkbox[value="${firstId}"]`);
+                    if (firstCheckbox) firstCheckbox.checked = false;
+                }
+            } else {
+                // Remove from selected revisions
+                const index = selectedRevisions.indexOf(this.value);
+                if (index > -1) selectedRevisions.splice(index, 1);
+            }
+            
+            updateCompareButton();
+        });
+    });
+    
+    // Handle form submission for comparison
+    compareForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (selectedRevisions.length === 2) {
+            // Navigate to compare page
+            window.location.href = `/articles/{{ article._id }}/compare/${selectedRevisions[0]}/${selectedRevisions[1]}`;
+        }
+    });
+    
+    // Handle auth-required elements visibility
+    const token = localStorage.getItem('token');
+    const authElements = document.querySelectorAll('.auth-required');
+    
+    if (token) {
+        authElements.forEach(element => {
+            element.classList.remove('hidden');
+        });
+    }
+});
+</script>
+{% endblock %}

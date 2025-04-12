@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block title %}Restore Revision: {{ article.title }} - Kryptopedia{% endblock %}
+
+{% set active_page = 'articles' %}
+
+{% block sidebar_extra %}
+<h3>Article Actions</h3>
+<ul>
+    <li><a href="/articles/{{ article.slug }}">Current Version</a></li>
+    <li><a href="/articles/{{ article._id }}/history">History</a></li>
+    <li><a href="/articles/{{ article._id }}/revisions/{{ revision._id }}">View This Revision</a></li>
+</ul>
+
+<div class="revision-info">
+    <h3>Revision Information</h3>
+    <dl>
+        <dt>Date:</dt>
+        <dd>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</dd>
+        
+        <dt>Author:</dt>
+        <dd>{{ revision.creatorUsername }}</dd>
+        
+        <dt>Comment:</dt>
+        <dd>{{ revision.comment or "No comment" }}</dd>
+    </dl>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="article-header">
+    <h1>Restore Revision: {{ article.title }}</h1>
+    <div class="warning-banner">
+        <div class="warning-notice">
+            <strong>Warning:</strong> You are about to restore this article to an earlier version.
+            This will overwrite the current content.
+        </div>
+    </div>
+</div>
+
+<div class="restore-confirm">
+    <p>You are about to restore the article to the version from {{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }} 
+    by {{ revision.creatorUsername }}.</p>
+    
+    <div class="confirmation-preview">
+        <h3>Content Preview</h3>
+        <div class="preview-content">
+            {{ revision.content|safe }}
+        </div>
+    </div>
+    
+    <form action="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" method="post">
+        <div class="form-group">
+            <label for="comment">Restoration Comment:</label>
+            <textarea id="comment" name="comment" rows="3">Restored to revision from {{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</textarea>
+            <p class="help-text">Describe why you're restoring this version.</p>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="primary-button">Restore This Version</button>
+            <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}" class="cancel-button">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .warning-banner {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        padding: 10px 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+    
+    .warning-notice {
+        color: #721c24;
+    }
+    
+    .revision-info {
+        margin-top: 20px;
+        background-color: #f8f9fa;
+        padding: 10px;
+        border-radius: 4px;
+    }
+    
+    .revision-info dt {
+        font-weight: bold;
+        margin-top: 8px;
+    }
+    
+    .revision-info dd {
+        margin-left: 10px;
+        margin-bottom: 5px;
+    }
+    
+    .restore-confirm {
+        margin-top: 20px;
+    }
+    
+    .confirmation-preview {
+        margin: 20px 0;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .confirmation-preview h3 {
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 10px 15px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .preview-content {
+        padding: 15px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .help-text {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .primary-button {
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .primary-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .cancel-button {
+        padding: 8px 16px;
+        background-color: #f5f5f5;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    
+    .cancel-button:hover {
+        background-color: #e0e0e0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submission with fetch
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get the token
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('You must be logged in to restore an article version.');
+            return;
+        }
+        
+        // Submit the form with fetch
+        const formData = new FormData(form);
+        
+        fetch(form.action, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        })
+        .then(response => {
+            if (response.redirected) {
+                window.location.href = response.url;
+            } else if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.detail || 'Failed to restore revision');
+                });
+            }
+            return response.json();
+        })
+        .catch(error => {
+            console.error('Error restoring revision:', error);
+            alert(error.message || 'Failed to restore revision. Please try again.');
+        });
+    });
+});
+</script>
+{% endblock %}
