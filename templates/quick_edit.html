@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+
+{% block title %}Quick Edit - Kryptopedia{% endblock %}
+
+{% set active_page = 'contribute' %}
+
+{% block sidebar_extra %}
+<h3>Quick Help</h3>
+<ul>
+    <li><a href="/articles">Browse Articles</a></li>
+    <li><a href="/special/recentchanges">Recent Changes</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1>Quick Edit</h1>
+
+<p class="intro-text">
+    Use this page to quickly edit an article and generate revision history. 
+    This is useful for testing the revision history and recent changes features.
+</p>
+
+<div id="login-message" class="login-required-message" style="display: none;">
+    <p>You need to be logged in to edit articles.</p>
+    <button id="login-to-edit" class="primary-button">Login</button>
+</div>
+
+<div id="edit-form-container">
+    <div class="status-message success-message" id="success-message" style="display: none;"></div>
+    <div class="status-message error-message" id="error-message" style="display: none;"></div>
+
+    <form id="quick-edit-form">
+        <div class="form-group">
+            <label for="article-select">Select an Article:</label>
+            <select id="article-select" name="articleId" required>
+                <option value="">-- Select an Article --</option>
+                {% for article in articles %}
+                <option value="{{ article._id }}">{{ article.title }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="edit-comment">Edit Comment:</label>
+            <input type="text" id="edit-comment" name="editComment" placeholder="Describe your changes" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="article-content">Content:</label>
+            <textarea id="article-content" name="content" rows="15" required></textarea>
+            <p class="help-text">Edit the content of the article. This will create a new revision.</p>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" id="save-edit" class="primary-button">Save Changes</button>
+            <button type="button" id="load-article" class="secondary-button">Load Article Content</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .intro-text {
+        margin-bottom: 20px;
+        color: #555;
+    }
+    
+    #edit-form-container {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .form-group select,
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .form-group textarea {
+        min-height: 300px;
+        font-family: monospace;
+    }
+    
+    .help-text {
+        font-size: 13px;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .primary-button {
+        padding: 10px 15px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .primary-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .secondary-button {
+        padding: 10px 15px;
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .secondary-button:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .status-message {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .login-required-message {
+        text-align: center;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        margin: 20px 0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    const loginMessage = document.getElementById('login-message');
+    const editFormContainer = document.getElementById('edit-form-container');
+    
+    // Handle authentication
+    if (!token) {
+        loginMessage.style.display = 'block';
+        editFormContainer.style.display = 'none';
+        
+        // Set up login button
+        document.getElementById('login-to-edit').addEventListener('click', function() {
+            const loginModal = document.getElementById('login-modal');
+            if (loginModal) loginModal.style.display = 'block';
+        });
+    } else {
+        loginMessage.style.display = 'none';
+        editFormContainer.style.display = 'block';
+        
+        const articleSelect = document.getElementById('article-select');
+        const articleContent = document.getElementById('article-content');
+        const loadArticleBtn = document.getElementById('load-article');
+        const successMessage = document.getElementById('success-message');
+        const errorMessage = document.getElementById('error-message');
+        const quickEditForm = document.getElementById('quick-edit-form');
+        
+        // Load article content when "Load Article" button is clicked
+        loadArticleBtn.addEventListener('click', function() {
+            const articleId = articleSelect.value;
+            
+            if (!articleId) {
+                showError('Please select an article first.');
+                return;
+            }
+            
+            // Show loading state
+            loadArticleBtn.textContent = 'Loading...';
+            loadArticleBtn.disabled = true;
+            
+            // Fetch article content from API
+            fetch(`/api/articles/${articleId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load article content');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Set the content in the textarea
+                articleContent.value = data.content;
+                showSuccess('Article content loaded successfully.');
+            })
+            .catch(error => {
+                console.error('Error loading article:', error);
+                showError('Failed to load article content. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                loadArticleBtn.textContent = 'Load Article Content';
+                loadArticleBtn.disabled = false;
+            });
+        });
+        
+        // Handle form submission
+        quickEditForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const articleId = articleSelect.value;
+            const content = articleContent.value;
+            const editComment = document.getElementById('edit-comment').value;
+            
+            if (!articleId) {
+                showError('Please select an article.');
+                return;
+            }
+            
+            if (!content) {
+                showError('Please enter article content.');
+                return;
+            }
+            
+            if (!editComment) {
+                showError('Please enter an edit comment.');
+                return;
+            }
+            
+            // Show loading state
+            const saveButton = document.getElementById('save-edit');
+            saveButton.innerHTML = '<span class="loading-indicator"></span> Saving...';
+            saveButton.disabled = true;
+            
+            // Prepare update data
+            const updateData = {
+                content: content,
+                editComment: editComment
+            };
+            
+            // Send update request
+            fetch(`/api/articles/${articleId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(updateData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update article');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showSuccess('Article updated successfully! A new revision has been created.');
+                
+                // Clear form
+                document.getElementById('edit-comment').value = '';
+            })
+            .catch(error => {
+                console.error('Error updating article:', error);
+                showError('Failed to update article. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                saveButton.innerHTML = 'Save Changes';
+                saveButton.disabled = false;
+            });
+        });
+        
+        // Helper functions for showing messages
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                successMessage.style.display = 'none';
+            }, 5000);
+        }
+        
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            successMessage.style.display = 'none';
+        }
+    }
+});
+</script>
+{% endblock %}

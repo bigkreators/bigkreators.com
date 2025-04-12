@@ -1,14 +1,47 @@
 <!-- File: templates/edit_article.html -->
 {% extends "base.html" %}
 
-{% block title %}Edit Article - Kryptopedia{% endblock %}
+{% block title %}Edit Article: {{ article.title }} - Kryptopedia{% endblock %}
 
 {% set active_page = 'articles' %}
 
 {% block extra_css %}
-<!-- Include a WYSIWYG editor -->
-<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
 <style>
+    .editor-container {
+        margin-bottom: 20px;
+    }
+    
+    .form-section {
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .form-group textarea {
+        min-height: 200px;
+        font-family: monospace;
+    }
+    
+    .tag-input {
+        width: 100%;
+    }
+    
     .status-message {
         padding: 10px 15px;
         border-radius: 4px;
@@ -27,12 +60,13 @@
         border: 1px solid #c3e6cb;
         color: #155724;
     }
-
-    .edit-summary {
-        margin-top: 20px;
-        padding: 10px;
+    
+    .login-required {
+        text-align: center;
+        padding: 40px 20px;
         background-color: #f8f9fa;
-        border-radius: 4px;
+        border-radius: 8px;
+        margin: 20px 0;
     }
 </style>
 {% endblock %}
@@ -41,223 +75,194 @@
 <h3>Article Actions</h3>
 <ul>
     <li><a href="/articles/{{ article.slug }}">View Article</a></li>
-    <li><a href="/articles/{{ article.slug }}/history">View History</a></li>
     <li><a href="/articles">All Articles</a></li>
-</ul>
-
-<h3>Editing Guidelines</h3>
-<ul>
-    <li><a href="/help/formatting">Formatting Guide</a></li>
-    <li><a href="/help/references">Adding References</a></li>
-    <li><a href="/help/media">Adding Media</a></li>
 </ul>
 {% endblock %}
 
 {% block content %}
 <h1>Edit Article: {{ article.title }}</h1>
 
-<!-- Status messages -->
-<div id="error-message" class="status-message error-message"></div>
-<div id="success-message" class="status-message success-message"></div>
+<div id="login-message" class="login-required" style="display: none;">
+    <p>You need to be logged in to edit articles.</p>
+    <button id="login-to-edit" class="primary-button">Login</button>
+</div>
+
+<div class="status-message error-message" id="error-message"></div>
+<div class="status-message success-message" id="success-message"></div>
 
 <form id="edit-article-form">
-    <div class="form-group">
-        <label for="article-title">Title:</label>
-        <input type="text" id="article-title" name="title" value="{{ article.title }}" required>
-    </div>
-    
-    <div class="form-group">
-        <label for="article-summary">Summary:</label>
-        <textarea id="article-summary" name="summary" rows="3" required>{{ article.summary }}</textarea>
-    </div>
-    
-    <div class="form-group">
-        <label for="article-content">Content:</label>
-        <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
-    </div>
-    
-    <div class="form-group">
-        <label for="article-categories">Categories (comma-separated):</label>
-        <input type="text" id="article-categories" name="categories" value="{{ article.categories|join(', ') }}">
-    </div>
-    
-    <div class="form-group">
-        <label for="article-tags">Tags (comma-separated):</label>
-        <input type="text" id="article-tags" name="tags" value="{{ article.tags|join(', ') }}">
-    </div>
-    
-    <div class="form-group metadata-checkboxes">
-        <label>Article Contains:</label>
-        <div>
-            <input type="checkbox" id="has-audio" name="hasAudio" {% if article.metadata.hasAudio %}checked{% endif %}>
-            <label for="has-audio">Audio</label>
+    <div class="form-section">
+        <div class="form-group">
+            <label for="article-title">Title:</label>
+            <input type="text" id="article-title" name="title" value="{{ article.title }}" required>
         </div>
-        <div>
-            <input type="checkbox" id="has-special-symbols" name="hasSpecialSymbols" {% if article.metadata.hasSpecialSymbols %}checked{% endif %}>
-            <label for="has-special-symbols">Special Symbols</label>
-        </div>
-        <div>
-            <input type="checkbox" id="contains-made-up-content" name="containsMadeUpContent" {% if article.metadata.containsMadeUpContent %}checked{% endif %}>
-            <label for="contains-made-up-content">Made-up Content</label>
+        
+        <div class="form-group">
+            <label for="article-summary">Summary:</label>
+            <textarea id="article-summary" name="summary" rows="3" required>{{ article.summary }}</textarea>
         </div>
     </div>
-
-    <div class="form-group edit-summary">
-        <label for="edit-comment">Edit Summary (briefly describe your changes):</label>
-        <input type="text" id="edit-comment" name="editComment" placeholder="E.g., Fixed typos, added new section, etc.">
+    
+    <div class="form-section">
+        <div class="form-group">
+            <label for="article-content">Content:</label>
+            <textarea id="article-content" name="content" rows="20" required>{{ article.content }}</textarea>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <div class="form-group">
+            <label for="article-categories">Categories (comma-separated):</label>
+            <input type="text" id="article-categories" name="categories" value="{{ article.categories|join(', ') }}" class="tag-input">
+        </div>
+        
+        <div class="form-group">
+            <label for="article-tags">Tags (comma-separated):</label>
+            <input type="text" id="article-tags" name="tags" value="{{ article.tags|join(', ') }}" class="tag-input">
+        </div>
+        
+        <div class="form-group">
+            <label for="edit-comment">Edit Summary:</label>
+            <input type="text" id="edit-comment" name="editComment" placeholder="Briefly describe your changes" required>
+        </div>
     </div>
     
     <div class="form-actions">
         <button type="submit" id="save-article" class="primary-button">Save Changes</button>
-        <a href="/articles/{{ article.slug }}" class="action-button">Cancel</a>
+        <a href="/articles/{{ article.slug }}" class="cancel-button">Cancel</a>
     </div>
 </form>
 {% endblock %}
 
 {% block extra_js %}
-<!-- jQuery and Summernote -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
-    $(document).ready(function() {
-        // Check if user is logged in
-        const token = localStorage.getItem('token');
-        if (!token) {
-            // Redirect to article view if not logged in
-            window.location.href = '/articles/{{ article.slug }}';
-            return;
-        }
-
-        // Initialize Summernote editor
-        $('#article-content').summernote({
-            placeholder: 'Write your article content here...',
-            tabsize: 2,
-            height: 400,
-            toolbar: [
-                ['style', ['style']],
-                ['font', ['bold', 'underline', 'clear']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture']],
-                ['view', ['fullscreen', 'codeview', 'help']]
-            ]
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    const loginMessage = document.getElementById('login-message');
+    const editForm = document.getElementById('edit-article-form');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    
+    // Handle auth state
+    if (!token) {
+        loginMessage.style.display = 'block';
+        editForm.style.display = 'none';
+        
+        // Setup login button
+        document.getElementById('login-to-edit').addEventListener('click', function() {
+            const loginModal = document.getElementById('login-modal');
+            if (loginModal) {
+                loginModal.style.display = 'block';
+            }
         });
+    } else {
+        loginMessage.style.display = 'none';
+        editForm.style.display = 'block';
         
-        // Show error message function
-        function showError(message) {
-            $('#error-message').text(message).show();
-            setTimeout(function() {
-                $('#error-message').fadeOut();
-            }, 5000);
-        }
-        
-        // Show success message function
-        function showSuccess(message) {
-            $('#success-message').text(message).show();
-        }
-        
-        // Handle article update
-        $('#edit-article-form').submit(function(e) {
+        // Handle form submission
+        editForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form values
-            const title = $('#article-title').val();
-            const summary = $('#article-summary').val();
-            const content = $('#article-content').summernote('code');
-            const categories = $('#article-categories').val().split(',').map(item => item.trim()).filter(item => item !== '');
-            const tags = $('#article-tags').val().split(',').map(item => item.trim()).filter(item => item !== '');
+            const articleTitle = document.getElementById('article-title').value;
+            const articleSummary = document.getElementById('article-summary').value;
+            const articleContent = document.getElementById('article-content').value;
+            const categoriesInput = document.getElementById('article-categories').value;
+            const tagsInput = document.getElementById('article-tags').value;
+            const editComment = document.getElementById('edit-comment').value;
             
-            // Get metadata
-            const metadata = {
-                hasAudio: $('#has-audio').is(':checked'),
-                hasSpecialSymbols: $('#has-special-symbols').is(':checked'),
-                containsMadeUpContent: $('#contains-made-up-content').is(':checked')
-            };
+            // Process categories and tags
+            const categories = categoriesInput.split(',')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+                
+            const tags = tagsInput.split(',')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
             
-            // Get edit comment
-            const editComment = $('#edit-comment').val() || 'Updated article';
-            
-            // Validate form
-            if (!title) {
-                showError('Please enter a title for the article.');
+            // Validate
+            if (!articleTitle || !articleSummary || !articleContent) {
+                showError('Please fill in all required fields.');
                 return;
             }
             
-            if (!summary) {
-                showError('Please provide a summary for the article.');
+            if (!editComment) {
+                showError('Please provide a summary of your changes.');
                 return;
             }
             
-            if (!content || content === '<p><br></p>') {
-                showError('Please enter content for the article.');
-                return;
-            }
-            
-            // Create article data object
+            // Prepare data
             const articleData = {
-                title,
-                summary,
-                content,
-                categories,
-                tags,
-                metadata,
-                editComment
+                title: articleTitle,
+                summary: articleSummary,
+                content: articleContent,
+                categories: categories,
+                tags: tags,
+                editComment: editComment
             };
             
-            // Check token again before submitting
-            const currentToken = localStorage.getItem('token');
-            if (!currentToken) {
-                showError('Your session has expired. Please login again.');
-                return;
-            }
-            
-            // Show loading indicator
-            $('#save-article').text('Saving...').prop('disabled', true);
+            // Show loading state
+            const saveButton = document.getElementById('save-article');
+            const originalText = saveButton.textContent;
+            saveButton.textContent = 'Saving...';
+            saveButton.disabled = true;
             
             // Send API request
             fetch('/api/articles/{{ article._id }}', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${currentToken}`
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(articleData)
             })
             .then(response => {
-                if (response.status === 401) {
-                    // Token is invalid or expired
-                    localStorage.removeItem('token');
-                    showError('Your session has expired. Please login again.');
-                    throw new Error('Unauthorized');
-                }
-                
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        throw new Error('Your session has expired. Please log in again.');
+                    }
                     return response.json().then(data => {
                         throw new Error(data.detail || 'Failed to update article');
                     });
                 }
-                
                 return response.json();
             })
             .then(data => {
                 showSuccess('Article updated successfully!');
                 
-                // Redirect to the article page after a brief delay
-                setTimeout(function() {
+                // Redirect to article view after a delay
+                setTimeout(() => {
                     window.location.href = `/articles/${data.slug}`;
-                }, 1000);
+                }, 1500);
             })
             .catch(error => {
-                // Reset button
-                $('#save-article').text('Save Changes').prop('disabled', false);
-                
-                if (error.message !== 'Unauthorized') {
-                    console.error('Error updating article:', error);
-                    showError(error.message || 'Failed to update article. Please try again.');
-                }
+                console.error('Error updating article:', error);
+                showError(error.message || 'Failed to update article. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                saveButton.textContent = originalText;
+                saveButton.disabled = false;
             });
         });
-    });
+    }
+    
+    // Helper functions
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+        
+        // Scroll to error
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+    }
+});
 </script>
 {% endblock %}
