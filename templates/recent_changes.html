@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Recent Changes - Kryptopedia{% endblock %}
+
+{% set active_page = 'recent-changes' %}
+
+{% block sidebar_extra %}
+<h3>Recent Activity Filters</h3>
+<ul>
+    <li><a href="/recent-changes" {% if not filter %}class="filter-active"{% endif %}>All Changes</a></li>
+    <li><a href="/recent-changes?filter=edits" {% if filter == 'edits' %}class="filter-active"{% endif %}>Article Edits</a></li>
+    <li><a href="/recent-changes?filter=new" {% if filter == 'new' %}class="filter-active"{% endif %}>New Articles</a></li>
+    <li><a href="/recent-changes?filter=proposals" {% if filter == 'proposals' %}class="filter-active"{% endif %}>Edit Proposals</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1>Recent Changes</h1>
+
+<div class="recent-changes">
+    {% if changes %}
+        <table class="changes-table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Article</th>
+                    <th>User</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for change in changes %}
+                <tr>
+                    <td>{{ change.timestamp|strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td><a href="/articles/{{ change.articleId }}">{{ change.articleTitle }}</a></td>
+                    <td>{{ change.username }}</td>
+                    <td>
+                        {% if change.type == 'revision' %}
+                            <span class="activity-edit">✏️ Edit:</span>
+                        {% elif change.type == 'new' %}
+                            <span class="activity-new">🆕 New:</span>
+                        {% elif change.type == 'proposal' %}
+                            <span class="activity-proposal">📝 Proposal:</span>
+                        {% endif %}
+                        {{ change.comment or "No comment provided" }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        {% if total > limit %}
+        <div class="pagination">
+            {% if skip > 0 %}
+            <a href="/recent-changes?{% if filter %}filter={{ filter }}&{% endif %}skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
+            {% endif %}
+            
+            <span class="page-info">Showing {{ skip + 1 }}-{{ min(skip + limit, total) }} of {{ total }}</span>
+            
+            {% if skip + limit < total %}
+            <a href="/recent-changes?{% if filter %}filter={{ filter }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="no-changes">
+            <p>No recent changes found.</p>
+            {% if filter %}
+                <p>Try <a href="/recent-changes">viewing all changes</a> instead.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

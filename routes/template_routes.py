@@ -195,3 +195,73 @@ async def random_article(db=Depends(get_db)):
     
     # Redirect to the random article
     return RedirectResponse(url=f"/articles/{results[0]['slug']}")
+
+@router.get("/recent-changes", response_class=HTMLResponse)
+async def recent_changes_page(
+    request: Request,
+    filter: Optional[str] = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    db=Depends(get_db),
+    cache=Depends(get_cache)
+):
+    """
+    Render the recent changes page.
+    """
+    # Try to get from cache
+    cache_key = f"recentchanges:{filter}:{skip}:{limit}"
+    changes = await cache.get(cache_key)
+    total = await cache.get(f"recentchanges_total:{filter}")
+    
+    # If not in cache, fetch from database
+    if changes is None:
+        # Build filter query
+        query = {}
+        if filter == "edits":
+            query["type"] = "revision"
+        elif filter == "new":
+            query["isNew"] = True
+        elif filter == "proposals":
+            query["type"] = "proposal"
+        
+        # Get recent revisions
+        rev_cursor = db["revisions"].find().sort("createdAt", -1).skip(skip).limit(limit)
+        revisions = await rev_cursor.to_list(length=limit)
+        
+        # Get total count for pagination
+        total = await db["revisions"].count_documents({})
+        
+        # Enhance with article info
+        changes = []
+        for rev in revisions:
+            article = await db["articles"].find_one({"_id": rev["articleId"]})
+            user = await db["users"].find_one({"_id": rev["createdBy"]})
+            
+            if article and user:
+                changes.append({
+                    "type": "revision",
+                    "id": str(rev["_id"]),
+                    "timestamp": rev["createdAt"],
+                    "articleId": str(rev["articleId"]),
+                    "articleTitle": article.get("title", "Unknown"),
+                    "userId": str(rev["createdBy"]),
+                    "username": user.get("username", "Unknown"),
+                    "comment": rev.get("comment", "")
+                })
+        
+        # Cache results for 5 minutes
+        await cache.set(cache_key, changes, 300)
+        await cache.set(f"recentchanges_total:{filter}", total, 300)
+    
+    # Render template
+    return templates.TemplateResponse(
+        "recent_changes.html",
+        {
+            "request": request,
+            "changes": changes,
+            "total": total,
+            "skip": skip,
+            "limit": limit,
+            "filter": filter
+        }
+    )
