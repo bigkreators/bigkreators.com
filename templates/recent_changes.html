@@ -7,10 +7,10 @@
 {% block sidebar_extra %}
 <h3>Recent Activity Filters</h3>
 <ul>
-    <li><a href="/recent-changes" {% if not filter %}class="filter-active"{% endif %}>All Changes</a></li>
-    <li><a href="/recent-changes?filter=edits" {% if filter == 'edits' %}class="filter-active"{% endif %}>Article Edits</a></li>
-    <li><a href="/recent-changes?filter=new" {% if filter == 'new' %}class="filter-active"{% endif %}>New Articles</a></li>
-    <li><a href="/recent-changes?filter=proposals" {% if filter == 'proposals' %}class="filter-active"{% endif %}>Edit Proposals</a></li>
+    <li><a href="/special/recentchanges" {% if not filter %}class="filter-active"{% endif %}>All Changes</a></li>
+    <li><a href="/special/recentchanges?filter=revision" {% if filter == 'revision' %}class="filter-active"{% endif %}>Article Edits</a></li>
+    <li><a href="/special/recentchanges?filter=new" {% if filter == 'new' %}class="filter-active"{% endif %}>New Articles</a></li>
+    <li><a href="/special/recentchanges?filter=proposal" {% if filter == 'proposal' %}class="filter-active"{% endif %}>Edit Proposals</a></li>
 </ul>
 {% endblock %}
 
@@ -53,13 +53,13 @@
         {% if total > limit %}
         <div class="pagination">
             {% if skip > 0 %}
-            <a href="/recent-changes?{% if filter %}filter={{ filter }}&{% endif %}skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
+            <a href="/special/recentchanges?{% if filter %}filter={{ filter }}&{% endif %}skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
             {% endif %}
             
             <span class="page-info">Showing {{ skip + 1 }}-{{ min(skip + limit, total) }} of {{ total }}</span>
             
             {% if skip + limit < total %}
-            <a href="/recent-changes?{% if filter %}filter={{ filter }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
+            <a href="/special/recentchanges?{% if filter %}filter={{ filter }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
             {% endif %}
         </div>
         {% endif %}
@@ -68,9 +68,66 @@
         <div class="no-changes">
             <p>No recent changes found.</p>
             {% if filter %}
-                <p>Try <a href="/recent-changes">viewing all changes</a> instead.</p>
+                <p>Try <a href="/special/recentchanges">viewing all changes</a> instead.</p>
             {% endif %}
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .changes-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    
+    .changes-table th, .changes-table td {
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    .changes-table th {
+        background-color: #f5f5f5;
+        text-align: left;
+    }
+    
+    .changes-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .activity-edit {
+        color: #0366d6;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    
+    .activity-new {
+        color: #2ea44f;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    
+    .activity-proposal {
+        color: #d73a49;
+        font-weight: bold;
+        margin-right: 5px;
+    }
+    
+    .filter-active {
+        font-weight: bold;
+        background-color: #f0f0f0;
+        padding: 3px 8px;
+        border-radius: 4px;
+    }
+    
+    .no-changes {
+        background-color: #f8f9fa;
+        padding: 30px;
+        text-align: center;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+</style>
 {% endblock %}

@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 
 import config
 from services.database import Database
@@ -23,7 +23,7 @@ logger = logging.getLogger("kryptopedia")
 
 # Import the routes
 from routes import auth, articles, media, proposals, rewards, special
-from routes.page_routes import router as page_router  # Updated to use page_routes instead of templates
+from routes.page_routes import router as page_router
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -50,8 +50,6 @@ if config.API_DEBUG:
         Debug middleware to log requests and responses in development mode.
         """
         logger.debug(f"Request: {request.method} {request.url.path}")
-        # Log headers if very detailed debugging needed
-        # logger.debug(f"Headers: {request.headers}")
         
         try:
             response = await call_next(request)
@@ -95,6 +93,15 @@ app.include_router(special.router, prefix=f"{config.API_PREFIX}/special", tags=[
 
 # Include page routes at root level
 app.include_router(page_router)
+
+# Add a redirect for the misaddressed CSS file
+@app.get("/style.css")
+async def redirect_to_css():
+    """
+    Redirect /style.css to /static/style.css
+    """
+    logger.info("Redirecting from /style.css to /static/style.css")
+    return RedirectResponse(url="/static/style.css")
 
 # Startup event
 @app.on_event("startup")

@@ -1,6 +1,8 @@
-# Kryptopedia Wiki Platform
+# Kryptopedia 
 
-A complete wiki platform built with FastAPI and MongoDB, designed for easy deployment and customization.
+A collaborative knowledge base wiki platform built with FastAPI and MongoDB.
+
+![Kryptopedia Screenshot](https://via.placeholder.com/800x400?text=Kryptopedia+Wiki+Platform)
 
 ## Features
 
@@ -8,8 +10,8 @@ A complete wiki platform built with FastAPI and MongoDB, designed for easy deplo
   - Create, read, update, and archive articles
   - Article revision history
   - Categorization and tagging
-  - Rich text editor for content creation
-  - Full-text search
+  - Rich text content editing
+  - Full-text search capabilities
 
 - **User Management**
   - User registration and authentication
@@ -19,30 +21,28 @@ A complete wiki platform built with FastAPI and MongoDB, designed for easy deplo
 - **Community Features**
   - Edit proposals system
   - Contribution rewards
-  - Activity tracking
+  - Activity tracking and statistics
+  - Recent changes page
 
 - **Media Management**
-  - Local or S3-based file storage
+  - Local file storage (with optional S3 storage)
   - Image and file uploads
   - Media embedding in articles
 
 - **Performance Optimizations**
-  - Caching support (in-memory or Redis)
-  - MongoDB text search (with optional Elasticsearch)
-  - Optimized database queries
+  - Caching support (memory or Redis)
+  - Database query optimization
+  - Content delivery optimization
 
-## Installation
+## Tech Stack
 
-### Requirements
+- **Backend**: Python 3.8+ with FastAPI
+- **Database**: MongoDB
+- **Frontend**: Jinja2 Templates, Vanilla JavaScript, and CSS
+- **Authentication**: JWT-based auth
+- **Deployment**: Docker support (optional)
 
-- Python 3.8+
-- MongoDB 4.0+
-- Optional:
-  - Redis (for enhanced caching)
-  - Elasticsearch (for advanced search)
-  - AWS S3 account (for S3 storage)
-
-### Setup
+## Quick Start
 
 1. Clone the repository:
    ```bash
@@ -50,7 +50,7 @@ A complete wiki platform built with FastAPI and MongoDB, designed for easy deplo
    cd kryptopedia
    ```
 
-2. Create a virtual environment:
+2. Create and activate a virtual environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -61,22 +61,9 @@ A complete wiki platform built with FastAPI and MongoDB, designed for easy deplo
    pip install -r requirements.txt
    ```
 
-4. Create a `.env` file with your configuration:
-   ```
-   # Database Configuration
-   MONGO_URI=mongodb://localhost:27017
-   DB_NAME=kryptopedia
-
-   # JWT Configuration
-   JWT_SECRET=your-secret-key-change-this-in-production
-
-   # Storage Configuration
-   STORAGE_TYPE=local  # Options: local, s3
-   MEDIA_FOLDER=media
-
-   # Optional External Services (set to true to enable)
-   USE_ELASTICSEARCH=false
-   USE_REDIS=false
+4. Make sure MongoDB is running:
+   ```bash
+   mongod --dbpath=./mongodb_data
    ```
 
 5. Initialize the database:
@@ -84,27 +71,39 @@ A complete wiki platform built with FastAPI and MongoDB, designed for easy deplo
    python setup-data.py
    ```
 
-6. Run the application:
+6. Start the application:
    ```bash
-   python main.py
+   uvicorn main:app --reload
    ```
 
-7. Access the wiki at http://localhost:8000
+7. Open http://localhost:8000 in your browser
 
-## Directory Structure
+For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md).
+
+## Default Admin Account
+
+After running the setup script, the following admin account is created:
+
+- Username: `admin`
+- Email: `admin@kryptopedia.local`
+- Password: `admin123`
+
+Make sure to change this password in a production environment.
+
+## Project Structure
 
 ```
 kryptopedia/
 ├── main.py                  # Application entry point
 ├── config.py                # Configuration settings
-├── models/                  # Pydantic models
+├── models/                  # Pydantic models for data validation
 ├── routes/                  # API routes
 ├── services/                # Business logic
 ├── dependencies/            # FastAPI dependencies
 ├── utils/                   # Utility functions
-├── static/                  # Static assets (CSS, JS)
+├── static/                  # Static assets
 ├── templates/               # HTML templates
-└── media/                   # Uploaded files
+└── media/                   # Uploaded files (when using local storage)
 ```
 
 ## API Documentation
@@ -113,29 +112,23 @@ Once the application is running, API documentation is available at:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
+## Development
+
+For development, run the diagnostic script to ensure everything is set up correctly:
+
+```bash
+python diagnose.py
+```
+
+This script will check your setup and suggest fixes for common issues.
+
 ## Docker Deployment
 
-A Docker Compose configuration is included for containerized deployment:
+A Dockerfile and docker-compose.yml file are included for containerized deployment:
 
 ```bash
 docker-compose up -d
 ```
-
-## Default Admin Account
-
-- Username: admin
-- Password: admin123
-
-Be sure to change the default admin password after first login.
-
-## Customization
-
-Cryptopedia is designed to be easily customizable:
-
-- **Templates**: Modify HTML templates in the `templates/` directory
-- **Styling**: Customize CSS in `static/style.css`
-- **Functionality**: Extend JavaScript in `static/script.js`
-- **Backend**: Modify API endpoints in the `routes/` directory
 
 ## Contributing
 
@@ -144,3 +137,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Troubleshooting
+
+If you encounter issues, check out the common problems and solutions in our [INSTALLATION.md](INSTALLATION.md) guide or run the diagnostic script:
+
+```bash
+python diagnose.py
+```

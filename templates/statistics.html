@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}Wiki Statistics - Kryptopedia{% endblock %}
+
+{% set active_page = 'statistics' %}
+
+{% block sidebar_extra %}
+<h3>Site Information</h3>
+<ul>
+    <li><a href="/special/recentchanges">Recent Changes</a></li>
+    <li><a href="/categories">All Categories</a></li>
+    <li><a href="/tags">All Tags</a></li>
+    <li><a href="/help">Help</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1>Kryptopedia Statistics</h1>
+
+<div class="statistics-container">
+    {% if statistics %}
+        <div class="stats-section">
+            <h2>Overall Statistics</h2>
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-value">{{ statistics.total_articles|format_number }}</div>
+                    <div class="stat-label">Total Articles</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ statistics.total_edits|format_number }}</div>
+                    <div class="stat-label">Total Edits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ statistics.total_users|format_number }}</div>
+                    <div class="stat-label">Registered Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ statistics.new_users_today|format_number }}</div>
+                    <div class="stat-label">New Users Today</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-section">
+            <h2>Recent Activity</h2>
+            <div class="recent-activity">
+                <div class="activity-item">
+                    <span class="activity-value">{{ statistics.recent_activity.revisions|format_number }}</span>
+                    <span class="activity-label">Edits in the last 24 hours</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-value">{{ statistics.recent_activity.proposals|format_number }}</span>
+                    <span class="activity-label">Edit proposals in the last 24 hours</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-value">{{ statistics.recent_activity.total|format_number }}</span>
+                    <span class="activity-label">Total activities in the last 24 hours</span>
+                </div>
+            </div>
+        </div>
+        
+        {% if statistics.top_articles %}
+        <div class="stats-section">
+            <h2>Most Viewed Articles</h2>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Article</th>
+                        <th>Views</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in statistics.top_articles %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td><a href="/articles/{{ article.slug }}">{{ article.title }}</a></td>
+                        <td>{{ article.views|format_number }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+        
+        {% if statistics.top_editors %}
+        <div class="stats-section">
+            <h2>Most Active Contributors</h2>
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>User</th>
+                        <th>Edits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in statistics.top_editors %}
+                    <tr>
+                        <td>{{ loop.index }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.contributions.editsPerformed|format_number }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="stats-error">
+            <p>Statistics are currently unavailable. Please try again later.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .statistics-container {
+        margin: 20px 0;
+    }
+    
+    .stats-section {
+        margin-bottom: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .stats-section h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.4em;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .stat-card {
+        background-color: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px;
+    }
+    
+    .stat-value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #0645ad;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #666;
+        font-size: 1em;
+    }
+    
+    .recent-activity {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .activity-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .activity-value {
+        font-size: 1.2em;
+        font-weight: bold;
+        color: #333;
+        min-width: 60px;
+        text-align: center;
+    }
+    
+    .activity-label {
+        color: #666;
+    }
+    
+    .stats-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .stats-table th, .stats-table td {
+        padding: 10px;
+        border: 1px solid #eee;
+        text-align: left;
+    }
+    
+    .stats-table th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+    }
+    
+    .stats-table tr:hover {
+        background-color: #f9f9f9;
+    }
+    
+    .stats-error {
+        background-color: #f8f9fa;
+        padding: 30px;
+        text-align: center;
+        border-radius: 8px;
+        color: #666;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
