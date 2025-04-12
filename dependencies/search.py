@@ -1,8 +1,10 @@
+# File: dependencies/search.py
 """
 Search dependencies for FastAPI.
 """
 from fastapi import Depends
 import config
+from motor.motor_asyncio import AsyncIOMotorDatabase
 from dependencies.database import get_db
 from services.search import get_search_service, SearchInterface
 
@@ -18,6 +20,7 @@ async def get_search(db=Depends(get_db)) -> SearchInterface:
         SearchInterface: The search service
     """
     # Create search service based on configuration
+    # The key fix here is not using the db directly in a boolean check
     search_service = get_search_service(
         use_elasticsearch=config.USE_ELASTICSEARCH,
         es_host=config.ES_HOST,

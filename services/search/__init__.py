@@ -1,13 +1,15 @@
+# File: services/search/__init__.py
 """
-Search services package for the Cryptopedia application.
+Search services package for the Kryptopedia application.
 """
+from motor.motor_asyncio import AsyncIOMotorDatabase
 from .base import SearchInterface
 from .mongo import MongoSearch
 from .elasticsearch import ElasticsearchSearch
 
 __all__ = ['SearchInterface', 'MongoSearch', 'ElasticsearchSearch']
 
-def get_search_service(use_elasticsearch: bool = False, **kwargs):
+def get_search_service(use_elasticsearch: bool = False, **kwargs) -> SearchInterface:
     """
     Factory function to get the appropriate search service based on configuration.
     
@@ -20,6 +22,7 @@ def get_search_service(use_elasticsearch: bool = False, **kwargs):
         
     Raises:
         ImportError: If Elasticsearch is requested but not available
+        ValueError: If MongoDB database is required but not provided
     """
     if use_elasticsearch:
         try:
@@ -34,8 +37,13 @@ def get_search_service(use_elasticsearch: bool = False, **kwargs):
             print("Elasticsearch package not available. Falling back to MongoDB search.")
     
     # Fall back to MongoDB search
+    # Fix: Don't use boolean evaluation on db
     db = kwargs.get("db")
-    if not db:
+    if db is None:
         raise ValueError("MongoDB database connection required for search")
+    
+    # Type check to ensure db is the right type
+    if not isinstance(db, AsyncIOMotorDatabase):
+        raise ValueError("Database connection must be an AsyncIOMotorDatabase instance")
     
     return MongoSearch(db=db)
