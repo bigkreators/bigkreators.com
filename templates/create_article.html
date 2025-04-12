@@ -7,6 +7,20 @@
 {% block extra_css %}
 <!-- Include a WYSIWYG editor -->
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
+<style>
+    .login-required-message {
+        text-align: center;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        margin: 20px 0;
+    }
+    
+    .login-required-message p {
+        margin-bottom: 20px;
+        font-size: 1.1em;
+    }
+</style>
 {% endblock %}
 
 {% block sidebar_extra %}
@@ -21,6 +35,11 @@
 
 {% block content %}
 <h1>Create a New Article</h1>
+
+<div id="login-message" class="login-required-message" style="display: none;">
+    <p>You need to be logged in to create articles.</p>
+    <button id="login-to-create" class="primary-button">Login</button>
+</div>
 
 <div id="create-article-form">
     <div class="form-group">
@@ -68,12 +87,84 @@
 </div>
 {% endblock %}
 
+{% block modals %}
+<!-- Login Modal -->
+<div id="login-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Login to Kryptopedia</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit">Login</button>
+        </form>
+        <p>Don't have an account? <a href="#" id="register-link">Register</a></p>
+    </div>
+</div>
+
+<!-- Register Modal -->
+<div id="register-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Register for Kryptopedia</h2>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="reg-username">Username:</label>
+                <input type="text" id="reg-username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-email">Email:</label>
+                <input type="email" id="reg-email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-password">Password:</label>
+                <input type="password" id="reg-password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="reg-confirm-password">Confirm Password:</label>
+                <input type="password" id="reg-confirm-password" name="confirm-password" required>
+            </div>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
 {% block extra_js %}
 <!-- jQuery and Summernote -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
     $(document).ready(function() {
+        // First, check if user is logged in
+        const token = localStorage.getItem('token');
+        if (!token) {
+            // Show a message that login is required
+            $('#create-article-form').hide();
+            $('#login-message').show();
+            
+            $('#login-to-create').click(function() {
+                // Open login modal
+                $('#login-modal').css('display', 'block');
+                
+                // When login is successful, reload the page
+                $('#login-form').off('submit').on('submit', function(e) {
+                    e.preventDefault();
+                    login(function() {
+                        window.location.reload();
+                    });
+                });
+            });
+            
+            return;
+        }
+
         // Initialize Summernote editor
         $('#article-content').summernote({
             placeholder: 'Write your article content here...',
@@ -122,16 +213,34 @@
                 metadata
             };
             
+            // Check token again before submitting
+            const currentToken = localStorage.getItem('token');
+            if (!currentToken) {
+                alert('Your session has expired. Please login again.');
+                $('#login-modal').css('display', 'block');
+                return;
+            }
+            
+            // Show loading indicator
+            $('#save-article').text('Creating...').prop('disabled', true);
+            
             // Send API request
             fetch('/api/articles', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${currentToken}`
                 },
                 body: JSON.stringify(articleData)
             })
             .then(response => {
+                if (response.status === 401) {
+                    // Token is invalid or expired
+                    localStorage.removeItem('token');
+                    alert('Your session has expired. Please login again.');
+                    $('#login-modal').css('display', 'block');
+                    throw new Error('Unauthorized');
+                }
                 if (!response.ok) {
                     throw new Error('Failed to create article');
                 }
@@ -142,10 +251,119 @@
                 window.location.href = `/articles/${data.slug}`;
             })
             .catch(error => {
-                console.error('Error creating article:', error);
-                alert('Failed to create article. Please try again.');
+                // Reset button
+                $('#save-article').text('Create Article').prop('disabled', false);
+                
+                if (error.message !== 'Unauthorized') {
+                    console.error('Error creating article:', error);
+                    alert('Failed to create article. Please try again.');
+                }
+            });
+        });
+        
+        // Close buttons for modals
+        $('.close').click(function() {
+            $(this).closest('.modal').css('display', 'none');
+        });
+        
+        // Close modal when clicking outside
+        $(window).click(function(event) {
+            if ($(event.target).hasClass('modal')) {
+                $('.modal').css('display', 'none');
+            }
+        });
+        
+        // Register link in login modal
+        $('#register-link').click(function(e) {
+            e.preventDefault();
+            $('#login-modal').css('display', 'none');
+            $('#register-modal').css('display', 'block');
+        });
+        
+        // Handle register form submission
+        $('#register-form').submit(function(e) {
+            e.preventDefault();
+            
+            const username = $('#reg-username').val();
+            const email = $('#reg-email').val();
+            const password = $('#reg-password').val();
+            const confirmPassword = $('#reg-confirm-password').val();
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            const userData = {
+                username: username,
+                email: email,
+                password: password
+            };
+            
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(userData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Registration failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                $('#register-modal').css('display', 'none');
+                alert('Registration successful! Please log in.');
+                $('#login-modal').css('display', 'block');
+            })
+            .catch(error => {
+                console.error('Error registering:', error);
+                alert('Registration failed. Please try again with a different username or email.');
             });
         });
     });
+
+    // Helper function for login
+    function login(callback) {
+        const email = $('#email').val();
+        const password = $('#password').val();
+        
+        // Create form data
+        const formData = new FormData();
+        formData.append('username', email);
+        formData.append('password', password);
+        
+        fetch('/api/auth/login', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Login failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Store token
+            localStorage.setItem('token', data.access_token);
+            
+            // Close modal
+            $('#login-modal').css('display', 'none');
+            
+            // Call the callback function if provided
+            if (typeof callback === 'function') {
+                callback();
+            } else {
+                // Reload page if no callback
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error logging in:', error);
+            alert('Login failed. Please check your credentials and try again.');
+        });
+    }
 </script>
 {% endblock %}
