@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Articles - Kryptopedia{% endblock %}
+
+{% set active_page = 'articles' %}
+
+{% block sidebar_extra %}
+<h3>Article Actions</h3>
+<ul>
+    <li><a href="/create-article" id="create-article">Create New Article</a></li>
+    <li><a href="/articles?sort=newest">Newest Articles</a></li>
+    <li><a href="/articles?sort=mostviewed">Most Viewed</a></li>
+    <li><a href="/categories">All Categories</a></li>
+</ul>
+
+{% if category %}
+<div class="filter-info">
+    <h3>Filtered by Category</h3>
+    <p>{{ category }} <a href="/articles" class="clear-filter">(Clear)</a></p>
+</div>
+{% endif %}
+
+{% if tag %}
+<div class="filter-info">
+    <h3>Filtered by Tag</h3>
+    <p>{{ tag }} <a href="/articles" class="clear-filter">(Clear)</a></p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<h1>
+    {% if category %}
+        Articles in Category: {{ category }}
+    {% elif tag %}
+        Articles Tagged: {{ tag }}
+    {% else %}
+        All Articles
+    {% endif %}
+</h1>
+
+<div class="articles-list">
+    {% if articles %}
+        {% for article in articles %}
+        <div class="article-item">
+            <h3><a href="/articles/{{ article.slug }}">{{ article.title }}</a></h3>
+            <p class="article-summary">{{ article.summary }}</p>
+            
+            <div class="article-meta">
+                <span class="views">Views: {{ article.views }}</span>
+                <span class="date">Created: {{ article.createdAt|strftime('%Y-%m-%d') }}</span>
+            </div>
+            
+            {% if article.categories %}
+            <div class="article-categories">
+                {% for category in article.categories %}
+                <a href="/articles?category={{ category }}" class="category-tag">{{ category }}</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <!-- Pagination -->
+        {% if total > limit %}
+        <div class="pagination">
+            {% if skip > 0 %}
+            <a href="/articles?{% if category %}category={{ category }}&{% endif %}{% if tag %}tag={{ tag }}&{% endif %}skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
+            {% endif %}
+            
+            <span class="page-info">Showing {{ skip + 1 }}-{{ min(skip + limit, total) }} of {{ total }}</span>
+            
+            {% if skip + limit < total %}
+            <a href="/articles?{% if category %}category={{ category }}&{% endif %}{% if tag %}tag={{ tag }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+    {% else %}
+        <div class="no-articles">
+            <p>No articles found.</p>
+            {% if category or tag %}
+                <p>Try <a href="/articles">viewing all articles</a> instead.</p>
+            {% else %}
+                <p>Be the first to <a href="/create-article">create an article</a>!</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

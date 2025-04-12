@@ -1,16 +1,24 @@
 """
 Main entry point for the Kryptopedia application.
+Uses a properly structured approach with separated modules.
 """
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
 import config
 from services.database import Database
-from utils.template_filters import strftime_filter, truncate_filter, strip_html_filter, format_number_filter
-from routes import auth, articles, media, proposals, rewards, special, templates
+
+# First, initialize the template engine (this registers all filters)
+from template_engine import templates
+
+# Now, import the routes (they will use the already initialized template engine)
+# Import the template routes using a different name to avoid confusion
+# Note that we're using template_routes instead of templates to avoid naming confusion
+from routes.template_routes import router as template_router
+# Import other API routes as needed
+from routes import auth, articles, media, proposals, rewards, special
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -29,15 +37,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize templates
-all_templates = Jinja2Templates(directory=config.TEMPLATES_DIR)
-
-# Add template filters
-all_templates.env.filters["strftime"] = strftime_filter
-all_templates.env.filters["truncate"] = truncate_filter
-all_templates.env.filters["strip_html"] = strip_html_filter
-all_templates.env.filters["format_number"] = format_number_filter
-
 # Initialize database service
 db_service = Database(mongo_uri=config.MONGO_URI, db_name=config.DB_NAME)
 
@@ -49,17 +48,16 @@ if config.STORAGE_TYPE == "local":
     os.makedirs(config.MEDIA_FOLDER, exist_ok=True)
     app.mount("/media", StaticFiles(directory=config.MEDIA_FOLDER), name="media")
 
-# Include routes
+# Include API routes
 app.include_router(auth.router, prefix=f"{config.API_PREFIX}/auth", tags=["Authentication"])
 app.include_router(articles.router, prefix=f"{config.API_PREFIX}/articles", tags=["Articles"])
 app.include_router(media.router, prefix=f"{config.API_PREFIX}/media", tags=["Media"])
 app.include_router(proposals.router, prefix=f"{config.API_PREFIX}/proposals", tags=["Proposals"])
 app.include_router(rewards.router, prefix=f"{config.API_PREFIX}/rewards", tags=["Rewards"])
 app.include_router(special.router, prefix=f"{config.API_PREFIX}/special", tags=["Special Pages"])
-#app.include_router(templates.router, prefix=f"{config.API_PREFIX}/templates", tags=["Template Pages"])
 
 # Include template routes at root level
-app.include_router(templates.router)
+app.include_router(template_router)
 
 # Startup event
 @app.on_event("startup")

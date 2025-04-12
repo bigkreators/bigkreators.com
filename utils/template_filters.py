@@ -1,5 +1,5 @@
 """
-Template filters for the Cryptopedia application.
+Template filters for the Kryptopedia application.
 """
 from datetime import datetime
 from typing import Optional, Any

@@ -1,95 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page Not Found - Cryptopedia</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <style>
-        .error-container {
-            text-align: center;
-            padding: 40px 20px;
-        }
-        
-        .error-code {
-            font-size: 6em;
-            font-weight: bold;
-            color: #ddd;
-            margin-bottom: 10px;
-        }
-        
-        .error-message {
-            font-size: 1.5em;
-            margin-bottom: 30px;
-        }
-        
-        .error-actions {
-            margin-top: 30px;
-        }
-        
-        .error-actions a {
-            margin: 0 10px;
-            padding: 10px 20px;
-            background-color: #0645ad;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            display: inline-block;
-        }
-        
-        .error-actions a:hover {
-            background-color: #053a7a;
-        }
-    </style>
-</head>
-<body>
-    <!-- Header -->
-    <header>
-        <span class="logo">Cryptopedia</span>
-        
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Search the wiki...">
-            <button id="search-button">Search</button>
-        </div>
-        
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/articles">Articles</a></li>
-                <li><a href="/api/articles/random" id="random-article">Random</a></li>
-                <li><a href="/contribute" id="contribute-link">Contribute</a></li>
-                <li><a href="#" id="login-link">Login</a></li>
-            </ul>
-        </nav>
-    </header>
-    
-    <!-- Main Content -->
-    <div class="container">
-        <div class="main-content" style="width: 100%;">
-            <div class="error-container">
-                <div class="error-code">404</div>
-                <div class="error-message">{{ message or 'Page Not Found' }}</div>
-                <p>The page you are looking for doesn't exist or has been moved.</p>
-                
-                <div class="error-actions">
-                    <a href="/">Go to Homepage</a>
-                    <a href="/create-article">Create Article</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Footer -->
-    <footer>
-        <p>Cryptopedia - A collaborative knowledge base</p>
-        <ul>
-            <li><a href="/about">About</a></li>
-            <li><a href="/privacy">Privacy Policy</a></li>
-            <li><a href="/terms">Terms of Use</a></li>
-            <li><a href="/contact">Contact</a></li>
-        </ul>
-    </footer>
+{% extends "base.html" %}
 
-    <script src="/static/script.js"></script>
-</body>
-</html>
+{% block title %}Page Not Found - Kryptopedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 40px 20px;
+    }
+    
+    .error-code {
+        font-size: 6em;
+        font-weight: bold;
+        color: #ddd;
+        margin-bottom: 10px;
+    }
+    
+    .error-message {
+        font-size: 1.5em;
+        margin-bottom: 30px;
+    }
+    
+    .error-actions {
+        margin-top: 30px;
+    }
+    
+    .error-actions a {
+        margin: 0 10px;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    
+    .error-actions a:hover {
+        background-color: #053a7a;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-code">404</div>
+    <div class="error-message">{{ message or 'Page Not Found' }}</div>
+    <p>The page you are looking for doesn't exist or has been moved.</p>
+    
+    <div class="error-actions">
+        <a href="/">Go to Homepage</a>
+        <a href="/create-article">Create Article</a>
+    </div>
+</div>
+{% endblock %}
