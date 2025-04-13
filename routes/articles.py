@@ -398,6 +398,156 @@ async def delete_article(
             status_code=500,
             detail=f"Failed to archive article: {str(e)}"
         )
+# File: routes/articles.py (Article Update Route)
+
+@router.put("/{id}", response_model=Article)
+async def update_article(
+    id: str,
+    article_update: ArticleUpdate,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db=Depends(get_db),
+    search=Depends(get_search),
+    cache=Depends(get_cache)
+):
+    """
+    Update an existing article.
+    """
+    try:
+        logger.info(f"Updating article with ID: {id}")
+        
+        # Check if article exists
+        if not ObjectId.is_valid(id):
+            raise HTTPException(status_code=400, detail="Invalid article ID")
+        
+        article = await db["articles"].find_one({"_id": ObjectId(id)})
+        if not article:
+            raise HTTPException(status_code=404, detail="Article not found")
+        
+        # Only allow updates by the creator or admin/editor
+        is_creator = str(article["createdBy"]) == str(current_user["_id"])
+        is_admin = current_user["role"] == "admin"
+        is_editor = current_user["role"] == "editor"
+        
+        if not (is_creator or is_admin or is_editor):
+            logger.warning(f"User {current_user['username']} tried to update article {id} without permission")
+            raise HTTPException(
+                status_code=403,
+                detail="You don't have permission to update this article"
+            )
+        
+        # Prepare update data
+        update_data = {}
+        if article_update.title is not None:
+            update_data["title"] = article_update.title
+        
+        if article_update.content is not None:
+            update_data["content"] = article_update.content
+        
+        if article_update.summary is not None:
+            update_data["summary"] = article_update.summary
+        
+        if article_update.categories is not None:
+            update_data["categories"] = article_update.categories
+        
+        if article_update.tags is not None:
+            update_data["tags"] = article_update.tags
+        
+        if article_update.metadata is not None:
+            update_data["metadata"] = article_update.metadata
+        
+        # Don't update if no changes
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No update data provided")
+        
+        # Update lastUpdatedAt and lastUpdatedBy
+        update_data["lastUpdatedAt"] = datetime.now()
+        update_data["lastUpdatedBy"] = current_user["_id"]
+        
+        # Create a revision entry
+        revision = {
+            "articleId": ObjectId(id),
+            "content": update_data.get("content", article["content"]),
+            "createdBy": current_user["_id"],
+            "createdAt": datetime.now(),
+            "comment": article_update.editComment or "Updated article"
+        }
+        
+        # Update the article
+        result = await db["articles"].update_one(
+            {"_id": ObjectId(id)},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            logger.warning(f"No changes made to article {id}")
+            raise HTTPException(status_code=400, detail="No changes made to the article")
+        
+        # Create revision
+        await db["revisions"].insert_one(revision)
+        logger.info(f"Created revision for article {id}")
+        
+        # Update user's edit count
+        await db["users"].update_one(
+            {"_id": current_user["_id"]},
+            {"$inc": {"contributions.editsPerformed": 1}}
+        )
+        
+        # Update search index
+        if search is not None:
+            try:
+                search_data = {}
+                
+                if "content" in update_data:
+                    search_data["content"] = update_data["content"]
+                
+                if "title" in update_data:
+                    search_data["title"] = update_data["title"]
+                
+                if "summary" in update_data:
+                    search_data["summary"] = update_data["summary"]
+                
+                if "categories" in update_data:
+                    search_data["categories"] = update_data["categories"]
+                
+                if "tags" in update_data:
+                    search_data["tags"] = update_data["tags"]
+                
+                await search.update(
+                    index="articles",
+                    id=id,
+                    document=search_data
+                )
+                logger.info(f"Updated search index for article {id}")
+            except Exception as e:
+                logger.error(f"Error updating search index: {e}")
+                # Continue even if search update fails
+        
+        # Invalidate cache
+        if cache is not None:
+            try:
+                await cache.delete(f"article:{id}")
+                if article.get("slug"):
+                    await cache.delete(f"article:{article['slug']}")
+                await cache.delete("featured_article")
+                await cache.delete("recent_articles")
+            except Exception as e:
+                logger.error(f"Error clearing cache: {e}")
+                # Continue even if cache clearing fails
+        
+        # Get updated article
+        updated_article = await db["articles"].find_one({"_id": ObjectId(id)})
+        logger.info(f"Successfully updated article {id}")
+        
+        return updated_article
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating article: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update article: {str(e)}"
+        )
 
 # More routes related to articles...
 # (remaining routes omitted for brevity)

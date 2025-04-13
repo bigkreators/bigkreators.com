@@ -1,6 +1,6 @@
 # File: routes/page_routes.py
 """
-Fixed page_routes.py with restored create article functionality
+Page routes for the Kryptopedia application.
 """
 from fastapi import APIRouter, Depends, HTTPException, Request, Path, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
