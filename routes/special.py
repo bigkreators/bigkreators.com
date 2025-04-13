@@ -4,6 +4,17 @@ Special routes for the Cryptopedia application.
 from fastapi import APIRouter, Depends, HTTPException, Query
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
+from pydantic import BaseModel, EmailStr
+
+class UserUpdateRequest(BaseModel):
+    """Request model for updating a user."""
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    bio: Optional[str] = None
+    role: Optional[str] = None
+    isActive: Optional[bool] = None
+    currentPassword: Optional[str] = None
+    newPassword: Optional[str] = None
 
 from dependencies import get_db, get_current_user, get_current_admin, get_cache
 
@@ -131,6 +142,233 @@ async def get_users(
             del user["passwordHash"]
     
     return users
+
+# File: routes/special.py
+# Add these route handlers to the special.py file to handle user management API endpoints
+
+@router.get("/users/{user_id}", response_model=Dict[str, Any])
+async def get_user_detail(
+    user_id: str,
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db)
+):
+    """
+    Get detailed information about a specific user (admin only).
+    """
+    try:
+        # Check if user exists
+        if not ObjectId.is_valid(user_id):
+            raise HTTPException(status_code=400, detail="Invalid user ID")
+        
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Remove sensitive information
+        if "passwordHash" in user:
+            del user["passwordHash"]
+        
+        # Get user's articles
+        articles_cursor = db["articles"].find({"createdBy": ObjectId(user_id)}).sort("createdAt", -1).limit(10)
+        articles = await articles_cursor.to_list(length=10)
+        
+        # Get user's edits/revisions
+        revisions_cursor = db["revisions"].find({"createdBy": ObjectId(user_id)}).sort("createdAt", -1).limit(10)
+        revisions = await revisions_cursor.to_list(length=10)
+        
+        # Get user's proposals
+        proposals_cursor = db["proposals"].find({"proposedBy": ObjectId(user_id)}).sort("proposedAt", -1).limit(10)
+        proposals = await proposals_cursor.to_list(length=10)
+        
+        # Enhance with article titles
+        enhanced_revisions = []
+        for rev in revisions:
+            article = await db["articles"].find_one({"_id": rev["articleId"]})
+            article_title = article["title"] if article else "Unknown Article"
+            
+            enhanced_revisions.append({
+                **rev,
+                "articleTitle": article_title
+            })
+        
+        enhanced_proposals = []
+        for prop in proposals:
+            article = await db["articles"].find_one({"_id": prop["articleId"]})
+            article_title = article["title"] if article else "Unknown Article"
+            
+            enhanced_proposals.append({
+                **prop,
+                "articleTitle": article_title
+            })
+        
+        # Return complete user info
+        return {
+            "user": user,
+            "articles": articles,
+            "revisions": enhanced_revisions,
+            "proposals": enhanced_proposals
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting user details: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get user details: {str(e)}"
+        )
+
+@router.delete("/users/{user_id}")
+async def delete_user(
+    user_id: str,
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db)
+):
+    """
+    Delete a user account (admin only).
+    """
+    try:
+        # Check if user exists
+        if not ObjectId.is_valid(user_id):
+            raise HTTPException(status_code=400, detail="Invalid user ID")
+        
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Prevent deleting self
+        if str(user["_id"]) == str(current_user["_id"]):
+            raise HTTPException(status_code=400, detail="Cannot delete own account")
+        
+        # Delete user
+        result = await db["users"].delete_one({"_id": ObjectId(user_id)})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to delete user")
+        
+        return {"message": "User deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete user: {str(e)}"
+        )
+
+@router.put("/users/{user_id}", response_model=Dict[str, Any])
+async def update_user(
+    user_id: str,
+    update_data: UserUpdateRequest,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db=Depends(get_db)
+):
+    """
+    Update a user's profile.
+    - User can update their own profile
+    - Admin can update any user's profile and change roles
+    """
+    try:
+        # Check if user exists
+        if not ObjectId.is_valid(user_id):
+            raise HTTPException(status_code=400, detail="Invalid user ID")
+        
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Check permissions
+        is_self = str(user["_id"]) == str(current_user["_id"])
+        is_admin = current_user["role"] == "admin"
+        
+        if not is_self and not is_admin:
+            raise HTTPException(status_code=403, detail="You do not have permission to update this user")
+        
+        # Prepare update data
+        update_fields = {}
+        
+        # Basic fields that users can update for themselves
+        if update_data.username is not None:
+            # Check if username is taken by another user
+            existing_user = await db["users"].find_one({
+                "username": update_data.username,
+                "_id": {"$ne": ObjectId(user_id)}
+            })
+            if existing_user:
+                raise HTTPException(status_code=400, detail="Username already taken")
+            update_fields["username"] = update_data.username
+        
+        if update_data.email is not None:
+            # Check if email is taken by another user
+            existing_user = await db["users"].find_one({
+                "email": update_data.email,
+                "_id": {"$ne": ObjectId(user_id)}
+            })
+            if existing_user:
+                raise HTTPException(status_code=400, detail="Email already taken")
+            update_fields["email"] = update_data.email
+        
+        if update_data.bio is not None:
+            update_fields["bio"] = update_data.bio
+        
+        # Password change
+        if update_data.newPassword:
+            if is_self:
+                # Verify current password if user is changing their own password
+                if not update_data.currentPassword:
+                    raise HTTPException(status_code=400, detail="Current password is required")
+                
+                from utils.security import verify_password
+                if not verify_password(update_data.currentPassword, user["passwordHash"]):
+                    raise HTTPException(status_code=400, detail="Current password is incorrect")
+            
+            # Hash new password
+            from utils.security import hash_password
+            update_fields["passwordHash"] = hash_password(update_data.newPassword)
+        
+        # Admin-only fields
+        if is_admin and not is_self:
+            if update_data.role is not None:
+                # Validate role
+                valid_roles = ["user", "editor", "admin"]
+                if update_data.role not in valid_roles:
+                    raise HTTPException(status_code=400, detail=f"Invalid role. Must be one of: {', '.join(valid_roles)}")
+                update_fields["role"] = update_data.role
+            
+            if update_data.isActive is not None:
+                update_fields["isActive"] = update_data.isActive
+        
+        # Return error if no fields to update
+        if not update_fields:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        # Update user
+        result = await db["users"].update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": update_fields}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to update user")
+        
+        # Get updated user
+        updated_user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        
+        # Remove sensitive info
+        if "passwordHash" in updated_user:
+            del updated_user["passwordHash"]
+        
+        return {
+            "message": "User updated successfully",
+            "user": updated_user
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update user: {str(e)}"
+        )
 
 @router.put("/users/{user_id}/role")
 async def update_user_role(

@@ -1,68 +1,49 @@
 <!-- File: templates/user_profile.html -->
 {% extends "base.html" %}
 
-{% block title %}{{ user.username }}'s Profile - Kryptopedia{% endblock %}
-
-{% set active_page = 'profile' %}
+{% block title %}{{ user.username }} - User Profile - Kryptopedia{% endblock %}
 
 {% block extra_css %}
 <style>
-    .profile-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .profile-sidebar {
-        flex: 0 0 250px;
-    }
-    
-    .profile-main {
-        flex: 1;
-        min-width: 0;
-    }
-    
-    .profile-card {
-        background-color: #fff;
+    .profile-header {
+        background-color: #f8f9fa;
         border-radius: 8px;
         padding: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         margin-bottom: 20px;
-    }
-    
-    .profile-header {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        margin-bottom: 20px;
+        gap: 20px;
     }
     
     .profile-avatar {
-        width: 100px;
-        height: 100px;
+        width: 120px;
+        height: 120px;
         border-radius: 50%;
         background-color: #0645ad;
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 36px;
+        font-size: 48px;
         font-weight: bold;
-        margin-right: 20px;
     }
     
-    .profile-name h1 {
+    .profile-info {
+        flex: 1;
+    }
+    
+    .profile-info h1 {
         margin: 0 0 5px 0;
     }
     
-    .profile-role {
+    .role-badge {
         display: inline-block;
-        padding: 3px 10px;
-        border-radius: 20px;
+        padding: 3px 8px;
+        border-radius: 4px;
         font-size: 12px;
-        font-weight: 500;
+        margin-left: 10px;
         color: white;
-        margin-bottom: 5px;
     }
     
     .role-admin {
@@ -70,778 +51,202 @@
     }
     
     .role-editor {
-        background-color: #0645ad;
-    }
-    
-    .role-user {
         background-color: #28a745;
     }
     
-    .profile-meta {
-        color: #666;
-        font-size: 14px;
+    .role-user {
+        background-color: #17a2b8;
     }
     
     .profile-stats {
         display: flex;
-        gap: 15px;
         flex-wrap: wrap;
-        margin-bottom: 20px;
+        gap: 20px;
+        margin-top: 10px;
     }
     
     .stat-item {
-        flex: 1;
-        min-width: 100px;
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 6px;
-        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
     
     .stat-value {
         font-size: 24px;
         font-weight: bold;
         color: #0645ad;
-        margin-bottom: 5px;
     }
     
     .stat-label {
+        font-size: 14px;
         color: #666;
-        font-size: 14px;
     }
     
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    
-    .section-title {
-        font-size: 18px;
-        font-weight: bold;
-        margin: 0;
-    }
-    
-    .action-link {
-        color: #0645ad;
-        text-decoration: none;
-        font-size: 14px;
-    }
-    
-    .action-link:hover {
-        text-decoration: underline;
-    }
-    
-    .profile-tabs {
-        display: flex;
-        border-bottom: 1px solid #e0e0e0;
-        margin-bottom: 20px;
-    }
-    
-    .profile-tab {
-        padding: 10px 20px;
-        cursor: pointer;
-        border-bottom: 3px solid transparent;
-        font-weight: 500;
-    }
-    
-    .profile-tab:hover {
-        background-color: #f5f5f5;
-    }
-    
-    .profile-tab.active {
-        border-bottom-color: #0645ad;
-        color: #0645ad;
-    }
-    
-    .tab-content {
-        display: none;
-    }
-    
-    .tab-content.active {
-        display: block;
-    }
-    
-    .article-card, .revision-card, .proposal-card, .reward-card {
+    .profile-section {
         background-color: #fff;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        padding: 15px;
-        margin-bottom: 15px;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .article-card:hover, .revision-card:hover, .proposal-card:hover, .reward-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    
-    .article-title, .revision-title, .proposal-title, .reward-title {
-        margin-top: 0;
-        margin-bottom: 10px;
-        font-size: 18px;
-    }
-    
-    .article-meta, .revision-meta, .proposal-meta, .reward-meta {
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 10px;
-    }
-    
-    .meta-item {
-        margin-right: 15px;
-    }
-    
-    .meta-label {
-        color: #888;
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 500;
-        margin-left: 5px;
-    }
-    
-    .status-published, .status-approved {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    
-    .status-pending {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    
-    .status-rejected, .status-archived {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    
-    .status-draft, .status-hidden {
-        background-color: #e2e3e5;
-        color: #383d41;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 30px;
-        background-color: #f8f9fa;
         border-radius: 8px;
-        margin: 20px 0;
-    }
-    
-    .empty-state p {
-        color: #666;
-        margin-bottom: 15px;
-    }
-    
-    .settings-form {
-        max-width: 500px;
-    }
-    
-    .form-group {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 20px;
         margin-bottom: 20px;
     }
     
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 500;
+    .profile-section h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 18px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
     }
     
-    .form-group input {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 16px;
+    .activity-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
     }
     
-    .form-actions {
-        margin-top: 30px;
+    .activity-item:last-child {
+        border-bottom: none;
     }
     
-    .primary-button {
-        padding: 8px 16px;
+    .activity-date {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .edit-button {
+        padding: 5px 10px;
         background-color: #0645ad;
         color: white;
         border: none;
         border-radius: 4px;
-        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
     }
     
-    .status-message {
-        padding: 10px 15px;
-        border-radius: 4px;
-        margin: 15px 0;
-        display: none;
+    .edit-button:hover {
+        background-color: #053a7a;
     }
     
-    .error-message {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-    }
-    
-    .success-message {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .profile-container {
-            flex-direction: column;
-        }
-        
-        .profile-sidebar, .profile-main {
-            flex: 1 1 100%;
-        }
-        
-        .profile-header {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .profile-avatar {
-            margin-right: 0;
-            margin-bottom: 15px;
-        }
+    .no-items {
+        padding: 15px;
+        text-align: center;
+        color: #666;
+        font-style: italic;
     }
 </style>
 {% endblock %}
 
-{% block sidebar_extra %}
-{% if is_own_profile %}
-<h3>Account</h3>
-<ul>
-    <li><a href="/profile" class="active">My Profile</a></li>
-    <li><a href="/profile/edit">Edit Profile</a></li>
-    <li><a href="/profile/settings">Account Settings</a></li>
-</ul>
-{% endif %}
-
-<h3>Actions</h3>
-<ul>
-    <li><a href="/create-article">Create Article</a></li>
-    <li><a href="/proposals">View Proposals</a></li>
-    {% if user.role == 'admin' or user.role == 'editor' %}
-    <li><a href="/admin/articles">Article Management</a></li>
-    {% endif %}
-</ul>
-{% endblock %}
-
 {% block content %}
-<div class="profile-container">
-    <div class="profile-sidebar">
-        <div class="profile-card">
-            <div class="profile-header">
-                <div class="profile-avatar">
-                    {{ user.username[0].upper() }}
-                </div>
-                <div class="profile-name">
-                    <h1>{{ user.username }}</h1>
-                    <span class="profile-role role-{{ user.role }}">{{ user.role|title }}</span>
-                    <div class="profile-meta">
-                        <div>Member since {{ user.joinDate|strftime('%b %d, %Y') }}</div>
-                        <div>Last active {{ user.lastLogin|strftime('%b %d, %Y') or 'Never' }}</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="profile-stats">
-                <div class="stat-item">
-                    <div class="stat-value">{{ user.contributions.articlesCreated }}</div>
-                    <div class="stat-label">Articles</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">{{ user.contributions.editsPerformed }}</div>
-                    <div class="stat-label">Edits</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">{{ user.reputation }}</div>
-                    <div class="stat-label">Reputation</div>
-                </div>
-            </div>
-            
-            {% if is_own_profile %}
-            <div class="profile-actions">
-                <a href="/profile/edit" class="primary-button">Edit Profile</a>
-            </div>
-            {% endif %}
-        </div>
-        
-        {% if badges %}
-        <div class="profile-card">
-            <div class="section-header">
-                <h2 class="section-title">Badges</h2>
-            </div>
-            <div class="badges-list">
-                {% for badge in badges %}
-                <div class="badge-item">
-                    <span class="badge-icon">{{ badge.icon }}</span>
-                    <span class="badge-name">{{ badge.name }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
+<div class="profile-header">
+    <div class="profile-avatar">
+        {{ user.username[0]|upper }}
     </div>
-    
-    <div class="profile-main">
-        <div class="profile-tabs">
-            <div class="profile-tab active" data-tab="articles">Articles</div>
-            <div class="profile-tab" data-tab="contributions">Contributions</div>
-            <div class="profile-tab" data-tab="proposals">Proposals</div>
-            <div class="profile-tab" data-tab="rewards">Rewards</div>
-            {% if is_own_profile %}
-            <div class="profile-tab" data-tab="settings">Settings</div>
-            {% endif %}
-        </div>
-        
-        <!-- Articles Tab -->
-        <div class="tab-content active" id="articles-tab">
-            <div class="section-header">
-                <h2 class="section-title">Articles</h2>
-                <a href="/create-article" class="action-link">Create New</a>
-            </div>
-            
-            {% if articles %}
-                {% for article in articles %}
-                <div class="article-card">
-                    <h3 class="article-title">
-                        <a href="/articles/{{ article.slug }}">{{ article.title }}</a>
-                        {% if article.status != 'published' %}
-                            <span class="status-badge status-{{ article.status }}">{{ article.status|title }}</span>
-                        {% endif %}
-                    </h3>
-                    <div class="article-meta">
-                        <span class="meta-item">
-                            <span class="meta-label">Created:</span> 
-                            {{ article.createdAt|strftime('%b %d, %Y') }}
-                        </span>
-                        <span class="meta-item">
-                            <span class="meta-label">Last updated:</span> 
-                            {{ article.lastUpdatedAt|strftime('%b %d, %Y') or article.createdAt|strftime('%b %d, %Y') }}
-                        </span>
-                        <span class="meta-item">
-                            <span class="meta-label">Views:</span> {{ article.views }}
-                        </span>
-                    </div>
-                    <p>{{ article.summary|truncate(150) }}</p>
-                    <div class="article-actions">
-                        <a href="/articles/{{ article.slug }}" class="action-link">View</a>
-                        <a href="/edit-article/{{ article._id }}" class="action-link">Edit</a>
-                        <a href="/articles/{{ article._id }}/history" class="action-link">History</a>
-                    </div>
-                </div>
-                {% endfor %}
-                
-                {% if articles_total > articles|length %}
-                <div class="pagination">
-                    {% if articles_skip > 0 %}
-                    <a href="/profile/{{ user.username }}?tab=articles&skip={{ max(0, articles_skip - 10) }}" class="page-link">Previous</a>
-                    {% endif %}
-                    
-                    <span class="page-info">Showing {{ articles_skip + 1 }}-{{ min(articles_skip + 10, articles_total) }} of {{ articles_total }}</span>
-                    
-                    {% if articles_skip + 10 < articles_total %}
-                    <a href="/profile/{{ user.username }}?tab=articles&skip={{ articles_skip + 10 }}" class="page-link">Next</a>
-                    {% endif %}
-                </div>
-                {% endif %}
+    <div class="profile-info">
+        <h1>
+            {{ user.username }}
+            {% if user.role == 'admin' %}
+                <span class="role-badge role-admin">Admin</span>
+            {% elif user.role == 'editor' %}
+                <span class="role-badge role-editor">Editor</span>
             {% else %}
-                <div class="empty-state">
-                    <p>No articles yet.</p>
-                    <a href="/create-article" class="primary-button">Create your first article</a>
-                </div>
+                <span class="role-badge role-user">User</span>
             {% endif %}
+        </h1>
+        {% if is_self or is_admin %}
+            <p>{{ user.email }}</p>
+        {% endif %}
+        <p>Joined: {{ user.joinDate|strftime('%Y-%m-%d') }}</p>
+        {% if user.lastLogin %}
+            <p>Last active: {{ user.lastLogin|strftime('%Y-%m-%d') }}</p>
+        {% endif %}
+        
+        <div class="profile-stats">
+            <div class="stat-item">
+                <div class="stat-value">{{ user.contributions.articlesCreated }}</div>
+                <div class="stat-label">Articles</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ user.contributions.editsPerformed }}</div>
+                <div class="stat-label">Edits</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ user.reputation }}</div>
+                <div class="stat-label">Reputation</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ user.contributions.rewardsReceived }}</div>
+                <div class="stat-label">Rewards</div>
+            </div>
         </div>
         
-        <!-- Contributions Tab -->
-        <div class="tab-content" id="contributions-tab">
-            <div class="section-header">
-                <h2 class="section-title">Recent Contributions</h2>
-            </div>
-            
-            {% if contributions %}
-                {% for contribution in contributions %}
-                <div class="revision-card">
-                    <h3 class="revision-title">
-                        <a href="/articles/{{ contribution.articleSlug }}">{{ contribution.articleTitle }}</a>
-                    </h3>
-                    <div class="revision-meta">
-                        <span class="meta-item">
-                            <span class="meta-label">Edited:</span> 
-                            {{ contribution.createdAt|strftime('%b %d, %Y %H:%M') }}
-                        </span>
-                    </div>
-                    <p>{{ contribution.comment or "No edit summary provided" }}</p>
-                    <div class="revision-actions">
-                        <a href="/articles/{{ contribution.articleId }}/revisions/{{ contribution._id }}" class="action-link">View Changes</a>
-                        <a href="/articles/{{ contribution.articleSlug }}" class="action-link">View Article</a>
-                    </div>
-                </div>
-                {% endfor %}
-                
-                {% if contributions_total > contributions|length %}
-                <div class="pagination">
-                    {% if contributions_skip > 0 %}
-                    <a href="/profile/{{ user.username }}?tab=contributions&skip={{ max(0, contributions_skip - 10) }}" class="page-link">Previous</a>
-                    {% endif %}
-                    
-                    <span class="page-info">Showing {{ contributions_skip + 1 }}-{{ min(contributions_skip + 10, contributions_total) }} of {{ contributions_total }}</span>
-                    
-                    {% if contributions_skip + 10 < contributions_total %}
-                    <a href="/profile/{{ user.username }}?tab=contributions&skip={{ contributions_skip + 10 }}" class="page-link">Next</a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            {% else %}
-                <div class="empty-state">
-                    <p>No contributions yet.</p>
-                    <a href="/articles" class="primary-button">Start contributing</a>
-                </div>
-            {% endif %}
-        </div>
-        
-        <!-- Proposals Tab -->
-        <div class="tab-content" id="proposals-tab">
-            <div class="section-header">
-                <h2 class="section-title">Edit Proposals</h2>
-                {% if user.role == 'admin' or user.role == 'editor' %}
-                <a href="/proposals?status=pending" class="action-link">Review Proposals</a>
+        {% if is_self or is_admin %}
+            <div style="margin-top: 15px;">
+                <a href="/users/{{ user._id }}/edit" class="edit-button">Edit Profile</a>
+                {% if is_admin and not is_self %}
+                    <a href="/admin/users" class="edit-button">Manage User</a>
                 {% endif %}
             </div>
-            
-            {% if proposals %}
-                {% for proposal in proposals %}
-                <div class="proposal-card">
-                    <h3 class="proposal-title">
-                        <a href="/articles/{{ proposal.articleId }}/proposals/{{ proposal._id }}">Edit proposal for "{{ proposal.articleTitle }}"</a>
-                        <span class="status-badge status-{{ proposal.status }}">{{ proposal.status|title }}</span>
-                    </h3>
-                    <div class="proposal-meta">
-                        <span class="meta-item">
-                            <span class="meta-label">Proposed:</span> 
-                            {{ proposal.proposedAt|strftime('%b %d, %Y %H:%M') }}
-                        </span>
-                        {% if proposal.status != 'pending' and proposal.reviewedAt %}
-                        <span class="meta-item">
-                            <span class="meta-label">Reviewed:</span> 
-                            {{ proposal.reviewedAt|strftime('%b %d, %Y %H:%M') }}
-                        </span>
-                        {% endif %}
-                    </div>
-                    <p>{{ proposal.summary }}</p>
-                    <div class="proposal-actions">
-                        <a href="/articles/{{ proposal.articleId }}/proposals/{{ proposal._id }}" class="action-link">View Proposal</a>
-                        <a href="/articles/{{ proposal.articleSlug }}" class="action-link">View Article</a>
-                    </div>
-                </div>
-                {% endfor %}
-                
-                {% if proposals_total > proposals|length %}
-                <div class="pagination">
-                    {% if proposals_skip > 0 %}
-                    <a href="/profile/{{ user.username }}?tab=proposals&skip={{ max(0, proposals_skip - 10) }}" class="page-link">Previous</a>
-                    {% endif %}
-                    
-                    <span class="page-info">Showing {{ proposals_skip + 1 }}-{{ min(proposals_skip + 10, proposals_total) }} of {{ proposals_total }}</span>
-                    
-                    {% if proposals_skip + 10 < proposals_total %}
-                    <a href="/profile/{{ user.username }}?tab=proposals&skip={{ proposals_skip + 10 }}" class="page-link">Next</a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            {% else %}
-                <div class="empty-state">
-                    <p>No edit proposals yet.</p>
-                </div>
-            {% endif %}
-        </div>
-        
-        <!-- Rewards Tab -->
-        <div class="tab-content" id="rewards-tab">
-            <div class="section-header">
-                <h2 class="section-title">Rewards Received</h2>
-            </div>
-            
-            {% if rewards %}
-                {% for reward in rewards %}
-                <div class="reward-card">
-                    <h3 class="reward-title">
-                        <a href="/articles/{{ reward.articleSlug }}">{{ reward.articleTitle }}</a>
-                    </h3>
-                    <div class="reward-meta">
-                        <span class="meta-item">
-                            <span class="meta-label">Type:</span> 
-                            {{ reward.rewardType|title }}
-                        </span>
-                        <span class="meta-item">
-                            <span class="meta-label">Points:</span> 
-                            {{ reward.points }}
-                        </span>
-                        <span class="meta-item">
-                            <span class="meta-label">From:</span> 
-                            <a href="/profile/{{ reward.rewarderUsername }}">{{ reward.rewarderUsername }}</a>
-                        </span>
-                        <span class="meta-item">
-                            <span class="meta-label">Date:</span> 
-                            {{ reward.rewardedAt|strftime('%b %d, %Y') }}
-                        </span>
-                    </div>
-                    <div class="reward-actions">
-                        <a href="/articles/{{ reward.articleSlug }}" class="action-link">View Article</a>
-                        {% if reward.revisionId %}
-                        <a href="/articles/{{ reward.articleId }}/revisions/{{ reward.revisionId }}" class="action-link">View Revision</a>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-                
-                {% if rewards_total > rewards|length %}
-                <div class="pagination">
-                    {% if rewards_skip > 0 %}
-                    <a href="/profile/{{ user.username }}?tab=rewards&skip={{ max(0, rewards_skip - 10) }}" class="page-link">Previous</a>
-                    {% endif %}
-                    
-                    <span class="page-info">Showing {{ rewards_skip + 1 }}-{{ min(rewards_skip + 10, rewards_total) }} of {{ rewards_total }}</span>
-                    
-                    {% if rewards_skip + 10 < rewards_total %}
-                    <a href="/profile/{{ user.username }}?tab=rewards&skip={{ rewards_skip + 10 }}" class="page-link">Next</a>
-                    {% endif %}
-                </div>
-                {% endif %}
-            {% else %}
-                <div class="empty-state">
-                    <p>No rewards received yet.</p>
-                    <p>Keep contributing quality content to earn rewards!</p>
-                </div>
-            {% endif %}
-        </div>
-        
-        <!-- Settings Tab (Only visible for own profile) -->
-        {% if is_own_profile %}
-        <div class="tab-content" id="settings-tab">
-            <div class="section-header">
-                <h2 class="section-title">Account Settings</h2>
-            </div>
-            
-            <div class="status-message error-message" id="error-message"></div>
-            <div class="status-message success-message" id="success-message"></div>
-            
-            <div class="settings-form">
-                <form id="profile-settings-form">
-                    <div class="form-group">
-                        <label for="username">Username:</label>
-                        <input type="text" id="username" name="username" value="{{ user.username }}" disabled>
-                        <p class="help-text">Username cannot be changed</p>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email:</label>
-                        <input type="email" id="email" name="email" value="{{ user.email }}">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="current-password">Current Password:</label>
-                        <input type="password" id="current-password" name="currentPassword" placeholder="Required to save changes">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="new-password">New Password (leave blank to keep current):</label>
-                        <input type="password" id="new-password" name="newPassword" placeholder="New password">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="confirm-password">Confirm New Password:</label>
-                        <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm new password">
-                    </div>
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="primary-button">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
         {% endif %}
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Tab switching
-    const tabs = document.querySelectorAll('.profile-tab');
-    const tabContents = document.querySelectorAll('.tab-content');
+<div class="profile-content">
+    <div class="profile-section">
+        <h2>Recent Articles</h2>
+        {% if articles %}
+            {% for article in articles %}
+                <div class="activity-item">
+                    <a href="/articles/{{ article.slug }}">{{ article.title }}</a>
+                    <div class="activity-date">Created: {{ article.createdAt|strftime('%Y-%m-%d') }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-items">No articles created yet.</div>
+        {% endif %}
+    </div>
     
-    tabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            const tabName = this.getAttribute('data-tab');
-            
-            // Update URL with tab parameter
-            const url = new URL(window.location);
-            url.searchParams.set('tab', tabName);
-            window.history.pushState({}, '', url);
-            
-            // Update active tab
-            tabs.forEach(t => t.classList.remove('active'));
-            this.classList.add('active');
-            
-            // Show corresponding tab content
-            tabContents.forEach(content => content.classList.remove('active'));
-            document.getElementById(`${tabName}-tab`).classList.add('active');
-        });
-    });
+    <div class="profile-section">
+        <h2>Recent Edits</h2>
+        {% if revisions %}
+            {% for revision in revisions %}
+                <div class="activity-item">
+                    <a href="/articles/{{ revision.articleId }}">{{ revision.articleTitle }}</a>
+                    <div class="activity-date">
+                        {{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}
+                        {% if revision.comment %}
+                            - "{{ revision.comment }}"
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-items">No edits made yet.</div>
+        {% endif %}
+    </div>
     
-    // Check URL for active tab
-    const urlParams = new URLSearchParams(window.location.search);
-    const activeTab = urlParams.get('tab');
-    if (activeTab) {
-        const tabElement = document.querySelector(`.profile-tab[data-tab="${activeTab}"]`);
-        if (tabElement) {
-            tabElement.click();
-        }
-    }
-    
-    // Profile settings form
-    const settingsForm = document.getElementById('profile-settings-form');
-    if (settingsForm) {
-        settingsForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const email = document.getElementById('email').value;
-            const currentPassword = document.getElementById('current-password').value;
-            const newPassword = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            
-            // Validate form
-            if (!email) {
-                showError('Email is required');
-                return;
-            }
-            
-            if (!currentPassword) {
-                showError('Current password is required to save changes');
-                return;
-            }
-            
-            if (newPassword && newPassword !== confirmPassword) {
-                showError('New passwords do not match');
-                return;
-            }
-            
-            // Prepare data
-            const userData = {
-                email: email
-            };
-            
-            if (newPassword) {
-                userData.password = newPassword;
-            }
-            
-            userData.currentPassword = currentPassword;
-            
-            // Get token
-            const token = localStorage.getItem('token');
-            if (!token) {
-                showError('You must be logged in to update your profile');
-                window.location.href = '/login';
-                return;
-            }
-            
-            // Show loading state
-            const submitButton = settingsForm.querySelector('button[type="submit"]');
-            const originalText = submitButton.textContent;
-            submitButton.disabled = true;
-            submitButton.textContent = 'Saving...';
-            
-            // Send API request
-            fetch('/api/auth/me', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(userData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.detail || 'Failed to update profile');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                showSuccess('Profile updated successfully!');
-                
-                // Clear password fields
-                document.getElementById('current-password').value = '';
-                document.getElementById('new-password').value = '';
-                document.getElementById('confirm-password').value = '';
-            })
-            .catch(error => {
-                console.error('Error updating profile:', error);
-                showError(error.message || 'Failed to update profile. Please try again.');
-            })
-            .finally(() => {
-                // Reset button state
-                submitButton.disabled = false;
-                submitButton.textContent = originalText;
-            });
-        });
-    }
-    
-    // Helper functions for status messages
-    function showError(message) {
-        const errorMessage = document.getElementById('error-message');
-        const successMessage = document.getElementById('success-message');
-        
-        if (errorMessage && successMessage) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            successMessage.style.display = 'none';
-            
-            // Scroll to error
-            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            
-            // Hide after 5 seconds
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 5000);
-        } else {
-            alert(message);
-        }
-    }
-    
-    function showSuccess(message) {
-        const errorMessage = document.getElementById('error-message');
-        const successMessage = document.getElementById('success-message');
-        
-        if (errorMessage && successMessage) {
-            successMessage.textContent = message;
-            successMessage.style.display = 'block';
-            errorMessage.style.display = 'none';
-            
-            // Hide after 5 seconds
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 5000);
-        } else {
-            alert(message);
-        }
-    }
-});
-</script>
+    <div class="profile-section">
+        <h2>Recent Proposals</h2>
+        {% if proposals %}
+            {% for proposal in proposals %}
+                <div class="activity-item">
+                    <a href="/articles/{{ proposal.articleId }}/proposals/{{ proposal._id }}">
+                        Proposal for {{ proposal.articleTitle }}
+                    </a>
+                    <div class="activity-date">
+                        {{ proposal.proposedAt|strftime('%Y-%m-%d %H:%M') }}
+                        - Status: 
+                        {% if proposal.status == 'pending' %}
+                            <span style="color: #856404;">Pending</span>
+                        {% elif proposal.status == 'approved' %}
+                            <span style="color: #155724;">Approved</span>
+                        {% else %}
+                            <span style="color: #721c24;">Rejected</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-items">No proposals submitted yet.</div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

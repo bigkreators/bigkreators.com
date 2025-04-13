@@ -1,0 +1,501 @@
+<!-- File: templates/user_profile_edit.html -->
+{% extends "base.html" %}
+
+{% block title %}Edit Profile - {{ user.username }} - Kryptopedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-profile-container {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    
+    .form-section {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    
+    .form-section h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        font-size: 18px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .form-help {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    .form-group.checkbox-group {
+        display: flex;
+        align-items: center;
+    }
+    
+    .form-group.checkbox-group input[type="checkbox"] {
+        margin-right: 10px;
+    }
+    
+    .form-group.checkbox-group label {
+        margin-bottom: 0;
+    }
+    
+    .form-actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .primary-button {
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+    }
+    
+    .primary-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .cancel-button {
+        padding: 10px 20px;
+        background-color: #f5f5f5;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+        text-decoration: none;
+    }
+    
+    .cancel-button:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .password-section {
+        margin-top: 30px;
+    }
+    
+    .notice {
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        color: #856404;
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+    }
+    
+    .notice.danger {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+        color: #721c24;
+    }
+    
+    .notice.success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+    }
+    
+    /* Status messages */
+    .status-message {
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-profile-container">
+    <h1>Edit Profile</h1>
+    
+    <div class="status-message error-message" id="error-message"></div>
+    <div class="status-message success-message" id="success-message"></div>
+    
+    <form id="profile-form">
+        <div class="form-section">
+            <h2>Basic Information</h2>
+            
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" value="{{ user.username }}" required>
+                <div class="form-help">Your unique username on Kryptopedia.</div>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                <div class="form-help">Your email address is not publicly displayed.</div>
+            </div>
+            
+            {% if is_admin and not is_self %}
+                <div class="form-group">
+                    <label for="role">User Role:</label>
+                    <select id="role" name="role">
+                        <option value="user" {% if user.role == 'user' %}selected{% endif %}>Regular User</option>
+                        <option value="editor" {% if user.role == 'editor' %}selected{% endif %}>Editor</option>
+                        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Administrator</option>
+                    </select>
+                    <div class="form-help">User's permission level in the system.</div>
+                </div>
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="bio">Bio/About:</label>
+                <textarea id="bio" name="bio">{{ user.bio or '' }}</textarea>
+                <div class="form-help">Tell others a bit about yourself. (Optional)</div>
+            </div>
+        </div>
+        
+        <div class="form-section password-section">
+            <h2>Change Password</h2>
+            
+            <div class="notice">
+                <p>Leave these fields blank if you don't want to change your password.</p>
+            </div>
+            
+            {% if is_self %}
+                <div class="form-group">
+                    <label for="current-password">Current Password:</label>
+                    <input type="password" id="current-password" name="currentPassword">
+                </div>
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="new-password">New Password:</label>
+                <input type="password" id="new-password" name="newPassword">
+            </div>
+            
+            <div class="form-group">
+                <label for="confirm-password">Confirm New Password:</label>
+                <input type="password" id="confirm-password" name="confirmPassword">
+            </div>
+        </div>
+        
+        {% if is_admin %}
+            <div class="form-section">
+                <h2>Account Management</h2>
+                
+                {% if is_self %}
+                    <div class="notice danger">
+                        <p>⚠️ For security reasons, you cannot change your own administrative status or delete your own account.</p>
+                    </div>
+                {% else %}
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="activate-account" name="isActive" {% if user.isActive !== false %}checked{% endif %}>
+                        <label for="activate-account">Account Active</label>
+                    </div>
+                    
+                    <div class="notice danger">
+                        <p>⚠️ Account deactivation will prevent the user from logging in but preserve their content and contributions.</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+        
+        <div class="form-actions">
+            <div>
+                <button type="submit" class="primary-button">Save Changes</button>
+                <a href="/users/{{ user._id }}" class="cancel-button">Cancel</a>
+            </div>
+            
+            {% if is_admin and not is_self %}
+                <button type="button" id="delete-account-btn" class="delete-button">Delete Account</button>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div id="delete-account-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Confirm Account Deletion</h2>
+        
+        <div class="confirmation-content">
+            <p>You are about to <strong>permanently delete</strong> the account for user: <strong>{{ user.username }}</strong></p>
+            
+            <div class="notice danger">
+                <p>⚠️ This action cannot be undone. The user will lose access to their account, though their contributions will remain in the system.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="delete-confirmation">Type "DELETE" to confirm:</label>
+                <input type="text" id="delete-confirmation" placeholder="DELETE">
+            </div>
+            
+            <div class="form-actions">
+                <button id="confirm-delete" class="delete-button" disabled>Delete Account</button>
+                <button id="cancel-delete" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const profileForm = document.getElementById('profile-form');
+    
+    // Handle form submission
+    if (profileForm) {
+        profileForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!token) {
+                showError('You must be logged in to update a profile');
+                return;
+            }
+            
+            // Validate passwords if changing
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (newPassword && newPassword !== confirmPassword) {
+                showError('New passwords do not match');
+                return;
+            }
+            
+            // Gather form data
+            const formData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                bio: document.getElementById('bio').value
+            };
+            
+            // Add role if admin is editing another user
+            const roleSelect = document.getElementById('role');
+            if (roleSelect) {
+                formData.role = roleSelect.value;
+            }
+            
+            // Add password if changing
+            if (newPassword) {
+                const currentPasswordInput = document.getElementById('current-password');
+                if (currentPasswordInput && currentPasswordInput.value) {
+                    formData.currentPassword = currentPasswordInput.value;
+                }
+                formData.newPassword = newPassword;
+            }
+            
+            // Add active status if admin
+            const activeCheckbox = document.getElementById('activate-account');
+            if (activeCheckbox) {
+                formData.isActive = activeCheckbox.checked;
+            }
+            
+            // Show loading state
+            const submitButton = profileForm.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.innerHTML = 'Saving...';
+            submitButton.disabled = true;
+            
+            // Send API request
+            fetch('/api/special/users/{{ user._id }}', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.detail || 'Failed to update profile');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                showSuccess('Profile updated successfully!');
+                
+                // Redirect after a delay
+                setTimeout(() => {
+                    window.location.href = `/users/{{ user._id }}`;
+                }, 1500);
+            })
+            .catch(error => {
+                console.error('Error updating profile:', error);
+                showError(error.message || 'Failed to update profile. Please try again.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            });
+        });
+    }
+    
+    // Handle account deletion modal
+    const deleteAccountBtn = document.getElementById('delete-account-btn');
+    const deleteAccountModal = document.getElementById('delete-account-modal');
+    const confirmDeleteBtn = document.getElementById('confirm-delete');
+    const cancelDeleteBtn = document.getElementById('cancel-delete');
+    const deleteConfirmation = document.getElementById('delete-confirmation');
+    
+    if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', function() {
+            if (deleteAccountModal) {
+                deleteAccountModal.style.display = 'block';
+            }
+        });
+    }
+    
+    if (deleteConfirmation) {
+        deleteConfirmation.addEventListener('input', function() {
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.disabled = this.value !== 'DELETE';
+            }
+        });
+    }
+    
+    if (cancelDeleteBtn) {
+        cancelDeleteBtn.addEventListener('click', function() {
+            if (deleteAccountModal) {
+                deleteAccountModal.style.display = 'none';
+            }
+            
+            if (deleteConfirmation) {
+                deleteConfirmation.value = '';
+            }
+        });
+    }
+    
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', function() {
+            if (!token) {
+                showError('You must be logged in as an administrator to delete an account');
+                return;
+            }
+            
+            if (deleteConfirmation && deleteConfirmation.value !== 'DELETE') {
+                return;
+            }
+            
+            // Show loading state
+            const originalText = this.textContent;
+            this.innerHTML = 'Deleting...';
+            this.disabled = true;
+            
+            // Send API request
+            fetch('/api/special/users/{{ user._id }}', {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.detail || 'Failed to delete account');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                showSuccess('Account deleted successfully!');
+                
+                // Redirect after a delay
+                setTimeout(() => {
+                    window.location.href = '/admin/users';
+                }, 1500);
+            })
+            .catch(error => {
+                console.error('Error deleting account:', error);
+                showError(error.message || 'Failed to delete account. Please try again.');
+                
+                // Reset button state
+                this.innerHTML = originalText;
+                this.disabled = false;
+            });
+        });
+    }
+    
+    // Modal close button
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+    
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    });
+    
+    // Helper functions
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+        
+        // Scroll to error
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

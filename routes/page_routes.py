@@ -1261,3 +1261,363 @@ async def article_management_page(
             {"request": request, "message": str(e)},
             status_code=500
         )
+
+# File: routes/page_routes.py
+# Add these route handlers to the page_routes.py file
+
+@router.get("/admin", response_class=HTMLResponse)
+async def admin_dashboard(
+    request: Request,
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db)
+):
+    """
+    Render the admin dashboard.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Gather statistics
+        stats = {}
+        
+        # Article stats
+        stats["articles"] = await db["articles"].count_documents({"status": "published"})
+        
+        # User stats
+        stats["users"] = await db["users"].count_documents({})
+        
+        # Pending proposals
+        stats["pending_proposals"] = await db["proposals"].count_documents({"status": "pending"})
+        
+        # Recent activity (last 24 hours)
+        recent_revisions = await db["revisions"].count_documents({
+            "createdAt": {"$gte": datetime.now() - timedelta(days=1)}
+        })
+        recent_proposals = await db["proposals"].count_documents({
+            "proposedAt": {"$gte": datetime.now() - timedelta(days=1)}
+        })
+        
+        stats["recent_activity"] = {
+            "revisions": recent_revisions,
+            "proposals": recent_proposals,
+            "total": recent_revisions + recent_proposals
+        }
+        
+        # Get recent activity for display
+        recent_activity = []
+        
+        # Get recent revisions
+        revisions_cursor = db["revisions"].find().sort("createdAt", -1).limit(5)
+        revisions = await revisions_cursor.to_list(length=5)
+        
+        for rev in revisions:
+            article = await db["articles"].find_one({"_id": rev["articleId"]})
+            user = await db["users"].find_one({"_id": rev["createdBy"]})
+            
+            if article and user:
+                recent_activity.append({
+                    "type": "Edit",
+                    "timestamp": rev["createdAt"],
+                    "articleId": str(rev["articleId"]),
+                    "articleTitle": article["title"],
+                    "username": user["username"]
+                })
+        
+        # Get recent proposals
+        proposals_cursor = db["proposals"].find().sort("proposedAt", -1).limit(5)
+        proposals = await proposals_cursor.to_list(length=5)
+        
+        for prop in proposals:
+            article = await db["articles"].find_one({"_id": prop["articleId"]})
+            user = await db["users"].find_one({"_id": prop["proposedBy"]})
+            
+            if article and user:
+                recent_activity.append({
+                    "type": "Proposal",
+                    "timestamp": prop["proposedAt"],
+                    "articleId": str(prop["articleId"]),
+                    "articleTitle": article["title"],
+                    "username": user["username"]
+                })
+        
+        # Sort by timestamp
+        recent_activity.sort(key=lambda x: x["timestamp"], reverse=True)
+        recent_activity = recent_activity[:5]  # Only show top 5
+        
+        # Render template
+        return templates.TemplateResponse(
+            "admin_dashboard.html",
+            {
+                "request": request,
+                "stats": stats,
+                "recent_activity": recent_activity,
+                "current_user": current_user
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error in admin dashboard: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": str(e)},
+            status_code=500
+        )
+
+@router.get("/admin/users", response_class=HTMLResponse)
+async def user_management_page(
+    request: Request,
+    role: Optional[str] = None,
+    search: Optional[str] = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db)
+):
+    """
+    Render the user management page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Build query
+        query = {}
+        
+        # Filter by role if provided
+        if role:
+            query["role"] = role
+        
+        # Search in username or email if provided
+        if search:
+            query["$or"] = [
+                {"username": {"$regex": search, "$options": "i"}},
+                {"email": {"$regex": search, "$options": "i"}}
+            ]
+        
+        # Get total count
+        total_count = await db["users"].count_documents(query)
+        
+        # Get users with pagination
+        cursor = db["users"].find(query).sort("joinDate", -1).skip(skip).limit(limit)
+        users = await cursor.to_list(length=limit)
+        
+        # Render template
+        return templates.TemplateResponse(
+            "user_management.html",
+            {
+                "request": request,
+                "users": users,
+                "total": total_count,
+                "skip": skip,
+                "limit": limit,
+                "role": role,
+                "search": search,
+                "current_user": current_user
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error in user management page: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": str(e)},
+            status_code=500
+        )
+
+@router.get("/admin/proposals", response_class=HTMLResponse)
+async def admin_proposals_page(
+    request: Request,
+    status: Optional[str] = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db)
+):
+    """
+    Admin page for managing all proposals.
+    """
+    # Redirect to the proposals page with proper filtering
+    return RedirectResponse(url=f"/proposals?status={status or 'pending'}")
+
+# File: routes/page_routes.py
+# Add this route handler to the page_routes.py file
+
+@router.get("/users/{user_id}", response_class=HTMLResponse)
+async def user_profile_page(
+    request: Request,
+    user_id: str,
+    db=Depends(get_db)
+):
+    """
+    Render the user profile page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Check if user exists
+        if not ObjectId.is_valid(user_id):
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Invalid user ID"},
+                status_code=404
+            )
+        
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "User not found"},
+                status_code=404
+            )
+        
+        # Remove sensitive info
+        if "passwordHash" in user:
+            del user["passwordHash"]
+        
+        # Get user's articles
+        articles_cursor = db["articles"].find({"createdBy": ObjectId(user_id)}).sort("createdAt", -1).limit(5)
+        articles = await articles_cursor.to_list(length=5)
+        
+        # Get user's edits/revisions
+        revisions_cursor = db["revisions"].find({"createdBy": ObjectId(user_id)}).sort("createdAt", -1).limit(5)
+        revisions = await revisions_cursor.to_list(length=5)
+        
+        # Get user's proposals
+        proposals_cursor = db["proposals"].find({"proposedBy": ObjectId(user_id)}).sort("proposedAt", -1).limit(5)
+        proposals = await proposals_cursor.to_list(length=5)
+        
+        # Enhance with article titles
+        enhanced_revisions = []
+        for rev in revisions:
+            article = await db["articles"].find_one({"_id": rev["articleId"]})
+            article_title = article["title"] if article else "Unknown Article"
+            
+            enhanced_revisions.append({
+                **rev,
+                "articleTitle": article_title
+            })
+        
+        enhanced_proposals = []
+        for prop in proposals:
+            article = await db["articles"].find_one({"_id": prop["articleId"]})
+            article_title = article["title"] if article else "Unknown Article"
+            
+            enhanced_proposals.append({
+                **prop,
+                "articleTitle": article_title
+            })
+        
+        # Check if current user is the profile owner or an admin
+        current_user = None
+        is_self = False
+        is_admin = False
+        
+        try:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.replace("Bearer ", "")
+                from dependencies.auth import get_current_user
+                current_user = await get_current_user(token=token, db=db)
+                
+                is_self = str(current_user["_id"]) == user_id
+                is_admin = current_user["role"] == "admin"
+        except:
+            pass
+        
+        # Render template
+        return templates.TemplateResponse(
+            "user_profile.html",
+            {
+                "request": request,
+                "user": user,
+                "articles": articles,
+                "revisions": enhanced_revisions,
+                "proposals": enhanced_proposals,
+                "is_self": is_self,
+                "is_admin": is_admin,
+                "current_user": current_user
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error displaying user profile: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": str(e)},
+            status_code=500
+        )
+
+# File: routes/page_routes.py
+# Add this route handler to the page_routes.py file
+
+@router.get("/users/{user_id}/edit", response_class=HTMLResponse)
+async def edit_user_profile_page(
+    request: Request,
+    user_id: str,
+    db=Depends(get_db)
+):
+    """
+    Render the user profile edit page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Check if user exists
+        if not ObjectId.is_valid(user_id):
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Invalid user ID"},
+                status_code=404
+            )
+        
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "User not found"},
+                status_code=404
+            )
+        
+        # Remove sensitive info
+        if "passwordHash" in user:
+            del user["passwordHash"]
+        
+        # Check if current user is the profile owner or an admin
+        current_user = None
+        is_self = False
+        is_admin = False
+        
+        try:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.replace("Bearer ", "")
+                from dependencies.auth import get_current_user
+                current_user = await get_current_user(token=token, db=db)
+                
+                is_self = str(current_user["_id"]) == user_id
+                is_admin = current_user["role"] == "admin"
+        except:
+            pass
+        
+        # Only allow editing if user is the profile owner or an admin
+        if not is_self and not is_admin:
+            return templates.TemplateResponse(
+                "403.html",
+                {"request": request, "message": "You do not have permission to edit this profile"},
+                status_code=403
+            )
+        
+        # Render template
+        return templates.TemplateResponse(
+            "user_profile_edit.html",
+            {
+                "request": request,
+                "user": user,
+                "is_self": is_self,
+                "is_admin": is_admin,
+                "current_user": current_user
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error displaying edit profile page: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": str(e)},
+            status_code=500
+        )

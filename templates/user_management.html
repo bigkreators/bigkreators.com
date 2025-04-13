@@ -39,6 +39,7 @@
         padding: 3px 8px;
         border-radius: 4px;
         font-size: 12px;
+        margin-left: 10px;
         color: white;
     }
     
@@ -47,11 +48,11 @@
     }
     
     .role-editor {
-        background-color: #0645ad;
+        background-color: #28a745;
     }
     
     .role-user {
-        background-color: #28a745;
+        background-color: #17a2b8;
     }
     
     .users-table {
@@ -105,12 +106,7 @@
         color: #212529;
     }
     
-    .reset-button {
-        background-color: #6c757d;
-        color: white;
-    }
-    
-    .block-button, .unblock-button {
+    .delete-button {
         background-color: #dc3545;
         color: white;
     }
@@ -161,8 +157,8 @@
         cursor: pointer;
     }
     
-    /* Modal styles */
-    .modal {
+    /* Role change modal */
+    .role-modal {
         display: none;
         position: fixed;
         z-index: 1000;
@@ -173,7 +169,7 @@
         background-color: rgba(0,0,0,0.6);
     }
     
-    .modal-content {
+    .role-modal-content {
         background-color: #fff;
         margin: 10% auto;
         padding: 25px;
@@ -183,74 +179,19 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
     
-    .close {
-        position: absolute;
-        right: 15px;
-        top: 10px;
-        font-size: 24px;
-        font-weight: bold;
-        cursor: pointer;
-        color: #666;
+    .role-selection {
+        margin: 20px 0;
     }
     
-    .form-group {
-        margin-bottom: 15px;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 500;
-    }
-    
-    .form-group select {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
+    .role-option {
+        margin: 10px 0;
     }
     
     .form-actions {
         display: flex;
-        justify-content: space-between;
+        gap: 10px;
+        justify-content: flex-end;
         margin-top: 20px;
-    }
-    
-    .primary-button {
-        padding: 8px 16px;
-        background-color: #0645ad;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .primary-button:hover {
-        background-color: #053a7a;
-    }
-    
-    .cancel-button {
-        padding: 8px 16px;
-        background-color: #f5f5f5;
-        color: #333;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .cancel-button:hover {
-        background-color: #e8e8e8;
-    }
-    
-    /* Password reset modal */
-    .warning-box {
-        background-color: #fff3cd;
-        border: 1px solid #ffeeba;
-        color: #856404;
-        padding: 10px 15px;
-        border-radius: 4px;
-        margin: 15px 0;
     }
 </style>
 {% endblock %}
@@ -258,6 +199,7 @@
 {% block sidebar_extra %}
 <h3>Administration</h3>
 <ul>
+    <li><a href="/admin">Dashboard</a></li>
     <li><a href="/admin/articles">Article Management</a></li>
     <li><a href="/admin/users" class="active">User Management</a></li>
     <li><a href="/admin/proposals">Edit Proposals</a></li>
@@ -297,47 +239,34 @@
                     <th>Email</th>
                     <th>Role</th>
                     <th>Join Date</th>
-                    <th>Last Login</th>
-                    <th>Contributions</th>
+                    <th>Articles Created</th>
+                    <th>Edits</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
                 <tr id="user-row-{{ user._id }}">
-                    <td>
-                        <a href="/profile/{{ user.username }}">{{ user.username }}</a>
-                    </td>
+                    <td>{{ user.username }}</td>
                     <td>{{ user.email }}</td>
                     <td>
-                        <span class="role-badge role-{{ user.role }}">{{ user.role|title }}</span>
+                        {% if user.role == 'admin' %}
+                            <span class="role-badge role-admin">Admin</span>
+                        {% elif user.role == 'editor' %}
+                            <span class="role-badge role-editor">Editor</span>
+                        {% else %}
+                            <span class="role-badge role-user">User</span>
+                        {% endif %}
                     </td>
                     <td>{{ user.joinDate|strftime('%Y-%m-%d') }}</td>
-                    <td>{{ user.lastLogin|strftime('%Y-%m-%d') or 'Never' }}</td>
-                    <td>
-                        <span title="Articles Created">📝 {{ user.contributions.articlesCreated }}</span> | 
-                        <span title="Edits Performed">✏️ {{ user.contributions.editsPerformed }}</span> | 
-                        <span title="Reputation">⭐ {{ user.reputation }}</span>
-                    </td>
+                    <td>{{ user.contributions.articlesCreated }}</td>
+                    <td>{{ user.contributions.editsPerformed }}</td>
                     <td>
                         <div class="user-actions">
-                            <a href="/profile/{{ user.username }}" class="action-button view-button">View</a>
-                            
-                            {% if user.role != 'admin' or current_user.username == 'admin' %}
-                                {% if user.role == 'user' %}
-                                <button class="action-button promote-button" onclick="changeRole('{{ user._id }}', '{{ user.username }}', 'editor')">Promote to Editor</button>
-                                {% elif user.role == 'editor' %}
-                                <button class="action-button demote-button" onclick="changeRole('{{ user._id }}', '{{ user.username }}', 'user')">Demote to User</button>
-                                {% if current_user.username == 'admin' %}
-                                <button class="action-button promote-button" onclick="changeRole('{{ user._id }}', '{{ user.username }}', 'admin')">Promote to Admin</button>
-                                {% endif %}
-                                {% elif user.role == 'admin' and current_user.username == 'admin' and user.username != 'admin' %}
-                                <button class="action-button demote-button" onclick="changeRole('{{ user._id }}', '{{ user.username }}', 'editor')">Demote to Editor</button>
-                                {% endif %}
-                            {% endif %}
-                            
-                            {% if user.username != 'admin' and user.username != current_user.username %}
-                            <button class="action-button reset-button" onclick="showResetPasswordModal('{{ user._id }}', '{{ user.username }}')">Reset Password</button>
+                            <a href="/users/{{ user._id }}" class="action-button view-button">View</a>
+                            <button class="action-button edit-button" onclick="openRoleModal('{{ user._id }}', '{{ user.username }}', '{{ user.role }}')">Change Role</button>
+                            {% if current_user._id != user._id %}
+                                <button class="action-button delete-button" onclick="confirmDeleteUser('{{ user._id }}', '{{ user.username }}')">Delete</button>
                             {% endif %}
                         </div>
                     </td>
@@ -363,63 +292,64 @@
     {% else %}
         <div class="no-users">
             <p>No users found.</p>
-            {% if search %}
-                <p>Try adjusting your search query.</p>
+            {% if role or search %}
+                <p>Try adjusting your filters.</p>
             {% endif %}
         </div>
     {% endif %}
 </div>
 
-<!-- Change Role Modal -->
-<div id="role-modal" class="modal">
-    <div class="modal-content">
+<!-- Role Change Modal -->
+<div id="role-modal" class="role-modal">
+    <div class="role-modal-content">
         <span class="close">&times;</span>
-        <h2 id="role-modal-title">Change User Role</h2>
+        <h2>Change User Role</h2>
         
-        <p id="role-modal-description">You are about to change the role for user <strong id="role-username"></strong>.</p>
+        <p>Changing role for user: <strong id="modal-username"></strong></p>
         
-        <form id="role-form">
-            <input type="hidden" id="user-id" name="userId">
-            <input type="hidden" id="new-role" name="newRole">
-            
-            <div class="form-group">
-                <label for="confirmation">Type the username to confirm:</label>
-                <input type="text" id="role-confirmation" name="confirmation" placeholder="Enter username">
+        <div class="role-selection">
+            <div class="role-option">
+                <input type="radio" id="role-user" name="role" value="user">
+                <label for="role-user">Regular User</label>
+                <p>Can create and edit their own articles, propose edits to others.</p>
             </div>
             
-            <div class="form-actions">
-                <button type="button" id="cancel-role-button" class="cancel-button">Cancel</button>
-                <button type="submit" id="confirm-role-button" class="primary-button" disabled>Change Role</button>
+            <div class="role-option">
+                <input type="radio" id="role-editor" name="role" value="editor">
+                <label for="role-editor">Editor</label>
+                <p>Can edit any article, approve/reject proposals, and manage content.</p>
             </div>
-        </form>
+            
+            <div class="role-option">
+                <input type="radio" id="role-admin" name="role" value="admin">
+                <label for="role-admin">Administrator</label>
+                <p>Full control over the wiki, including user management and system settings.</p>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button id="save-role" class="primary-button">Save Changes</button>
+            <button id="cancel-role" class="cancel-button">Cancel</button>
+        </div>
     </div>
 </div>
 
-<!-- Reset Password Modal -->
-<div id="reset-password-modal" class="modal">
-    <div class="modal-content">
+<!-- Delete User Confirmation Modal -->
+<div id="delete-user-modal" class="role-modal">
+    <div class="role-modal-content">
         <span class="close">&times;</span>
-        <h2>Reset User Password</h2>
+        <h2>Confirm User Deletion</h2>
         
-        <p>You are about to reset the password for user <strong id="reset-username"></strong>.</p>
+        <p>Are you sure you want to delete user: <strong id="delete-username"></strong>?</p>
         
         <div class="warning-box">
-            <p>⚠️ This will generate a new random password and send it to the user's email. The user will need to change it on first login.</p>
+            <p>⚠️ This action will remove the user account and all associated data. This cannot be undone.</p>
         </div>
         
-        <form id="reset-password-form">
-            <input type="hidden" id="reset-user-id" name="userId">
-            
-            <div class="form-group">
-                <label for="reset-confirmation">Type the username to confirm:</label>
-                <input type="text" id="reset-confirmation" name="confirmation" placeholder="Enter username">
-            </div>
-            
-            <div class="form-actions">
-                <button type="button" id="cancel-reset-button" class="cancel-button">Cancel</button>
-                <button type="submit" id="confirm-reset-button" class="primary-button" disabled>Reset Password</button>
-            </div>
-        </form>
+        <div class="form-actions">
+            <button id="confirm-delete-user" class="delete-button">Delete User</button>
+            <button id="cancel-delete-user" class="cancel-button">Cancel</button>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -430,239 +360,176 @@ document.addEventListener('DOMContentLoaded', function() {
     const token = localStorage.getItem('token');
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
-    
-    // Role change modal elements
     const roleModal = document.getElementById('role-modal');
-    const roleModalTitle = document.getElementById('role-modal-title');
-    const roleUsername = document.getElementById('role-username');
-    const roleForm = document.getElementById('role-form');
-    const userId = document.getElementById('user-id');
-    const newRole = document.getElementById('new-role');
-    const roleConfirmation = document.getElementById('role-confirmation');
-    const confirmRoleButton = document.getElementById('confirm-role-button');
-    const cancelRoleButton = document.getElementById('cancel-role-button');
+    const deleteUserModal = document.getElementById('delete-user-modal');
     
-    // Reset password modal elements
-    const resetPasswordModal = document.getElementById('reset-password-modal');
-    const resetUsername = document.getElementById('reset-username');
-    const resetPasswordForm = document.getElementById('reset-password-form');
-    const resetUserId = document.getElementById('reset-user-id');
-    const resetConfirmation = document.getElementById('reset-confirmation');
-    const confirmResetButton = document.getElementById('confirm-reset-button');
-    const cancelResetButton = document.getElementById('cancel-reset-button');
+    // Variables to store current user info for modals
+    let currentUserId = null;
+    let currentUsername = null;
     
     // Close button handlers
-    const closeButtons = document.querySelectorAll('.close');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            if (modal) modal.style.display = 'none';
+    document.querySelectorAll('.close').forEach(close => {
+        close.addEventListener('click', function() {
+            closeAllModals();
         });
     });
     
-    // Close modal when clicking outside
+    // Close modals when clicking outside
     window.addEventListener('click', function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
+        if (event.target === roleModal || event.target === deleteUserModal) {
+            closeAllModals();
         }
     });
     
-    // Role change confirmation input handler
-    if (roleConfirmation) {
-        roleConfirmation.addEventListener('input', function() {
-            confirmRoleButton.disabled = this.value !== roleUsername.textContent;
-        });
-    }
+    // Setup role modal buttons
+    document.getElementById('save-role').addEventListener('click', function() {
+        const selectedRole = document.querySelector('input[name="role"]:checked');
+        
+        if (!selectedRole) {
+            showError('Please select a role');
+            return;
+        }
+        
+        if (!currentUserId) {
+            showError('User ID not found');
+            return;
+        }
+        
+        changeUserRole(currentUserId, selectedRole.value);
+    });
     
-    // Reset password confirmation input handler
-    if (resetConfirmation) {
-        resetConfirmation.addEventListener('input', function() {
-            confirmResetButton.disabled = this.value !== resetUsername.textContent;
-        });
-    }
+    document.getElementById('cancel-role').addEventListener('click', function() {
+        closeAllModals();
+    });
     
-    // Role form submission handler
-    if (roleForm) {
-        roleForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+    // Setup delete user modal buttons
+    document.getElementById('confirm-delete-user').addEventListener('click', function() {
+        if (!currentUserId) {
+            showError('User ID not found');
+            return;
+        }
+        
+        deleteUser(currentUserId);
+    });
+    
+    document.getElementById('cancel-delete-user').addEventListener('click', function() {
+        closeAllModals();
+    });
+    
+    // Change user role function
+    async function changeUserRole(userId, newRole) {
+        try {
             if (!token) {
                 showError('You must be logged in as an administrator to perform this action');
                 return;
             }
             
-            if (roleConfirmation.value !== roleUsername.textContent) {
-                showError('Username confirmation does not match');
-                return;
-            }
-            
             // Show loading state
-            confirmRoleButton.disabled = true;
-            confirmRoleButton.textContent = 'Processing...';
+            const saveButton = document.getElementById('save-role');
+            const originalText = saveButton.textContent;
+            saveButton.textContent = 'Saving...';
+            saveButton.disabled = true;
             
-            const data = {
-                role: newRole.value
-            };
-            
-            fetch(`/api/users/${userId.value}/role`, {
+            const response = await fetch(`/api/special/users/${userId}/role?role=${newRole}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.detail || 'Failed to change user role');
-                    });
                 }
-                return response.json();
-            })
-            .then(data => {
-                showSuccess(`User role changed to ${newRole.value} successfully`);
-                
-                // Close modal
-                roleModal.style.display = 'none';
-                
-                // Update UI
-                const userRow = document.getElementById(`user-row-${userId.value}`);
-                if (userRow) {
-                    const roleCell = userRow.querySelector('td:nth-child(3)');
-                    if (roleCell) {
-                        roleCell.innerHTML = `<span class="role-badge role-${newRole.value}">${capitalizeFirstLetter(newRole.value)}</span>`;
+            });
+            
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || 'Failed to change user role');
+            }
+            
+            // Show success message
+            showSuccess(`User role successfully changed to ${newRole}`);
+            
+            // Update the UI
+            const userRow = document.getElementById(`user-row-${userId}`);
+            if (userRow) {
+                const roleCell = userRow.querySelector('td:nth-child(3)');
+                if (roleCell) {
+                    let badgeHTML = '';
+                    
+                    if (newRole === 'admin') {
+                        badgeHTML = '<span class="role-badge role-admin">Admin</span>';
+                    } else if (newRole === 'editor') {
+                        badgeHTML = '<span class="role-badge role-editor">Editor</span>';
+                    } else {
+                        badgeHTML = '<span class="role-badge role-user">User</span>';
                     }
                     
-                    // Refresh the page after a short delay
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1500);
+                    roleCell.innerHTML = badgeHTML;
                 }
-            })
-            .catch(error => {
-                console.error('Error changing user role:', error);
-                showError(error.message || 'Failed to change user role');
-            })
-            .finally(() => {
-                // Reset form
-                roleForm.reset();
-                confirmRoleButton.disabled = true;
-                confirmRoleButton.textContent = 'Change Role';
-            });
-        });
+            }
+            
+            // Close the modal
+            closeAllModals();
+        } catch (error) {
+            console.error('Error changing user role:', error);
+            showError(error.message || 'Failed to change user role');
+        } finally {
+            // Reset button state
+            const saveButton = document.getElementById('save-role');
+            saveButton.textContent = 'Save Changes';
+            saveButton.disabled = false;
+        }
     }
     
-    // Reset password form submission handler
-    if (resetPasswordForm) {
-        resetPasswordForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
+    // Delete user function
+    async function deleteUser(userId) {
+        try {
             if (!token) {
                 showError('You must be logged in as an administrator to perform this action');
                 return;
             }
             
-            if (resetConfirmation.value !== resetUsername.textContent) {
-                showError('Username confirmation does not match');
-                return;
-            }
-            
             // Show loading state
-            confirmResetButton.disabled = true;
-            confirmResetButton.textContent = 'Processing...';
+            const deleteButton = document.getElementById('confirm-delete-user');
+            const originalText = deleteButton.textContent;
+            deleteButton.textContent = 'Deleting...';
+            deleteButton.disabled = true;
             
-            fetch(`/api/users/${resetUserId.value}/reset-password`, {
-                method: 'POST',
+            const response = await fetch(`/api/special/users/${userId}`, {
+                method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.detail || 'Failed to reset password');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                showSuccess(`Password reset successful. A new password has been sent to the user's email.`);
-                
-                // Close modal
-                resetPasswordModal.style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error resetting password:', error);
-                showError(error.message || 'Failed to reset password');
-            })
-            .finally(() => {
-                // Reset form
-                resetPasswordForm.reset();
-                confirmResetButton.disabled = true;
-                confirmResetButton.textContent = 'Reset Password';
             });
-        });
-    }
-    
-    // Cancel button handlers
-    if (cancelRoleButton) {
-        cancelRoleButton.addEventListener('click', function() {
-            roleModal.style.display = 'none';
-            roleForm.reset();
-        });
-    }
-    
-    if (cancelResetButton) {
-        cancelResetButton.addEventListener('click', function() {
-            resetPasswordModal.style.display = 'none';
-            resetPasswordForm.reset();
-        });
-    }
-    
-    // Global functions for user management
-    window.changeRole = function(userId, username, role) {
-        // Set modal values
-        window.userId.value = userId;
-        roleUsername.textContent = username;
-        newRole.value = role;
-        
-        // Update modal title
-        if (role === 'admin') {
-            roleModalTitle.textContent = `Promote User to Administrator`;
-        } else if (role === 'editor') {
-            roleModalTitle.textContent = `Change User Role to Editor`;
-        } else if (role === 'user') {
-            roleModalTitle.textContent = `Demote User to Regular User`;
+            
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || 'Failed to delete user');
+            }
+            
+            // Show success message
+            showSuccess('User successfully deleted');
+            
+            // Remove the user row from the table
+            const userRow = document.getElementById(`user-row-${userId}`);
+            if (userRow) {
+                userRow.remove();
+            }
+            
+            // Close the modal
+            closeAllModals();
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            showError(error.message || 'Failed to delete user');
+        } finally {
+            // Reset button state
+            const deleteButton = document.getElementById('confirm-delete-user');
+            deleteButton.textContent = 'Delete User';
+            deleteButton.disabled = false;
         }
-        
-        // Show modal
-        roleModal.style.display = 'block';
-        
-        // Focus on confirmation input
-        roleConfirmation.focus();
-    };
-    
-    window.showResetPasswordModal = function(userId, username) {
-        // Set modal values
-        resetUserId.value = userId;
-        resetUsername.textContent = username;
-        
-        // Show modal
-        resetPasswordModal.style.display = 'block';
-        
-        // Focus on confirmation input
-        resetConfirmation.focus();
-    };
+    }
     
     // Helper functions
     function showError(message) {
         errorMessage.textContent = message;
         errorMessage.style.display = 'block';
         successMessage.style.display = 'none';
-        
-        // Scroll to error
-        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
         // Hide after 5 seconds
         setTimeout(() => {
@@ -671,3 +538,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+        
+        // Hide after 5 seconds
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+        }, 5000);
+    }
+    
+    function closeAllModals() {
+        if (roleModal) roleModal.style.display = 'none';
+        if (deleteUserModal) deleteUserModal.style.display = 'none';
+    }
+    
+    // Global functions for opening modals
+    window.openRoleModal = function(userId, username, currentRole) {
+        currentUserId = userId;
+        currentUsername = username;
+        
+        // Set user info in modal
+        document.getElementById('modal-username').textContent = username;
+        
+        // Select the current role
+        document.getElementById(`role-${currentRole}`).checked = true;
+        
+        // Show the modal
+        roleModal.style.display = 'block';
+    }
+    
+    window.confirmDeleteUser = function(userId, username) {
+        currentUserId = userId;
+        currentUsername = username;
+        
+        // Set user info in modal
+        document.getElementById('delete-username').textContent = username;
+        
+        // Show the modal
+        deleteUserModal.style.display = 'block';
+    }
+});
+</script>
+{% endblock %}

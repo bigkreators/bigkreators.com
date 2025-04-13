@@ -1,0 +1,209 @@
+<!-- File: templates/admin_dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Kryptopedia{% endblock %}
+
+{% set active_page = 'admin' %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        margin: 20px 0;
+    }
+    
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #0645ad;
+        margin-bottom: 10px;
+    }
+    
+    .stat-label {
+        font-size: 1em;
+        color: #666;
+    }
+    
+    .admin-section {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .admin-section h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.5em;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .admin-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .admin-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .admin-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .admin-card h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.2em;
+    }
+    
+    .admin-card p {
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .admin-card .action-link {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .admin-card .action-link:hover {
+        background-color: #053a7a;
+        text-decoration: none;
+    }
+    
+    .recent-activity {
+        margin-top: 20px;
+    }
+    
+    .activity-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-item .activity-type {
+        font-weight: bold;
+        color: #0645ad;
+    }
+    
+    .activity-item .activity-time {
+        color: #666;
+        font-size: 0.9em;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Administration</h3>
+<ul>
+    <li><a href="/admin" class="active">Dashboard</a></li>
+    <li><a href="/admin/articles">Article Management</a></li>
+    <li><a href="/admin/users">User Management</a></li>
+    <li><a href="/admin/proposals">Edit Proposals</a></li>
+    <li><a href="/special/statistics">Wiki Statistics</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1>Admin Dashboard</h1>
+
+<div class="admin-container">
+    <div class="stats-overview">
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.articles|format_number }}</div>
+            <div class="stat-label">Total Articles</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.users|format_number }}</div>
+            <div class="stat-label">Registered Users</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.recent_activity.total|format_number }}</div>
+            <div class="stat-label">Actions Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ stats.pending_proposals|format_number }}</div>
+            <div class="stat-label">Pending Proposals</div>
+        </div>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Quick Actions</h2>
+        <div class="admin-grid">
+            <div class="admin-card">
+                <h3>User Management</h3>
+                <p>Manage users, assign roles, and view user activities.</p>
+                <a href="/admin/users" class="action-link">Manage Users</a>
+            </div>
+            <div class="admin-card">
+                <h3>Article Management</h3>
+                <p>Create, edit, publish, or archive articles.</p>
+                <a href="/admin/articles" class="action-link">Manage Articles</a>
+            </div>
+            <div class="admin-card">
+                <h3>Content Proposals</h3>
+                <p>Review and approve user-submitted edit proposals.</p>
+                <a href="/admin/proposals" class="action-link">Review Proposals</a>
+            </div>
+            <div class="admin-card">
+                <h3>Wiki Statistics</h3>
+                <p>View detailed wiki statistics and metrics.</p>
+                <a href="/special/statistics" class="action-link">View Statistics</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Recent Activity</h2>
+        <div class="recent-activity">
+            {% if recent_activity %}
+                {% for activity in recent_activity %}
+                <div class="activity-item">
+                    <span class="activity-type">{{ activity.type }}</span>: 
+                    <a href="/articles/{{ activity.articleId }}">{{ activity.articleTitle }}</a> by 
+                    <strong>{{ activity.username }}</strong>
+                    <span class="activity-time">{{ activity.timestamp|strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                {% endfor %}
+                
+                <div style="margin-top: 15px;">
+                    <a href="/special/recentchanges" class="action-link">View All Activity</a>
+                </div>
+            {% else %}
+                <p>No recent activity found.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
