@@ -3,6 +3,132 @@
 
 {% block title %}{{ article.title }} - Kryptopedia{% endblock %}
 
+{% block extra_css %}
+<style>
+/* Article Management CSS */
+.status-section, .danger-section {
+    margin-bottom: 20px;
+}
+
+.status-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.status-button {
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.status-button:hover {
+    background-color: #e0e0e0;
+}
+
+.status-button.active {
+    background-color: #0645ad;
+    color: white;
+    border-color: #0645ad;
+}
+
+.status-descriptions {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+}
+
+.status-descriptions p {
+    margin: 5px 0;
+}
+
+.danger-section {
+    margin-top: 20px;
+    padding-top: 15px;
+}
+
+.danger-button {
+    padding: 8px 16px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.danger-button:hover {
+    background-color: #c82333;
+}
+
+.danger-button:disabled {
+    background-color: #f8d7da;
+    cursor: not-allowed;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+.warning-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.article-title-confirm {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+/* Add this button to the article actions section */
+.manage-button {
+    background-color: #6c757d;
+    color: white;
+}
+
+.manage-button:hover {
+    background-color: #5a6268;
+}
+
+/* For admin visibility */
+.article-status-indicator {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 10px;
+    color: white;
+}
+
+.status-published {
+    background-color: #28a745;
+}
+
+.status-hidden {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-archived {
+    background-color: #6c757d;
+}
+
+.status-draft {
+    background-color: #17a2b8;
+}
+</style>
+{% endblock %}
+
 {% block sidebar_extra %}
 <h3>Article Tools</h3>
 <ul>
@@ -73,7 +199,43 @@
 
 {% block modals %}
 <!-- Reward Modal -->
-<!-- Add this to templates/article.html in the modals block -->
+<div id="reward-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Reward Contributor</h2>
+        <p>Show appreciation for this content by rewarding the contributor.</p>
+        <form id="reward-form">
+            <input type="hidden" id="article-id" value="{{ article._id }}">
+            <div class="form-group">
+                <label for="reward-type">Reward Type:</label>
+                <select id="reward-type" name="rewardType">
+                    <option value="helpful">Helpful</option>
+                    <option value="insightful">Insightful</option>
+                    <option value="comprehensive">Comprehensive</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="points">Points:</label>
+                <input type="number" id="points" name="points" min="1" max="10" value="5">
+            </div>
+            <button type="submit">Give Reward</button>
+        </form>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div id="share-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Share Article</h2>
+        <p>Share this article with others:</p>
+        <div class="form-group">
+            <label for="share-url">Article URL:</label>
+            <input type="text" id="share-url" value="{{ request.url }}" readonly>
+            <button id="copy-url">Copy</button>
+        </div>
+    </div>
+</div>
 
 <!-- Article Management Modal -->
 <div id="article-management-modal" class="modal">
@@ -137,43 +299,6 @@
         </div>
     </div>
 </div>
-<div id="reward-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Reward Contributor</h2>
-        <p>Show appreciation for this content by rewarding the contributor.</p>
-        <form id="reward-form">
-            <input type="hidden" id="article-id" value="{{ article._id }}">
-            <div class="form-group">
-                <label for="reward-type">Reward Type:</label>
-                <select id="reward-type" name="rewardType">
-                    <option value="helpful">Helpful</option>
-                    <option value="insightful">Insightful</option>
-                    <option value="comprehensive">Comprehensive</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="points">Points:</label>
-                <input type="number" id="points" name="points" min="1" max="10" value="5">
-            </div>
-            <button type="submit">Give Reward</button>
-        </form>
-    </div>
-</div>
-
-<!-- Share Modal -->
-<div id="share-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Share Article</h2>
-        <p>Share this article with others:</p>
-        <div class="form-group">
-            <label for="share-url">Article URL:</label>
-            <input type="text" id="share-url" value="{{ request.url }}" readonly>
-            <button id="copy-url">Copy</button>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -182,15 +307,44 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
     const token = localStorage.getItem('token');
     const authElements = document.querySelectorAll('.auth-required');
+    const adminElements = document.querySelectorAll('.admin-required');
     
     if (token) {
         // User is logged in, show auth-required elements
         authElements.forEach(element => {
             element.style.display = 'inline-block';
         });
+        
+        // Check if user is admin/editor for admin-required elements
+        fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to get user info');
+            }
+            return response.json();
+        })
+        .then(user => {
+            // Only show admin-required elements for admins/editors
+            if (user.role === 'admin' || user.role === 'editor') {
+                adminElements.forEach(element => {
+                    element.style.display = 'inline-block';
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error checking user role:', error);
+        });
     } else {
-        // User is not logged in, hide auth-required elements
+        // User is not logged in, hide auth-required and admin-required elements
         authElements.forEach(element => {
+            element.style.display = 'none';
+        });
+        
+        adminElements.forEach(element => {
             element.style.display = 'none';
         });
     }
@@ -325,6 +479,242 @@ document.addEventListener('DOMContentLoaded', function() {
             event.target.style.display = 'none';
         }
     });
+    
+    // Article management functionality
+    const articleManagementModal = document.getElementById('article-management-modal');
+    const deleteConfirmationModal = document.getElementById('delete-confirmation-modal');
+    const manageButton = document.getElementById('manage-button');
+    const statusButtons = document.querySelectorAll('.status-button');
+    const deleteArticleButton = document.getElementById('delete-article');
+    const confirmDeleteButton = document.getElementById('confirm-delete');
+    const cancelDeleteButton = document.getElementById('cancel-delete');
+    const deleteConfirmationInput = document.getElementById('delete-confirmation');
+
+    // Show management modal when manage button is clicked
+    if (manageButton) {
+        manageButton.addEventListener('click', function() {
+            // Check if user is logged in and is admin/editor
+            if (!token) {
+                showLoginRequiredMessage();
+                return;
+            }
+            
+            // Show management modal
+            if (articleManagementModal) {
+                articleManagementModal.style.display = 'block';
+            }
+        });
+    }
+
+    // Handle status button clicks
+    if (statusButtons) {
+        statusButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const newStatus = this.dataset.status;
+                
+                // Don't do anything if already active
+                if (this.classList.contains('active')) {
+                    return;
+                }
+                
+                // Confirm status change
+                if (!confirm(`Are you sure you want to change the article status to "${newStatus}"?`)) {
+                    return;
+                }
+                
+                // Show loading state
+                this.disabled = true;
+                const originalText = this.textContent;
+                this.textContent = `Updating...`;
+                
+                // Update article status via API
+                updateArticleStatus(newStatus)
+                    .then(success => {
+                        if (success) {
+                            // Update UI
+                            statusButtons.forEach(btn => btn.classList.remove('active'));
+                            this.classList.add('active');
+                            
+                            // Update status display
+                            const statusDisplay = document.querySelector('.article-status');
+                            if (statusDisplay) {
+                                statusDisplay.textContent = newStatus;
+                            }
+                            
+                            // Show success message
+                            alert(`Article status updated to "${newStatus}"`);
+                            
+                            // Refresh page after a brief delay
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1000);
+                        }
+                    })
+                    .finally(() => {
+                        // Reset button state
+                        this.disabled = false;
+                        this.textContent = originalText;
+                    });
+            });
+        });
+    }
+
+    // Handle delete button click
+    if (deleteArticleButton) {
+        deleteArticleButton.addEventListener('click', function() {
+            // Close management modal
+            if (articleManagementModal) {
+                articleManagementModal.style.display = 'none';
+            }
+            
+            // Show delete confirmation modal
+            if (deleteConfirmationModal) {
+                deleteConfirmationModal.style.display = 'block';
+            }
+        });
+    }
+
+    // Handle delete confirmation input
+    if (deleteConfirmationInput) {
+        deleteConfirmationInput.addEventListener('input', function() {
+            // Enable confirmation button only if correct text is entered
+            if (this.value === 'DELETE') {
+                confirmDeleteButton.disabled = false;
+            } else {
+                confirmDeleteButton.disabled = true;
+            }
+        });
+    }
+
+    // Handle confirm delete button
+    if (confirmDeleteButton) {
+        confirmDeleteButton.addEventListener('click', function() {
+            // Check if confirmation is valid
+            if (deleteConfirmationInput.value !== 'DELETE') {
+                return;
+            }
+            
+            // Show loading state
+            this.disabled = true;
+            this.textContent = 'Deleting...';
+            
+            // Send delete request
+            deleteArticle()
+                .then(success => {
+                    if (success) {
+                        // Show success message
+                        alert('Article has been permanently deleted');
+                        
+                        // Redirect to homepage
+                        window.location.href = '/';
+                    }
+                })
+                .catch(error => {
+                    // Reset button state
+                    this.disabled = false;
+                    this.textContent = 'Permanently Delete';
+                    
+                    // Show error message
+                    alert('Error deleting article: ' + error.message);
+                });
+        });
+    }
+
+    // Handle cancel delete button
+    if (cancelDeleteButton) {
+        cancelDeleteButton.addEventListener('click', function() {
+            // Close delete confirmation modal
+            if (deleteConfirmationModal) {
+                deleteConfirmationModal.style.display = 'none';
+            }
+            
+            // Show management modal again
+            if (articleManagementModal) {
+                articleManagementModal.style.display = 'block';
+            }
+            
+            // Reset confirmation input
+            if (deleteConfirmationInput) {
+                deleteConfirmationInput.value = '';
+            }
+            
+            // Disable confirm button
+            if (confirmDeleteButton) {
+                confirmDeleteButton.disabled = true;
+            }
+        });
+    }
+
+    // Function to update article status
+    async function updateArticleStatus(newStatus) {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('You must be logged in to perform this action');
+            }
+            
+            const response = await fetch(`/api/articles/{{ article._id }}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            });
+            
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || 'Failed to update article status');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error updating article status:', error);
+            alert('Error updating article status: ' + error.message);
+            return false;
+        }
+    }
+
+    // Function to delete article
+    async function deleteArticle() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('You must be logged in to perform this action');
+            }
+            
+            const response = await fetch(`/api/articles/{{ article._id }}?permanent=true`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || 'Failed to delete article');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error deleting article:', error);
+            alert('Error deleting article: ' + error.message);
+            throw error;
+        }
+    }
+
+    // Function to show login required message
+    function showLoginRequiredMessage() {
+        alert('You must be logged in as an administrator to manage articles');
+        
+        // Show login modal
+        const loginModal = document.getElementById('login-modal');
+        if (loginModal) {
+            loginModal.style.display = 'block';
+        }
+    }
 });
 </script>
 {% endblock %}

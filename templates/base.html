@@ -25,6 +25,9 @@
                 <li><a href="/articles" {% if active_page == 'articles' %}class="active"{% endif %}>Articles</a></li>
                 <li><a href="/random" id="random-article">Random</a></li>
                 <li><a href="/contribute" id="contribute-link" {% if active_page == 'contribute' %}class="active"{% endif %}>Contribute</a></li>
+                <li id="profile-link-container" class="auth-required" style="display: none;">
+                <a href="/profile" id="profile-link" {% if active_page == 'profile' %}class="active"{% endif %}>My Profile</a>
+                </li>
                 <li><a href="#" id="login-link">Login</a></li>
             </ul>
         </nav>

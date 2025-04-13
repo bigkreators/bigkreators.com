@@ -1,9 +1,11 @@
+// File: static/script.js (Updated)
 // Authentication functionality
 document.addEventListener('DOMContentLoaded', function() {
     initializeAuth();
     setupLoginForm();
     setupRegisterForm();
     setupModalClosers();
+    setupSearch();
 });
 
 // Initialize authentication state
@@ -11,6 +13,7 @@ function initializeAuth() {
     // Check if user is logged in
     const token = localStorage.getItem('token');
     const loginLink = document.getElementById('login-link');
+    const profileLinkContainer = document.getElementById('profile-link-container');
     
     if (token && loginLink) {
         // User is logged in, change login link to logout
@@ -19,11 +22,35 @@ function initializeAuth() {
         loginLink.removeEventListener('click', showLoginModal);
         loginLink.addEventListener('click', logout);
         
+        // Show profile link
+        if (profileLinkContainer) {
+            profileLinkContainer.style.display = 'inline-block';
+        }
+        
         // Show restricted elements
         showAuthenticatedElements();
+        
+        // Fetch user data to check role
+        fetchCurrentUser()
+            .then(userData => {
+                if (userData) {
+                    // Show admin elements if user is admin
+                    if (userData.role === 'admin' || userData.role === 'editor') {
+                        showAdminElements();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+            });
     } else if (loginLink) {
         // User is not logged in, ensure login modal shows on click
         loginLink.addEventListener('click', showLoginModal);
+        
+        // Hide profile link
+        if (profileLinkContainer) {
+            profileLinkContainer.style.display = 'none';
+        }
     }
 }
 
@@ -203,6 +230,31 @@ function setupModalClosers() {
     }
 }
 
+// Set up search functionality
+function setupSearch() {
+    const searchInput = document.getElementById('search-input');
+    const searchButton = document.getElementById('search-button');
+    
+    if (searchInput && searchButton) {
+        // Search when Enter key is pressed
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        // Search when button is clicked
+        searchButton.addEventListener('click', performSearch);
+    }
+    
+    function performSearch() {
+        const query = searchInput.value.trim();
+        if (query) {
+            window.location.href = `/search?q=${encodeURIComponent(query)}`;
+        }
+    }
+}
+
 // Show login modal
 function showLoginModal() {
     const loginModal = document.getElementById('login-modal');
@@ -236,4 +288,40 @@ function showAuthenticatedElements() {
     nonAuthElements.forEach(element => {
         element.classList.add('hidden');
     });
+}
+
+// Show elements that require admin or editor privileges
+function showAdminElements() {
+    const adminElements = document.querySelectorAll('.admin-required');
+    adminElements.forEach(element => {
+        element.style.display = 'inline-block';
+    });
+}
+
+// Fetch current user data
+async function fetchCurrentUser() {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    
+    try {
+        const response = await fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Token expired or invalid, log out
+                localStorage.removeItem('token');
+                return null;
+            }
+            throw new Error('Failed to fetch user data');
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        return null;
+    }
 }

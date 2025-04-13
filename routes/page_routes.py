@@ -11,7 +11,7 @@ import random
 import logging
 
 import config
-from dependencies import get_db, get_cache, get_current_user, get_search
+from dependencies import get_db, get_cache, get_current_user, get_search, get_current_admin
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

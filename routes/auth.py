@@ -1,4 +1,4 @@
-# File: routes/auth.py
+# File: routes/auth.py (Updated)
 """
 Authentication-related routes for the Kryptopedia application.
 """
@@ -10,7 +10,7 @@ from bson import ObjectId
 import logging
 
 # Import models explicitly without using relative imports
-from models.user import UserCreate, User, Token, TokenData
+from models.user import UserCreate, User, Token, TokenData, UserUpdate
 from dependencies.database import get_db
 from dependencies.auth import get_current_user
 from utils.security import hash_password, verify_password, create_access_token
@@ -57,7 +57,19 @@ async def register_user(user: UserCreate = Body(...), db=Depends(get_db)):
                 "articlesCreated": 0,
                 "editsPerformed": 0,
                 "rewardsReceived": 0
-            }
+            },
+            # Add default profile fields
+            "displayName": None,
+            "bio": None, 
+            "location": None,
+            "website": None,
+            "emailPreferences": {
+                "articleUpdates": True,
+                "proposalUpdates": True,
+                "rewards": True,
+                "newsletter": False
+            },
+            "badges": []
         }
         
         # Insert into database
@@ -154,6 +166,102 @@ async def get_current_user_info(current_user: Dict[str, Any] = Depends(get_curre
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve user information: {str(e)}"
+        )
+
+@router.put("/me", response_model=Dict[str, Any])
+async def update_current_user(
+    user_update: UserUpdate,
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db=Depends(get_db)
+):
+    """
+    Update information for the currently authenticated user.
+    """
+    try:
+        # Verify password if provided
+        if user_update.current_password:
+            if not verify_password(user_update.current_password, current_user["passwordHash"]):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Current password is incorrect"
+                )
+        else:
+            # Password required for any update
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Current password is required to update account information"
+            )
+        
+        # Prepare update data
+        update_data = {}
+        
+        # Basic fields
+        if user_update.email and user_update.email != current_user["email"]:
+            # Check if email is already in use
+            existing_user = await db["users"].find_one({"email": user_update.email})
+            if existing_user and str(existing_user["_id"]) != str(current_user["_id"]):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Email is already in use"
+                )
+            update_data["email"] = user_update.email
+        
+        # Extended profile fields
+        if user_update.display_name is not None:
+            update_data["displayName"] = user_update.display_name
+            
+        if user_update.bio is not None:
+            update_data["bio"] = user_update.bio
+            
+        if user_update.location is not None:
+            update_data["location"] = user_update.location
+            
+        if user_update.website is not None:
+            update_data["website"] = user_update.website
+        
+        # Password update
+        if user_update.password:
+            update_data["passwordHash"] = hash_password(user_update.password)
+        
+        # Email preferences
+        if user_update.email_preferences:
+            update_data["emailPreferences"] = user_update.email_preferences.dict(by_alias=True)
+        
+        # Only proceed if there are updates
+        if not update_data:
+            return {"message": "No changes made"}
+        
+        # Update in database
+        result = await db["users"].update_one(
+            {"_id": current_user["_id"]},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            return {"message": "No changes were applied"}
+        
+        # Get updated user data
+        updated_user = await db["users"].find_one({"_id": current_user["_id"]})
+        
+        # Remove sensitive data
+        if "passwordHash" in updated_user:
+            del updated_user["passwordHash"]
+        
+        # Convert ObjectId to string
+        updated_user["_id"] = str(updated_user["_id"])
+        
+        return {
+            "message": "User information updated successfully",
+            "user": updated_user
+        }
+    except HTTPException:
+        # Re-raise HTTP exceptions
+        raise
+    except Exception as e:
+        logger.error(f"Error updating user: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update user information: {str(e)}"
         )
 
 @router.post("/logout")
