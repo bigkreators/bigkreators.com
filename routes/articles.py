@@ -92,8 +92,8 @@ async def create_article(
         existing = await db["articles"].find_one({"slug": slug})
         if existing:
             # If slug exists, add a timestamp to make it unique
-            from datetime import datetime
-            slug = f"{slug}-{int(datetime.now().timestamp())}"
+            timestamp = int(datetime.now().timestamp())
+            slug = generate_slug(article.title, timestamp)
         
         # Create article object
         new_article = {

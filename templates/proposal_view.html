@@ -1,0 +1,410 @@
+{% extends "base.html" %}
+
+{% block title %}View Proposal - Kryptopedia{% endblock %}
+
+{% set active_page = 'proposals' %}
+
+{% block extra_css %}
+<style>
+    .proposal-container {
+        margin: 20px 0;
+    }
+    
+    .proposal-header {
+        margin-bottom: 20px;
+    }
+    
+    .proposal-info {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+    
+    .proposal-info dl {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        grid-gap: 10px;
+    }
+    
+    .proposal-info dt {
+        font-weight: bold;
+        color: #555;
+    }
+    
+    .proposal-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-left: 10px;
+        vertical-align: middle;
+    }
+    
+    .badge-pending {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    
+    .badge-approved {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    
+    .badge-rejected {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    
+    .proposal-content {
+        margin-bottom: 30px;
+    }
+    
+    .content-container {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .content-header {
+        background-color: #f5f5f5;
+        padding: 10px 15px;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .content-body {
+        padding: 15px;
+    }
+    
+    .diff-container {
+        margin: 20px 0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .diff-header {
+        background-color: #f5f5f5;
+        padding: 10px 15px;
+        font-weight: bold;
+        border-bottom: 1px solid #ddd;
+    }
+    
+    .diff-content {
+        padding: 15px;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .diff-added {
+        background-color: #e6ffed;
+        color: #22863a;
+    }
+    
+    .diff-removed {
+        background-color: #ffeef0;
+        color: #cb2431;
+        text-decoration: line-through;
+    }
+    
+    .action-buttons {
+        margin-top: 20px;
+    }
+    
+    .review-form {
+        margin-top: 30px;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        min-height: 100px;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .primary-button {
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .primary-button.approve {
+        background-color: #28a745;
+    }
+    
+    .primary-button.reject {
+        background-color: #dc3545;
+    }
+    
+    .cancel-button {
+        padding: 8px 16px;
+        background-color: #f0f0f0;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    
+    .status-message {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Navigation</h3>
+<ul>
+    <li><a href="/articles/{{ article.slug }}">View Article</a></li>
+    <li><a href="/articles/{{ article._id }}/proposals">All Proposals</a></li>
+    <li><a href="/proposals">All Proposals</a></li>
+</ul>
+
+{% if is_editor %}
+<h3>Editor Actions</h3>
+<ul>
+    <li><a href="/articles/{{ article._id }}/edit">Edit Article</a></li>
+    <li><a href="/articles/{{ article._id }}/history">View History</a></li>
+</ul>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="proposal-header">
+    <h1>
+        Edit Proposal 
+        {% if proposal.status == 'pending' %}
+            <span class="proposal-badge badge-pending">Pending</span>
+        {% elif proposal.status == 'approved' %}
+            <span class="proposal-badge badge-approved">Approved</span>
+        {% elif proposal.status == 'rejected' %}
+            <span class="proposal-badge badge-rejected">Rejected</span>
+        {% endif %}
+    </h1>
+    <h2>For article: <a href="/articles/{{ article.slug }}">{{ article.title }}</a></h2>
+</div>
+
+<div class="status-message error-message" id="error-message"></div>
+<div class="status-message success-message" id="success-message"></div>
+
+<div class="proposal-container">
+    <div class="proposal-info">
+        <dl>
+            <dt>Proposed By:</dt>
+            <dd>{{ proposal.proposerUsername }}</dd>
+            
+            <dt>Proposed On:</dt>
+            <dd>{{ proposal.proposedAt|strftime('%Y-%m-%d %H:%M') }}</dd>
+            
+            <dt>Summary:</dt>
+            <dd>{{ proposal.summary }}</dd>
+            
+            {% if proposal.status != 'pending' %}
+                <dt>Reviewed By:</dt>
+                <dd>{{ proposal.reviewerUsername }}</dd>
+                
+                <dt>Reviewed On:</dt>
+                <dd>{{ proposal.reviewedAt|strftime('%Y-%m-%d %H:%M') }}</dd>
+                
+                {% if proposal.reviewComment %}
+                    <dt>Review Comment:</dt>
+                    <dd>{{ proposal.reviewComment }}</dd>
+                {% endif %}
+            {% endif %}
+        </dl>
+    </div>
+    
+    <div class="proposal-content">
+        <div class="content-container">
+            <div class="content-header">Proposed Content</div>
+            <div class="content-body">
+                {{ proposal.content|safe }}
+            </div>
+        </div>
+    </div>
+    
+    {% if proposal.status == 'pending' and is_editor %}
+        <div class="action-buttons">
+            <button id="approve-button" class="primary-button approve">Approve Proposal</button>
+            <button id="reject-button" class="primary-button reject">Reject Proposal</button>
+        </div>
+        
+        <div id="review-form" class="review-form">
+            <h3 id="review-title">Review Proposal</h3>
+            
+            <form id="proposal-review-form">
+                <input type="hidden" id="action-type" value="">
+                
+                <div class="form-group">
+                    <label for="review-comment">Comment:</label>
+                    <textarea id="review-comment" name="comment" placeholder="Provide feedback about this proposal"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" id="confirm-button" class="primary-button">Confirm</button>
+                    <button type="button" id="cancel-button" class="cancel-button">Cancel</button>
+                </div>
+            </form>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    
+    {% if proposal.status == 'pending' and is_editor %}
+        const approveButton = document.getElementById('approve-button');
+        const rejectButton = document.getElementById('reject-button');
+        const reviewForm = document.getElementById('review-form');
+        const reviewTitle = document.getElementById('review-title');
+        const actionTypeInput = document.getElementById('action-type');
+        const confirmButton = document.getElementById('confirm-button');
+        const cancelButton = document.getElementById('cancel-button');
+        const proposalReviewForm = document.getElementById('proposal-review-form');
+        
+        // Setup approve button
+        approveButton.addEventListener('click', function() {
+            actionTypeInput.value = 'approve';
+            reviewTitle.textContent = 'Approve Proposal';
+            confirmButton.className = 'primary-button approve';
+            reviewForm.style.display = 'block';
+            this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        
+        // Setup reject button
+        rejectButton.addEventListener('click', function() {
+            actionTypeInput.value = 'reject';
+            reviewTitle.textContent = 'Reject Proposal';
+            confirmButton.className = 'primary-button reject';
+            reviewForm.style.display = 'block';
+            this.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+        
+        // Setup cancel button
+        cancelButton.addEventListener('click', function() {
+            reviewForm.style.display = 'none';
+        });
+        
+        // Setup review form submission
+        proposalReviewForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const action = actionTypeInput.value;
+            const comment = document.getElementById('review-comment').value;
+            
+            if (!action) {
+                showError('Missing action type');
+                return;
+            }
+            
+            // Show loading state
+            const submitButton = confirmButton;
+            const originalText = submitButton.textContent;
+            submitButton.innerHTML = 'Processing...';
+            submitButton.disabled = true;
+            
+            // Send API request
+            fetch(`/api/articles/{{ article._id }}/proposals/{{ proposal._id }}?status=${action}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    comment: comment
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        throw new Error('Your session has expired. Please log in again.');
+                    }
+                    return response.json().then(data => {
+                        throw new Error(data.detail || `Failed to ${action} proposal`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                showSuccess(`Proposal ${action}ed successfully!`);
+                
+                // Redirect after a delay
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            })
+            .catch(error => {
+                console.error(`Error ${action}ing proposal:`, error);
+                showError(error.message || `Failed to ${action} proposal. Please try again.`);
+                
+                // Reset button state
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
+            });
+        });
+    {% endif %}
+    
+    // Helper functions
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+        
+        // Scroll to error
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}
