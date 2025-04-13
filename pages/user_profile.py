@@ -189,3 +189,156 @@ async def edit_user_profile_page(
         return templates.TemplateResponse(
             "error.html",
             {"request": request, "message": str(e)},
+            status_code=500
+        )
+
+@router.get("/profile", response_class=HTMLResponse)
+@router.get("/profile/{username}", response_class=HTMLResponse)
+async def profile_page(
+    request: Request,
+    username: Optional[str] = None,
+    tab: Optional[str] = Query(None),
+    articles_skip: int = Query(0, alias="skip", ge=0),
+    articles_limit: int = Query(10, alias="limit", ge=1, le=50),
+    contributions_skip: int = Query(0, ge=0),
+    contributions_limit: int = Query(10, ge=1, le=50),
+    proposals_skip: int = Query(0, ge=0),
+    proposals_limit: int = Query(10, ge=1, le=50),
+    rewards_skip: int = Query(0, ge=0),
+    rewards_limit: int = Query(10, ge=1, le=50),
+    db=Depends(get_db),
+    current_user: Optional[Dict[str, Any]] = Depends(get_current_user)
+):
+    """
+    Render the user profile page.
+    """
+    templates = request.app.state.templates
+    
+    # Determine which user's profile to show
+    if username:
+        # Show the profile of the requested user
+        user = await db["users"].find_one({"username": username})
+        if not user:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "User not found"},
+                status_code=404
+            )
+        is_own_profile = current_user and str(current_user["_id"]) == str(user["_id"])
+    else:
+        # Show the current user's profile
+        if not current_user:
+            # Redirect to login if not logged in
+            return RedirectResponse(url="/")
+        user = current_user
+        is_own_profile = True
+    
+    # Get user's articles
+    articles_cursor = db["articles"].find({"createdBy": user["_id"]}).sort("createdAt", -1).skip(articles_skip).limit(articles_limit)
+    articles = await articles_cursor.to_list(length=articles_limit)
+    articles_total = await db["articles"].count_documents({"createdBy": user["_id"]})
+    
+    # Get user's contributions (revisions)
+    contributions_cursor = db["revisions"].find({"createdBy": user["_id"]}).sort("createdAt", -1).skip(contributions_skip).limit(contributions_limit)
+    contributions = await contributions_cursor.to_list(length=contributions_limit)
+    contributions_total = await db["revisions"].count_documents({"createdBy": user["_id"]})
+    
+    # Enhance contributions with article info
+    enhanced_contributions = []
+    for contribution in contributions:
+        article = await db["articles"].find_one({"_id": contribution["articleId"]})
+        if article:
+            enhanced_contributions.append({
+                **contribution,
+                "articleTitle": article.get("title", "Unknown Article"),
+                "articleSlug": article.get("slug")
+            })
+    
+    # Get user's proposals
+    proposals_cursor = db["proposals"].find({"proposedBy": user["_id"]}).sort("proposedAt", -1).skip(proposals_skip).limit(proposals_limit)
+    proposals = await proposals_cursor.to_list(length=proposals_limit)
+    proposals_total = await db["proposals"].count_documents({"proposedBy": user["_id"]})
+    
+    # Enhance proposals with article info
+    enhanced_proposals = []
+    for proposal in proposals:
+        article = await db["articles"].find_one({"_id": proposal["articleId"]})
+        if article:
+            enhanced_proposals.append({
+                **proposal,
+                "articleTitle": article.get("title", "Unknown Article"),
+                "articleSlug": article.get("slug")
+            })
+    
+    # Get user's rewards
+    rewards_cursor = db["rewards"].find({"rewardedUser": user["_id"]}).sort("rewardedAt", -1).skip(rewards_skip).limit(rewards_limit)
+    rewards = await rewards_cursor.to_list(length=rewards_limit)
+    rewards_total = await db["rewards"].count_documents({"rewardedUser": user["_id"]})
+    
+    # Enhance rewards with article and user info
+    enhanced_rewards = []
+    for reward in rewards:
+        article = await db["articles"].find_one({"_id": reward["articleId"]})
+        rewarder = await db["users"].find_one({"_id": reward["rewardedBy"]})
+        
+        if article and rewarder:
+            enhanced_rewards.append({
+                **reward,
+                "articleTitle": article.get("title", "Unknown Article"),
+                "articleSlug": article.get("slug"),
+                "rewarderUsername": rewarder.get("username", "Unknown User")
+            })
+    
+    # Render the profile template
+    return templates.TemplateResponse(
+        "user_profile.html",
+        {
+            "request": request,
+            "user": user,
+            "is_own_profile": is_own_profile,
+            "articles": articles,
+            "articles_total": articles_total,
+            "articles_skip": articles_skip,
+            "contributions": enhanced_contributions,
+            "contributions_total": contributions_total,
+            "contributions_skip": contributions_skip,
+            "proposals": enhanced_proposals,
+            "proposals_total": proposals_total,
+            "proposals_skip": proposals_skip,
+            "rewards": enhanced_rewards,
+            "rewards_total": rewards_total,
+            "rewards_skip": rewards_skip,
+            "badges": []  # Future feature
+        }
+    )
+
+@router.get("/profile/edit", response_class=HTMLResponse)
+async def edit_profile_page(
+    request: Request,
+    db=Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """
+    Render the profile editing page.
+    """
+    templates = request.app.state.templates
+    
+    # Render the edit profile template
+    return templates.TemplateResponse(
+        "profile_edit.html",
+        {
+            "request": request,
+            "user": current_user
+        }
+    )
+
+@router.get("/profile/settings", response_class=HTMLResponse)
+async def profile_settings_page(
+    request: Request,
+    db=Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    """
+    Redirect to profile with settings tab active.
+    """
+    return RedirectResponse(url="/profile?tab=settings")

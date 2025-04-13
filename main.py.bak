@@ -22,8 +22,8 @@ logging.basicConfig(
 logger = logging.getLogger("kryptopedia")
 
 # Import the routes
-from routes import auth, articles, media, proposals, rewards, special
-from pages import router as page_router, add_error_handlers
+from routes import auth, articles, media, proposals, rewards, special, profile
+from routes.page_routes import router as page_router
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -91,12 +91,10 @@ app.include_router(media.router, prefix=f"{config.API_PREFIX}/media", tags=["Med
 app.include_router(proposals.router, prefix=f"{config.API_PREFIX}/proposals", tags=["Proposals"])
 app.include_router(rewards.router, prefix=f"{config.API_PREFIX}/rewards", tags=["Rewards"])
 app.include_router(special.router, prefix=f"{config.API_PREFIX}/special", tags=["Special Pages"])
+app.include_router(profile.router, prefix=f"{config.API_PREFIX}/users", tags=["User Profiles"])
 
 # Include page routes at root level
 app.include_router(page_router)
-
-# Add error handlers
-add_error_handlers(app)
 
 # Add a redirect for the misaddressed CSS file
 @app.get("/style.css")
@@ -135,6 +133,19 @@ async def shutdown_event():
     """
     # Close database connection
     await db_service.close()
+
+# Error handler for 404 Not Found
+@app.exception_handler(404)
+async def not_found_exception_handler(request: Request, exc):
+    """
+    Custom 404 error handler to return the 404 template.
+    """
+    logger.warning(f"404 Not Found: {request.url.path}")
+    return templates.TemplateResponse(
+        "404.html",
+        {"request": request, "message": "Page not found"},
+        status_code=404
+    )
 
 if __name__ == "__main__":
     import uvicorn
