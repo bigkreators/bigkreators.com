@@ -91,24 +91,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle login button click
     if (loginButton) {
         loginButton.addEventListener('click', function() {
-            // Get the login modal
+            // Store the redirect URL in session storage
+            if (redirectTo) {
+                sessionStorage.setItem('redirectAfterLogin', redirectTo);
+            }
+            
+            // Open login modal
             const loginModal = document.getElementById('login-modal');
             if (loginModal) {
                 loginModal.style.display = 'block';
-                
-                // Store the redirect URL in session storage
-                if (redirectTo) {
-                    sessionStorage.setItem('redirectAfterLogin', redirectTo);
-                }
-                
-                // Add event listener for successful login
-                const loginForm = document.getElementById('login-form');
-                if (loginForm) {
-                    loginForm.addEventListener('submit', function(e) {
-                        // The default login handler in script.js will be triggered
-                        // We've already set the redirect in session storage
-                    });
-                }
             }
         });
     }
@@ -118,15 +109,15 @@ document.addEventListener('DOMContentLoaded', function() {
         registerLink.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Get the register modal
+            // Store the redirect URL in session storage
+            if (redirectTo) {
+                sessionStorage.setItem('redirectAfterLogin', redirectTo);
+            }
+            
+            // Open register modal
             const registerModal = document.getElementById('register-modal');
             if (registerModal) {
                 registerModal.style.display = 'block';
-                
-                // Store the redirect URL in session storage
-                if (redirectTo) {
-                    sessionStorage.setItem('redirectAfterLogin', redirectTo);
-                }
             }
         });
     }
