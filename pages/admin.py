@@ -1,13 +1,13 @@
 """
-Admin page routes.
+Admin-related page routes for the Kryptopedia application.
 """
-from fastapi import APIRouter, Request, Depends, Query
+from fastapi import APIRouter, Request, Depends, Path, Query, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
-from typing import Dict, Any, Optional
-from datetime import datetime, timedelta
+from typing import Optional, Dict, Any
 import logging
+from bson import ObjectId
 
-from dependencies import get_db, get_current_admin, get_cache
+from dependencies import get_db, get_current_user, get_current_admin, get_cache
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -37,6 +37,8 @@ async def admin_dashboard(
         stats["pending_proposals"] = await db["proposals"].count_documents({"status": "pending"})
         
         # Recent activity (last 24 hours)
+        from datetime import datetime, timedelta
+        
         recent_revisions = await db["revisions"].count_documents({
             "createdAt": {"$gte": datetime.now() - timedelta(days=1)}
         })
@@ -242,3 +244,25 @@ async def admin_proposals_page(
     """
     # Redirect to the proposals page with proper filtering
     return RedirectResponse(url=f"/proposals?status={status or 'pending'}")
+
+@router.get("/quick-edit", response_class=HTMLResponse)
+async def quick_edit_page(
+    request: Request,
+    db=Depends(get_db)
+):
+    """
+    Render the quick edit page for easily creating revisions.
+    """
+    templates = request.app.state.templates
+    
+    # Get all published articles
+    cursor = db["articles"].find({"status": "published"}).sort("title", 1)
+    articles = await cursor.to_list(length=100)
+    
+    return templates.TemplateResponse(
+        "quick_edit.html",
+        {
+            "request": request,
+            "articles": articles
+        }
+    )
