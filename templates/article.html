@@ -16,7 +16,20 @@
 
 {% block content %}
 <div class="article-header">
-    <h1>{{ article.title }}</h1>
+    <h1>
+        {{ article.title }}
+        {% if current_user and (current_user.role == 'admin' or current_user.role == 'editor') %}
+            {% if article.status == 'published' %}
+                <span class="article-status-indicator status-published">Published</span>
+            {% elif article.status == 'hidden' %}
+                <span class="article-status-indicator status-hidden">Hidden</span>
+            {% elif article.status == 'archived' %}
+                <span class="article-status-indicator status-archived">Archived</span>
+            {% elif article.status == 'draft' %}
+                <span class="article-status-indicator status-draft">Draft</span>
+            {% endif %}
+        {% endif %}
+    </h1>
     <div class="article-meta">
         <span>Views: {{ article.views }}</span>
         <span>Last updated: {{ article.lastUpdatedAt|strftime('%Y-%m-%d') or article.createdAt|strftime('%Y-%m-%d') }}</span>
@@ -45,18 +58,85 @@
 </div>
 {% endif %}
 
+
+<!-- Update the article footer section with the manage button -->
 <div class="article-footer">
     <div class="article-actions">
         <button id="propose-edit-button" class="action-button">Propose Edit</button>
         <button id="edit-button" class="action-button auth-required">Edit Article</button>
         <button id="reward-button" class="action-button auth-required">Reward Author</button>
         <button id="share-button" class="action-button">Share</button>
+        <button id="manage-button" class="action-button manage-button admin-required">Manage Article</button>
     </div>
 </div>
 {% endblock %}
 
 {% block modals %}
 <!-- Reward Modal -->
+<!-- Add this to templates/article.html in the modals block -->
+
+<!-- Article Management Modal -->
+<div id="article-management-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Article Management</h2>
+        
+        <div class="status-section">
+            <h3>Change Article Status</h3>
+            <p>Current status: <span class="article-status">{{ article.status or "published" }}</span></p>
+            
+            <div class="status-buttons">
+                <button id="publish-article" class="status-button {% if article.status == 'published' %}active{% endif %}" data-status="published">Published</button>
+                <button id="hide-article" class="status-button {% if article.status == 'hidden' %}active{% endif %}" data-status="hidden">Hidden</button>
+                <button id="archive-article" class="status-button {% if article.status == 'archived' %}active{% endif %}" data-status="archived">Archived</button>
+                <button id="draft-article" class="status-button {% if article.status == 'draft' %}active{% endif %}" data-status="draft">Draft</button>
+            </div>
+            
+            <div class="status-descriptions">
+                <p><strong>Published:</strong> Visible to all users</p>
+                <p><strong>Hidden:</strong> Temporarily hidden from users, but not archived</p>
+                <p><strong>Archived:</strong> Removed from listings but still accessible by direct URL</p>
+                <p><strong>Draft:</strong> Only visible to editors and admins</p>
+            </div>
+        </div>
+        
+        <hr>
+        
+        <div class="danger-section">
+            <h3>Danger Zone</h3>
+            <p>These actions cannot be undone.</p>
+            
+            <button id="delete-article" class="danger-button">Permanently Delete Article</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-confirmation-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Confirm Permanent Deletion</h2>
+        
+        <div class="confirmation-content">
+            <p>You are about to <strong>permanently delete</strong> this article:</p>
+            <p class="article-title-confirm">{{ article.title }}</p>
+            
+            <div class="warning-box">
+                <p>⚠️ This action cannot be undone. All revisions, proposals, and rewards associated with this article will also be deleted.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="delete-confirmation">Type "DELETE" to confirm:</label>
+                <input type="text" id="delete-confirmation" placeholder="DELETE">
+            </div>
+            
+            <div class="form-actions">
+                <button id="confirm-delete" class="danger-button" disabled>Permanently Delete</button>
+                <button id="cancel-delete" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="reward-modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>

@@ -1199,3 +1199,65 @@ async def view_proposal_page(
             "is_editor": is_editor
         }
     )
+
+# File: routes/page_routes.py
+
+@router.get("/admin/articles", response_class=HTMLResponse)
+async def article_management_page(
+    request: Request,
+    status: Optional[str] = None,
+    search: Optional[str] = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db)
+):
+    """
+    Render the article management page (admin only).
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Build query
+        query = {}
+        
+        # Filter by status if provided
+        if status:
+            query["status"] = status
+        
+        # Search in title, content, or summary if provided
+        if search:
+            query["$or"] = [
+                {"title": {"$regex": search, "$options": "i"}},
+                {"content": {"$regex": search, "$options": "i"}},
+                {"summary": {"$regex": search, "$options": "i"}}
+            ]
+        
+        # Get total count
+        total_count = await db["articles"].count_documents(query)
+        
+        # Get articles with pagination
+        cursor = db["articles"].find(query).sort("lastUpdatedAt", -1).skip(skip).limit(limit)
+        articles = await cursor.to_list(length=limit)
+        
+        # Render template
+        return templates.TemplateResponse(
+            "article_management.html",
+            {
+                "request": request,
+                "articles": articles,
+                "total": total_count,
+                "skip": skip,
+                "limit": limit,
+                "status": status,
+                "search": search,
+                "current_user": current_user
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error in article management page: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": str(e)},
+            status_code=500
+        )

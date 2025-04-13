@@ -1,0 +1,606 @@
+<!-- File: templates/article_management.html -->
+{% extends "base.html" %}
+
+{% block title %}Article Management - Kryptopedia{% endblock %}
+
+{% set active_page = 'admin' %}
+
+{% block extra_css %}
+<style>
+    .admin-container {
+        margin: 20px 0;
+    }
+    
+    .filter-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .filter-tab {
+        padding: 8px 16px;
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        color: #333;
+    }
+    
+    .filter-tab.active {
+        background-color: #0645ad;
+        color: white;
+        border-color: #0645ad;
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-left: 10px;
+        color: white;
+    }
+    
+    .status-published {
+        background-color: #28a745;
+    }
+    
+    .status-hidden {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .status-archived {
+        background-color: #6c757d;
+    }
+    
+    .status-draft {
+        background-color: #17a2b8;
+    }
+    
+    .articles-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    
+    .articles-table th,
+    .articles-table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    
+    .articles-table th {
+        background-color: #f5f5f5;
+        font-weight: 600;
+    }
+    
+    .article-actions {
+        display: flex;
+        gap: 5px;
+    }
+    
+    .action-button {
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .view-button {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .edit-button {
+        background-color: #0645ad;
+        color: white;
+    }
+    
+    .restore-button {
+        background-color: #28a745;
+        color: white;
+    }
+    
+    .hide-button {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .archive-button {
+        background-color: #6c757d;
+        color: white;
+    }
+    
+    .delete-button {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .no-articles {
+        padding: 30px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .status-message {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .search-bar {
+        margin-bottom: 20px;
+    }
+    
+    .search-bar input {
+        padding: 8px 12px;
+        width: 300px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .search-bar button {
+        padding: 8px 12px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Administration</h3>
+<ul>
+    <li><a href="/admin/articles" class="active">Article Management</a></li>
+    <li><a href="/admin/users">User Management</a></li>
+    <li><a href="/admin/proposals">Edit Proposals</a></li>
+    <li><a href="/special/statistics">Wiki Statistics</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1>Article Management</h1>
+
+<div class="status-message error-message" id="error-message"></div>
+<div class="status-message success-message" id="success-message"></div>
+
+<div class="admin-container">
+    <div class="filter-tabs">
+        <a href="/admin/articles" class="filter-tab {% if not status %}active{% endif %}">All Articles</a>
+        <a href="/admin/articles?status=published" class="filter-tab {% if status == 'published' %}active{% endif %}">Published</a>
+        <a href="/admin/articles?status=draft" class="filter-tab {% if status == 'draft' %}active{% endif %}">Drafts</a>
+        <a href="/admin/articles?status=hidden" class="filter-tab {% if status == 'hidden' %}active{% endif %}">Hidden</a>
+        <a href="/admin/articles?status=archived" class="filter-tab {% if status == 'archived' %}active{% endif %}">Archived</a>
+    </div>
+    
+    <div class="search-bar">
+        <form action="/admin/articles" method="get">
+            <input type="text" name="search" placeholder="Search articles..." value="{{ search or '' }}">
+            {% if status %}
+            <input type="hidden" name="status" value="{{ status }}">
+            {% endif %}
+            <button type="submit">Search</button>
+        </form>
+    </div>
+    
+    {% if articles %}
+        <table class="articles-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Created</th>
+                    <th>Last Updated</th>
+                    <th>Status</th>
+                    <th>Views</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for article in articles %}
+                <tr id="article-row-{{ article._id }}">
+                    <td>
+                        <a href="/articles/{{ article.slug }}">{{ article.title }}</a>
+                    </td>
+                    <td>{{ article.createdAt|strftime('%Y-%m-%d') }}</td>
+                    <td>{{ article.lastUpdatedAt|strftime('%Y-%m-%d') or article.createdAt|strftime('%Y-%m-%d') }}</td>
+                    <td>
+                        {% if article.status == 'published' %}
+                            <span class="status-badge status-published">Published</span>
+                        {% elif article.status == 'hidden' %}
+                            <span class="status-badge status-hidden">Hidden</span>
+                        {% elif article.status == 'archived' %}
+                            <span class="status-badge status-archived">Archived</span>
+                        {% elif article.status == 'draft' %}
+                            <span class="status-badge status-draft">Draft</span>
+                        {% else %}
+                            <span class="status-badge status-published">Published</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ article.views }}</td>
+                    <td>
+                        <div class="article-actions">
+                            <a href="/articles/{{ article.slug }}" class="action-button view-button">View</a>
+                            <a href="/articles/{{ article._id }}/edit" class="action-button edit-button">Edit</a>
+                            
+                            {% if article.status != 'published' %}
+                                <button class="action-button restore-button" onclick="changeStatus('{{ article._id }}', 'published')">Publish</button>
+                            {% endif %}
+                            
+                            {% if article.status != 'hidden' %}
+                                <button class="action-button hide-button" onclick="changeStatus('{{ article._id }}', 'hidden')">Hide</button>
+                            {% endif %}
+                            
+                            {% if article.status != 'archived' %}
+                                <button class="action-button archive-button" onclick="changeStatus('{{ article._id }}', 'archived')">Archive</button>
+                            {% endif %}
+                            
+                            <button class="action-button delete-button" onclick="confirmDelete('{{ article._id }}', '{{ article.title|escapejs }}')">Delete</button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        {% if total > limit %}
+        <div class="pagination">
+            {% if skip > 0 %}
+            <a href="?{% if status %}status={{ status }}&{% endif %}{% if search %}search={{ search }}&{% endif %}skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
+            {% endif %}
+            
+            <span class="page-info">Showing {{ skip + 1 }}-{{ min(skip + limit, total) }} of {{ total }}</span>
+            
+            {% if skip + limit < total %}
+            <a href="?{% if status %}status={{ status }}&{% endif %}{% if search %}search={{ search }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="no-articles">
+            <p>No articles found.</p>
+            {% if status or search %}
+                <p>Try adjusting your filters.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="delete-confirmation-modal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Confirm Permanent Deletion</h2>
+        
+        <div class="confirmation-content">
+            <p>You are about to <strong>permanently delete</strong> this article:</p>
+            <p id="article-title-confirm" class="article-title-confirm"></p>
+            
+            <div class="warning-box">
+                <p>⚠️ This action cannot be undone. All revisions, proposals, and rewards associated with this article will also be deleted.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="delete-confirmation">Type "DELETE" to confirm:</label>
+                <input type="text" id="delete-confirmation" placeholder="DELETE">
+            </div>
+            
+            <div class="form-actions">
+                <button id="confirm-delete" class="danger-button" disabled>Permanently Delete</button>
+                <button id="cancel-delete" class="cancel-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('token');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    const deleteConfirmationModal = document.getElementById('delete-confirmation-modal');
+    const articleTitleConfirm = document.getElementById('article-title-confirm');
+    const deleteConfirmationInput = document.getElementById('delete-confirmation');
+    const confirmDeleteButton = document.getElementById('confirm-delete');
+    const cancelDeleteButton = document.getElementById('cancel-delete');
+    
+    // Store the current article ID for deletion
+    let currentArticleId = null;
+    
+    // Handle delete confirmation input
+    if (deleteConfirmationInput) {
+        deleteConfirmationInput.addEventListener('input', function() {
+            // Enable confirmation button only if correct text is entered
+            if (this.value === 'DELETE') {
+                confirmDeleteButton.disabled = false;
+            } else {
+                confirmDeleteButton.disabled = true;
+            }
+        });
+    }
+    
+    // Handle confirm delete button
+    if (confirmDeleteButton) {
+        confirmDeleteButton.addEventListener('click', function() {
+            // Check if confirmation is valid
+            if (deleteConfirmationInput.value !== 'DELETE' || !currentArticleId) {
+                return;
+            }
+            
+            // Show loading state
+            this.disabled = true;
+            this.textContent = 'Deleting...';
+            
+            // Send delete request
+            deleteArticle(currentArticleId)
+                .then(success => {
+                    if (success) {
+                        // Show success message
+                        showSuccess('Article has been permanently deleted');
+                        
+                        // Remove article row from table
+                        const articleRow = document.getElementById(`article-row-${currentArticleId}`);
+                        if (articleRow) {
+                            articleRow.remove();
+                        }
+                        
+                        // Close modal
+                        if (deleteConfirmationModal) {
+                            deleteConfirmationModal.style.display = 'none';
+                        }
+                    }
+                })
+                .catch(error => {
+                    // Show error message
+                    showError('Error deleting article: ' + error.message);
+                })
+                .finally(() => {
+                    // Reset button state
+                    this.disabled = false;
+                    this.textContent = 'Permanently Delete';
+                    
+                    // Reset confirmation input
+                    if (deleteConfirmationInput) {
+                        deleteConfirmationInput.value = '';
+                    }
+                });
+        });
+    }
+    
+    // Handle cancel delete button
+    if (cancelDeleteButton) {
+        cancelDeleteButton.addEventListener('click', function() {
+            // Close delete confirmation modal
+            if (deleteConfirmationModal) {
+                deleteConfirmationModal.style.display = 'none';
+            }
+            
+            // Reset confirmation input
+            if (deleteConfirmationInput) {
+                deleteConfirmationInput.value = '';
+            }
+            
+            // Disable confirm button
+            if (confirmDeleteButton) {
+                confirmDeleteButton.disabled = true;
+            }
+        });
+    }
+    
+    // Add click handler for modal close buttons
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        });
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    });
+    
+    // Global functions for article management
+    window.changeStatus = async function(articleId, newStatus) {
+        try {
+            if (!token) {
+                showError('You must be logged in as an administrator to perform this action');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to change this article's status to "${newStatus}"?`)) {
+                return;
+            }
+            
+            const response = await fetch(`/api/articles/${articleId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    status: newStatus
+                })
+            });
+            
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || 'Failed to update article status');
+            }
+            
+            // Show success message
+            showSuccess(`Article status updated to "${newStatus}"`);
+            
+            // Update UI
+            const statusCell = document.querySelector(`#article-row-${articleId} td:nth-child(4)`);
+            if (statusCell) {
+                let statusBadge = '';
+                
+                if (newStatus === 'published') {
+                    statusBadge = '<span class="status-badge status-published">Published</span>';
+                } else if (newStatus === 'hidden') {
+                    statusBadge = '<span class="status-badge status-hidden">Hidden</span>';
+                } else if (newStatus === 'archived') {
+                    statusBadge = '<span class="status-badge status-archived">Archived</span>';
+                } else if (newStatus === 'draft') {
+                    statusBadge = '<span class="status-badge status-draft">Draft</span>';
+                }
+                
+                statusCell.innerHTML = statusBadge;
+            }
+            
+            // Update action buttons
+            const actionsCell = document.querySelector(`#article-row-${articleId} td:nth-child(6)`);
+            if (actionsCell) {
+                const actions = actionsCell.querySelector('.article-actions');
+                
+                // Remove status-specific buttons
+                const restoreButton = actions.querySelector('.restore-button');
+                const hideButton = actions.querySelector('.hide-button');
+                const archiveButton = actions.querySelector('.archive-button');
+                
+                if (restoreButton) restoreButton.remove();
+                if (hideButton) hideButton.remove();
+                if (archiveButton) archiveButton.remove();
+                
+                // Add appropriate buttons based on new status
+                if (newStatus !== 'published') {
+                    const restoreButton = document.createElement('button');
+                    restoreButton.className = 'action-button restore-button';
+                    restoreButton.textContent = 'Publish';
+                    restoreButton.onclick = function() { changeStatus(articleId, 'published'); };
+                    actions.appendChild(restoreButton);
+                }
+                
+                if (newStatus !== 'hidden') {
+                    const hideButton = document.createElement('button');
+                    hideButton.className = 'action-button hide-button';
+                    hideButton.textContent = 'Hide';
+                    hideButton.onclick = function() { changeStatus(articleId, 'hidden'); };
+                    actions.appendChild(hideButton);
+                }
+                
+                if (newStatus !== 'archived') {
+                    const archiveButton = document.createElement('button');
+                    archiveButton.className = 'action-button archive-button';
+                    archiveButton.textContent = 'Archive';
+                    archiveButton.onclick = function() { changeStatus(articleId, 'archived'); };
+                    actions.appendChild(archiveButton);
+                }
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error changing article status:', error);
+            showError('Error changing article status: ' + error.message);
+            return false;
+        }
+    };
+    
+    window.confirmDelete = function(articleId, articleTitle) {
+        // Store current article ID
+        currentArticleId = articleId;
+        
+        // Set article title in confirmation
+        if (articleTitleConfirm) {
+            articleTitleConfirm.textContent = articleTitle;
+        }
+        
+        // Show delete confirmation modal
+        if (deleteConfirmationModal) {
+            deleteConfirmationModal.style.display = 'block';
+        }
+    };
+    
+    // Function to delete article
+    async function deleteArticle(articleId) {
+        try {
+            if (!token) {
+                throw new Error('You must be logged in as an administrator to perform this action');
+            }
+            
+            const response = await fetch(`/api/articles/${articleId}?permanent=true`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.detail || 'Failed to delete article');
+            }
+            
+            return true;
+        } catch (error) {
+            console.error('Error deleting article:', error);
+            throw error;
+        }
+    }
+    
+    // Helper functions for status messages
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+        
+        // Scroll to error
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Hide after 5 seconds
+        setTimeout(() => {
+            errorMessage.style.display = 'none';
+        }, 5000);
+    }
+    
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+        
+        // Hide after 5 seconds
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+        }, 5000);
+    }
+});
+
+// Helper function to escape JavaScript strings
+function escapeJS(string) {
+    return string.replace(/\\/g, '\\\\')
+        .replace(/\"/g, '\\"')
+        .replace(/\'/g, "\\'")
+        .replace(/\n/g, '\\n')
+        .replace(/\r/g, '\\r')
+        .replace(/\t/g, '\\t');
+}
+</script>
+{% endblock %}

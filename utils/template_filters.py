@@ -149,3 +149,28 @@ def safe_code_blocks_filter(text: str) -> str:
     result = re.sub(pattern, replacement, text, flags=re.DOTALL)
     
     return result
+
+# File: utils/template_filters.py
+
+def escapejs_filter(text: str) -> str:
+    """
+    Escape a string for JavaScript use.
+    
+    Args:
+        text: The text to escape
+        
+    Returns:
+        str: The escaped text
+    """
+    if not text:
+        return ""
+    
+    # Escape quotes, backslashes, and line breaks
+    text = text.replace("\\", "\\\\")
+    text = text.replace("\"", "\\\"")
+    text = text.replace("'", "\\'")
+    text = text.replace("\n", "\\n")
+    text = text.replace("\r", "\\r")
+    text = text.replace("\t", "\\t")
+    
+    return text

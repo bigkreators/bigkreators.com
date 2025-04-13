@@ -40,6 +40,8 @@ class ArticleCreate(ArticleBase):
     """
     pass
 
+# File: models/article.py (partial update)
+
 class ArticleUpdate(BaseModel):
     """
     Model for updating article data.
@@ -51,6 +53,7 @@ class ArticleUpdate(BaseModel):
     tags: Optional[List[str]] = None
     metadata: Optional[Union[ArticleMetadata, Dict[str, Any]]] = None
     editComment: Optional[str] = None  # Comment describing the edit
+    status: Optional[str] = None  # Status field: "published", "draft", "hidden", "archived"
 
     model_config = ConfigDict(
         populate_by_name=True

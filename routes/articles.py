@@ -400,6 +400,9 @@ async def delete_article(
         )
 # File: routes/articles.py (Article Update Route)
 
+# File: routes/articles.py (partial update)
+
+# Update the ArticleUpdate model to include status field
 @router.put("/{id}", response_model=Article)
 async def update_article(
     id: str,
@@ -453,7 +456,25 @@ async def update_article(
             update_data["tags"] = article_update.tags
         
         if article_update.metadata is not None:
-            update_data["metadata"] = article_update.metadata
+            update_data["metadata"] = article_update.metadata.dict() if hasattr(article_update.metadata, "dict") else article_update.metadata
+            
+        # Allow status updates but only for admin/editor
+        if article_update.status is not None:
+            if not (is_admin or is_editor):
+                raise HTTPException(
+                    status_code=403, 
+                    detail="Only admins and editors can change article status"
+                )
+            
+            # Validate status
+            valid_statuses = ["published", "draft", "hidden", "archived"]
+            if article_update.status not in valid_statuses:
+                raise HTTPException(
+                    status_code=400, 
+                    detail=f"Invalid status. Must be one of: {', '.join(valid_statuses)}"
+                )
+                
+            update_data["status"] = article_update.status
         
         # Don't update if no changes
         if not update_data:
@@ -463,14 +484,18 @@ async def update_article(
         update_data["lastUpdatedAt"] = datetime.now()
         update_data["lastUpdatedBy"] = current_user["_id"]
         
-        # Create a revision entry
-        revision = {
-            "articleId": ObjectId(id),
-            "content": update_data.get("content", article["content"]),
-            "createdBy": current_user["_id"],
-            "createdAt": datetime.now(),
-            "comment": article_update.editComment or "Updated article"
-        }
+        # Only create a revision for content updates
+        create_revision = "content" in update_data
+        
+        if create_revision:
+            # Create a revision entry
+            revision = {
+                "articleId": ObjectId(id),
+                "content": update_data.get("content", article["content"]),
+                "createdBy": current_user["_id"],
+                "createdAt": datetime.now(),
+                "comment": article_update.editComment or "Updated article"
+            }
         
         # Update the article
         result = await db["articles"].update_one(
@@ -482,20 +507,23 @@ async def update_article(
             logger.warning(f"No changes made to article {id}")
             raise HTTPException(status_code=400, detail="No changes made to the article")
         
-        # Create revision
-        await db["revisions"].insert_one(revision)
-        logger.info(f"Created revision for article {id}")
-        
-        # Update user's edit count
-        await db["users"].update_one(
-            {"_id": current_user["_id"]},
-            {"$inc": {"contributions.editsPerformed": 1}}
-        )
+        # Create revision if needed
+        if create_revision:
+            await db["revisions"].insert_one(revision)
+            logger.info(f"Created revision for article {id}")
+            
+            # Update user's edit count
+            await db["users"].update_one(
+                {"_id": current_user["_id"]},
+                {"$inc": {"contributions.editsPerformed": 1}}
+            )
         
         # Update search index
         if search is not None:
             try:
-                search_data = {}
+                search_data = {
+                    "updated": datetime.now().isoformat()
+                }
                 
                 if "content" in update_data:
                     search_data["content"] = update_data["content"]
@@ -505,18 +533,27 @@ async def update_article(
                 
                 if "summary" in update_data:
                     search_data["summary"] = update_data["summary"]
-                
-                if "categories" in update_data:
-                    search_data["categories"] = update_data["categories"]
-                
-                if "tags" in update_data:
-                    search_data["tags"] = update_data["tags"]
-                
-                await search.update(
-                    index="articles",
-                    id=id,
-                    document=search_data
-                )
+                    
+                if "status" in update_data:
+                    # Remove from search index if not published
+                    if update_data["status"] != "published":
+                        await search.delete(
+                            index="articles",
+                            id=id
+                        )
+                    else:
+                        await search.update(
+                            index="articles",
+                            id=id,
+                            document=search_data
+                        )
+                else:
+                    await search.update(
+                        index="articles",
+                        id=id,
+                        document=search_data
+                    )
+                    
                 logger.info(f"Updated search index for article {id}")
             except Exception as e:
                 logger.error(f"Error updating search index: {e}")
@@ -530,6 +567,7 @@ async def update_article(
                     await cache.delete(f"article:{article['slug']}")
                 await cache.delete("featured_article")
                 await cache.delete("recent_articles")
+                logger.info(f"Cleared cache for article {id}")
             except Exception as e:
                 logger.error(f"Error clearing cache: {e}")
                 # Continue even if cache clearing fails
@@ -545,8 +583,83 @@ async def update_article(
     except Exception as e:
         logger.error(f"Error updating article: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=500,
             detail=f"Failed to update article: {str(e)}"
+        )
+
+@router.delete("/{id}")
+async def delete_article(
+    id: str,
+    permanent: bool = Query(False, description="Permanently delete the article instead of archiving"),
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db),
+    search=Depends(get_search),
+    cache=Depends(get_cache)
+):
+    """
+    Delete an article (admin only). By default, marks it as archived.
+    If permanent=True, the article will be permanently deleted.
+    """
+    # Check if article exists
+    if not ObjectId.is_valid(id):
+        raise HTTPException(status_code=400, detail="Invalid article ID")
+    
+    article = await db["articles"].find_one({"_id": ObjectId(id)})
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    
+    try:
+        if permanent:
+            # Actually delete the article
+            result = await db["articles"].delete_one({"_id": ObjectId(id)})
+            
+            if result.deleted_count == 0:
+                raise HTTPException(status_code=500, detail="Failed to delete article")
+                
+            # Delete all related revisions, proposals, etc.
+            await db["revisions"].delete_many({"articleId": ObjectId(id)})
+            await db["proposals"].delete_many({"articleId": ObjectId(id)})
+            await db["rewards"].delete_many({"articleId": ObjectId(id)})
+            
+            message = "Article permanently deleted"
+        else:
+            # Mark as archived
+            await db["articles"].update_one(
+                {"_id": ObjectId(id)},
+                {"$set": {"status": "archived"}}
+            )
+            message = "Article archived successfully"
+        
+        # Remove from search
+        if search:
+            try:
+                await search.delete(
+                    index="articles",
+                    id=id
+                )
+            except Exception as e:
+                logger.error(f"Error removing article from search: {e}")
+        
+        # Invalidate cache
+        if cache:
+            try:
+                await cache.delete(f"article:{id}")
+                if article.get("slug"):
+                    await cache.delete(f"article:{article['slug']}")
+                await cache.delete("featured_article")
+                await cache.delete("recent_articles")
+            except Exception as e:
+                logger.error(f"Error clearing cache: {e}")
+        
+        return {"message": message}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error handling article deletion: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to process article deletion: {str(e)}"
         )
 
 # More routes related to articles...

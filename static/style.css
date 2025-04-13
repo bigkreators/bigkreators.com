@@ -1,3 +1,4 @@
+/* File: static/style.css */
 /* Kryptopedia Main Style File */
 /* Basic Reset and Fonts */
 * {
@@ -487,6 +488,54 @@ pre code {
 .page-info {
     margin: 0 15px;
     color: #666;
+}
+
+/* Article Action Button Styles */
+.article-footer {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.article-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.action-button {
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.action-button:hover {
+    background-color: #e0e0e0;
+}
+
+#edit-button {
+    background-color: #0645ad;
+    color: white;
+    border: none;
+}
+
+#edit-button:hover {
+    background-color: #053a7a;
+}
+
+#reward-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+#reward-button:hover {
+    background-color: #218838;
 }
 
 /* Responsive Styles */
