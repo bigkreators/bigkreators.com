@@ -119,6 +119,44 @@
     </div>
 
     <script src="/static/script.js"></script>
+    <script>
+        // Add Authorization header to all AJAX requests
+        (function() {
+            // Store the original fetch function
+            const originalFetch = window.fetch;
+            
+            // Override the fetch function
+            window.fetch = function(url, options = {}) {
+                // Get the authorization token
+                const token = localStorage.getItem('token');
+                
+                // If token exists and options doesn't already have Authorization header
+                if (token && options && (!options.headers || !options.headers['Authorization'])) {
+                    // Create headers object if it doesn't exist
+                    options.headers = options.headers || {};
+                    
+                    // Add Authorization header
+                    options.headers['Authorization'] = `Bearer ${token}`;
+                }
+                
+                // Call the original fetch function
+                return originalFetch(url, options);
+            };
+            
+            // Add token to all XHR requests
+            const originalXhrOpen = XMLHttpRequest.prototype.open;
+            XMLHttpRequest.prototype.open = function() {
+                const token = localStorage.getItem('token');
+                const result = originalXhrOpen.apply(this, arguments);
+                
+                if (token) {
+                    this.setRequestHeader('Authorization', `Bearer ${token}`);
+                }
+                
+                return result;
+            };
+        })();
+    </script>
     {% block extra_js %}{% endblock %}
     
     <!-- Any additional modals that might be needed per-page -->

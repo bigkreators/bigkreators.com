@@ -100,8 +100,17 @@ function setupLoginForm() {
                 // Show success message
                 alert('Login successful! Welcome back.');
                 
-                // Refresh page to update UI
-                window.location.reload();
+                // Check if there's a redirect URL stored
+                const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                if (redirectUrl) {
+                    // Clear the stored redirect URL
+                    sessionStorage.removeItem('redirectAfterLogin');
+                    // Redirect to the stored URL
+                    window.location.href = redirectUrl;
+                } else {
+                    // Refresh page to update UI
+                    window.location.reload();
+                }
             })
             .catch(error => {
                 console.error('Error logging in:', error);
@@ -217,6 +226,12 @@ function setupModalClosers() {
             const registerModal = document.getElementById('register-modal');
             if (loginModal) loginModal.style.display = 'none';
             if (registerModal) registerModal.style.display = 'block';
+            
+            // Transfer any redirect URL from login to registration process
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            if (redirectUrl) {
+                // Keep the redirectAfterLogin in session storage for the registration process
+            }
         });
     }
     

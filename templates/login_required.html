@@ -1,0 +1,135 @@
+<!-- File: templates/login_required.html -->
+{% extends "base.html" %}
+
+{% block title %}Login Required - Kryptopedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-required-container {
+        max-width: 600px;
+        margin: 50px auto;
+        text-align: center;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .login-icon {
+        font-size: 48px;
+        color: #0645ad;
+        margin-bottom: 20px;
+    }
+    
+    .login-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    
+    .login-message {
+        margin-bottom: 30px;
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .login-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 500;
+        margin-bottom: 20px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .login-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .register-link {
+        display: block;
+        margin-top: 15px;
+        color: #0645ad;
+        text-decoration: none;
+    }
+    
+    .register-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-required-container">
+    <div class="login-icon">🔒</div>
+    <h1 class="login-title">Login Required</h1>
+    
+    <p class="login-message">
+        You need to be logged in to access this page. 
+        Please log in with your account to continue.
+    </p>
+    
+    <button id="login-button" class="login-button">Log In</button>
+    
+    <p>
+        Don't have an account? <a href="#" id="register-link" class="register-link">Create one now</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loginButton = document.getElementById('login-button');
+    const registerLink = document.getElementById('register-link');
+    const redirectTo = "{{ redirect_to }}";
+    
+    // Handle login button click
+    if (loginButton) {
+        loginButton.addEventListener('click', function() {
+            // Get the login modal
+            const loginModal = document.getElementById('login-modal');
+            if (loginModal) {
+                loginModal.style.display = 'block';
+                
+                // Store the redirect URL in session storage
+                if (redirectTo) {
+                    sessionStorage.setItem('redirectAfterLogin', redirectTo);
+                }
+                
+                // Add event listener for successful login
+                const loginForm = document.getElementById('login-form');
+                if (loginForm) {
+                    loginForm.addEventListener('submit', function(e) {
+                        // The default login handler in script.js will be triggered
+                        // We've already set the redirect in session storage
+                    });
+                }
+            }
+        });
+    }
+    
+    // Handle register link click
+    if (registerLink) {
+        registerLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Get the register modal
+            const registerModal = document.getElementById('register-modal');
+            if (registerModal) {
+                registerModal.style.display = 'block';
+                
+                // Store the redirect URL in session storage
+                if (redirectTo) {
+                    sessionStorage.setItem('redirectAfterLogin', redirectTo);
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
