@@ -2,7 +2,7 @@
 
 A collaborative knowledge base wiki platform built with FastAPI and MongoDB.
 
-![Kryptopedia Screenshot](https://via.placeholder.com/800x400?text=Kryptopedia+Wiki+Platform)
+![birdLogo](https://github.com/user-attachments/assets/5e2a39c4-eeb3-48cd-86a5-c9aefd28bb74)
 
 ## Features
 
