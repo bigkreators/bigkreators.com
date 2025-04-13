@@ -1,6 +1,12 @@
 <!-- File: templates/community.html -->
 {% extends "base.html" %}
 
+{% set stats = stats if stats is defined else {"articles": 0, "users": 0, "edits": 0, "categories": 0} %}
+{% set recent_activities = recent_activities if recent_activities is defined else [] %}
+{% set announcements = announcements if announcements is defined else [] %}
+{% set events = events if events is defined else [] %}
+{% set top_contributors = top_contributors if top_contributors is defined else [] %}
+
 {% block title %}Community Portal - Kryptopedia{% endblock %}
 
 {% set active_page = 'community' %}
@@ -363,6 +369,10 @@
                 <span class="activity-time">{{ activity.timestamp|strftime('%Y-%m-%d %H:%M') }}</span>
             </div>
             {% endfor %}
+            
+            {% if not recent_activities %}
+            <p>No recent activities found.</p>
+            {% endif %}
             
             <div style="text-align: center; margin-top: 20px;">
                 <a href="/special/recentchanges" class="action-button">View All Recent Changes</a>

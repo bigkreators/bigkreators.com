@@ -1,4 +1,3 @@
-# File: pages/community.py
 """
 Community page routes for the Kryptopedia application.
 """
@@ -124,7 +123,7 @@ async def community_page(request: Request, db=Depends(get_db)):
             "community.html",
             {
                 "request": request,
-                "stats": stats,
+                "stats": stats,  # This is the key variable that was missing
                 "recent_activities": recent_activities,
                 "announcements": announcements,
                 "events": events,
@@ -240,7 +239,8 @@ async def community_portal(
                 "recent_revisions": data["recent_revisions"],
                 "top_contributors": data["top_contributors"],
                 "recent_discussions": data["recent_discussions"],
-                "upcoming_events": data["upcoming_events"]
+                "upcoming_events": data["upcoming_events"],
+                "stats": {"articles": 0, "users": 0, "edits": 0, "categories": 0}  # Added default stats
             }
         )
     except Exception as e:
@@ -287,7 +287,8 @@ async def contributors_page(
                 "contributors": contributors,
                 "total": total_count,
                 "skip": skip,
-                "limit": limit
+                "limit": limit,
+                "stats": {"articles": 0, "users": 0, "edits": 0, "categories": 0}  # Added default stats
             }
         )
     except Exception as e:
@@ -307,7 +308,10 @@ async def community_guidelines(request: Request):
     
     return templates.TemplateResponse(
         "community_guidelines.html",
-        {"request": request}
+        {
+            "request": request,
+            "stats": {"articles": 0, "users": 0, "edits": 0, "categories": 0}  # Added default stats
+        }
     )
 
 @router.get("/community/events", response_class=HTMLResponse)
@@ -356,7 +360,8 @@ async def community_events(
         {
             "request": request,
             "events": events,
-            "can_create_events": can_create_events
+            "can_create_events": can_create_events,
+            "stats": {"articles": 0, "users": 0, "edits": 0, "categories": 0}  # Added default stats
         }
     )
 
@@ -426,6 +431,7 @@ async def community_forum(
             "request": request,
             "categories": categories,
             "topics": topics,
-            "current_category": category
+            "current_category": category,
+            "stats": {"articles": 0, "users": 0, "edits": 0, "categories": 0}  # Added default stats
         }
     )
