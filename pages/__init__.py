@@ -13,6 +13,9 @@ from .proposals import router as proposals_router
 from .search import router as search_router
 from .user_profile import router as user_profile_router
 from .errors import router as errors_router, add_error_handlers
+from .help import router as help_router  # Add this
+from .community import router as community_router  # Add this
+from .donate import router as donate_router  # Add this
 
 # Create a combined router for all pages
 router = APIRouter()
@@ -26,6 +29,9 @@ router.include_router(proposals_router)
 router.include_router(search_router)
 router.include_router(user_profile_router)
 router.include_router(errors_router)
+router.include_router(help_router)  # Add this
+router.include_router(community_router)  # Add this
+router.include_router(donate_router)  # Add this
 
 # Export modules
 __all__ = [

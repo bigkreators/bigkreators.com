@@ -354,3 +354,29 @@ async def random_redirect(db=Depends(get_db)):
     """Redirect to a random article."""
     # Redirect to the random route
     return RedirectResponse(url="/random")
+
+# Update or add to the imports for each page as needed
+
+@router.get("/special/help", response_class=HTMLResponse)
+async def special_help_page(request: Request):
+    """
+    Redirect to the main help page.
+    """
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/help")
+
+@router.get("/special/community", response_class=HTMLResponse)
+async def special_community_page(request: Request):
+    """
+    Redirect to the community portal page.
+    """
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/community")
+
+@router.get("/special/donate", response_class=HTMLResponse)
+async def special_donate_page(request: Request):
+    """
+    Redirect to the donation page.
+    """
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/donate")
