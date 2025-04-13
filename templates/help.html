@@ -1,0 +1,444 @@
+<!-- File: templates/help.html -->
+{% extends "base.html" %}
+
+{% block title %}Help - Kryptopedia{% endblock %}
+
+{% set active_page = 'help' %}
+
+{% block extra_css %}
+<style>
+    .help-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .help-section {
+        margin-bottom: 40px;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .help-section h2 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .help-section h3 {
+        color: #0645ad;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .help-topic {
+        margin-bottom: 30px;
+    }
+    
+    .help-topic p {
+        line-height: 1.6;
+    }
+    
+    .help-topic ul, .help-topic ol {
+        line-height: 1.6;
+        margin-left: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .help-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0645ad;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .tip-box {
+        border-left-color: #28a745;
+    }
+    
+    .warning-box {
+        border-left-color: #ffc107;
+    }
+    
+    .example-box {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+    }
+    
+    .example-box pre {
+        margin: 10px 0 0 0;
+    }
+    
+    .faq-item {
+        margin-bottom: 20px;
+    }
+    
+    .faq-question {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+    }
+    
+    .help-footer {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+    }
+    
+    .help-search {
+        margin-bottom: 30px;
+    }
+    
+    .help-search input {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    .topic-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .topic-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .topic-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .topic-card h3 {
+        margin-top: 0;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Help Topics</h3>
+<ul>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#editing-articles">Editing Articles</a></li>
+    <li><a href="#formatting">Text Formatting</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+</ul>
+
+<h3>Related Links</h3>
+<ul>
+    <li><a href="/community">Community Portal</a></li>
+    <li><a href="/help/formatting">Formatting Guide</a></li>
+    <li><a href="/help/references">Adding References</a></li>
+    <li><a href="/contact">Contact Us</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <h1>Help Center</h1>
+    
+    <div class="help-search">
+        <input type="text" id="help-search-input" placeholder="Search help topics...">
+    </div>
+    
+    <div class="topic-grid">
+        <div class="topic-card">
+            <h3>Getting Started</h3>
+            <p>New to Kryptopedia? Learn how to create an account and navigate the wiki.</p>
+            <a href="#getting-started" class="internal-link">Learn more →</a>
+        </div>
+        
+        <div class="topic-card">
+            <h3>Editing Articles</h3>
+            <p>Learn how to create and edit articles on the wiki.</p>
+            <a href="#editing-articles" class="internal-link">Learn more →</a>
+        </div>
+        
+        <div class="topic-card">
+            <h3>Text Formatting</h3>
+            <p>Formatting syntax for making your articles look professional.</p>
+            <a href="#formatting" class="internal-link">Learn more →</a>
+        </div>
+        
+        <div class="topic-card">
+            <h3>Contributing</h3>
+            <p>Various ways you can contribute to Kryptopedia.</p>
+            <a href="#contributing" class="internal-link">Learn more →</a>
+        </div>
+    </div>
+    
+    <div class="help-section" id="getting-started">
+        <h2>Getting Started</h2>
+        
+        <div class="help-topic">
+            <h3>Creating an Account</h3>
+            <p>To fully participate in Kryptopedia, you'll need to create an account. This allows you to:</p>
+            <ul>
+                <li>Create and edit articles</li>
+                <li>Propose edits to existing articles</li>
+                <li>Reward other contributors</li>
+                <li>Customize your profile</li>
+            </ul>
+            
+            <p>To create an account:</p>
+            <ol>
+                <li>Click on the "Login" link in the top-right corner of any page</li>
+                <li>Click on the "Register" link in the login modal</li>
+                <li>Fill in your username, email, and password</li>
+                <li>Click "Register" to complete the process</li>
+            </ol>
+            
+            <div class="help-box tip-box">
+                <strong>Tip:</strong> Choose a username that you're comfortable being publicly associated with your contributions.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Navigating the Wiki</h3>
+            <p>Kryptopedia is organized in a way that makes it easy to find information:</p>
+            <ul>
+                <li><strong>Main Page</strong>: The homepage features highlighted content and recent updates</li>
+                <li><strong>Articles</strong>: Browse all published articles</li>
+                <li><strong>Categories</strong>: Browse articles by category</li>
+                <li><strong>Recent Changes</strong>: See the latest edits and additions to the wiki</li>
+                <li><strong>Random Article</strong>: Discover new content by clicking on "Random" in the navigation bar</li>
+            </ul>
+            
+            <p>The search bar at the top of every page allows you to quickly find specific articles or topics.</p>
+        </div>
+    </div>
+    
+    <div class="help-section" id="editing-articles">
+        <h2>Editing Articles</h2>
+        
+        <div class="help-topic">
+            <h3>Creating a New Article</h3>
+            <p>To create a new article:</p>
+            <ol>
+                <li>Click on "Create Article" in the sidebar</li>
+                <li>Enter a title, summary, and content for your article</li>
+                <li>Add categories and tags to help others find your article</li>
+                <li>Click "Create Article" to publish your work</li>
+            </ol>
+            
+            <div class="help-box warning-box">
+                <strong>Note:</strong> Before creating a new article, search to make sure the topic doesn't already exist. If it does, consider editing or expanding the existing article instead.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Editing Existing Articles</h3>
+            <p>To edit an existing article:</p>
+            <ol>
+                <li>Navigate to the article you want to edit</li>
+                <li>Click the "Edit Article" button at the bottom of the page</li>
+                <li>Make your changes to the content</li>
+                <li>Provide an edit summary explaining your changes</li>
+                <li>Click "Save Changes" to update the article</li>
+            </ol>
+            
+            <p>All edits are tracked in the article's history, which can be accessed by clicking "History" in the sidebar when viewing an article.</p>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Proposing Edits</h3>
+            <p>If you don't have direct editing privileges, you can still contribute by proposing edits:</p>
+            <ol>
+                <li>Navigate to the article you want to edit</li>
+                <li>Click the "Propose Edit" button</li>
+                <li>Make your changes to the content</li>
+                <li>Provide a summary explaining your proposed changes</li>
+                <li>Click "Submit Proposal" to send your changes for review</li>
+            </ol>
+            
+            <p>Editors will review your proposal and either approve or reject it with feedback.</p>
+        </div>
+    </div>
+    
+    <div class="help-section" id="formatting">
+        <h2>Text Formatting</h2>
+        
+        <div class="help-topic">
+            <h3>Basic Formatting</h3>
+            <p>Kryptopedia uses a rich text editor that allows you to format your content without knowing HTML. Here are some basic formatting options:</p>
+            
+            <div class="example-box">
+                <strong>Bold</strong>: Click the B button or use Ctrl+B<br>
+                <em>Italic</em>: Click the I button or use Ctrl+I<br>
+                <u>Underline</u>: Click the U button or use Ctrl+U<br>
+                Lists: Use the bullet or numbered list buttons
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Adding Links</h3>
+            <p>To add a link to another article or an external website:</p>
+            <ol>
+                <li>Select the text you want to turn into a link</li>
+                <li>Click the link button in the editor toolbar</li>
+                <li>Enter the URL or article name</li>
+                <li>Click "OK" to create the link</li>
+            </ol>
+            
+            <div class="help-box tip-box">
+                <strong>Tip:</strong> When linking to another article on Kryptopedia, you can just use the article title or slug in the link field.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Adding Images</h3>
+            <p>To add images to your articles:</p>
+            <ol>
+                <li>First, upload the image by going to "Upload File" in the sidebar</li>
+                <li>When editing an article, click the image button in the editor toolbar</li>
+                <li>Enter the URL of the uploaded image or browse from recently uploaded files</li>
+                <li>Add alt text for accessibility</li>
+                <li>Click "Insert" to add the image to your article</li>
+            </ol>
+        </div>
+    </div>
+    
+    <div class="help-section" id="contributing">
+        <h2>Contributing</h2>
+        
+        <div class="help-topic">
+            <h3>Ways to Contribute</h3>
+            <p>There are many ways to contribute to Kryptopedia:</p>
+            <ul>
+                <li><strong>Create New Articles</strong>: Add new knowledge to the wiki</li>
+                <li><strong>Edit Existing Articles</strong>: Improve, expand, or update existing content</li>
+                <li><strong>Review Proposals</strong>: If you're an editor, review and approve edit proposals</li>
+                <li><strong>Reward Contributors</strong>: Recognize valuable contributions with rewards</li>
+                <li><strong>Report Issues</strong>: Help improve the wiki by reporting problems or inaccuracies</li>
+            </ul>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Contribution Guidelines</h3>
+            <p>When contributing to Kryptopedia, please follow these guidelines:</p>
+            <ul>
+                <li>Cite reliable sources for factual claims</li>
+                <li>Maintain a neutral point of view</li>
+                <li>Respect copyright and intellectual property</li>
+                <li>Be respectful of other contributors</li>
+                <li>Follow the wiki's style and formatting conventions</li>
+            </ul>
+            
+            <div class="help-box">
+                <strong>Note:</strong> Contributors who consistently provide high-quality content may be promoted to editor status, which grants additional privileges.
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section" id="faq">
+        <h2>Frequently Asked Questions</h2>
+        
+        <div class="faq-item">
+            <div class="faq-question">How do I change my password?</div>
+            <div class="faq-answer">
+                <p>To change your password, go to your profile page by clicking on your username in the navigation bar, then select "Edit Profile." You'll find the password change option in the account settings section.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">How do I add an article to a category?</div>
+            <div class="faq-answer">
+                <p>When creating or editing an article, you'll find a field labeled "Categories." Enter category names separated by commas, and the article will be added to those categories automatically when you save.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">Can I delete an article I created?</div>
+            <div class="faq-answer">
+                <p>Regular users cannot delete articles. If you believe an article should be deleted, please contact an administrator with your request and the reason for deletion.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">How do I become an editor?</div>
+            <div class="faq-answer">
+                <p>Editor status is granted to users who have made significant contributions to the wiki. Continue making quality edits and helping the community, and administrators may promote you to editor status.</p>
+            </div>
+        </div>
+        
+        <div class="faq-item">
+            <div class="faq-question">How do I report inappropriate content?</div>
+            <div class="faq-answer">
+                <p>If you find content that violates our guidelines, please use the "Contact" link in the footer to report it to the administrative team. Include the article title and the specific issue in your report.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-footer">
+        <p>Didn't find what you're looking for? <a href="/contact">Contact us</a> for additional help.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle help search
+    const searchInput = document.getElementById('help-search-input');
+    const helpSections = document.querySelectorAll('.help-topic');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            
+            // If search is empty, show all topics
+            if (searchTerm === '') {
+                helpSections.forEach(section => {
+                    section.style.display = 'block';
+                });
+                return;
+            }
+            
+            // Filter topics based on search term
+            helpSections.forEach(section => {
+                const headingText = section.querySelector('h3').textContent.toLowerCase();
+                const contentText = section.textContent.toLowerCase();
+                
+                if (headingText.includes(searchTerm) || contentText.includes(searchTerm)) {
+                    section.style.display = 'block';
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Smooth scrolling for internal links
+    const internalLinks = document.querySelectorAll('.internal-link');
+    internalLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href').substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

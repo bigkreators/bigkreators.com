@@ -1,0 +1,650 @@
+<!-- File: templates/donate.html -->
+{% extends "base.html" %}
+
+{% block title %}Donate - Kryptopedia{% endblock %}
+
+{% set active_page = 'donate' %}
+
+{% block extra_css %}
+<style>
+    .donate-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .donate-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .donate-header h1 {
+        color: #333;
+        margin-bottom: 15px;
+    }
+    
+    .donate-header p {
+        font-size: 1.1em;
+        max-width: 800px;
+        margin: 0 auto 20px;
+        line-height: 1.6;
+        color: #555;
+    }
+    
+    .donate-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        margin-bottom: 50px;
+    }
+    
+    .donate-option {
+        flex: 1 1 300px;
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 30px;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .donate-option:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    
+    .donate-option h2 {
+        color: #0645ad;
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .donation-amount {
+        margin-bottom: 30px;
+    }
+    
+    .amount-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .amount-option {
+        flex: 1 1 60px;
+        padding: 10px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border: 2px solid #e1e4e8;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .amount-option:hover, .amount-option.selected {
+        background-color: #0645ad;
+        color: white;
+        border-color: #0645ad;
+    }
+    
+    .custom-amount {
+        margin-top: 15px;
+    }
+    
+    .custom-amount input {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e1e4e8;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    .payment-method {
+        margin-bottom: 30px;
+    }
+    
+    .payment-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .payment-option {
+        flex: 1 1 120px;
+        padding: 15px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border: 2px solid #e1e4e8;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .payment-option:hover, .payment-option.selected {
+        background-color: #0645ad;
+        color: white;
+        border-color: #0645ad;
+    }
+    
+    .crypto-options {
+        margin-top: 15px;
+        display: none;
+    }
+    
+    .crypto-option {
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .crypto-option:hover {
+        background-color: #e9ecef;
+    }
+    
+    .crypto-address {
+        margin-top: 10px;
+        font-family: monospace;
+        background-color: #f1f1f1;
+        padding: 10px;
+        border-radius: 4px;
+        word-break: break-all;
+    }
+    
+    .copy-button {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        margin-top: 10px;
+    }
+    
+    .donate-button {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 600;
+        text-align: center;
+        transition: background-color 0.2s;
+    }
+    
+    .donate-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .donation-form {
+        margin-top: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #e1e4e8;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    
+    .info-section {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        padding: 30px;
+        margin-bottom: 40px;
+    }
+    
+    .info-section h2 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .benefits-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .benefit-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+    }
+    
+    .benefit-card h3 {
+        color: #0645ad;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .donor-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .donor-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .donor {
+        padding: 10px 20px;
+        background-color: #fff;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    @media (max-width: 768px) {
+        .donate-options {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Donation Options</h3>
+<ul>
+    <li><a href="#one-time">One-Time Donation</a></li>
+    <li><a href="#monthly">Monthly Support</a></li>
+    <li><a href="#crypto">Cryptocurrency</a></li>
+</ul>
+
+<h3>More Information</h3>
+<ul>
+    <li><a href="#why-donate">Why Donate</a></li>
+    <li><a href="#where-goes">Where Your Money Goes</a></li>
+    <li><a href="#sponsor">Corporate Sponsorship</a></li>
+    <li><a href="/contact">Contact Us</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="donate-container">
+    <div class="donate-header">
+        <h1>Support Kryptopedia</h1>
+        <p>Your donations help us maintain and grow our community knowledge base, keeping it free and accessible to everyone.</p>
+        <p>All donations directly support server costs, development, and content improvement.</p>
+    </div>
+    
+    <div class="donate-options">
+        <div class="donate-option" id="one-time">
+            <h2>One-Time Donation</h2>
+            <p>Make a single contribution to support Kryptopedia.</p>
+            
+            <div class="donation-amount">
+                <h3>Select Amount</h3>
+                <div class="amount-options">
+                    <div class="amount-option">$5</div>
+                    <div class="amount-option">$10</div>
+                    <div class="amount-option">$25</div>
+                    <div class="amount-option selected">$50</div>
+                    <div class="amount-option">$100</div>
+                </div>
+                
+                <div class="custom-amount">
+                    <label for="custom-one-time">Custom Amount ($)</label>
+                    <input type="number" id="custom-one-time" min="1" step="1" placeholder="Enter amount">
+                </div>
+            </div>
+            
+            <div class="payment-method">
+                <h3>Payment Method</h3>
+                <div class="payment-options">
+                    <div class="payment-option selected">Credit Card</div>
+                    <div class="payment-option">PayPal</div>
+                    <div class="payment-option crypto-trigger">Cryptocurrency</div>
+                </div>
+                
+                <div class="crypto-options">
+                    <div class="crypto-option" data-currency="bitcoin">
+                        Bitcoin
+                        <div class="crypto-address">bc1q8z5l3q5m7vy0z7cvd0lk4g4vmyyn6hpk25k6yn</div>
+                        <button class="copy-button" data-address="bc1q8z5l3q5m7vy0z7cvd0lk4g4vmyyn6hpk25k6yn">Copy Address</button>
+                    </div>
+                    <div class="crypto-option" data-currency="ethereum">
+                        Ethereum
+                        <div class="crypto-address">0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b</div>
+                        <button class="copy-button" data-address="0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b">Copy Address</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="donation-form" id="card-form">
+                <div class="form-group">
+                    <label for="card-name">Cardholder Name</label>
+                    <input type="text" id="card-name" placeholder="Enter cardholder name">
+                </div>
+                <div class="form-group">
+                    <label for="card-number">Card Number</label>
+                    <input type="text" id="card-number" placeholder="1234 5678 9012 3456">
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 2;">
+                        <label for="card-expiry">Expiry Date</label>
+                        <input type="text" id="card-expiry" placeholder="MM/YY">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="card-cvc">CVC</label>
+                        <input type="text" id="card-cvc" placeholder="123">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="donation-form" id="paypal-form" style="display: none;">
+                <p>You will be redirected to PayPal to complete your donation.</p>
+            </div>
+            
+            <button class="donate-button">Donate Now</button>
+        </div>
+        
+        <div class="donate-option" id="monthly">
+            <h2>Monthly Support</h2>
+            <p>Become a sustaining supporter with a monthly contribution.</p>
+            
+            <div class="donation-amount">
+                <h3>Select Monthly Amount</h3>
+                <div class="amount-options">
+                    <div class="amount-option">$5</div>
+                    <div class="amount-option selected">$10</div>
+                    <div class="amount-option">$25</div>
+                    <div class="amount-option">$50</div>
+                    <div class="amount-option">$100</div>
+                </div>
+                
+                <div class="custom-amount">
+                    <label for="custom-monthly">Custom Amount ($)</label>
+                    <input type="number" id="custom-monthly" min="1" step="1" placeholder="Enter amount">
+                </div>
+            </div>
+            
+            <div class="payment-method">
+                <h3>Payment Method</h3>
+                <div class="payment-options">
+                    <div class="payment-option selected">Credit Card</div>
+                    <div class="payment-option">PayPal</div>
+                </div>
+            </div>
+            
+            <div class="donation-form" id="monthly-card-form">
+                <div class="form-group">
+                    <label for="monthly-name">Cardholder Name</label>
+                    <input type="text" id="monthly-name" placeholder="Enter cardholder name">
+                </div>
+                <div class="form-group">
+                    <label for="monthly-card-number">Card Number</label>
+                    <input type="text" id="monthly-card-number" placeholder="1234 5678 9012 3456">
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px;">
+                    <div style="flex: 2;">
+                        <label for="monthly-expiry">Expiry Date</label>
+                        <input type="text" id="monthly-expiry" placeholder="MM/YY">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="monthly-cvc">CVC</label>
+                        <input type="text" id="monthly-cvc" placeholder="123">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="donation-form" id="monthly-paypal-form" style="display: none;">
+                <p>You will be redirected to PayPal to set up your monthly donation.</p>
+            </div>
+            
+            <button class="donate-button">Subscribe Monthly</button>
+        </div>
+    </div>
+    
+    <div class="info-section" id="why-donate">
+        <h2>Why Donate to Kryptopedia?</h2>
+        
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <h3>Keep Knowledge Free</h3>
+                <p>Your donations help us maintain Kryptopedia as a free resource without paywalls or intrusive advertising.</p>
+            </div>
+            
+            <div class="benefit-card">
+                <h3>Support Development</h3>
+                <p>Contributions fund ongoing development of new features and improvements to the platform.</p>
+            </div>
+            
+            <div class="benefit-card">
+                <h3>Server Costs</h3>
+                <p>Our servers and infrastructure require ongoing maintenance and upgrades to keep the site fast and reliable.</p>
+            </div>
+            
+            <div class="benefit-card">
+                <h3>Content Quality</h3>
+                <p>Donations help us implement tools and processes to maintain and improve content quality.</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="info-section" id="where-goes">
+        <h2>Where Your Money Goes</h2>
+        
+        <p>We're committed to transparency about how we use donations. Here's a breakdown of how your contribution helps:</p>
+        
+        <ul>
+            <li><strong>70% - Server and Infrastructure:</strong> Hosting costs, domain registration, security, and performance optimization.</li>
+            <li><strong>20% - Development:</strong> Creating new features, fixing bugs, and enhancing the platform.</li>
+            <li><strong>10% - Community Programs:</strong> Supporting contributor recognition and community-building initiatives.</li>
+        </ul>
+        
+        <p>Kryptopedia is operated as a non-profit project. All donations go directly toward maintaining and improving the platform.</p>
+    </div>
+    
+    <div class="info-section" id="sponsor">
+        <h2>Corporate Sponsorship</h2>
+        
+        <p>For businesses interested in supporting Kryptopedia, we offer corporate sponsorship packages that provide recognition while helping maintain our free knowledge resource.</p>
+        
+        <p>Benefits of sponsorship include:</p>
+        <ul>
+            <li>Recognition on our sponsors page</li>
+            <li>Demonstration of your commitment to open knowledge</li>
+            <li>Support for educational resources in your industry</li>
+        </ul>
+        
+        <p>For more information about corporate sponsorship opportunities, please <a href="/contact">contact us</a>.</p>
+    </div>
+    
+    <div class="donor-section">
+        <h2>Our Generous Supporters</h2>
+        <p>We'd like to thank the following individuals and organizations for their generous support.</p>
+        
+        <div class="donor-list">
+            {% for donor in top_donors %}
+            <div class="donor">{{ donor.name }}</div>
+            {% endfor %}
+            
+            {% if not top_donors %}
+            <p>Be the first to support Kryptopedia!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Amount selection functionality
+    const oneTimeAmountOptions = document.querySelectorAll('#one-time .amount-option');
+    const monthlyAmountOptions = document.querySelectorAll('#monthly .amount-option');
+    
+    function setupAmountOptions(options) {
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                options.forEach(opt => opt.classList.remove('selected'));
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                // Clear custom amount input
+                const container = this.closest('.donate-option');
+                const customInput = container.querySelector('.custom-amount input');
+                if (customInput) {
+                    customInput.value = '';
+                }
+            });
+        });
+    }
+    
+    setupAmountOptions(oneTimeAmountOptions);
+    setupAmountOptions(monthlyAmountOptions);
+    
+    // Payment method selection
+    const oneTimePaymentOptions = document.querySelectorAll('#one-time .payment-option');
+    const monthlyPaymentOptions = document.querySelectorAll('#monthly .payment-option');
+    
+    function setupPaymentOptions(options, formIds) {
+        options.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove selected class from all options
+                options.forEach(opt => opt.classList.remove('selected'));
+                // Add selected class to clicked option
+                this.classList.add('selected');
+                
+                // Show/hide appropriate form
+                const container = this.closest('.donate-option');
+                const paymentMethod = this.textContent.toLowerCase();
+                
+                Object.keys(formIds).forEach(key => {
+                    const form = container.querySelector(formIds[key]);
+                    if (form) {
+                        if (key === paymentMethod) {
+                            form.style.display = 'block';
+                        } else {
+                            form.style.display = 'none';
+                        }
+                    }
+                });
+                
+                // Special handling for crypto
+                if (this.classList.contains('crypto-trigger')) {
+                    const cryptoOptions = container.querySelector('.crypto-options');
+                    if (cryptoOptions) {
+                        cryptoOptions.style.display = 'block';
+                    }
+                } else {
+                    const cryptoOptions = container.querySelector('.crypto-options');
+                    if (cryptoOptions) {
+                        cryptoOptions.style.display = 'none';
+                    }
+                }
+            });
+        });
+    }
+    
+    setupPaymentOptions(oneTimePaymentOptions, {
+        'credit card': '#card-form',
+        'paypal': '#paypal-form'
+    });
+    
+    setupPaymentOptions(monthlyPaymentOptions, {
+        'credit card': '#monthly-card-form',
+        'paypal': '#monthly-paypal-form'
+    });
+    
+    // Copy crypto address functionality
+    const copyButtons = document.querySelectorAll('.copy-button');
+    
+    copyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const address = this.getAttribute('data-address');
+            navigator.clipboard.writeText(address).then(() => {
+                const originalText = this.textContent;
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                    this.textContent = originalText;
+                }, 2000);
+            });
+        });
+    });
+    
+    // Donation button click handler (just for demo)
+    const donateButtons = document.querySelectorAll('.donate-button');
+    
+    donateButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const container = this.closest('.donate-option');
+            const selectedAmount = container.querySelector('.amount-option.selected');
+            const customAmount = container.querySelector('.custom-amount input').value;
+            const selectedPayment = container.querySelector('.payment-option.selected');
+            
+            let amount = '';
+            if (customAmount) {
+                amount = '$' + customAmount;
+            } else if (selectedAmount) {
+                amount = selectedAmount.textContent;
+            }
+            
+            let paymentMethod = selectedPayment ? selectedPayment.textContent : '';
+            
+            if (amount && paymentMethod) {
+                if (paymentMethod === 'Cryptocurrency') {
+                    alert('Please send your cryptocurrency donation to the address shown above.');
+                } else if (paymentMethod === 'PayPal') {
+                    alert('You will now be redirected to PayPal to complete your ' + amount + ' donation.');
+                } else {
+                    alert('This is a demo. In a real implementation, you would be connected to a payment processor to complete your ' + amount + ' donation via ' + paymentMethod + '.');
+                }
+            } else {
+                alert('Please select an amount and payment method.');
+            }
+        });
+    });
+    
+    // Smooth scrolling for anchor links
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    
+    anchorLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            if (this.getAttribute('href').length > 1) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 50,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

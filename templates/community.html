@@ -1,0 +1,531 @@
+<!-- File: templates/community.html -->
+{% extends "base.html" %}
+
+{% block title %}Community Portal - Kryptopedia{% endblock %}
+
+{% set active_page = 'community' %}
+
+{% block extra_css %}
+<style>
+    .community-container {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .welcome-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .welcome-section h1 {
+        margin-top: 0;
+        color: #333;
+    }
+    
+    .welcome-section p {
+        font-size: 1.1em;
+        line-height: 1.6;
+        max-width: 800px;
+        margin: 15px auto;
+    }
+    
+    .community-section {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .community-section h2 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .community-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .community-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .community-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .community-card h3 {
+        color: #0645ad;
+        margin-top: 0;
+        margin-bottom: 15px;
+    }
+    
+    .community-card p {
+        margin-bottom: 15px;
+    }
+    
+    .action-button {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .action-button:hover {
+        background-color: #053a7a;
+        text-decoration: none;
+    }
+    
+    .contributor-section {
+        margin-top: 30px;
+    }
+    
+    .contributor-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .contributor-card {
+        width: 120px;
+        text-align: center;
+    }
+    
+    .contributor-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: #0645ad;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 36px;
+        font-weight: bold;
+        margin: 0 auto 10px;
+    }
+    
+    .contributor-name {
+        font-weight: 500;
+        word-break: break-word;
+    }
+    
+    .contributor-role {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .announcements {
+        margin-top: 20px;
+    }
+    
+    .announcement {
+        padding: 15px;
+        margin-bottom: 15px;
+        background-color: #f8f9fa;
+        border-left: 4px solid #0645ad;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .announcement-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .announcement-date {
+        font-size: 12px;
+        color: #666;
+    }
+    
+    .announcement-content {
+        margin-top: 10px;
+    }
+    
+    .event {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 20px;
+    }
+    
+    .event:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+    
+    .event-date {
+        flex: 0 0 100px;
+        background-color: #0645ad;
+        color: white;
+        text-align: center;
+        padding: 10px;
+        border-radius: 4px;
+        margin-right: 20px;
+    }
+    
+    .event-month {
+        font-size: 16px;
+        display: block;
+        margin-bottom: 5px;
+    }
+    
+    .event-day {
+        font-size: 26px;
+        font-weight: bold;
+        display: block;
+    }
+    
+    .event-details {
+        flex: 1;
+    }
+    
+    .event-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+    
+    .event-description {
+        color: #666;
+        margin-bottom: 10px;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .stat-card {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #0645ad;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        color: #666;
+    }
+    
+    .recent-activity {
+        margin-top: 20px;
+    }
+    
+    .activity-item {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-type {
+        background-color: #0645ad;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-right: 10px;
+    }
+    
+    .activity-type.edit {
+        background-color: #28a745;
+    }
+    
+    .activity-type.proposal {
+        background-color: #ffc107;
+        color: #212529;
+    }
+    
+    .activity-user {
+        font-weight: 500;
+        margin-right: 5px;
+    }
+    
+    .activity-time {
+        font-size: 12px;
+        color: #666;
+        margin-left: auto;
+    }
+    
+    @media (max-width: 768px) {
+        .community-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .event {
+            flex-direction: column;
+        }
+        
+        .event-date {
+            margin-bottom: 15px;
+            margin-right: 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Community Links</h3>
+<ul>
+    <li><a href="#announcements">Announcements</a></li>
+    <li><a href="#events">Upcoming Events</a></li>
+    <li><a href="#projects">Community Projects</a></li>
+    <li><a href="#contributors">Top Contributors</a></li>
+</ul>
+
+<h3>Get Involved</h3>
+<ul>
+    <li><a href="/create-article">Create an Article</a></li>
+    <li><a href="/special/recentchanges">Recent Changes</a></li>
+    <li><a href="/donate">Support Kryptopedia</a></li>
+    <li><a href="/help">Help Resources</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="community-container">
+    <div class="welcome-section">
+        <h1>Welcome to the Kryptopedia Community Portal</h1>
+        <p>This is the central hub for our community of contributors and readers. Find announcements, events, and ways to get involved in the growth of our collaborative knowledge base.</p>
+        
+        <a href="/contribute" class="action-button">Get Involved</a>
+    </div>
+    
+    <div class="community-section">
+        <h2>Community Dashboard</h2>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.articles|format_number }}</div>
+                <div class="stat-label">Articles</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.users|format_number }}</div>
+                <div class="stat-label">Contributors</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.edits|format_number }}</div>
+                <div class="stat-label">Edits</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.categories|format_number }}</div>
+                <div class="stat-label">Categories</div>
+            </div>
+        </div>
+        
+        <h3>Recent Activity</h3>
+        <div class="recent-activity">
+            {% for activity in recent_activities %}
+            <div class="activity-item">
+                <span class="activity-type {% if activity.type == 'Edit' %}edit{% elif activity.type == 'Proposal' %}proposal{% endif %}">{{ activity.type }}</span>
+                <span class="activity-user">{{ activity.username }}</span>
+                <span class="activity-content">
+                    {% if activity.type == 'Edit' %}
+                    edited
+                    {% elif activity.type == 'Proposal' %}
+                    proposed changes to
+                    {% elif activity.type == 'New' %}
+                    created
+                    {% endif %}
+                    <a href="/articles/{{ activity.articleId }}">{{ activity.articleTitle }}</a>
+                </span>
+                <span class="activity-time">{{ activity.timestamp|strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+            {% endfor %}
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="/special/recentchanges" class="action-button">View All Recent Changes</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="community-section" id="announcements">
+        <h2>Announcements</h2>
+        
+        <div class="announcements">
+            {% for announcement in announcements %}
+            <div class="announcement">
+                <div class="announcement-title">{{ announcement.title }}</div>
+                <div class="announcement-date">{{ announcement.date|strftime('%B %d, %Y') }}</div>
+                <div class="announcement-content">{{ announcement.content|safe }}</div>
+            </div>
+            {% endfor %}
+            
+            {% if not announcements %}
+            <p>No current announcements. Check back later for community updates.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="community-section" id="events">
+        <h2>Upcoming Events</h2>
+        
+        <div class="events-list">
+            {% for event in events %}
+            <div class="event">
+                <div class="event-date">
+                    <span class="event-month">{{ event.date|strftime('%b') }}</span>
+                    <span class="event-day">{{ event.date|strftime('%d') }}</span>
+                </div>
+                <div class="event-details">
+                    <div class="event-title">{{ event.title }}</div>
+                    <div class="event-description">{{ event.description }}</div>
+                    {% if event.link %}
+                    <a href="{{ event.link }}" class="action-button">Learn More</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not events %}
+            <p>No upcoming events scheduled. Check back later for future community events.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="community-section" id="projects">
+        <h2>Community Projects</h2>
+        
+        <div class="community-grid">
+            <div class="community-card">
+                <h3>Article Improvement Drive</h3>
+                <p>Help improve our highest-traffic articles by adding references, expanding sections, and enhancing clarity.</p>
+                <a href="#" class="action-button">Join Project</a>
+            </div>
+            
+            <div class="community-card">
+                <h3>New Topic Initiative</h3>
+                <p>Contribute to our effort to expand coverage in underrepresented topic areas and emerging technologies.</p>
+                <a href="#" class="action-button">View Topics</a>
+            </div>
+            
+            <div class="community-card">
+                <h3>Quality Assurance</h3>
+                <p>Help review and improve the accuracy, clarity, and formatting of recent contributions.</p>
+                <a href="#" class="action-button">Get Started</a>
+            </div>
+            
+            <div class="community-card">
+                <h3>Technical Development</h3>
+                <p>Contribute to the technical improvement of the Kryptopedia platform itself.</p>
+                <a href="#" class="action-button">View GitHub</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="community-section" id="contributors">
+        <h2>Top Contributors</h2>
+        
+        <div class="contributor-list">
+            {% for contributor in top_contributors %}
+            <div class="contributor-card">
+                <div class="contributor-avatar">
+                    {{ contributor.username[0]|upper }}
+                </div>
+                <div class="contributor-name">{{ contributor.username }}</div>
+                <div class="contributor-role">{{ contributor.role|title }}</div>
+            </div>
+            {% endfor %}
+            
+            {% if not top_contributors %}
+            <p>No contributor data available.</p>
+            {% endif %}
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/special/statistics" class="action-button">View All Statistics</a>
+        </div>
+    </div>
+    
+    <div class="community-section">
+        <h2>Get Involved</h2>
+        
+        <div class="community-grid">
+            <div class="community-card">
+                <h3>Create Content</h3>
+                <p>Share your knowledge by creating new articles or editing existing ones.</p>
+                <a href="/create-article" class="action-button">Create Article</a>
+            </div>
+            
+            <div class="community-card">
+                <h3>Review Proposals</h3>
+                <p>Help review and approve edit proposals from other contributors.</p>
+                <a href="/proposals" class="action-button">View Proposals</a>
+            </div>
+            
+            <div class="community-card">
+                <h3>Support Kryptopedia</h3>
+                <p>Help keep Kryptopedia running by donating or becoming a sponsor.</p>
+                <a href="/donate" class="action-button">Donate</a>
+            </div>
+            
+            <div class="community-card">
+                <h3>Join Discussions</h3>
+                <p>Participate in community discussions about the future of Kryptopedia.</p>
+                <a href="#" class="action-button">Forum</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle smooth scrolling for anchor links
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    
+    anchorLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            // Only if the href contains more than just '#'
+            if (this.getAttribute('href').length > 1) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 50,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    });
+    
+    // Other interactive elements could be added here
+});
+</script>
+{% endblock %}

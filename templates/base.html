@@ -24,7 +24,9 @@
                 <li><a href="/" {% if active_page == 'home' %}class="active"{% endif %}>Home</a></li>
                 <li><a href="/articles" {% if active_page == 'articles' %}class="active"{% endif %}>Articles</a></li>
                 <li><a href="/random" id="random-article">Random</a></li>
-                <li><a href="/contribute" id="contribute-link" {% if active_page == 'contribute' %}class="active"{% endif %}>Contribute</a></li>
+                <li><a href="/help" {% if active_page == 'help' %}class="active"{% endif %}>Help</a></li>
+                <li><a href="/community" {% if active_page == 'community' %}class="active"{% endif %}>Community</a></li>
+                <li><a href="/donate" {% if active_page == 'donate' %}class="active"{% endif %}>Donate</a></li>
                 <li id="profile-link-container" class="auth-required" style="display: none;">
                 <a href="/profile" id="profile-link" {% if active_page == 'profile' %}class="active"{% endif %}>My Profile</a>
                 </li>
@@ -41,9 +43,11 @@
             <h3>Navigation</h3>
             <ul>
                 <li><a href="/">Main Page</a></li>
+                <li><a href="/articles">Articles</a></li>
                 <li><a href="/special/recentchanges" id="recent-changes">Recent Changes</a></li>
                 <li><a href="/help">Help</a></li>
                 <li><a href="/community">Community Portal</a></li>
+                <li><a href="/donate">Donate</a></li>
             </ul>
             
             {% block sidebar_extra %}{% endblock %}

@@ -1,0 +1,263 @@
+<!-- File: templates/help_categories.html -->
+{% extends "base.html" %}
+
+{% block title %}Categories Guide - Kryptopedia Help{% endblock %}
+
+{% set active_page = 'help' %}
+
+{% block extra_css %}
+<style>
+    .help-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .help-section {
+        margin-bottom: 40px;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .help-section h2 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .help-section h3 {
+        color: #0645ad;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .help-topic {
+        margin-bottom: 30px;
+    }
+    
+    .help-topic p {
+        line-height: 1.6;
+    }
+    
+    .help-topic ul, .help-topic ol {
+        line-height: 1.6;
+        margin-left: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .help-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0645ad;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .tip-box {
+        border-left-color: #28a745;
+    }
+    
+    .warning-box {
+        border-left-color: #ffc107;
+    }
+    
+    .example-box {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+    }
+    
+    .example-box pre {
+        margin: 10px 0 0 0;
+    }
+    
+    .code-block {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        margin: 15px 0;
+    }
+    
+    .breadcrumbs {
+        margin-bottom: 20px;
+    }
+    
+    .breadcrumbs a {
+        color: #0645ad;
+        text-decoration: none;
+    }
+    
+    .breadcrumbs span {
+        color: #666;
+        margin: 0 5px;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Help Topics</h3>
+<ul>
+    <li><a href="/help">Help Home</a></li>
+    <li><a href="/help/formatting">Formatting Guide</a></li>
+    <li><a href="/help/references">Adding References</a></li>
+    <li><a href="/help/media">Adding Media</a></li>
+    <li><a href="/help/categories" class="active">Using Categories</a></li>
+</ul>
+
+<h3>Related Links</h3>
+<ul>
+    <li><a href="/categories">Browse Categories</a></li>
+    <li><a href="/create-article">Create Article</a></li>
+    <li><a href="/contact">Contact Us</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <div class="breadcrumbs">
+        <a href="/help">Help</a> <span>›</span> <a href="/help/categories">Using Categories</a>
+    </div>
+    
+    <h1>Using Categories in Kryptopedia</h1>
+    
+    <div class="help-section">
+        <h2>Understanding Categories</h2>
+        
+        <div class="help-topic">
+            <h3>What are Categories?</h3>
+            <p>Categories in Kryptopedia help organize articles into related groups, making it easier for readers to find information on specific topics. They function like tags or labels, but with a hierarchical structure that creates a taxonomy of knowledge.</p>
+            
+            <p>A well-categorized article helps readers:</p>
+            <ul>
+                <li>Discover related content</li>
+                <li>Understand the context of the information</li>
+                <li>Navigate through similar topics</li>
+            </ul>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Category Structure</h3>
+            <p>Kryptopedia uses a flat category structure, where each category stands on its own. Categories appear at the bottom of articles and link to category pages that list all articles in that category.</p>
+            
+            <div class="example-box">
+                Categories on an article about Bitcoin might include:
+                <ul>
+                    <li>Cryptocurrency</li>
+                    <li>Blockchain Technology</li>
+                    <li>Digital Assets</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Adding Categories to Articles</h2>
+        
+        <div class="help-topic">
+            <h3>How to Add Categories</h3>
+            <p>You can add categories to an article during creation or editing:</p>
+            <ol>
+                <li>In the article editor, locate the "Categories" field</li>
+                <li>Enter category names, separated by commas</li>
+                <li>Categories will be automatically linked when the article is saved</li>
+            </ol>
+            
+            <div class="example-box">
+                When editing an article about machine learning algorithms, you might add these categories:
+                <br><br>
+                <code>Artificial Intelligence, Machine Learning, Algorithms</code>
+            </div>
+            
+            <div class="help-box tip-box">
+                <strong>Tip:</strong> Use existing categories when possible to maintain consistency. You can browse existing categories by visiting the <a href="/categories">Categories page</a>.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Category Naming Conventions</h3>
+            <p>Follow these guidelines when adding categories:</p>
+            <ul>
+                <li>Use title case for category names (e.g., "Machine Learning" instead of "machine learning")</li>
+                <li>Be specific but not overly narrow</li>
+                <li>Avoid duplicate or redundant categories</li>
+                <li>Use plural forms for most categories (e.g., "Cryptocurrencies" instead of "Cryptocurrency")</li>
+            </ul>
+            
+            <div class="help-box warning-box">
+                <strong>Note:</strong> Very specific categories with only one article are generally not useful. Instead, use broader categories that can include multiple related articles.
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Category Best Practices</h2>
+        
+        <div class="help-topic">
+            <h3>How Many Categories to Use</h3>
+            <p>Most articles should have between 2-5 categories. Too few categories may make an article difficult to find, while too many can dilute its categorization and make navigation less effective.</p>
+            
+            <div class="help-box">
+                <strong>Good example:</strong> An article on "Ethereum Smart Contracts" might use categories: Ethereum, Smart Contracts, Blockchain Applications, Decentralized Finance.
+                <br><br>
+                <strong>Poor example:</strong> The same article with too many categories: Ethereum, Smart Contracts, Blockchain, Cryptocurrency, Programming, Solidity, Web3, DApps, NFTs, Tokens, Digital Assets, Blockchain Applications, DeFi, Finance, Technology.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Choosing the Right Categories</h3>
+            <p>When selecting categories for an article, consider:</p>
+            <ul>
+                <li><strong>Relevance:</strong> The category should be directly related to the article's main topic</li>
+                <li><strong>Specificity:</strong> Include both general and specific categories when appropriate</li>
+                <li><strong>Consistency:</strong> Use the same categories for similar articles</li>
+            </ul>
+            
+            <p>For example, an article about a specific programming language like Python should include:</p>
+            <ul>
+                <li>The general category "Programming Languages"</li>
+                <li>More specific categories like "Scripting Languages" or "Object-Oriented Languages" if relevant</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Advanced Category Usage</h2>
+        
+        <div class="help-topic">
+            <h3>Creating New Categories</h3>
+            <p>New categories are created automatically when you add them to an article. Before creating a new category, consider:</p>
+            <ul>
+                <li>Is there already a similar category that could be used instead?</li>
+                <li>Will this category be useful for multiple articles?</li>
+                <li>Is the category name clear and follows the naming conventions?</li>
+            </ul>
+            
+            <div class="help-box">
+                <strong>Note:</strong> If you're an editor or administrator, you can also manage categories directly through the category administration interface.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Category Maintenance</h3>
+            <p>Editors and administrators regularly review and maintain the category system to ensure it remains useful and organized. This includes:</p>
+            <ul>
+                <li>Merging similar or duplicate categories</li>
+                <li>Renaming categories for clarity or consistency</li>
+                <li>Removing rarely used or overly specific categories</li>
+            </ul>
+            
+            <p>If you notice issues with the category system, please contact an administrator with your suggestions.</p>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+        <a href="/help" class="action-button">Return to Help Center</a>
+    </div>
+</div>
+{% endblock %}
