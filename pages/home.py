@@ -56,10 +56,10 @@ async def homepage(request: Request, db=Depends(get_db), cache=Depends(get_cache
         }
     )
 
-@router.get("/random", response_class=RedirectResponse)
-async def random_article(db=Depends(get_db)):
+@router.get("/random", response_class=HTMLResponse)
+async def random_article_page(request: Request, db=Depends(get_db)):
     """
-    Redirect to a random article.
+    Display a random article or redirect to a random article.
     """
     # Use aggregation to get a random article
     pipeline = [
@@ -73,8 +73,25 @@ async def random_article(db=Depends(get_db)):
         # No articles found, redirect to homepage
         return RedirectResponse(url="/")
     
-    # Redirect to the random article
-    return RedirectResponse(url=f"/articles/{results[0]['slug']}")
+    # Set active_page for highlighting in navigation
+    article = results[0]
+    
+    # Increment view count
+    await db["articles"].update_one(
+        {"_id": article["_id"]},
+        {"$inc": {"views": 1}}
+    )
+    
+    # Render the article template with active_page set to 'random'
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "article.html",
+        {
+            "request": request, 
+            "article": article,
+            "active_page": "random"
+        }
+    )
 
 @router.get("/help", response_class=HTMLResponse)
 async def help_page(request: Request):

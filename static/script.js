@@ -90,8 +90,12 @@ function setupLoginForm() {
             .then(data => {
                 console.log('Login successful');
                 
-                // Store token
+                // Store token in localStorage
                 localStorage.setItem('token', data.access_token);
+                
+                // Also store token in cookie for server-side access
+                document.cookie = `token=${data.access_token}; path=/; max-age=86400`;
+                console.log("Token stored in localStorage and cookie");
                 
                 // Close modal
                 const loginModal = document.getElementById('login-modal');
@@ -105,9 +109,11 @@ function setupLoginForm() {
                 if (redirectUrl) {
                     // Clear the stored redirect URL
                     sessionStorage.removeItem('redirectAfterLogin');
+                    console.log("Redirecting to:", redirectUrl);
                     // Redirect to the stored URL
                     window.location.href = redirectUrl;
                 } else {
+                    console.log("No redirect URL, reloading page");
                     // Refresh page to update UI
                     window.location.reload();
                 }
@@ -280,8 +286,12 @@ function showLoginModal() {
 
 // Logout functionality
 function logout() {
-    // Remove token
+    // Remove token from localStorage
     localStorage.removeItem('token');
+    
+    // Also clear the token cookie
+    document.cookie = 'token=; path=/; max-age=0';
+    console.log("Token removed from localStorage and cookie");
     
     // Show success message
     alert('You have been logged out successfully.');

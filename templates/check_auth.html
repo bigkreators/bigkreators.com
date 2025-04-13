@@ -1,0 +1,145 @@
+<!-- File: templates/check_auth.html -->
+{% extends "base.html" %}
+
+{% block title %}Checking Authentication - Kryptopedia{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-check-container {
+        max-width: 600px;
+        margin: 50px auto;
+        text-align: center;
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #0645ad;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 20px auto;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .auth-message {
+        margin: 20px 0;
+        color: #666;
+    }
+    
+    .login-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 500;
+        margin-top: 20px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .login-button:hover {
+        background-color: #053a7a;
+    }
+    
+    #auth-error,
+    #login-required {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-check-container">
+    <h1>Checking Authentication</h1>
+    
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        <p class="auth-message">Checking your authentication status...</p>
+    </div>
+    
+    <div id="auth-error" style="display: none;">
+        <p class="auth-message">There was a problem checking your authentication status. Please try again.</p>
+        <button class="login-button" onclick="location.reload()">Retry</button>
+    </div>
+    
+    <div id="login-required" style="display: none;">
+        <p class="auth-message">You need to be logged in to access this page.</p>
+        <button id="login-button" class="login-button">Log In</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const redirectTo = "{{ redirect_to }}";
+    
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    
+    console.log("Checking authentication state");
+    console.log("Token in localStorage:", token ? "Yes" : "No");
+    
+    if (token) {
+        // Send token to server for verification
+        fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log("Token is valid - user is authenticated");
+                // Token is valid, redirect to the page
+                document.cookie = `token=${token}; path=/; max-age=86400`;
+                window.location.href = redirectTo;
+            } else {
+                console.log("Token is invalid");
+                // Token is invalid, show login required
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('login-required').style.display = 'block';
+                
+                // Remove invalid token
+                localStorage.removeItem('token');
+            }
+        })
+        .catch(error => {
+            console.error("Error verifying token:", error);
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('auth-error').style.display = 'block';
+        });
+    } else {
+        console.log("No token found - user is not authenticated");
+        // No token, show login required
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('login-required').style.display = 'block';
+    }
+    
+    // Set up login button
+    const loginButton = document.getElementById('login-button');
+    if (loginButton) {
+        loginButton.addEventListener('click', function() {
+            // Store the redirect URL
+            sessionStorage.setItem('redirectAfterLogin', redirectTo);
+            
+            // Open login modal
+            const loginModal = document.getElementById('login-modal');
+            if (loginModal) {
+                loginModal.style.display = 'block';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
