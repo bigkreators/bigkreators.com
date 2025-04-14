@@ -370,3 +370,17 @@ async def special_donate_page(request: Request):
     """
     from fastapi.responses import RedirectResponse
     return RedirectResponse(url="/donate")
+
+@router.get("/special-pages", response_class=HTMLResponse)
+async def special_pages(request: Request, db=Depends(get_db)):
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "special_pages.html",
+        {"request": request}
+    )
+
+@router.get("/special-pages", response_class=HTMLResponse)
+async def special_pages(request: Request,db=Depends(get_db)):
+    """Redirect to a random article."""
+    # Redirect to the random route
+    return RedirectResponse(url="/random")

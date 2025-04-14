@@ -1,0 +1,259 @@
+<!-- File: templates/special_pages.html -->
+{% extends "base.html" %}
+
+{% block title %}Special Pages - Kryptopedia{% endblock %}
+
+{% set active_page = 'special' %}
+
+{% block extra_css %}
+<style>
+    .special-pages-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .pages-category {
+        margin-bottom: 30px;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .pages-category h2 {
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: #333;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .special-pages-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .special-pages-list li {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .special-pages-list li:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    
+    .page-link {
+        display: block;
+        text-decoration: none;
+        color: #0645ad;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    
+    .page-link:hover {
+        text-decoration: underline;
+    }
+    
+    .page-description {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .admin-only {
+        background-color: #fff3cd;
+        color: #856404;
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+    
+    .editor-only {
+        background-color: #d1e7dd;
+        color: #0f5132;
+        font-size: 12px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 8px;
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Navigation</h3>
+<ul>
+    <li><a href="/">Main Page</a></li>
+    <li><a href="/categories">Categories</a></li>
+    <li><a href="/tags">Tags</a></li>
+    <li><a href="/articles">All Articles</a></li>
+</ul>
+
+<h3>User Tools</h3>
+<ul>
+    <li><a href="/profile">My Profile</a></li>
+    <li><a href="/create-article">Create Article</a></li>
+    <li><a href="/upload-file">Upload File</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="special-pages-container">
+    <h1>Special Pages</h1>
+    <p>Special pages are automatically generated pages that provide various lists, statistics, and tools for Kryptopedia users.</p>
+    
+    <div class="pages-category">
+        <h2>Wiki Content</h2>
+        <ul class="special-pages-list">
+            <li>
+                <a href="/categories" class="page-link">Categories</a>
+                <div class="page-description">Browse all article categories</div>
+            </li>
+            <li>
+                <a href="/tags" class="page-link">Tags</a>
+                <div class="page-description">Browse all article tags</div>
+            </li>
+            <li>
+                <a href="/special/recentchanges" class="page-link">Recent Changes</a>
+                <div class="page-description">Track the most recent changes to articles</div>
+            </li>
+            <li>
+                <a href="/special/featured" class="page-link">Featured Articles</a>
+                <div class="page-description">View currently featured articles</div>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="pages-category">
+        <h2>User Contributions</h2>
+        <ul class="special-pages-list">
+            <li>
+                <a href="/proposals" class="page-link">Edit Proposals</a>
+                <div class="page-description">View all pending and past edit proposals</div>
+            </li>
+            <li>
+                <a href="/special/statistics" class="page-link">Wiki Statistics</a>
+                <div class="page-description">Overall statistics about Kryptopedia content and users</div>
+            </li>
+            <li>
+                <a href="/special/quick_edit" class="page-link">Quick Edit</a>
+                <div class="page-description">Make quick edits to articles (for testing)</div>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="pages-category">
+        <h2>Administration</h2>
+        <ul class="special-pages-list">
+            <li>
+                <a href="/admin/users" class="page-link">User Management <span class="admin-only">Admin Only</span></a>
+                <div class="page-description">View and manage user accounts</div>
+            </li>
+            <li>
+                <a href="/admin/articles" class="page-link">Article Management <span class="admin-only">Admin Only</span></a>
+                <div class="page-description">Advanced article management tools</div>
+            </li>
+            <li>
+                <a href="/admin/proposals" class="page-link">Proposal Management <span class="editor-only">Editor Only</span></a>
+                <div class="page-description">Review and manage edit proposals</div>
+            </li>
+            <li>
+                <a href="/admin" class="page-link">Admin Dashboard <span class="admin-only">Admin Only</span></a>
+                <div class="page-description">Main admin dashboard with overview and tools</div>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="pages-category">
+        <h2>Tools</h2>
+        <ul class="special-pages-list">
+            <li>
+                <a href="/search" class="page-link">Advanced Search</a>
+                <div class="page-description">Advanced search with filters</div>
+            </li>
+            <li>
+                <a href="/random" class="page-link">Random Article</a>
+                <div class="page-description">Go to a random article</div>
+            </li>
+            <li>
+                <a href="/upload-file" class="page-link">Upload File</a>
+                <div class="page-description">Upload images and other media files</div>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in and has admin/editor privileges
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+        // Get user info to check role
+        fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Not authenticated');
+            }
+            return response.json();
+        })
+        .then(userData => {
+            const userRole = userData.role;
+            
+            // Handle admin-only elements
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(element => {
+                if (userRole !== 'admin') {
+                    // If not admin, find the parent <li> and hide it
+                    const listItem = element.closest('li');
+                    if (listItem) {
+                        listItem.style.display = 'none';
+                    }
+                }
+            });
+            
+            // Handle editor-only elements
+            const editorElements = document.querySelectorAll('.editor-only');
+            editorElements.forEach(element => {
+                if (userRole !== 'admin' && userRole !== 'editor') {
+                    // If not admin or editor, find the parent <li> and hide it
+                    const listItem = element.closest('li');
+                    if (listItem) {
+                        listItem.style.display = 'none';
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Authentication error:', error);
+            // Hide admin and editor elements if authentication fails
+            document.querySelectorAll('.admin-only, .editor-only').forEach(element => {
+                const listItem = element.closest('li');
+                if (listItem) {
+                    listItem.style.display = 'none';
+                }
+            });
+        });
+    } else {
+        // Not logged in, hide admin and editor elements
+        document.querySelectorAll('.admin-only, .editor-only').forEach(element => {
+            const listItem = element.closest('li');
+            if (listItem) {
+                listItem.style.display = 'none';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
