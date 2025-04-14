@@ -1,3 +1,5 @@
+# File: pages/admin.py
+
 """
 Admin page routes for the Kryptopedia application.
 Handles rendering of admin dashboard, user management, and other admin functionality.
@@ -188,18 +190,17 @@ async def admin_statistics_page(
     current_user: Dict[str, Any] = Depends(get_current_admin)
 ):
     """
-    Render the admin statistics page.
+    Redirect to the special statistics page.
     """
-    # Redirect to the special statistics page
     return RedirectResponse(url="/special/statistics")
 
 # API endpoints to support admin dashboard functionality
 
 @router.get("/api/admin/dashboard/stats")
 async def get_dashboard_stats(
-    current_user: Dict[str, Any] = Depends(get_current_admin),
     db=Depends(get_db),
-    cache=Depends(get_cache)
+    cache=Depends(get_cache),
+    current_user: Dict[str, Any] = Depends(get_current_admin)
 ):
     """
     Get admin dashboard statistics.
@@ -348,8 +349,8 @@ async def get_users(
     limit: int = Query(20, ge=1, le=100),
     sort_by: str = Query("joinDate", description="Field to sort by"),
     sort_order: int = Query(-1, description="Sort order: 1 for ascending, -1 for descending"),
-    current_user: Dict[str, Any] = Depends(get_current_admin),
-    db=Depends(get_db)
+    db=Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_admin)
 ):
     """
     Get a list of users with optional filtering.
@@ -398,8 +399,8 @@ async def get_users(
 async def update_user_role(
     user_id: str,
     role: str = Query(..., description="New role"),
-    current_user: Dict[str, Any] = Depends(get_current_admin),
-    db=Depends(get_db)
+    db=Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_admin)
 ):
     """
     Update a user's role.
@@ -464,8 +465,8 @@ async def update_user_role(
 @router.delete("/api/admin/users/{user_id}")
 async def delete_user(
     user_id: str,
-    current_user: Dict[str, Any] = Depends(get_current_admin),
-    db=Depends(get_db)
+    db=Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_admin)
 ):
     """
     Delete a user (admin only).
@@ -515,8 +516,8 @@ async def delete_user(
 
 @router.post("/api/admin/system/clear-cache")
 async def clear_cache(
-    current_user: Dict[str, Any] = Depends(get_current_admin),
-    cache=Depends(get_cache)
+    cache=Depends(get_cache),
+    current_user: Dict[str, Any] = Depends(get_current_admin)
 ):
     """
     Clear the application cache (admin only).

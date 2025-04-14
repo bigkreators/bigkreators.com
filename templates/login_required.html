@@ -66,18 +66,31 @@
 {% block content %}
 <div class="login-required-container">
     <div class="login-icon">🔒</div>
-    <h1 class="login-title">Login Required</h1>
+    <h1 class="login-title">
+        {% if redirect_to and redirect_to.startswith('/admin') %}
+        Admin Authentication Required
+        {% else %}
+        Login Required
+        {% endif %}
+    </h1>
     
     <p class="login-message">
+        {% if redirect_to and redirect_to.startswith('/admin') %}
+        You need to be logged in as an admin to access this page. 
+        Please log in with an administrator account to continue.
+        {% else %}
         You need to be logged in to access this page. 
         Please log in with your account to continue.
+        {% endif %}
     </p>
     
     <button id="login-button" class="login-button">Log In</button>
     
+    {% if not redirect_to or not redirect_to.startswith('/admin') %}
     <p>
         Don't have an account? <a href="#" id="register-link" class="register-link">Create one now</a>
     </p>
+    {% endif %}
 </div>
 {% endblock %}
 
@@ -86,7 +99,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const loginButton = document.getElementById('login-button');
     const registerLink = document.getElementById('register-link');
-    const redirectTo = "{{ redirect_to }}";
+    const redirectTo = "{{ redirect_to or '/' }}";
     
     // Handle login button click
     if (loginButton) {
@@ -100,6 +113,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const loginModal = document.getElementById('login-modal');
             if (loginModal) {
                 loginModal.style.display = 'block';
+            } else {
+                // If modal doesn't exist, redirect to home page with login modal param
+                window.location.href = '/?showLogin=true&redirect=' + encodeURIComponent(redirectTo);
             }
         });
     }
@@ -118,6 +134,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const registerModal = document.getElementById('register-modal');
             if (registerModal) {
                 registerModal.style.display = 'block';
+            } else {
+                // If modal doesn't exist, redirect to home page with register modal param
+                window.location.href = '/?showRegister=true&redirect=' + encodeURIComponent(redirectTo);
             }
         });
     }
