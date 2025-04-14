@@ -27,9 +27,7 @@
                 <li><a href="/help" {% if active_page == 'help' %}class="active"{% endif %}>Help</a></li>
                 <li><a href="/community" {% if active_page == 'community' %}class="active"{% endif %}>Community</a></li>
                 <li><a href="/donate" {% if active_page == 'donate' %}class="active"{% endif %}>Donate</a></li>
-                <li id="profile-link-container" class="auth-required" style="display: none;">
-                <a href="/profile" id="profile-link" {% if active_page == 'profile' %}class="active"{% endif %}>My Profile</a>
-                </li>
+                <li><a href="/profile" {% if active_page == 'profile' %}class="active"{% endif %}>My Profile</a></li>
                 <li><a href="#" id="login-link">Login</a></li>
             </ul>
         </nav>

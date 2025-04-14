@@ -224,7 +224,7 @@
                 
                 <div class="avatar-section">
                     <div class="avatar-preview" id="avatar-preview">
-                        {{ user.username[0].upper() }}
+                        {{ user.username[0].upper() if user and user.username else "U" }}
                     </div>
                     <div class="avatar-options">
                         <p class="help-text">Avatar shows the first letter of your username</p>
@@ -234,30 +234,30 @@
                 
                 <div class="form-group">
                     <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" value="{{ user.username }}" disabled>
+                    <input type="text" id="username" name="username" value="{{ user.username if user else '' }}" disabled>
                     <p class="help-text">Username cannot be changed</p>
                 </div>
                 
                 <div class="form-group">
                     <label for="display-name">Display Name (Optional):</label>
-                    <input type="text" id="display-name" name="displayName" value="{{ user.displayName or '' }}">
+                    <input type="text" id="display-name" name="displayName" value="{{ user.displayName if user and user.displayName else '' }}">
                     <p class="help-text">Your name as shown to other users (if different from username)</p>
                 </div>
                 
                 <div class="form-group">
                     <label for="bio">Bio:</label>
-                    <textarea id="bio" name="bio" placeholder="Tell us about yourself...">{{ user.bio or '' }}</textarea>
+                    <textarea id="bio" name="bio" placeholder="Tell us about yourself...">{{ user.bio if user and user.bio else '' }}</textarea>
                     <p class="help-text">A brief description about you</p>
                 </div>
                 
                 <div class="form-group">
                     <label for="location">Location (Optional):</label>
-                    <input type="text" id="location" name="location" placeholder="e.g., City, Country" value="{{ user.location or '' }}">
+                    <input type="text" id="location" name="location" placeholder="e.g., City, Country" value="{{ user.location if user and user.location else '' }}">
                 </div>
                 
                 <div class="form-group">
                     <label for="website">Website (Optional):</label>
-                    <input type="url" id="website" name="website" placeholder="https://example.com" value="{{ user.website or '' }}">
+                    <input type="url" id="website" name="website" placeholder="https://example.com" value="{{ user.website if user and user.website else '' }}">
                 </div>
             </div>
             
@@ -266,35 +266,35 @@
                 
                 <div class="form-group">
                     <label for="email">Email Address:</label>
-                    <input type="email" id="email" name="email" value="{{ user.email }}">
+                    <input type="email" id="email" name="email" value="{{ user.email if user else '' }}">
                     <p class="help-text">Used for notifications and account recovery</p>
                 </div>
                 
                 <div class="notification-preferences">
                     <div class="checkbox-group">
                         <label>
-                            <input type="checkbox" name="emailPreferences.articleUpdates" {% if user.emailPreferences and user.emailPreferences.articleUpdates %}checked{% endif %}>
+                            <input type="checkbox" name="emailPreferences.articleUpdates" {% if user and user.emailPreferences and user.emailPreferences.articleUpdates %}checked{% endif %}>
                             Receive notifications about updates to articles I've contributed to
                         </label>
                     </div>
                     
                     <div class="checkbox-group">
                         <label>
-                            <input type="checkbox" name="emailPreferences.proposalUpdates" {% if user.emailPreferences and user.emailPreferences.proposalUpdates %}checked{% endif %}>
+                            <input type="checkbox" name="emailPreferences.proposalUpdates" {% if user and user.emailPreferences and user.emailPreferences.proposalUpdates %}checked{% endif %}>
                             Receive notifications about my edit proposals
                         </label>
                     </div>
                     
                     <div class="checkbox-group">
                         <label>
-                            <input type="checkbox" name="emailPreferences.rewards" {% if user.emailPreferences and user.emailPreferences.rewards %}checked{% endif %}>
+                            <input type="checkbox" name="emailPreferences.rewards" {% if user and user.emailPreferences and user.emailPreferences.rewards %}checked{% endif %}>
                             Receive notifications about rewards
                         </label>
                     </div>
                     
                     <div class="checkbox-group">
                         <label>
-                            <input type="checkbox" name="emailPreferences.newsletter" {% if user.emailPreferences and user.emailPreferences.newsletter %}checked{% endif %}>
+                            <input type="checkbox" name="emailPreferences.newsletter" {% if user and user.emailPreferences and user.emailPreferences.newsletter %}checked{% endif %}>
                             Receive newsletter and site announcements
                         </label>
                     </div>
@@ -331,6 +331,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="/static/profile.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const editProfileForm = document.getElementById('edit-profile-form');

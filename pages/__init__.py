@@ -29,9 +29,9 @@ router.include_router(proposals_router)
 router.include_router(search_router)
 router.include_router(user_profile_router)
 router.include_router(errors_router)
-router.include_router(help_router)  # Add this
-router.include_router(community_router)  # Add this
-router.include_router(donate_router)  # Add this
+router.include_router(help_router)
+router.include_router(community_router)
+router.include_router(donate_router)
 
 # Export modules
 __all__ = [
