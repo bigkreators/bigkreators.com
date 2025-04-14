@@ -1,16 +1,313 @@
+<!-- File: templates/articles_list.html -->
 {% extends "base.html" %}
 
 {% block title %}Articles - Kryptopedia{% endblock %}
 
 {% set active_page = 'articles' %}
 
+{% block extra_css %}
+<style>
+    .articles-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .articles-header {
+        margin-bottom: 30px;
+    }
+    
+    .articles-header h1 {
+        margin-bottom: 10px;
+    }
+    
+    .articles-description {
+        color: #555;
+        margin-bottom: 20px;
+    }
+    
+    .filter-bar {
+        background-color: #f8f9fa;
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .filter-item {
+        display: flex;
+        align-items: center;
+    }
+    
+    .filter-label {
+        font-weight: 500;
+        margin-right: 10px;
+        white-space: nowrap;
+    }
+    
+    .filter-value {
+        background-color: #0645ad;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .clear-filter {
+        margin-left: 5px;
+        color: white;
+        text-decoration: none;
+        font-size: 16px;
+    }
+    
+    .clear-filter:hover {
+        color: #f0f0f0;
+    }
+    
+    .sort-options {
+        margin-left: auto;
+    }
+    
+    .sort-select {
+        padding: 5px 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: white;
+    }
+    
+    .articles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+    
+    .article-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .article-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .article-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .article-title {
+        font-size: 18px;
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .article-title a {
+        color: #0645ad;
+        text-decoration: none;
+    }
+    
+    .article-title a:hover {
+        text-decoration: underline;
+    }
+    
+    .article-meta {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .article-separator {
+        width: 40px;
+        height: 3px;
+        background-color: #eee;
+        margin: 10px 0;
+    }
+    
+    .article-summary {
+        color: #333;
+        line-height: 1.5;
+        margin-bottom: 15px;
+        flex-grow: 1;
+    }
+    
+    .article-taxonomies {
+        margin-top: auto;
+    }
+    
+    .article-categories, .article-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 5px;
+    }
+    
+    .category-tag, .tag {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 13px;
+        color: #555;
+        text-decoration: none;
+        margin: 2px;
+    }
+    
+    .category-tag {
+        background-color: #e3f2fd;
+        color: #0d47a1;
+    }
+    
+    .tag {
+        background-color: #f0f0f0;
+    }
+    
+    .category-tag:hover, .tag:hover {
+        opacity: 0.8;
+    }
+    
+    .article-actions {
+        padding: 10px 20px;
+        background-color: #f9f9f9;
+        border-top: 1px solid #eee;
+    }
+    
+    .read-more {
+        color: #0645ad;
+        font-size: 14px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .read-more:hover {
+        text-decoration: underline;
+    }
+    
+    .read-more-icon {
+        margin-left: 5px;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 30px;
+    }
+    
+    .page-link {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #fff;
+        color: #0645ad;
+        text-decoration: none;
+        border-radius: 4px;
+        margin: 0 5px;
+        border: 1px solid #ddd;
+        transition: background-color 0.2s;
+    }
+    
+    .page-link:hover {
+        background-color: #f0f0f0;
+    }
+    
+    .page-info {
+        margin: 0 15px;
+        color: #666;
+    }
+    
+    .create-article-cta {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .create-article-cta h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+    }
+    
+    .create-article-cta p {
+        margin-bottom: 20px;
+        color: #666;
+    }
+    
+    .cta-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+    
+    .cta-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .no-articles {
+        background-color: #f8f9fa;
+        padding: 40px;
+        text-align: center;
+        border-radius: 8px;
+    }
+    
+    .no-articles p {
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .sort-options {
+            margin-left: 0;
+            width: 100%;
+        }
+        
+        .sort-select {
+            width: 100%;
+        }
+        
+        .articles-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block sidebar_extra %}
 <h3>Article Actions</h3>
 <ul>
-    <li><a href="/create-article" id="create-article">Create New Article</a></li>
+    <li><a href="/create-article" id="create-article" class="auth-required">Create New Article</a></li>
+    <li><a href="/random" id="random-article">Random Article</a></li>
+</ul>
+
+<h3>Browse By</h3>
+<ul>
     <li><a href="/articles?sort=newest">Newest Articles</a></li>
     <li><a href="/articles?sort=mostviewed">Most Viewed</a></li>
     <li><a href="/categories">All Categories</a></li>
+    <li><a href="/tags">All Tags</a></li>
 </ul>
 
 {% if category %}
@@ -29,49 +326,128 @@
 {% endblock %}
 
 {% block content %}
-<h1>
-    {% if category %}
-        Articles in Category: {{ category }}
-    {% elif tag %}
-        Articles Tagged: {{ tag }}
-    {% else %}
-        All Articles
-    {% endif %}
-</h1>
-
-<div class="articles-list">
-    {% if articles %}
-        {% for article in articles %}
-        <div class="article-item">
-            <h3><a href="/articles/{{ article.slug }}">{{ article.title }}</a></h3>
-            <p class="article-summary">{{ article.summary }}</p>
-            
-            <div class="article-meta">
-                <span class="views">Views: {{ article.views }}</span>
-                <span class="date">Created: {{ article.createdAt|strftime('%Y-%m-%d') }}</span>
-            </div>
-            
-            {% if article.categories %}
-            <div class="article-categories">
-                {% for category in article.categories %}
-                <a href="/articles?category={{ category }}" class="category-tag">{{ category }}</a>
-                {% endfor %}
-            </div>
+<div class="articles-container">
+    <div class="articles-header">
+        <h1>
+            {% if category %}
+                Articles in Category: {{ category }}
+            {% elif tag %}
+                Articles Tagged: {{ tag }}
+            {% else %}
+                Browse All Articles
             {% endif %}
+        </h1>
+        
+        <p class="articles-description">
+            {% if category %}
+                Exploring articles within the {{ category }} category. Find comprehensive information and resources on this topic.
+            {% elif tag %}
+                Browsing articles with the {{ tag }} tag. Discover content related to this specific interest area.
+            {% else %}
+                Browse our knowledge base of articles covering various topics. Use the filters to narrow down your search.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Filter/sort bar -->
+    <div class="filter-bar">
+        {% if category %}
+        <div class="filter-item">
+            <span class="filter-label">Category:</span>
+            <div class="filter-value">
+                {{ category }}
+                <a href="/articles{% if sort %}?sort={{ sort }}{% endif %}" class="clear-filter" title="Clear filter">×</a>
+            </div>
         </div>
-        {% endfor %}
+        {% endif %}
+        
+        {% if tag %}
+        <div class="filter-item">
+            <span class="filter-label">Tag:</span>
+            <div class="filter-value">
+                {{ tag }}
+                <a href="/articles{% if sort %}?sort={{ sort }}{% endif %}" class="clear-filter" title="Clear filter">×</a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="sort-options">
+            <label for="sort-select" class="filter-label">Sort by:</label>
+            <select id="sort-select" class="sort-select">
+                <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option>
+                <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest</option>
+                <option value="mostviewed" {% if sort == 'mostviewed' %}selected{% endif %}>Most Viewed</option>
+                <option value="alphabetical" {% if sort == 'alphabetical' %}selected{% endif %}>Alphabetical</option>
+            </select>
+        </div>
+    </div>
+
+    {% if articles %}
+        <div class="articles-grid">
+            {% for article in articles %}
+            <div class="article-card">
+                <div class="article-content">
+                    <h2 class="article-title"><a href="/articles/{{ article.slug }}">{{ article.title }}</a></h2>
+                    <div class="article-meta">
+                        <span class="article-date">{{ article.createdAt|strftime('%b %d, %Y') }}</span>
+                        {% if article.views %} • <span class="article-views">{{ article.views }} views</span>{% endif %}
+                    </div>
+                    
+                    <div class="article-separator"></div>
+                    
+                    <div class="article-summary">
+                        {{ article.summary|truncate(150) }}
+                    </div>
+                    
+                    <div class="article-taxonomies">
+                        {% if article.categories %}
+                        <div class="article-categories">
+                            {% for category in article.categories %}
+                            <a href="/articles?category={{ category }}" class="category-tag">{{ category }}</a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if article.tags %}
+                        <div class="article-tags">
+                            {% for tag in article.tags %}
+                            <a href="/articles?tag={{ tag }}" class="tag">{{ tag }}</a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="article-actions">
+                    <a href="/articles/{{ article.slug }}" class="read-more">
+                        Read Article
+                        <span class="read-more-icon">→</span>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Call to action for authenticated users -->
+        {% if current_user %}
+        <div class="create-article-cta">
+            <h2>Share Your Knowledge</h2>
+            <p>Have expertise to share? Create a new article and contribute to our knowledge base.</p>
+            <a href="/create-article" class="cta-button">Create New Article</a>
+        </div>
+        {% endif %}
         
         <!-- Pagination -->
         {% if total > limit %}
         <div class="pagination">
             {% if skip > 0 %}
-            <a href="/articles?{% if category %}category={{ category }}&{% endif %}{% if tag %}tag={{ tag }}&{% endif %}skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
+            <a href="/articles?{% if category %}category={{ category }}&{% endif %}{% if tag %}tag={{ tag }}&{% endif %}{% if sort %}sort={{ sort }}&{% endif %}skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
             {% endif %}
             
             <span class="page-info">Showing {{ skip + 1 }}-{{ min(skip + limit, total) }} of {{ total }}</span>
             
             {% if skip + limit < total %}
-            <a href="/articles?{% if category %}category={{ category }}&{% endif %}{% if tag %}tag={{ tag }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
+            <a href="/articles?{% if category %}category={{ category }}&{% endif %}{% if tag %}tag={{ tag }}&{% endif %}{% if sort %}sort={{ sort }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
             {% endif %}
         </div>
         {% endif %}
@@ -82,9 +458,69 @@
             {% if category or tag %}
                 <p>Try <a href="/articles">viewing all articles</a> instead.</p>
             {% else %}
-                <p>Be the first to <a href="/create-article">create an article</a>!</p>
+                <p>Be the first to <a href="/create-article" class="auth-required">create an article</a>!</p>
             {% endif %}
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sort selector functionality
+    const sortSelect = document.getElementById('sort-select');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            // Get current URL and parameters
+            const url = new URL(window.location);
+            
+            // Update sort parameter
+            url.searchParams.set('sort', this.value);
+            
+            // Keep existing skip and limit parameters
+            if (!url.searchParams.has('skip')) {
+                url.searchParams.set('skip', '0');
+            }
+            
+            if (!url.searchParams.has('limit')) {
+                url.searchParams.set('limit', '{{ limit }}');
+            }
+            
+            // Navigate to the new URL
+            window.location.href = url.toString();
+        });
+    }
+    
+    // Handle auth-required elements
+    const authRequiredElements = document.querySelectorAll('.auth-required');
+    const token = localStorage.getItem('token');
+    
+    if (token) {
+        // User is logged in, enable auth-required elements
+        authRequiredElements.forEach(element => {
+            element.classList.remove('hidden');
+        });
+    } else {
+        // User is not logged in, add click handler to show login modal
+        authRequiredElements.forEach(element => {
+            if (element.tagName === 'A') {
+                const href = element.getAttribute('href');
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Store the redirect URL
+                    sessionStorage.setItem('redirectAfterLogin', href);
+                    
+                    // Show login modal
+                    const loginModal = document.getElementById('login-modal');
+                    if (loginModal) {
+                        loginModal.style.display = 'block';
+                    }
+                });
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
