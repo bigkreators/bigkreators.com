@@ -48,10 +48,151 @@ async def get_admin_from_request(request, db):
     # No valid admin authentication found
     return None
 
+async def get_dashboard_stats(db):
+    """
+    Get dashboard statistics for the admin dashboard.
+    """
+    try:
+        stats = {}
+        
+        # Article stats
+        stats["articles"] = await db["articles"].count_documents({})
+        stats["published_articles"] = await db["articles"].count_documents({"status": "published"})
+        stats["draft_articles"] = await db["articles"].count_documents({"status": "draft"})
+        stats["hidden_articles"] = await db["articles"].count_documents({"status": "hidden"})
+        
+        # User stats
+        stats["users"] = await db["users"].count_documents({})
+        stats["admins"] = await db["users"].count_documents({"role": "admin"})
+        stats["editors"] = await db["users"].count_documents({"role": "editor"})
+        
+        # New users this week
+        week_ago = datetime.now() - timedelta(days=7)
+        stats["new_users_week"] = await db["users"].count_documents(
+            {"joinDate": {"$gte": week_ago}}
+        )
+        
+        # Activity stats
+        stats["edits_week"] = await db["revisions"].count_documents(
+            {"createdAt": {"$gte": week_ago}}
+        )
+        
+        stats["proposals_week"] = await db["proposals"].count_documents(
+            {"proposedAt": {"$gte": week_ago}}
+        )
+        
+        stats["pending_proposals"] = await db["proposals"].count_documents(
+            {"status": "pending"}
+        )
+        
+        stats["new_articles_week"] = await db["articles"].count_documents(
+            {"createdAt": {"$gte": week_ago}}
+        )
+        
+        return stats
+    except Exception as e:
+        logger.error(f"Error getting dashboard stats: {e}")
+        return {}
+
+async def get_recent_activity(db, limit=10):
+    """
+    Get recent activity for the admin dashboard.
+    """
+    try:
+        activities = []
+        
+        # Get recent revisions
+        revisions_cursor = db["revisions"].find().sort("createdAt", -1).limit(limit)
+        revisions = await revisions_cursor.to_list(length=limit)
+        
+        for rev in revisions:
+            # Get article info
+            article = await db["articles"].find_one({"_id": rev["articleId"]})
+            if not article:
+                continue
+                
+            # Get user info
+            user = await db["users"].find_one({"_id": rev["createdBy"]})
+            if not user:
+                continue
+                
+            activities.append({
+                "type": "edit",
+                "timestamp": rev["createdAt"],
+                "user": {
+                    "username": user["username"],
+                    "_id": str(user["_id"])
+                },
+                "article": {
+                    "title": article["title"],
+                    "slug": article.get("slug", ""),
+                    "_id": str(article["_id"])
+                },
+                "comment": rev.get("comment", "")
+            })
+        
+        # Get recent proposals
+        proposals_cursor = db["proposals"].find().sort("proposedAt", -1).limit(limit)
+        proposals = await proposals_cursor.to_list(length=limit)
+        
+        for prop in proposals:
+            # Get article info
+            article = await db["articles"].find_one({"_id": prop["articleId"]})
+            if not article:
+                continue
+                
+            # Get user info
+            user = await db["users"].find_one({"_id": prop["proposedBy"]})
+            if not user:
+                continue
+                
+            activities.append({
+                "type": "proposal",
+                "timestamp": prop["proposedAt"],
+                "user": {
+                    "username": user["username"],
+                    "_id": str(user["_id"])
+                },
+                "article": {
+                    "title": article["title"],
+                    "slug": article.get("slug", ""),
+                    "_id": str(article["_id"])
+                },
+                "comment": prop.get("summary", "")
+            })
+        
+        # Get new users
+        week_ago = datetime.now() - timedelta(days=7)
+        users_cursor = db["users"].find({"joinDate": {"$gte": week_ago}}).sort("joinDate", -1).limit(limit)
+        new_users = await users_cursor.to_list(length=limit)
+        
+        for user in new_users:
+            activities.append({
+                "type": "new_user",
+                "timestamp": user["joinDate"],
+                "user": {
+                    "username": user["username"],
+                    "_id": str(user["_id"])
+                },
+                "comment": "joined the wiki"
+            })
+        
+        # Sort by timestamp (newest first)
+        activities.sort(key=lambda x: x["timestamp"], reverse=True)
+        
+        # Limit to requested number
+        activities = activities[:limit]
+        
+        return activities
+    except Exception as e:
+        logger.error(f"Error getting recent activity: {e}")
+        return []
+
 @router.get("/admin", response_class=HTMLResponse)
 async def admin_dashboard_page(
     request: Request,
-    db=Depends(get_db)
+    db=Depends(get_db),
+    cache=Depends(get_cache)
 ):
     """
     Render the admin dashboard page with proper authentication check.
@@ -72,13 +213,34 @@ async def admin_dashboard_page(
             }
         )
     
-    # User is an admin, render the dashboard
+    # Try to get dashboard data from cache
+    cache_key = "admin_dashboard_data"
+    dashboard_data = await cache.get(cache_key)
+    
+    if not dashboard_data:
+        # Fetch dashboard statistics
+        stats = await get_dashboard_stats(db)
+        
+        # Fetch recent activity
+        recent_activity = await get_recent_activity(db)
+        
+        # Combine data
+        dashboard_data = {
+            "stats": stats,
+            "recent_activity": recent_activity
+        }
+        
+        # Cache for 5 minutes
+        await cache.set(cache_key, dashboard_data, 300)
+    
+    # User is an admin, render the dashboard with data
     return templates.TemplateResponse(
         "admin_dashboard.html",
         {
             "request": request,
             "current_user": admin_user,
-            "active_page": "admin"
+            "active_page": "admin",
+            "dashboard_data": dashboard_data
         }
     )
 
@@ -313,3 +475,24 @@ async def admin_statistics_page(
 
 # API endpoints remain the same but with updated authentication
 # These endpoints already use the get_current_admin dependency which handles auth correctly
+
+# Add an API endpoint to fetch dashboard data
+@router.get("/api/admin/dashboard/stats")
+async def get_admin_dashboard_stats(current_user: Dict[str, Any] = Depends(get_current_admin), db=Depends(get_db)):
+    """
+    Get dashboard statistics for the admin dashboard.
+    """
+    try:
+        # Fetch dashboard statistics
+        stats = await get_dashboard_stats(db)
+        
+        # Fetch recent activity
+        recent_activity = await get_recent_activity(db)
+        
+        return {
+            **stats,
+            "recent_activity": recent_activity
+        }
+    except Exception as e:
+        logger.error(f"Error getting dashboard stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get dashboard statistics")
