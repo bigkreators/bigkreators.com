@@ -1,107 +1,81 @@
 // File: static/js/admin.js
-// JavaScript for Kryptopedia admin dashboard functionality
+// Admin functionality for Kryptopedia
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize admin dashboard
     initAdminDashboard();
     setupTabNavigation();
-    setupDataTables();
+    loadDashboardStats();
     setupUserManagement();
     setupArticleManagement();
     setupProposalManagement();
     setupSystemTools();
 });
 
-// Initialize the admin dashboard
+// Initialize admin dashboard
 function initAdminDashboard() {
-    // Check if we're on the admin dashboard page
-    if (!document.querySelector('.admin-dashboard')) {
-        return;
-    }
-
-    // Check if user is logged in and has admin privileges
+    // Check if user is admin/editor
     const token = localStorage.getItem('token');
     if (!token) {
-        // Redirect to login page
-        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+        window.location.href = '/'; // Redirect to home if not logged in
         return;
     }
 
-    // Load dashboard statistics
-    loadDashboardStats();
-    
     // Set up refresh button
     const refreshButton = document.getElementById('refresh-stats');
     if (refreshButton) {
         refreshButton.addEventListener('click', function() {
-            loadDashboardStats(true);
+            loadDashboardStats(true); // Force refresh
         });
     }
 }
 
-// Set up tab navigation on the admin dashboard
+// Setup tab navigation
 function setupTabNavigation() {
     const tabLinks = document.querySelectorAll('.admin-tab-link');
     const tabContents = document.querySelectorAll('.admin-tab-content');
-
-    if (tabLinks.length === 0 || tabContents.length === 0) {
-        return;
-    }
-
-    // Get active tab from URL if present
-    const urlParams = new URLSearchParams(window.location.search);
-    const activeTab = urlParams.get('tab');
-
-    // Setup tab click handlers
+    
+    // Get tab from URL hash
+    const hash = window.location.hash || '#users-tab';
+    
+    // Activate tab from hash
+    activateTab(hash.substring(1));
+    
+    // Add click event to tab links
     tabLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-
-            // Get tab ID from href
             const tabId = this.getAttribute('href').substring(1);
-
-            // Update URL without reloading page
-            history.pushState(null, '', `?tab=${tabId}`);
-
-            // Activate this tab
+            
+            // Update URL hash
+            window.location.hash = tabId;
+            
+            // Activate tab
             activateTab(tabId);
         });
-
-        // Check if this tab should be active based on URL
-        if (activeTab && link.getAttribute('href').substring(1) === activeTab) {
-            link.click();
-        }
     });
-
-    // If no tab is active in URL, activate first tab
-    if (!activeTab && tabLinks.length > 0) {
-        tabLinks[0].click();
-    }
-
-    // Function to activate a specific tab
+    
+    // Function to activate a tab
     function activateTab(tabId) {
-        // Hide all tab contents and deactivate tab links
-        tabContents.forEach(content => {
-            content.classList.remove('active');
+        // Hide all tabs
+        tabContents.forEach(tab => {
+            tab.classList.remove('active');
         });
-
-        tabLinks.forEach(link => {
-            link.classList.remove('active');
-        });
-
-        // Show selected tab content and activate tab link
+        
+        // Show selected tab
         const selectedTab = document.getElementById(tabId);
-        const selectedLink = document.querySelector(`[href="#${tabId}"]`);
-
         if (selectedTab) {
             selectedTab.classList.add('active');
         }
-
-        if (selectedLink) {
-            selectedLink.classList.add('active');
-        }
-
-        // Load tab-specific data if needed
+        
+        // Update tab links
+        tabLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + tabId) {
+                link.classList.add('active');
+            }
+        });
+        
+        // Load tab-specific data as needed
         if (tabId === 'users-tab') {
             loadUsers();
         } else if (tabId === 'articles-tab') {
@@ -112,415 +86,312 @@ function setupTabNavigation() {
     }
 }
 
-// Set up DataTables for admin tables
-function setupDataTables() {
-    // Check if DataTables is available
-    if (typeof $.fn.DataTable === 'undefined') {
-        console.warn('DataTables not available');
-        return;
-    }
-
-    // Initialize DataTables for relevant tables if they exist
-    const tables = [
-        '#users-table',
-        '#articles-table',
-        '#proposals-table'
-    ];
-
-    tables.forEach(tableId => {
-        const table = document.querySelector(tableId);
-        if (table) {
-            try {
-                $(tableId).DataTable({
-                    responsive: true,
-                    pageLength: 10,
-                    lengthMenu: [5, 10, 25, 50],
-                    language: {
-                        search: "Filter:",
-                        lengthMenu: "Show _MENU_ entries",
-                        info: "Showing _START_ to _END_ of _TOTAL_ entries"
-                    }
-                });
-            } catch (e) {
-                console.error(`Error initializing DataTable for ${tableId}:`, e);
-            }
-        }
-    });
-}
-
 // Load dashboard statistics
 function loadDashboardStats(forceRefresh = false) {
+    const dashboardStats = document.getElementById('dashboard-stats');
+    const recentActivity = document.getElementById('recent-activity');
     const token = localStorage.getItem('token');
-    if (!token) return;
-
-    const statsContainer = document.getElementById('dashboard-stats');
-    const activityContainer = document.getElementById('recent-activity');
     
-    if (!statsContainer && !activityContainer) return;
-
-    // Show loading indicators
-    if (statsContainer) {
-        statsContainer.innerHTML = '<div class="loading-spinner"></div>';
-    }
+    if (!dashboardStats || !recentActivity || !token) return;
     
-    if (activityContainer) {
-        activityContainer.innerHTML = '<div class="loading-spinner"></div>';
+    // Show loading state
+    dashboardStats.innerHTML = '<div class="loading-spinner"></div>';
+    recentActivity.innerHTML = '<div class="loading-spinner"></div>';
+    
+    // API endpoint with cache-busting if needed
+    let endpoint = '/api/admin/dashboard/stats';
+    if (forceRefresh) {
+        endpoint += '?t=' + new Date().getTime();
     }
-
-    // Set cache-busting parameter if forcing refresh
-    const cacheBuster = forceRefresh ? `?_=${Date.now()}` : '';
     
     // Fetch dashboard stats
-    fetch(`/api/admin/dashboard${cacheBuster}`, {
+    fetch(endpoint, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     })
     .then(response => {
         if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                // Unauthorized or forbidden, redirect to login
-                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+            if (response.status === 401) {
+                // Unauthorized, redirect to login
+                localStorage.removeItem('token');
+                window.location.href = '/';
                 throw new Error('Unauthorized');
             }
-            return response.json().then(data => {
-                throw new Error(data.detail || 'Failed to load dashboard statistics');
-            });
+            throw new Error('Failed to load dashboard statistics');
         }
         return response.json();
     })
     .then(data => {
-        // Render stats
-        if (statsContainer) {
-            renderDashboardStats(data, statsContainer);
-        }
+        // Render dashboard stats
+        renderDashboardStats(data);
         
-        // Render activity
-        if (activityContainer && data.recent_activity) {
-            renderRecentActivity(data.recent_activity, activityContainer);
-        }
+        // Render recent activity
+        renderRecentActivity(data.recent_activity);
     })
     .catch(error => {
         console.error('Error loading dashboard stats:', error);
-        
-        if (error.message !== 'Unauthorized') {
-            // Show error message in container
-            if (statsContainer) {
-                statsContainer.innerHTML = `<div class="error-message">Error loading statistics: ${error.message}</div>`;
-            }
-            
-            if (activityContainer) {
-                activityContainer.innerHTML = `<div class="error-message">Error loading recent activity: ${error.message}</div>`;
-            }
-        }
+        dashboardStats.innerHTML = '<div class="error-message">Error loading dashboard statistics</div>';
+        recentActivity.innerHTML = '<div class="error-message">Error loading recent activity</div>';
     });
 }
 
-// Render dashboard statistics
-function renderDashboardStats(data, container) {
-    // Create stats cards for article counts
-    const articlesHtml = `
-        <div class="stats-card">
-            <h3>Articles</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value">${data.articles || 0}</div>
-                    <div class="stat-label">Total</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.published_articles || 0}</div>
-                    <div class="stat-label">Published</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.draft_articles || 0}</div>
-                    <div class="stat-label">Drafts</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.hidden_articles || 0}</div>
-                    <div class="stat-label">Hidden</div>
-                </div>
-            </div>
+// Render dashboard stats
+function renderDashboardStats(data) {
+    const dashboardStats = document.getElementById('dashboard-stats');
+    
+    // Create stats grid
+    let html = '<div class="stats-grid">';
+    
+    // Article stats
+    html += `
+        <div class="stat-item">
+            <div class="stat-value">${data.articles}</div>
+            <div class="stat-label">Total Articles</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.published_articles}</div>
+            <div class="stat-label">Published</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.draft_articles}</div>
+            <div class="stat-label">Drafts</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.hidden_articles}</div>
+            <div class="stat-label">Hidden</div>
         </div>
     `;
     
-    // Create stats cards for user counts
-    const usersHtml = `
-        <div class="stats-card">
-            <h3>Users</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value">${data.users || 0}</div>
-                    <div class="stat-label">Total</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.admins || 0}</div>
-                    <div class="stat-label">Admins</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.editors || 0}</div>
-                    <div class="stat-label">Editors</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.regular_users || 0}</div>
-                    <div class="stat-label">Regular</div>
-                </div>
-            </div>
+    // User stats
+    html += `
+        <div class="stat-item">
+            <div class="stat-value">${data.users}</div>
+            <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.admins}</div>
+            <div class="stat-label">Admins</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.editors}</div>
+            <div class="stat-label">Editors</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.new_users_week}</div>
+            <div class="stat-label">New This Week</div>
         </div>
     `;
     
-    // Create stats cards for recent activity counts
-    const recentStatsHtml = `
-        <div class="stats-card">
-            <h3>Last 7 Days</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value">${data.new_users_week || 0}</div>
-                    <div class="stat-label">New Users</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.new_articles_week || 0}</div>
-                    <div class="stat-label">New Articles</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.edits_week || 0}</div>
-                    <div class="stat-label">Edits</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.proposals_week || 0}</div>
-                    <div class="stat-label">Proposals</div>
-                </div>
-            </div>
+    // Activity stats
+    html += `
+        <div class="stat-item">
+            <div class="stat-value">${data.edits_week}</div>
+            <div class="stat-label">Edits This Week</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.proposals_week}</div>
+            <div class="stat-label">Proposals This Week</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.pending_proposals}</div>
+            <div class="stat-label">Pending Proposals</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value">${data.new_articles_week}</div>
+            <div class="stat-label">New Articles This Week</div>
         </div>
     `;
     
-    // Create stats card for pending items that need attention
-    const pendingHtml = `
-        <div class="stats-card attention-required">
-            <h3>Attention Required</h3>
-            <div class="attention-items">
-                <div class="attention-item">
-                    <div class="attention-value">${data.pending_proposals || 0}</div>
-                    <div class="attention-label">Pending Proposals</div>
-                    <a href="#proposals-tab" class="attention-action">Review</a>
+    html += '</div>';
+    
+    // Add attention required section if there are pending proposals
+    if (data.pending_proposals > 0) {
+        html += `
+            <div class="admin-section attention-required">
+                <h3>Attention Required</h3>
+                <div class="attention-items">
+                    <div class="attention-item">
+                        <div class="attention-value">${data.pending_proposals}</div>
+                        <div class="attention-label">Pending Edit Proposals</div>
+                        <a href="/proposals?status=pending" class="attention-action">Review Now</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    `;
+        `;
+    }
     
-    // Combine all HTML
-    container.innerHTML = articlesHtml + usersHtml + recentStatsHtml + pendingHtml;
-    
-    // Set up tab links within the stats cards
-    const tabLinks = container.querySelectorAll('[href^="#"]');
-    tabLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // Get tab ID from href
-            const tabId = this.getAttribute('href').substring(1);
-            
-            // Find and click the corresponding tab link
-            const tabLink = document.querySelector(`.admin-tab-link[href="#${tabId}"]`);
-            if (tabLink) {
-                tabLink.click();
-            }
-        });
-    });
+    dashboardStats.innerHTML = html;
 }
 
 // Render recent activity
-function renderRecentActivity(activities, container) {
+function renderRecentActivity(activities) {
+    const recentActivity = document.getElementById('recent-activity');
+    
     if (!activities || activities.length === 0) {
-        container.innerHTML = '<p>No recent activity found.</p>';
+        recentActivity.innerHTML = '<p>No recent activity</p>';
         return;
     }
-
+    
     let html = '<div class="activity-list">';
     
     activities.forEach(activity => {
-        // Format timestamp
+        let iconClass = '';
+        let actionText = '';
+        
+        if (activity.type === 'edit') {
+            iconClass = 'edit-icon';
+            actionText = 'edited';
+        } else if (activity.type === 'proposal') {
+            iconClass = 'proposal-icon';
+            actionText = 'proposed changes to';
+        } else if (activity.type === 'new_user') {
+            iconClass = 'user-icon';
+            actionText = 'joined the wiki';
+        }
+        
+        html += `
+            <div class="activity-item">
+                <div class="activity-icon ${iconClass}"></div>
+                <div class="activity-content">
+                    <span class="activity-user">${activity.user.username}</span>
+        `;
+        
+        if (activity.type === 'new_user') {
+            html += ` ${actionText}`;
+        } else {
+            html += ` ${actionText} <a href="/articles/${activity.article.slug}">${activity.article.title}</a>`;
+        }
+        
+        if (activity.comment) {
+            html += `: "${activity.comment}"`;
+        }
+        
+        // Format date
         const date = new Date(activity.timestamp);
         const formattedDate = date.toLocaleString();
         
-        // Activity icon
-        let icon = '';
-        let actionText = '';
-        
-        switch (activity.type) {
-            case 'edit':
-                icon = '<span class="activity-icon edit-icon">✏️</span>';
-                actionText = 'edited';
-                break;
-            case 'proposal':
-                icon = '<span class="activity-icon proposal-icon">📝</span>';
-                actionText = 'proposed changes to';
-                break;
-            case 'new_user':
-                icon = '<span class="activity-icon user-icon">👤</span>';
-                actionText = 'joined';
-                break;
-            default:
-                icon = '<span class="activity-icon">📄</span>';
-                actionText = 'interacted with';
-        }
-        
-        // Create activity item HTML
-        html += `
-            <div class="activity-item">
-                ${icon}
-                <div class="activity-content">
-                    <span class="activity-user">${activity.user?.username || 'Unknown user'}</span>
-                    ${activity.type === 'new_user' ? 'joined Kryptopedia' : 
-                      `${actionText} <a href="/articles/${activity.article?.slug || ''}">${activity.article?.title || 'Unknown article'}</a>`}
-                </div>
+        html += `</div>
                 <div class="activity-time">${formattedDate}</div>
             </div>
         `;
     });
     
     html += '</div>';
-    container.innerHTML = html;
+    recentActivity.innerHTML = html;
 }
 
-// User management functions
+// Setup user management
 function setupUserManagement() {
-    // Setup user search form
     const userSearchForm = document.getElementById('user-search-form');
+    
     if (userSearchForm) {
         userSearchForm.addEventListener('submit', function(e) {
             e.preventDefault();
             loadUsers();
         });
     }
-    
-    // Setup user edit functionality
-    document.addEventListener('click', function(e) {
-        // Edit user button
-        if (e.target.classList.contains('edit-user-btn') || e.target.closest('.edit-user-btn')) {
-            const btn = e.target.classList.contains('edit-user-btn') ? e.target : e.target.closest('.edit-user-btn');
-            const userId = btn.getAttribute('data-user-id');
-            
-            if (userId) {
-                openUserEditModal(userId);
-            }
-        }
-        
-        // Delete user button
-        if (e.target.classList.contains('delete-user-btn') || e.target.closest('.delete-user-btn')) {
-            const btn = e.target.classList.contains('delete-user-btn') ? e.target : e.target.closest('.delete-user-btn');
-            const userId = btn.getAttribute('data-user-id');
-            const username = btn.getAttribute('data-username');
-            
-            if (userId && username) {
-                confirmDeleteUser(userId, username);
-            }
-        }
-    });
-    
-    // Setup user edit form
-    const userEditForm = document.getElementById('user-edit-form');
-    if (userEditForm) {
-        userEditForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitUserEdit();
-        });
-    }
 }
 
-// Load users for the user management tab
+// Load users
 function loadUsers() {
+    const userTableContainer = document.getElementById('users-table-container');
     const token = localStorage.getItem('token');
-    if (!token) return;
     
-    const usersContainer = document.getElementById('users-table-container');
-    if (!usersContainer) return;
+    if (!userTableContainer || !token) return;
     
-    // Show loading indicator
-    usersContainer.innerHTML = '<div class="loading-spinner"></div>';
+    // Show loading state
+    userTableContainer.innerHTML = '<div class="loading-spinner"></div>';
     
-    // Get search parameters
+    // Get search params
     const searchInput = document.getElementById('user-search');
     const roleFilter = document.getElementById('role-filter');
     
-    let searchParams = new URLSearchParams();
-    if (searchInput && searchInput.value) {
-        searchParams.append('search', searchInput.value);
-    }
+    let search = searchInput ? searchInput.value : '';
+    let role = roleFilter ? roleFilter.value : '';
     
-    if (roleFilter && roleFilter.value) {
-        searchParams.append('role', roleFilter.value);
-    }
+    // Build API url
+    let apiUrl = `/api/admin/users?limit=20`;
+    if (search) apiUrl += `&search=${encodeURIComponent(search)}`;
+    if (role) apiUrl += `&role=${encodeURIComponent(role)}`;
     
     // Fetch users
-    fetch(`/api/admin/users?${searchParams.toString()}`, {
+    fetch(apiUrl, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     })
     .then(response => {
         if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
                 throw new Error('Unauthorized');
             }
-            return response.json().then(data => {
-                throw new Error(data.detail || 'Failed to load users');
-            });
+            throw new Error('Failed to load users');
         }
         return response.json();
     })
     .then(data => {
-        renderUsersTable(data, usersContainer);
+        renderUsersTable(data.users);
     })
     .catch(error => {
         console.error('Error loading users:', error);
-        
-        if (error.message !== 'Unauthorized') {
-            usersContainer.innerHTML = `<div class="error-message">Error loading users: ${error.message}</div>`;
-        }
+        userTableContainer.innerHTML = '<div class="error-message">Error loading users</div>';
     });
 }
 
-// Render the users table
-function renderUsersTable(data, container) {
-    if (!data.users || data.users.length === 0) {
-        container.innerHTML = '<p>No users found matching your criteria.</p>';
+// Render users table
+function renderUsersTable(users) {
+    const userTableContainer = document.getElementById('users-table-container');
+    
+    if (!users || users.length === 0) {
+        userTableContainer.innerHTML = '<p>No users found</p>';
         return;
     }
     
-    // Create table
     let html = `
-        <table id="users-table" class="admin-table">
+        <table class="admin-table">
             <thead>
                 <tr>
                     <th>Username</th>
                     <th>Email</th>
                     <th>Role</th>
                     <th>Join Date</th>
-                    <th>Last Login</th>
+                    <th>Articles</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
     `;
     
-    // Add rows
-    data.users.forEach(user => {
-        const joinDate = new Date(user.joinDate || user.createdAt).toLocaleDateString();
-        const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never';
+    users.forEach(user => {
+        // Format date
+        const joinDate = new Date(user.joinDate);
+        const formattedDate = joinDate.toLocaleDateString();
+        
+        // Get role badge class
+        let roleBadgeClass = '';
+        if (user.role === 'admin') {
+            roleBadgeClass = 'role-admin';
+        } else if (user.role === 'editor') {
+            roleBadgeClass = 'role-editor';
+        } else {
+            roleBadgeClass = 'role-user';
+        }
         
         html += `
-            <tr>
+            <tr id="user-row-${user._id}">
                 <td>${user.username}</td>
                 <td>${user.email}</td>
-                <td><span class="role-badge role-${user.role}">${user.role}</span></td>
-                <td>${joinDate}</td>
-                <td>${lastLogin}</td>
-                <td>
-                    <div class="table-actions">
-                        <button class="edit-user-btn" data-user-id="${user._id}">Edit</button>
-                        <button class="delete-user-btn" data-user-id="${user._id}" data-username="${user.username}">Delete</button>
-                    </div>
+                <td><span class="role-badge ${roleBadgeClass}">${user.role}</span></td>
+                <td>${formattedDate}</td>
+                <td>${user.contributions?.articlesCreated || 0}</td>
+                <td class="table-actions">
+                    <a href="/users/${user._id}" class="view-btn">View</a>
+                    <a href="/users/${user._id}/edit" class="edit-user-btn">Edit</a>
+                    <button class="change-role-btn" data-userid="${user._id}" data-username="${user.username}" data-role="${user.role}">Change Role</button>
+                    <button class="delete-user-btn" data-userid="${user._id}" data-username="${user.username}">Delete</button>
                 </td>
             </tr>
         `;
@@ -529,165 +400,88 @@ function renderUsersTable(data, container) {
     html += `
             </tbody>
         </table>
-        <div class="table-info">
-            Showing ${data.users.length} of ${data.total} users
-        </div>
     `;
     
-    // Set HTML
-    container.innerHTML = html;
+    userTableContainer.innerHTML = html;
     
-    // Initialize DataTable if available
-    if (typeof $.fn.DataTable !== 'undefined') {
-        try {
-            $('#users-table').DataTable({
-                responsive: true,
-                pageLength: 10,
-                lengthMenu: [5, 10, 25, 50],
-                language: {
-                    search: "Filter:",
-                    lengthMenu: "Show _MENU_ entries",
-                    info: "Showing _START_ to _END_ of _TOTAL_ entries"
-                }
-            });
-        } catch (e) {
-            console.error('Error initializing DataTable for users:', e);
-        }
-    }
+    // Setup change role buttons
+    const changeRoleButtons = document.querySelectorAll('.change-role-btn');
+    changeRoleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-userid');
+            const username = this.getAttribute('data-username');
+            const currentRole = this.getAttribute('data-role');
+            
+            showChangeRoleDialog(userId, username, currentRole);
+        });
+    });
+    
+    // Setup delete user buttons
+    const deleteUserButtons = document.querySelectorAll('.delete-user-btn');
+    deleteUserButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-userid');
+            const username = this.getAttribute('data-username');
+            
+            confirmDeleteUser(userId, username);
+        });
+    });
 }
 
-// Open user edit modal
-function openUserEditModal(userId) {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-    
+// Show change role dialog
+function showChangeRoleDialog(userId, username, currentRole) {
+    // Create modal content
     const modal = document.getElementById('user-edit-modal');
-    if (!modal) return;
+    const modalContent = modal.querySelector('.modal-content');
     
-    // Show loading state
-    modal.querySelector('.modal-content').innerHTML = '<div class="loading-spinner"></div>';
+    modalContent.innerHTML = `
+        <span class="close-modal-btn">&times;</span>
+        <h2>Change Role for ${username}</h2>
+        
+        <div class="form-group">
+            <label>Select Role:</label>
+            <select id="new-role">
+                <option value="user" ${currentRole === 'user' ? 'selected' : ''}>Regular User</option>
+                <option value="editor" ${currentRole === 'editor' ? 'selected' : ''}>Editor</option>
+                <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>Administrator</option>
+            </select>
+        </div>
+        
+        <div class="modal-actions">
+            <button id="save-role-btn" class="primary-button">Save Changes</button>
+            <button id="cancel-role-btn" class="cancel-button">Cancel</button>
+        </div>
+    `;
     
     // Show modal
     modal.style.display = 'block';
     
-    // Fetch user data
-    fetch(`/api/admin/users/${userId}`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.detail || 'Failed to load user data');
-            });
-        }
-        return response.json();
-    })
-    .then(user => {
-        renderUserEditForm(user, modal);
-    })
-    .catch(error => {
-        console.error('Error loading user data:', error);
-        modal.querySelector('.modal-content').innerHTML = `
-            <div class="error-message">Error loading user data: ${error.message}</div>
-            <div class="modal-actions">
-                <button class="close-modal-btn">Close</button>
-            </div>
-        `;
-        
-        // Set up close button
-        const closeBtn = modal.querySelector('.close-modal-btn');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
-            });
-        }
+    // Setup close button
+    const closeBtn = modalContent.querySelector('.close-modal-btn');
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
     });
-}
-
-// Render user edit form
-function renderUserEditForm(user, modal) {
-    const modalContent = modal.querySelector('.modal-content');
     
-    // Create form HTML
-    modalContent.innerHTML = `
-        <h2>Edit User: ${user.username}</h2>
-        <div class="error-message" id="edit-user-error" style="display: none;"></div>
-        <form id="user-edit-form">
-            <input type="hidden" id="user-id" value="${user._id}">
-            
-            <div class="form-group">
-                <label for="edit-username">Username:</label>
-                <input type="text" id="edit-username" value="${user.username}" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="edit-email">Email:</label>
-                <input type="email" id="edit-email" value="${user.email}" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="edit-role">Role:</label>
-                <select id="edit-role">
-                    <option value="user" ${user.role === 'user' ? 'selected' : ''}>User</option>
-                    <option value="editor" ${user.role === 'editor' ? 'selected' : ''}>Editor</option>
-                    <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="edit-password">New Password (leave blank to keep current):</label>
-                <input type="password" id="edit-password">
-            </div>
-            
-            <div class="modal-actions">
-                <button type="submit" class="primary-button">Save Changes</button>
-                <button type="button" class="cancel-button close-modal-btn">Cancel</button>
-            </div>
-        </form>
+    // Setup cancel button
+    const cancelBtn = document.getElementById('cancel-role-btn');
+    cancelBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+    
+    // Setup save button
+    const saveBtn = document.getElementById('save-role-btn');
+    saveBtn.addEventListener('click', function() {
+        const newRole = document.getElementById('new-role').value;
         
-        <div class="user-stats">
-            <h3>User Statistics</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value">${user.statistics?.articles_created || 0}</div>
-                    <div class="stat-label">Articles Created</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${user.statistics?.edits_performed || 0}</div>
-                    <div class="stat-label">Edits Performed</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${user.statistics?.proposals_submitted || 0}</div>
-                    <div class="stat-label">Proposals Submitted</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${user.statistics?.rewards_received || 0}</div>
-                    <div class="stat-label">Rewards Received</div>
-                </div>
-            </div>
-        </div>
-    `;
+        if (newRole === currentRole) {
+            alert('No change in role');
+            return;
+        }
+        
+        changeUserRole(userId, newRole);
+    });
     
-    // Set up close button
-    const closeBtn = modal.querySelector('.close-modal-btn');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-    }
-    
-    // Set up form submission
-    const form = modal.querySelector('#user-edit-form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            submitUserEdit(modal);
-        });
-    }
-    
-    // Close modal when clicking outside
+    // Close when clicking outside
     window.addEventListener('click', function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -695,110 +489,92 @@ function renderUserEditForm(user, modal) {
     });
 }
 
-// Submit user edit form
-function submitUserEdit(modal) {
+// Change user role
+function changeUserRole(userId, newRole) {
     const token = localStorage.getItem('token');
     if (!token) return;
     
-    const errorElement = document.getElementById('edit-user-error');
-    const userId = document.getElementById('user-id').value;
-    const username = document.getElementById('edit-username').value;
-    const email = document.getElementById('edit-email').value;
-    const role = document.getElementById('edit-role').value;
-    const password = document.getElementById('edit-password').value;
-    
-    // Validate input
-    if (!username || !email) {
-        if (errorElement) {
-            errorElement.textContent = 'Username and email are required';
-            errorElement.style.display = 'block';
-        }
-        return;
-    }
-    
-    // Build user data
-    const userData = {
-        username: username,
-        email: email,
-        role: role
-    };
-    
-    // Add password if provided
-    if (password) {
-        userData.password = password;
-    }
-    
     // Show loading state
-    const submitButton = document.querySelector('#user-edit-form button[type="submit"]');
-    if (submitButton) {
-        const originalText = submitButton.textContent;
-        submitButton.disabled = true;
-        submitButton.textContent = 'Saving...';
-    }
+    const saveButton = document.getElementById('save-role-btn');
+    const originalText = saveButton.textContent;
+    saveButton.disabled = true;
+    saveButton.textContent = 'Saving...';
     
-    // Hide error if shown
-    if (errorElement) {
-        errorElement.style.display = 'none';
-    }
-    
-    // Send update request
-    fetch(`/api/admin/users/${userId}`, {
+    // Call API to change role
+    fetch(`/api/admin/users/${userId}/role?role=${newRole}`, {
         method: 'PUT',
         headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(userData)
+        }
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+                throw new Error('Unauthorized');
+            }
             return response.json().then(data => {
-                throw new Error(data.detail || 'Failed to update user');
+                throw new Error(data.detail || 'Failed to change user role');
             });
         }
         return response.json();
     })
-    .then(updatedUser => {
-        // Show success message
-        alert('User updated successfully');
-        
+    .then(data => {
         // Close modal
-        if (modal) {
-            modal.style.display = 'none';
-        }
+        document.getElementById('user-edit-modal').style.display = 'none';
         
-        // Reload users
-        loadUsers();
+        // Show success alert
+        alert(data.message || 'User role updated successfully');
+        
+        // Update user row in the table
+        const userRow = document.getElementById(`user-row-${userId}`);
+        if (userRow) {
+            const roleCell = userRow.querySelector('td:nth-child(3)');
+            const actionCell = userRow.querySelector('td:nth-child(6)');
+            
+            // Update role badge
+            let roleBadgeClass = '';
+            if (newRole === 'admin') {
+                roleBadgeClass = 'role-admin';
+            } else if (newRole === 'editor') {
+                roleBadgeClass = 'role-editor';
+            } else {
+                roleBadgeClass = 'role-user';
+            }
+            
+            if (roleCell) {
+                roleCell.innerHTML = `<span class="role-badge ${roleBadgeClass}">${newRole}</span>`;
+            }
+            
+            // Update change role button data attribute
+            if (actionCell) {
+                const changeRoleBtn = actionCell.querySelector('.change-role-btn');
+                if (changeRoleBtn) {
+                    changeRoleBtn.setAttribute('data-role', newRole);
+                }
+            }
+        }
     })
     .catch(error => {
-        console.error('Error updating user:', error);
+        console.error('Error changing user role:', error);
+        alert(error.message || 'Failed to change user role');
         
-        // Show error message
-        if (errorElement) {
-            errorElement.textContent = error.message;
-            errorElement.style.display = 'block';
-        } else {
-            alert(`Error updating user: ${error.message}`);
-        }
-    })
-    .finally(() => {
         // Reset button state
-        if (submitButton) {
-            submitButton.disabled = false;
-            submitButton.textContent = 'Save Changes';
-        }
+        saveButton.disabled = false;
+        saveButton.textContent = originalText;
     });
 }
 
-// Confirm user deletion
+// Confirm delete user
 function confirmDeleteUser(userId, username) {
-    if (confirm(`Are you sure you want to delete the user "${username}"? This action cannot be undone.`)) {
-        deleteUser(userId);
+    if (confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
+        deleteUser(userId, username);
     }
 }
 
-// Delete a user
-function deleteUser(userId) {
+// Delete user
+function deleteUser(userId, username) {
     const token = localStorage.getItem('token');
     if (!token) return;
     
@@ -810,29 +586,37 @@ function deleteUser(userId) {
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+                throw new Error('Unauthorized');
+            }
             return response.json().then(data => {
                 throw new Error(data.detail || 'Failed to delete user');
             });
         }
         return response.json();
     })
-    .then(result => {
-        // Show success message
-        alert(result.message || 'User deleted successfully');
+    .then(data => {
+        // Show success alert
+        alert(data.message || 'User deleted successfully');
         
-        // Reload users
-        loadUsers();
+        // Remove user row from the table
+        const userRow = document.getElementById(`user-row-${userId}`);
+        if (userRow) {
+            userRow.remove();
+        }
     })
     .catch(error => {
         console.error('Error deleting user:', error);
-        alert(`Error deleting user: ${error.message}`);
+        alert(error.message || 'Failed to delete user');
     });
 }
 
-// Article management functions
+// Setup article management
 function setupArticleManagement() {
-    // Setup article search form
     const articleSearchForm = document.getElementById('article-search-form');
+    
     if (articleSearchForm) {
         articleSearchForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -841,186 +625,182 @@ function setupArticleManagement() {
     }
 }
 
-// Load articles for the article management tab
+// Load articles
 function loadArticles() {
+    const articleTableContainer = document.getElementById('articles-table-container');
     const token = localStorage.getItem('token');
-    if (!token) return;
     
-    const articlesContainer = document.getElementById('articles-table-container');
-    if (!articlesContainer) return;
+    if (!articleTableContainer || !token) return;
     
-    // Show loading indicator
-    articlesContainer.innerHTML = '<div class="loading-spinner"></div>';
+    // Show loading state
+    articleTableContainer.innerHTML = '<div class="loading-spinner"></div>';
     
-    // Get article stats
-    fetch('/api/admin/articles/stats', {
+    // Get search params
+    const searchInput = document.getElementById('article-search');
+    const statusFilter = document.getElementById('status-filter');
+    
+    let search = searchInput ? searchInput.value : '';
+    let status = statusFilter ? statusFilter.value : '';
+    
+    // Build API url
+    let apiUrl = '/api/articles?limit=20';
+    if (search) apiUrl += `&search=${encodeURIComponent(search)}`;
+    if (status) apiUrl += `&status=${encodeURIComponent(status)}`;
+    
+    // Fetch articles
+    fetch(apiUrl, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     })
     .then(response => {
         if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+                throw new Error('Unauthorized');
+            }
+            throw new Error('Failed to load articles');
+        }
+        return response.json();
+    })
+    .then(data => {
+        renderArticlesTable(data.articles);
+    })
+    .catch(error => {
+        console.error('Error loading articles:', error);
+        articleTableContainer.innerHTML = '<div class="error-message">Error loading articles</div>';
+    });
+}
+
+// Render articles table
+function renderArticlesTable(articles) {
+    const articleTableContainer = document.getElementById('articles-table-container');
+    
+    if (!articles || articles.length === 0) {
+        articleTableContainer.innerHTML = '<p>No articles found</p>';
+        return;
+    }
+    
+    let html = `
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Date Created</th>
+                    <th>Status</th>
+                    <th>Views</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    articles.forEach(article => {
+        // Format date
+        const createdAt = new Date(article.createdAt);
+        const formattedDate = createdAt.toLocaleDateString();
+        
+        // Get status badge class
+        let statusBadgeClass = '';
+        if (article.status === 'published') {
+            statusBadgeClass = 'status-published';
+        } else if (article.status === 'draft') {
+            statusBadgeClass = 'status-draft';
+        } else if (article.status === 'hidden') {
+            statusBadgeClass = 'status-hidden';
+        } else if (article.status === 'archived') {
+            statusBadgeClass = 'status-archived';
+        }
+        
+        html += `
+            <tr id="article-row-${article._id}">
+                <td><a href="/articles/${article.slug}">${article.title}</a></td>
+                <td>${article.creatorUsername || 'Unknown'}</td>
+                <td>${formattedDate}</td>
+                <td><span class="status-badge ${statusBadgeClass}">${article.status}</span></td>
+                <td>${article.views || 0}</td>
+                <td class="table-actions">
+                    <a href="/articles/${article.slug}" class="view-btn">View</a>
+                    <a href="/edit-article/${article._id}" class="edit-btn">Edit</a>
+                    <a href="/articles/${article._id}/history" class="history-btn">History</a>
+                    <button class="delete-btn" data-articleid="${article._id}" data-title="${article.title}">Delete</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += `
+            </tbody>
+        </table>
+    `;
+    
+    articleTableContainer.innerHTML = html;
+    
+    // Setup delete article buttons
+    const deleteArticleButtons = document.querySelectorAll('.delete-btn');
+    deleteArticleButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const articleId = this.getAttribute('data-articleid');
+            const title = this.getAttribute('data-title');
+            
+            confirmDeleteArticle(articleId, title);
+        });
+    });
+}
+
+// Confirm delete article
+function confirmDeleteArticle(articleId, title) {
+    if (confirm(`Are you sure you want to delete article "${title}"? This action cannot be undone.`)) {
+        deleteArticle(articleId);
+    }
+}
+
+// Delete article
+function deleteArticle(articleId) {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    fetch(`/api/articles/${articleId}?permanent=true`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
                 throw new Error('Unauthorized');
             }
             return response.json().then(data => {
-                throw new Error(data.detail || 'Failed to load article statistics');
+                throw new Error(data.detail || 'Failed to delete article');
             });
         }
         return response.json();
     })
-    .then(statsData => {
-        renderArticleStats(statsData, articlesContainer);
+    .then(data => {
+        // Show success alert
+        alert(data.message || 'Article deleted successfully');
+        
+        // Remove article row from the table
+        const articleRow = document.getElementById(`article-row-${articleId}`);
+        if (articleRow) {
+            articleRow.remove();
+        }
     })
     .catch(error => {
-        console.error('Error loading article stats:', error);
-        
-        if (error.message !== 'Unauthorized') {
-            articlesContainer.innerHTML = `<div class="error-message">Error loading article statistics: ${error.message}</div>`;
-        }
+        console.error('Error deleting article:', error);
+        alert(error.message || 'Failed to delete article');
     });
 }
 
-// Render article statistics
-function renderArticleStats(data, container) {
-    // Create HTML
-    let html = `
-        <div class="admin-stats-section">
-            <h3>Article Statistics</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value">${data.total || 0}</div>
-                    <div class="stat-label">Total Articles</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.published || 0}</div>
-                    <div class="stat-label">Published</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.draft || 0}</div>
-                    <div class="stat-label">Drafts</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.hidden || 0}</div>
-                    <div class="stat-label">Hidden</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.archived || 0}</div>
-                    <div class="stat-label">Archived</div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    // Add most viewed articles
-    if (data.most_viewed && data.most_viewed.length > 0) {
-        html += `
-            <div class="admin-data-section">
-                <h3>Most Viewed Articles</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Views</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        
-        data.most_viewed.forEach(article => {
-            html += `
-                <tr>
-                    <td><a href="/articles/${article.slug || article.id}">${article.title}</a></td>
-                    <td>${article.views}</td>
-                    <td>
-                        <div class="table-actions">
-                            <a href="/edit-article/${article.id}" class="edit-btn">Edit</a>
-                            <a href="/articles/${article.id}/history" class="history-btn">History</a>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        });
-        
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
-    
-    // Add recently edited articles
-    if (data.recently_edited && data.recently_edited.length > 0) {
-        html += `
-            <div class="admin-data-section">
-                <h3>Recently Edited Articles</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Last Edit</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-        `;
-        
-        data.recently_edited.forEach(article => {
-            const date = new Date(article.last_edit).toLocaleString();
-            
-            html += `
-                <tr>
-                    <td><a href="/articles/${article.slug || article.id}">${article.title}</a></td>
-                    <td>${date}</td>
-                    <td>
-                        <div class="table-actions">
-                            <a href="/edit-article/${article.id}" class="edit-btn">Edit</a>
-                            <a href="/articles/${article.id}/history" class="history-btn">History</a>
-                        </div>
-                    </td>
-                </tr>
-            `;
-        });
-        
-        html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
-    }
-    
-    // Add top categories
-    if (data.top_categories && data.top_categories.length > 0) {
-        html += `
-            <div class="admin-data-section">
-                <h3>Top Categories</h3>
-                <div class="tag-cloud">
-        `;
-        
-        data.top_categories.forEach(category => {
-            html += `
-                <a href="/articles?category=${encodeURIComponent(category._id)}" class="tag-item" style="font-size: ${Math.max(100, Math.min(160, 100 + category.count * 10))}%">
-                    ${category._id} (${category.count})
-                </a>
-            `;
-        });
-        
-        html += `
-                </div>
-            </div>
-        `;
-    }
-    
-    // Set HTML
-    container.innerHTML = html;
-}
-
-// Proposal management functions
+// Setup proposal management
 function setupProposalManagement() {
-    // Setup proposal filter form
     const proposalFilterForm = document.getElementById('proposal-filter-form');
+    
     if (proposalFilterForm) {
         proposalFilterForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -1029,262 +809,235 @@ function setupProposalManagement() {
     }
 }
 
-// Load proposals for the proposal management tab
+// Load proposals
 function loadProposals() {
+    const proposalsManagement = document.getElementById('proposals-management');
     const token = localStorage.getItem('token');
-    if (!token) return;
     
-    const proposalsContainer = document.getElementById('proposals-management');
-    if (!proposalsContainer) return;
+    if (!proposalsManagement || !token) return;
     
-    // Show loading indicator
-    proposalsContainer.innerHTML = '<div class="loading-spinner"></div>';
+    // Show loading state
+    proposalsManagement.innerHTML = '<div class="loading-spinner"></div>';
     
-    // Get proposal stats
-    fetch('/api/admin/proposals/stats', {
+    // Get filter params
+    const statusFilter = document.getElementById('proposal-status-filter');
+    let status = statusFilter ? statusFilter.value : 'pending';
+    
+    // Build API url
+    let apiUrl = '/api/proposals?limit=20';
+    if (status) apiUrl += `&status=${encodeURIComponent(status)}`;
+    
+    // Fetch proposals
+    fetch(apiUrl, {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     })
     .then(response => {
         if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
-                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
                 throw new Error('Unauthorized');
             }
-            return response.json().then(data => {
-                throw new Error(data.detail || 'Failed to load proposal statistics');
-            });
+            throw new Error('Failed to load proposals');
         }
         return response.json();
     })
-    .then(statsData => {
-        renderProposalStats(statsData, proposalsContainer);
+    .then(data => {
+        renderProposalsTable(data.proposals, status);
     })
     .catch(error => {
-        console.error('Error loading proposal stats:', error);
-        
-        if (error.message !== 'Unauthorized') {
-            proposalsContainer.innerHTML = `<div class="error-message">Error loading proposal statistics: ${error.message}</div>`;
-        }
+        console.error('Error loading proposals:', error);
+        proposalsManagement.innerHTML = '<div class="error-message">Error loading proposals</div>';
     });
 }
 
-// Render proposal statistics
-function renderProposalStats(data, container) {
-    // Create HTML
+// Render proposals table
+function renderProposalsTable(proposals, currentStatus) {
+    const proposalsManagement = document.getElementById('proposals-management');
+    
+    if (!proposals || proposals.length === 0) {
+        proposalsManagement.innerHTML = '<p>No proposals found</p>';
+        return;
+    }
+    
     let html = `
-        <div class="admin-stats-section">
-            <h3>Proposal Statistics</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-value">${data.total || 0}</div>
-                    <div class="stat-label">Total Proposals</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.pending || 0}</div>
-                    <div class="stat-label">Pending</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.approved || 0}</div>
-                    <div class="stat-label">Approved</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value">${data.rejected || 0}</div>
-                    <div class="stat-label">Rejected</div>
-                </div>
-            </div>
-        </div>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Article</th>
+                    <th>Proposed By</th>
+                    <th>Summary</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
     `;
     
-    // Add recent proposals
-    if (data.recent_proposals && data.recent_proposals.length > 0) {
+    proposals.forEach(proposal => {
+        // Format date
+        const proposedAt = new Date(proposal.proposedAt);
+        const formattedDate = proposedAt.toLocaleDateString();
+        
+        // Get status badge class
+        let statusBadgeClass = '';
+        if (proposal.status === 'pending') {
+            statusBadgeClass = 'status-pending';
+        } else if (proposal.status === 'approved') {
+            statusBadgeClass = 'status-approved';
+        } else if (proposal.status === 'rejected') {
+            statusBadgeClass = 'status-rejected';
+        }
+        
         html += `
-            <div class="admin-data-section">
-                <h3>Recent Proposals</h3>
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Article</th>
-                            <th>User</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <tr id="proposal-row-${proposal._id}">
+                <td>${formattedDate}</td>
+                <td><a href="/articles/${proposal.articleId}">${proposal.articleTitle}</a></td>
+                <td>${proposal.proposerUsername}</td>
+                <td>${proposal.summary}</td>
+                <td><span class="status-badge ${statusBadgeClass}">${proposal.status}</span></td>
+                <td class="table-actions">
+                    <a href="/articles/${proposal.articleId}/proposals/${proposal._id}" class="view-btn">View</a>
         `;
         
-        data.recent_proposals.forEach(proposal => {
-            const date = new Date(proposal.proposedAt).toLocaleString();
-            const statusClass = proposal.status === 'pending' ? 'status-pending' : 
-                                proposal.status === 'approved' ? 'status-approved' : 'status-rejected';
-            
+        // Add approve/reject buttons if pending
+        if (proposal.status === 'pending') {
             html += `
-                <tr>
-                    <td><a href="/articles/${proposal.article.slug || proposal.article.id}">${proposal.article.title}</a></td>
-                    <td>${proposal.user.username}</td>
-                    <td><span class="status-badge ${statusClass}">${proposal.status}</span></td>
-                    <td>${date}</td>
-                    <td>
-                        <div class="table-actions">
-                            <a href="/articles/${proposal.article.id}/proposals/${proposal.id}" class="view-btn">View</a>
-                            ${proposal.status === 'pending' ? `
-                                <button class="approve-btn" data-proposal-id="${proposal.id}" data-article-id="${proposal.article.id}">Approve</button>
-                                <button class="reject-btn" data-proposal-id="${proposal.id}" data-article-id="${proposal.article.id}">Reject</button>
-                            ` : ''}
-                        </div>
-                    </td>
-                </tr>
+                    <button class="approve-btn" data-proposalid="${proposal._id}" data-articleid="${proposal.articleId}">Approve</button>
+                    <button class="reject-btn" data-proposalid="${proposal._id}" data-articleid="${proposal.articleId}">Reject</button>
             `;
-        });
+        }
         
         html += `
-                    </tbody>
-                </table>
-                
-                <div class="view-all-link">
-                    <a href="/proposals" class="action-link">View All Proposals</a>
-                </div>
-            </div>
+                </td>
+            </tr>
         `;
-    }
+    });
     
-    // Add top contributors
-    if (data.top_contributors && data.top_contributors.length > 0) {
-        html += `
-            <div class="admin-data-section">
-                <h3>Top Proposal Contributors</h3>
-                <div class="top-contributors">
-        `;
-        
-        data.top_contributors.forEach(contributor => {
-            html += `
-                <div class="contributor-card">
-                    <div class="contributor-name">${contributor.user.username}</div>
-                    <div class="contributor-count">${contributor.count} proposals</div>
-                </div>
-            `;
-        });
-        
-        html += `
-                </div>
-            </div>
-        `;
-    }
+    html += `
+            </tbody>
+        </table>
+    `;
     
-    // Set HTML
-    container.innerHTML = html;
+    proposalsManagement.innerHTML = html;
     
-    // Set up event listeners for approve/reject buttons
-    const approveButtons = container.querySelectorAll('.approve-btn');
-    const rejectButtons = container.querySelectorAll('.reject-btn');
-    
+    // Setup approve/reject buttons
+    const approveButtons = document.querySelectorAll('.approve-btn');
     approveButtons.forEach(button => {
         button.addEventListener('click', function() {
-            const proposalId = this.getAttribute('data-proposal-id');
-            const articleId = this.getAttribute('data-article-id');
-            if (proposalId && articleId) {
-                handleProposalAction(articleId, proposalId, 'approve');
-            }
+            const proposalId = this.getAttribute('data-proposalid');
+            const articleId = this.getAttribute('data-articleid');
+            
+            handleProposalAction(proposalId, articleId, 'approve');
         });
     });
     
+    const rejectButtons = document.querySelectorAll('.reject-btn');
     rejectButtons.forEach(button => {
         button.addEventListener('click', function() {
-            const proposalId = this.getAttribute('data-proposal-id');
-            const articleId = this.getAttribute('data-article-id');
-            if (proposalId && articleId) {
-                handleProposalAction(articleId, proposalId, 'reject');
-            }
+            const proposalId = this.getAttribute('data-proposalid');
+            const articleId = this.getAttribute('data-articleid');
+            
+            handleProposalAction(proposalId, articleId, 'reject');
         });
     });
 }
 
-// Handle proposal approval/rejection
-function handleProposalAction(articleId, proposalId, action) {
+// Handle proposal action
+function handleProposalAction(proposalId, articleId, action) {
+    const comment = prompt(`Please provide a comment for ${action}ing this proposal:`);
+    
+    if (comment === null) {
+        // User cancelled
+        return;
+    }
+    
     const token = localStorage.getItem('token');
     if (!token) return;
     
-    // Ask for comment
-    const comment = prompt(`Please provide a reason for ${action}ing this proposal:`);
-    
-    // User cancelled
-    if (comment === null) return;
-    
-    // Show loading state
-    const button = document.querySelector(`[data-proposal-id="${proposalId}"][data-article-id="${articleId}"]`);
-    if (button) {
-        const originalText = button.textContent;
-        button.disabled = true;
-        button.textContent = 'Processing...';
-    }
-    
-    // Send request
     fetch(`/api/articles/${articleId}/proposals/${proposalId}?status=${action}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ comment: comment })
+        body: JSON.stringify({
+            comment: comment
+        })
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+                throw new Error('Unauthorized');
+            }
             return response.json().then(data => {
                 throw new Error(data.detail || `Failed to ${action} proposal`);
             });
         }
         return response.json();
     })
-    .then(result => {
-        // Show success message
+    .then(data => {
+        // Show success alert
         alert(`Proposal ${action}ed successfully`);
         
-        // Reload proposals
-        loadProposals();
+        // Update proposal row status or remove if filtering
+        const proposalRow = document.getElementById(`proposal-row-${proposalId}`);
+        if (proposalRow) {
+            const statusFilter = document.getElementById('proposal-status-filter');
+            const currentFilter = statusFilter ? statusFilter.value : '';
+            
+            if (currentFilter && currentFilter !== 'all' && currentFilter !== action) {
+                // Remove row if filtering
+                proposalRow.remove();
+            } else {
+                // Update status
+                const statusCell = proposalRow.querySelector('td:nth-child(5)');
+                const actionsCell = proposalRow.querySelector('td:nth-child(6)');
+                
+                if (statusCell) {
+                    let statusBadgeClass = action === 'approve' ? 'status-approved' : 'status-rejected';
+                    statusCell.innerHTML = `<span class="status-badge ${statusBadgeClass}">${action}d</span>`;
+                }
+                
+                if (actionsCell) {
+                    actionsCell.innerHTML = `<a href="/articles/${articleId}/proposals/${proposalId}" class="view-btn">View</a>`;
+                }
+            }
+        }
     })
     .catch(error => {
         console.error(`Error ${action}ing proposal:`, error);
-        alert(`Error ${action}ing proposal: ${error.message}`);
-        
-        // Reset button state
-        if (button) {
-            button.disabled = false;
-            button.textContent = originalText;
-        }
+        alert(error.message || `Failed to ${action} proposal`);
     });
 }
 
-// System tools functions
+// Setup system tools
 function setupSystemTools() {
-    // Setup cache clear button
-    const clearCacheButton = document.getElementById('clear-cache-btn');
-    if (clearCacheButton) {
-        clearCacheButton.addEventListener('click', function() {
-            clearSystemCache();
+    const clearCacheBtn = document.getElementById('clear-cache-btn');
+    
+    if (clearCacheBtn) {
+        clearCacheBtn.addEventListener('click', function() {
+            clearCache();
         });
     }
 }
 
-// Clear system cache
-function clearSystemCache() {
+// Clear cache
+function clearCache() {
     const token = localStorage.getItem('token');
     if (!token) return;
     
-    if (!confirm('Are you sure you want to clear the system cache? This may temporarily impact performance but can resolve data consistency issues.')) {
-        return;
-    }
-    
     // Show loading state
-    const button = document.getElementById('clear-cache-btn');
-    if (button) {
-        const originalText = button.textContent;
-        button.disabled = true;
-        button.textContent = 'Clearing...';
-    }
+    const clearCacheBtn = document.getElementById('clear-cache-btn');
+    const originalText = clearCacheBtn.textContent;
+    clearCacheBtn.disabled = true;
+    clearCacheBtn.textContent = 'Clearing...';
     
-    // Send request
     fetch('/api/admin/system/clear-cache', {
         method: 'POST',
         headers: {
@@ -1293,30 +1046,31 @@ function clearSystemCache() {
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 401) {
+                localStorage.removeItem('token');
+                window.location.href = '/';
+                throw new Error('Unauthorized');
+            }
             return response.json().then(data => {
                 throw new Error(data.detail || 'Failed to clear cache');
             });
         }
         return response.json();
     })
-    .then(result => {
-        // Show success message
-        alert(result.message || 'Cache cleared successfully');
+    .then(data => {
+        // Show success alert
+        alert(data.message || 'Cache cleared successfully');
         
-        // Reset button state
-        if (button) {
-            button.disabled = false;
-            button.textContent = originalText;
-        }
+        // Refresh dashboard stats
+        loadDashboardStats(true);
     })
     .catch(error => {
         console.error('Error clearing cache:', error);
-        alert(`Error clearing cache: ${error.message}`);
-        
+        alert(error.message || 'Failed to clear cache');
+    })
+    .finally(() => {
         // Reset button state
-        if (button) {
-            button.disabled = false;
-            button.textContent = originalText;
-        }
+        clearCacheBtn.disabled = false;
+        clearCacheBtn.textContent = originalText;
     });
 }
