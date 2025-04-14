@@ -16,6 +16,7 @@ from .errors import router as errors_router, add_error_handlers
 from .help import router as help_router  # Add this
 from .community import router as community_router  # Add this
 from .donate import router as donate_router  # Add this
+from .upload import router as upload_router 
 
 # Create a combined router for all pages
 router = APIRouter()
@@ -32,6 +33,7 @@ router.include_router(errors_router)
 router.include_router(help_router)
 router.include_router(community_router)
 router.include_router(donate_router)
+router.include_router(upload_router)
 
 # Export modules
 __all__ = [

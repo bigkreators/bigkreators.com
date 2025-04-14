@@ -22,8 +22,8 @@ logging.basicConfig(
 logger = logging.getLogger("kryptopedia")
 
 # Import the routes
-from routes import auth, articles, media, proposals, rewards, special, profile
-from pages import router as page_router, add_error_handlers, community, donate, help, admin
+from routes import auth, articles, media, proposals, rewards, special, profile, media_additional
+from pages import router as page_router, add_error_handlers, community, donate, help, admin, upload
 
 
 # Initialize FastAPI app
@@ -97,6 +97,7 @@ app.include_router(profile.router, prefix=f"{config.API_PREFIX}/users", tags=["U
 app.include_router(community.router, prefix=f"{config.API_PREFIX}/community", tags=["Community"])
 app.include_router(donate.router, prefix=f"{config.API_PREFIX}/donate", tags=["Donations"])
 app.include_router(admin.router, prefix=f"{config.API_PREFIX}/admin", tags=["Admin"])
+app.include_router(upload.router, prefix=f"{config.API_PREFIX}/upload", tags=["Upload"])
 
 
 # Include page routes at root level

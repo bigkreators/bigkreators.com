@@ -1,0 +1,801 @@
+<!-- File: templates/upload_file.html -->
+{% extends "base.html" %}
+
+{% block title %}Upload File - Kryptopedia{% endblock %}
+
+{% set active_page = 'upload' %}
+
+{% block extra_css %}
+<style>
+    .upload-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    
+    .upload-section {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+    }
+    
+    .upload-info {
+        margin-bottom: 30px;
+    }
+    
+    .upload-form {
+        border: 2px dashed #ddd;
+        padding: 30px;
+        text-align: center;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        margin-bottom: 30px;
+    }
+    
+    .upload-form.highlight {
+        border-color: #0645ad;
+        background-color: #f0f7ff;
+    }
+    
+    .file-input-wrapper {
+        margin-bottom: 20px;
+    }
+    
+    .file-input {
+        display: none;
+    }
+    
+    .file-input-label {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: normal;
+        transition: background-color 0.2s;
+    }
+    
+    .file-input-label:hover {
+        background-color: #053a7a;
+    }
+    
+    .upload-button {
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    
+    .upload-button:hover {
+        background-color: #218838;
+    }
+    
+    .upload-button:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+    
+    .file-details {
+        margin-top: 20px;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: left;
+        display: none;
+    }
+    
+    .file-details.show {
+        display: block;
+    }
+    
+    .file-details-row {
+        display: flex;
+        margin-bottom: 10px;
+    }
+    
+    .file-details-label {
+        font-weight: bold;
+        width: 120px;
+    }
+    
+    .file-details-value {
+        flex: 1;
+    }
+    
+    .file-preview {
+        max-width: 100%;
+        max-height: 200px;
+        margin: 15px 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        display: none;
+    }
+    
+    .help-text {
+        color: #666;
+        font-size: 14px;
+        margin-top: 10px;
+    }
+    
+    .upload-guidelines {
+        margin-top: 30px;
+    }
+    
+    .guidelines-list {
+        list-style-position: inside;
+        margin-top: 15px;
+        line-height: 1.6;
+    }
+    
+    .file-types {
+        margin-top: 20px;
+    }
+    
+    .file-types-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    
+    .file-types-table th,
+    .file-types-table td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    
+    .file-types-table th {
+        background-color: #f5f5f5;
+    }
+    
+    .file-types-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .upload-progress {
+        margin-top: 20px;
+        display: none;
+    }
+    
+    .progress-bar-container {
+        width: 100%;
+        height: 20px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background-color: #0645ad;
+        width: 0%;
+        transition: width 0.3s;
+    }
+    
+    .progress-text {
+        margin-top: 5px;
+        text-align: center;
+        font-size: 14px;
+    }
+    
+    .upload-result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 4px;
+        display: none;
+    }
+    
+    .upload-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .upload-error {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .file-url {
+        padding: 8px 12px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-family: monospace;
+        margin-top: 10px;
+        word-break: break-all;
+    }
+    
+    .copy-button {
+        display: inline-block;
+        padding: 6px 12px;
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 5px;
+    }
+    
+    .copy-button:hover {
+        background-color: #5a6268;
+    }
+    
+    .login-required {
+        text-align: center;
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    
+    .recent-uploads {
+        margin-top: 30px;
+    }
+    
+    .uploads-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .uploads-table th,
+    .uploads-table td {
+        border: 1px solid #ddd;
+        padding: 10px 12px;
+        text-align: left;
+    }
+    
+    .uploads-table th {
+        background-color: #f5f5f5;
+    }
+    
+    .uploads-table tr:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .file-action {
+        display: inline-block;
+        padding: 4px 8px;
+        background-color: #0645ad;
+        color: white;
+        border-radius: 3px;
+        text-decoration: none;
+        font-size: 12px;
+        margin-right: 5px;
+    }
+    
+    .delete-action {
+        background-color: #dc3545;
+    }
+    
+    @media (max-width: 768px) {
+        .file-details-row {
+            flex-direction: column;
+        }
+        
+        .file-details-label {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Media Tools</h3>
+<ul>
+    <li><a href="/upload-file" class="active">Upload File</a></li>
+    <li><a href="/help/media">Media Guidelines</a></li>
+</ul>
+
+<h3>Related</h3>
+<ul>
+    <li><a href="/create-article">Create Article</a></li>
+    <li><a href="/help/formatting">Formatting Guide</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h1>Upload Media File</h1>
+    
+    <div id="login-message" class="login-required" style="display: none;">
+        <h2>Login Required</h2>
+        <p>You need to be logged in to upload files. Please log in to continue.</p>
+        <button id="login-to-upload" class="upload-button">Login</button>
+    </div>
+    
+    <div id="upload-content">
+        <div class="upload-section">
+            <div class="upload-info">
+                <p>Upload images and other media files to use in your Kryptopedia articles. Uploaded files will be available to include in any article.</p>
+            </div>
+            
+            <form id="upload-form" class="upload-form" enctype="multipart/form-data">
+                <div class="file-input-wrapper">
+                    <label for="file-upload" class="file-input-label">Choose File</label>
+                    <input type="file" id="file-upload" name="file" class="file-input">
+                    <div class="help-text">Maximum file size: 10MB</div>
+                </div>
+                
+                <div id="file-details" class="file-details">
+                    <img id="file-preview" class="file-preview">
+                    <div class="file-details-row">
+                        <div class="file-details-label">File Name:</div>
+                        <div id="file-name" class="file-details-value"></div>
+                    </div>
+                    <div class="file-details-row">
+                        <div class="file-details-label">File Type:</div>
+                        <div id="file-type" class="file-details-value"></div>
+                    </div>
+                    <div class="file-details-row">
+                        <div class="file-details-label">File Size:</div>
+                        <div id="file-size" class="file-details-value"></div>
+                    </div>
+                </div>
+                
+                <div class="upload-action">
+                    <button type="submit" id="upload-button" class="upload-button" disabled>Upload File</button>
+                </div>
+                
+                <div id="upload-progress" class="upload-progress">
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar"></div>
+                    </div>
+                    <div id="progress-text" class="progress-text">0%</div>
+                </div>
+            </form>
+            
+            <div id="upload-result" class="upload-result">
+                <div id="result-message"></div>
+                <div id="file-url" class="file-url"></div>
+                <button id="copy-url" class="copy-button">Copy URL</button>
+            </div>
+            
+            <div class="upload-guidelines">
+                <h3>Upload Guidelines</h3>
+                <ol class="guidelines-list">
+                    <li>Files must be under 10MB in size</li>
+                    <li>Only upload files you have the rights to use</li>
+                    <li>Provide proper attribution in your articles</li>
+                    <li>Use descriptive file names</li>
+                    <li>Optimize images before uploading for better performance</li>
+                </ol>
+                
+                <div class="file-types">
+                    <h3>Supported File Types</h3>
+                    <table class="file-types-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Extensions</th>
+                                <th>Usage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Images</td>
+                                <td>.jpg, .jpeg, .png, .gif</td>
+                                <td>Photos, screenshots, diagrams</td>
+                            </tr>
+                            <tr>
+                                <td>Vector Graphics</td>
+                                <td>.svg</td>
+                                <td>Logos, icons, scalable diagrams</td>
+                            </tr>
+                            <tr>
+                                <td>Documents</td>
+                                <td>.pdf</td>
+                                <td>Technical papers, specifications</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="recent-uploads" class="recent-uploads">
+            <h2>Your Recent Uploads</h2>
+            <div id="uploads-container">
+                <p>Loading your recent uploads...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    const loginMessage = document.getElementById('login-message');
+    const uploadContent = document.getElementById('upload-content');
+    
+    // Handle authentication
+    if (!token) {
+        loginMessage.style.display = 'block';
+        uploadContent.style.display = 'none';
+        
+        // Setup login button
+        document.getElementById('login-to-upload').addEventListener('click', function() {
+            const loginModal = document.getElementById('login-modal');
+            if (loginModal) {
+                // Store the current page as the redirect target
+                sessionStorage.setItem('redirectAfterLogin', '/upload-file');
+                loginModal.style.display = 'block';
+            }
+        });
+    } else {
+        loginMessage.style.display = 'none';
+        uploadContent.style.display = 'block';
+        
+        // Load recent uploads
+        loadRecentUploads();
+    }
+    
+    // File upload handling
+    const uploadForm = document.getElementById('upload-form');
+    const fileInput = document.getElementById('file-upload');
+    const fileDetails = document.getElementById('file-details');
+    const filePreview = document.getElementById('file-preview');
+    const fileName = document.getElementById('file-name');
+    const fileType = document.getElementById('file-type');
+    const fileSize = document.getElementById('file-size');
+    const uploadButton = document.getElementById('upload-button');
+    const uploadProgress = document.getElementById('upload-progress');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const uploadResult = document.getElementById('upload-result');
+    const resultMessage = document.getElementById('result-message');
+    const fileUrl = document.getElementById('file-url');
+    const copyUrlButton = document.getElementById('copy-url');
+    
+    // Handle file selection
+    fileInput.addEventListener('change', function() {
+        const file = this.files[0];
+        
+        if (file) {
+            // Display file details
+            fileDetails.classList.add('show');
+            fileName.textContent = file.name;
+            fileType.textContent = file.type;
+            fileSize.textContent = formatFileSize(file.size);
+            
+            // Check if file is too large
+            if (file.size > 10 * 1024 * 1024) { // 10MB
+                alert('File is too large. Maximum size is 10MB.');
+                this.value = '';
+                fileDetails.classList.remove('show');
+                uploadButton.disabled = true;
+                return;
+            }
+            
+            // Enable upload button
+            uploadButton.disabled = false;
+            
+            // Show preview for images
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    filePreview.src = e.target.result;
+                    filePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                filePreview.style.display = 'none';
+            }
+        } else {
+            // Hide file details
+            fileDetails.classList.remove('show');
+            uploadButton.disabled = true;
+        }
+    });
+    
+    // Handle drag and drop
+    uploadForm.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('highlight');
+    });
+    
+    uploadForm.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('highlight');
+    });
+    
+    uploadForm.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('highlight');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            
+            // Trigger change event
+            const event = new Event('change');
+            fileInput.dispatchEvent(event);
+        }
+    });
+    
+    // Handle form submission
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const file = fileInput.files[0];
+        if (!file) return;
+        
+        // Hide previous result
+        uploadResult.style.display = 'none';
+        
+        // Show progress
+        uploadProgress.style.display = 'block';
+        progressBar.style.width = '0%';
+        progressText.textContent = '0%';
+        
+        // Create FormData
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        // Create XMLHttpRequest to track progress
+        const xhr = new XMLHttpRequest();
+        
+        // Track upload progress
+        xhr.upload.addEventListener('progress', function(e) {
+            if (e.lengthComputable) {
+                const percent = Math.round((e.loaded / e.total) * 100);
+                progressBar.style.width = percent + '%';
+                progressText.textContent = percent + '%';
+            }
+        });
+        
+        // Handle response
+        xhr.addEventListener('load', function() {
+            uploadProgress.style.display = 'none';
+            
+            if (xhr.status >= 200 && xhr.status < 300) {
+                const response = JSON.parse(xhr.responseText);
+                
+                // Show success message
+                uploadResult.className = 'upload-result upload-success';
+                uploadResult.style.display = 'block';
+                resultMessage.textContent = 'File uploaded successfully!';
+                
+                // Display file URL
+                fileUrl.textContent = response.path;
+                
+                // Reset form
+                uploadForm.reset();
+                fileDetails.classList.remove('show');
+                filePreview.style.display = 'none';
+                uploadButton.disabled = true;
+                
+                // Refresh recent uploads
+                loadRecentUploads();
+            } else {
+                let errorMessage = 'Upload failed';
+                
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    errorMessage = response.detail || errorMessage;
+                } catch (e) {
+                    // If parsing fails, use default error message
+                }
+                
+                // Show error message
+                uploadResult.className = 'upload-result upload-error';
+                uploadResult.style.display = 'block';
+                resultMessage.textContent = 'Error: ' + errorMessage;
+                fileUrl.textContent = '';
+            }
+        });
+        
+        // Handle network errors
+        xhr.addEventListener('error', function() {
+            uploadProgress.style.display = 'none';
+            uploadResult.className = 'upload-result upload-error';
+            uploadResult.style.display = 'block';
+            resultMessage.textContent = 'Network error occurred during upload.';
+            fileUrl.textContent = '';
+        });
+        
+        // Send the request
+        xhr.open('POST', '/api/media/upload', true);
+        xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.send(formData);
+    });
+    
+    // Handle URL copy
+    copyUrlButton.addEventListener('click', function() {
+        const urlText = fileUrl.textContent;
+        
+        if (urlText) {
+            navigator.clipboard.writeText(urlText)
+                .then(() => {
+                    this.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.textContent = 'Copy URL';
+                    }, 2000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy URL: ', err);
+                    
+                    // Fallback method
+                    const tempInput = document.createElement('input');
+                    tempInput.value = urlText;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    
+                    this.textContent = 'Copied!';
+                    setTimeout(() => {
+                        this.textContent = 'Copy URL';
+                    }, 2000);
+                });
+        }
+    });
+    
+    // Load user's recent uploads
+    function loadRecentUploads() {
+        const uploadsContainer = document.getElementById('uploads-container');
+        
+        if (!token) {
+            uploadsContainer.innerHTML = '<p>Please log in to view your uploads.</p>';
+            return;
+        }
+        
+        // Show loading state
+        uploadsContainer.innerHTML = '<p>Loading your recent uploads...</p>';
+        
+        // Fetch user's uploads
+        fetch('/api/media/my-uploads', {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to load uploads');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.length === 0) {
+                uploadsContainer.innerHTML = '<p>You haven\'t uploaded any files yet.</p>';
+                return;
+            }
+            
+            // Build uploads table
+            let html = `
+                <table class="uploads-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Type</th>
+                            <th>Size</th>
+                            <th>Upload Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            data.forEach(file => {
+                const date = new Date(file.uploadedAt);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                
+                html += `
+                    <tr>
+                        <td>${file.originalName}</td>
+                        <td>${file.mimeType}</td>
+                        <td>${formatFileSize(file.size)}</td>
+                        <td>${formattedDate}</td>
+                        <td>
+                            <a href="${file.path}" target="_blank" class="file-action">View</a>
+                            <a href="#" class="file-action copy-link" data-url="${file.path}">Copy Link</a>
+                            <a href="#" class="file-action delete-action" data-id="${file._id}">Delete</a>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            uploadsContainer.innerHTML = html;
+            
+            // Setup copy link buttons
+            document.querySelectorAll('.copy-link').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('data-url');
+                    
+                    navigator.clipboard.writeText(url)
+                        .then(() => {
+                            const originalText = this.textContent;
+                            this.textContent = 'Copied!';
+                            setTimeout(() => {
+                                this.textContent = originalText;
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Failed to copy URL: ', err);
+                            alert('Failed to copy URL. Please try again.');
+                        });
+                });
+            });
+            
+            // Setup delete buttons
+            document.querySelectorAll('.delete-action').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const fileId = this.getAttribute('data-id');
+                    
+                    if (confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+                        deleteFile(fileId, this);
+                    }
+                });
+            });
+        })
+        .catch(error => {
+            console.error('Error loading uploads:', error);
+            uploadsContainer.innerHTML = '<p>Error loading your uploads. Please try again later.</p>';
+        });
+    }
+    
+    // Delete file
+    function deleteFile(fileId, buttonElement) {
+        fetch(`/api/media/${fileId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to delete file');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Remove the row from the table
+            const row = buttonElement.closest('tr');
+            row.remove();
+            
+            // Check if table is now empty
+            const tbody = document.querySelector('.uploads-table tbody');
+            if (tbody && tbody.children.length === 0) {
+                document.getElementById('uploads-container').innerHTML = '<p>You haven\'t uploaded any files yet.</p>';
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting file:', error);
+            alert('Failed to delete file. Please try again.');
+        });
+    }
+    
+    // Format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+});
+</script>
+{% endblock %}

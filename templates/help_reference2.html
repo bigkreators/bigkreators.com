@@ -1,0 +1,434 @@
+<!-- File: templates/help_references.html -->
+{% extends "base.html" %}
+
+{% block title %}Adding References - Kryptopedia Help{% endblock %}
+
+{% set active_page = 'help' %}
+
+{% block extra_css %}
+<style>
+    .help-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .help-section {
+        margin-bottom: 40px;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .help-section h2 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .help-section h3 {
+        color: #0645ad;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .help-topic {
+        margin-bottom: 30px;
+    }
+    
+    .help-topic p {
+        line-height: 1.6;
+    }
+    
+    .help-topic ul, .help-topic ol {
+        line-height: 1.6;
+        margin-left: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .help-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0645ad;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .tip-box {
+        border-left-color: #28a745;
+    }
+    
+    .warning-box {
+        border-left-color: #ffc107;
+    }
+    
+    .example-box {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+    }
+    
+    .example-box pre {
+        margin: 10px 0 0 0;
+    }
+    
+    .code-block {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        margin: 15px 0;
+    }
+    
+    .breadcrumbs {
+        margin-bottom: 20px;
+    }
+    
+    .breadcrumbs a {
+        color: #0645ad;
+        text-decoration: none;
+    }
+    
+    .breadcrumbs span {
+        color: #666;
+        margin: 0 5px;
+    }
+    
+    .formatting-example {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .code-input, .code-output {
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+    }
+    
+    .code-input {
+        background-color: #f5f5f5;
+        border: 1px solid #ddd;
+    }
+    
+    .code-output {
+        background-color: #fff;
+        border: 1px solid #ddd;
+    }
+    
+    .reference-example {
+        padding: 15px;
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin: 15px 0;
+    }
+    
+    .reference-list {
+        padding-left: 20px;
+        margin: 20px 0;
+    }
+    
+    .reference-list li {
+        margin-bottom: 10px;
+    }
+    
+    .citation {
+        font-size: 12px;
+        color: #0645ad;
+        vertical-align: super;
+    }
+    
+    @media (max-width: 768px) {
+        .formatting-example {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Help Topics</h3>
+<ul>
+    <li><a href="/help">Help Home</a></li>
+    <li><a href="/help/formatting">Formatting Guide</a></li>
+    <li><a href="/help/references" class="active">Adding References</a></li>
+    <li><a href="/help/media">Adding Media</a></li>
+    <li><a href="/help/categories">Using Categories</a></li>
+</ul>
+
+<h3>Related Links</h3>
+<ul>
+    <li><a href="/create-article">Create Article</a></li>
+    <li><a href="/special/recentchanges">Recent Changes</a></li>
+    <li><a href="/special-pages">Special Pages</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <div class="breadcrumbs">
+        <a href="/help">Help</a> <span>›</span> <a href="/help/references">Adding References</a>
+    </div>
+    
+    <h1>Adding References to Kryptopedia Articles</h1>
+    
+    <div class="help-section">
+        <h2>Introduction to References</h2>
+        
+        <div class="help-topic">
+            <p>References and citations are crucial for establishing the credibility and reliability of articles in Kryptopedia. They provide readers with sources to verify information and explore topics in greater depth.</p>
+            
+            <p>This guide explains how to properly add and format references in your articles.</p>
+            
+            <div class="help-box">
+                <strong>Why references matter:</strong> In a collaborative knowledge base, proper citation is essential for maintaining accuracy and allowing readers to verify claims. References help build trust with readers and enhance the quality of the wiki as a whole.
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Basic Reference Structure</h2>
+        
+        <div class="help-topic">
+            <h3>Inline Citations</h3>
+            <p>Inline citations are used to indicate which specific statements are supported by which sources. Here's how to add them:</p>
+            
+            <div class="formatting-example">
+                <div class="code-input">
+This is a statement that needs a citation.&lt;sup&gt;&lt;a href="#ref1" id="cite1"&gt;[1]&lt;/a&gt;&lt;/sup&gt;
+
+Another claim requiring verification.&lt;sup&gt;&lt;a href="#ref2" id="cite2"&gt;[2]&lt;/a&gt;&lt;/sup&gt;</div>
+                <div class="code-output">
+This is a statement that needs a citation.<sup><a href="#ref1" id="cite1">[1]</a></sup>
+
+Another claim requiring verification.<sup><a href="#ref2" id="cite2">[2]</a></sup>
+                </div>
+            </div>
+            
+            <p>The <code>href="#ref1"</code> points to the full reference in the references section, while the <code>id="cite1"</code> allows the reader to jump back to the citation from the references section.</p>
+        </div>
+        
+        <div class="help-topic">
+            <h3>References Section</h3>
+            <p>At the end of your article, include a "References" section that lists all the sources cited in the article:</p>
+            
+            <div class="formatting-example">
+                <div class="code-input">
+&lt;h2&gt;References&lt;/h2&gt;
+&lt;ol class="references"&gt;
+    &lt;li id="ref1"&gt;Author, A. (2021). Title of the article. &lt;em&gt;Journal Name&lt;/em&gt;, 10(2), 30-45. &lt;a href="#cite1"&gt;↩&lt;/a&gt;&lt;/li&gt;
+    &lt;li id="ref2"&gt;Smith, J. (2022). &lt;em&gt;Book Title&lt;/em&gt;. Publisher. &lt;a href="#cite2"&gt;↩&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;</div>
+                <div class="code-output">
+<h2>References</h2>
+<ol class="reference-list">
+    <li id="ref1">Author, A. (2021). Title of the article. <em>Journal Name</em>, 10(2), 30-45. <a href="#cite1">↩</a></li>
+    <li id="ref2">Smith, J. (2022). <em>Book Title</em>. Publisher. <a href="#cite2">↩</a></li>
+</ol>
+                </div>
+            </div>
+            
+            <p>The <code>id="ref1"</code> allows the reader to jump to the full reference from the citation, while the <code>&lt;a href="#cite1"&gt;↩&lt;/a&gt;</code> lets them jump back to where the citation appears in the text.</p>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Complete Example</h3>
+            <p>Here's a complete example showing how inline citations connect to the references section:</p>
+            
+            <div class="reference-example">
+                <p>Blockchain technology has transformed the financial industry<sup><a href="#" class="citation">[1]</a></sup>. Research shows that decentralized systems can reduce transaction costs by up to 40%<sup><a href="#" class="citation">[2]</a></sup>.</p>
+                
+                <h4>References</h4>
+                <ol class="reference-list">
+                    <li>Nakamoto, S. (2008). Bitcoin: A Peer-to-Peer Electronic Cash System. <a href="https://bitcoin.org/bitcoin.pdf">https://bitcoin.org/bitcoin.pdf</a></li>
+                    <li>Johnson, E. et al. (2021). Cost Efficiency in Decentralized Financial Systems. <em>Journal of Blockchain Economics</em>, 3(2), 112-128.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Citation Formats</h2>
+        
+        <div class="help-topic">
+            <h3>Academic Sources</h3>
+            <p>For academic sources like journal articles, books, and conference papers, use a standard citation format like APA or MLA. Here are examples in APA format:</p>
+            
+            <ul>
+                <li><strong>Journal Article:</strong><br>
+                Author, A. A., & Author, B. B. (Year). Title of article. <em>Title of Journal</em>, volume(issue), page range. DOI or URL</li>
+                
+                <li><strong>Book:</strong><br>
+                Author, A. A. (Year). <em>Title of book</em>. Publisher.</li>
+                
+                <li><strong>Book Chapter:</strong><br>
+                Author, A. A. (Year). Title of chapter. In E. Editor (Ed.), <em>Title of book</em> (pp. page range). Publisher.</li>
+                
+                <li><strong>Conference Paper:</strong><br>
+                Author, A. A. (Year, Month). Title of paper. Paper presented at Conference Name, Location.</li>
+            </ul>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Web Sources</h3>
+            <p>For online articles, websites, and other web sources:</p>
+            
+            <ul>
+                <li><strong>Web Article:</strong><br>
+                Author, A. A. (Year, Month Day). Title of article. Website Name. URL</li>
+                
+                <li><strong>Blog Post:</strong><br>
+                Author, A. A. (Year, Month Day). Title of post [Blog post]. Blog Name. URL</li>
+                
+                <li><strong>Website:</strong><br>
+                Organization Name. (Year). Page title. Website Name. URL</li>
+            </ul>
+            
+            <div class="help-box warning-box">
+                <strong>Important:</strong> Always include the date you accessed web sources if they might change over time: "Retrieved Month Day, Year, from URL"
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Specific to Cryptocurrency and Blockchain</h3>
+            <p>Some sources that are common in the cryptocurrency and blockchain space:</p>
+            
+            <ul>
+                <li><strong>Whitepapers:</strong><br>
+                Author or Project Name. (Year). Title of whitepaper. URL</li>
+                
+                <li><strong>GitHub Repositories:</strong><br>
+                Developer/Organization. (Year). Repository name [Source code]. GitHub. URL</li>
+                
+                <li><strong>Technical Documentation:</strong><br>
+                Project Name. (Year). Title of documentation. URL</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Best Practices</h2>
+        
+        <div class="help-topic">
+            <h3>When to Cite</h3>
+            <p>Always include citations for:</p>
+            <ul>
+                <li>Direct quotes from any source</li>
+                <li>Statistics, data, and specific numbers</li>
+                <li>Controversial claims or statements</li>
+                <li>Technical details that aren't common knowledge</li>
+                <li>Historical information and dates</li>
+                <li>Specific methodologies or processes</li>
+                <li>Opinions, interpretations, or analyses from others</li>
+            </ul>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Selecting Reliable Sources</h3>
+            <p>To maintain the quality and credibility of Kryptopedia, consider these guidelines when selecting sources:</p>
+            <ul>
+                <li><strong>Peer-reviewed journals</strong> are usually the most reliable sources for scientific or academic information</li>
+                <li>Choose <strong>primary sources</strong> over secondary whenever possible</li>
+                <li>Official documentation, whitepapers, and specifications are excellent for technical details</li>
+                <li>Prefer sources that are <strong>current and up-to-date</strong>, especially for rapidly evolving topics</li>
+                <li>Consider the <strong>expertise and reputation</strong> of the author or organization</li>
+                <li>Be cautious with sources that have <strong>potential conflicts of interest</strong></li>
+            </ul>
+            
+            <div class="help-box tip-box">
+                <strong>Tip:</strong> When citing from websites, take a moment to evaluate the site's credibility. Look for information about the authors, the organization behind the site, and whether the content is backed by research or expert analysis.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Multiple Citations</h3>
+            <p>If multiple sources support the same statement, you can group them in the same citation:</p>
+            
+            <div class="formatting-example">
+                <div class="code-input">
+This fact is supported by multiple studies.&lt;sup&gt;&lt;a href="#ref1" id="cite1"&gt;[1]&lt;/a&gt;&lt;a href="#ref2" id="cite2"&gt;[2]&lt;/a&gt;&lt;a href="#ref3" id="cite3"&gt;[3]&lt;/a&gt;&lt;/sup&gt;</div>
+                <div class="code-output">
+This fact is supported by multiple studies.<sup><a href="#ref1" id="cite1">[1]</a><a href="#ref2" id="cite2">[2]</a><a href="#ref3" id="cite3">[3]</a></sup>
+                </div>
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Consistent Formatting</h3>
+            <p>Maintain consistency throughout your article by:</p>
+            <ul>
+                <li>Using the same citation style for all references</li>
+                <li>Formatting all citations of the same type in the same way</li>
+                <li>Keeping the references section organized (usually alphabetical by author's last name)</li>
+                <li>Ensuring every citation in the text has a corresponding entry in the references section</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Additional Tips</h2>
+        
+        <div class="help-topic">
+            <h3>Archiving Web Sources</h3>
+            <p>Web pages can change or disappear over time. To preserve the sources you cite, consider using an archiving service:</p>
+            <ol>
+                <li>Visit <a href="https://web.archive.org/" target="_blank">Internet Archive's Wayback Machine</a> or <a href="https://archive.is/" target="_blank">archive.is</a></li>
+                <li>Enter the URL of the web page you want to archive</li>
+                <li>Create a new archive or select an existing snapshot</li>
+                <li>Include the archive URL in your citation</li>
+            </ol>
+            
+            <div class="formatting-example">
+                <div class="code-input">
+Author, A. (2022). Article title. Website Name. URL [Archived at: https://web.archive.org/web/20220101000000/https://example.com/article]</div>
+                <div class="code-output">
+Author, A. (2022). Article title. Website Name. URL [Archived at: https://web.archive.org/web/20220101000000/https://example.com/article]
+                </div>
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Citing Primary Sources</h3>
+            <p>When possible, cite primary sources rather than secondary ones. For example:</p>
+            <ul>
+                <li>Cite the original research paper rather than a news article about it</li>
+                <li>Reference the official documentation rather than a tutorial that explains it</li>
+                <li>Link to the original whitepaper rather than a summary</li>
+            </ul>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Further Reading Section</h3>
+            <p>In addition to the References section, you can include a "Further Reading" or "External Links" section for sources that aren't directly cited but provide valuable additional information:</p>
+            
+            <div class="formatting-example">
+                <div class="code-input">
+&lt;h2&gt;Further Reading&lt;/h2&gt;
+&lt;ul&gt;
+    &lt;li&gt;Author, A. (Year). &lt;em&gt;Relevant Book Title&lt;/em&gt;. Publisher.&lt;/li&gt;
+    &lt;li&gt;Organization Name. (Year). Useful resource title. URL&lt;/li&gt;
+&lt;/ul&gt;</div>
+                <div class="code-output">
+<h2>Further Reading</h2>
+<ul>
+    <li>Author, A. (Year). <em>Relevant Book Title</em>. Publisher.</li>
+    <li>Organization Name. (Year). Useful resource title. URL</li>
+</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+        <a href="/help" class="action-button" style="display: inline-block; padding: 10px 20px; background-color: #0645ad; color: white; text-decoration: none; border-radius: 4px;">Return to Help Center</a>
+    </div>
+</div>
+{% endblock %}

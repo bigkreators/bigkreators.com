@@ -1,0 +1,410 @@
+<!-- File: templates/help_media.html -->
+{% extends "base.html" %}
+
+{% block title %}Media Guide - Kryptopedia Help{% endblock %}
+
+{% set active_page = 'help' %}
+
+{% block extra_css %}
+<style>
+    .help-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .help-section {
+        margin-bottom: 40px;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .help-section h2 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .help-section h3 {
+        color: #0645ad;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .help-topic {
+        margin-bottom: 30px;
+    }
+    
+    .help-topic p {
+        line-height: 1.6;
+    }
+    
+    .help-topic ul, .help-topic ol {
+        line-height: 1.6;
+        margin-left: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .help-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0645ad;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .tip-box {
+        border-left-color: #28a745;
+    }
+    
+    .warning-box {
+        border-left-color: #ffc107;
+    }
+    
+    .example-box {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+    }
+    
+    .example-box pre {
+        margin: 10px 0 0 0;
+    }
+    
+    .code-block {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        margin: 15px 0;
+    }
+    
+    .media-example {
+        border: 1px solid #ddd;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 4px;
+    }
+    
+    .media-example-img {
+        max-width: 100%;
+        height: auto;
+        display: block;
+        margin: 0 auto 15px;
+    }
+    
+    .breadcrumbs {
+        margin-bottom: 20px;
+    }
+    
+    .breadcrumbs a {
+        color: #0645ad;
+        text-decoration: none;
+    }
+    
+    .breadcrumbs span {
+        color: #666;
+        margin: 0 5px;
+    }
+    
+    .media-workflow {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin: 20px 0;
+    }
+    
+    .workflow-step {
+        display: flex;
+        align-items: center;
+    }
+    
+    .step-number {
+        width: 30px;
+        height: 30px;
+        background-color: #0645ad;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-weight: bold;
+    }
+    
+    .step-content {
+        flex: 1;
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 4px;
+    }
+    
+    .file-type-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 15px 0;
+    }
+    
+    .file-type-table th, .file-type-table td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    
+    .file-type-table th {
+        background-color: #f5f5f5;
+    }
+    
+    .file-type-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Help Topics</h3>
+<ul>
+    <li><a href="/help">Help Home</a></li>
+    <li><a href="/help/formatting">Formatting Guide</a></li>
+    <li><a href="/help/references">Adding References</a></li>
+    <li><a href="/help/media" class="active">Adding Media</a></li>
+    <li><a href="/help/categories">Using Categories</a></li>
+</ul>
+
+<h3>Related Links</h3>
+<ul>
+    <li><a href="/upload-file">Upload File</a></li>
+    <li><a href="/create-article">Create Article</a></li>
+    <li><a href="/contact">Contact Us</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <div class="breadcrumbs">
+        <a href="/help">Help</a> <span>›</span> <a href="/help/media">Adding Media</a>
+    </div>
+    
+    <h1>Adding Media to Kryptopedia Articles</h1>
+    
+    <div class="help-section">
+        <h2>Introduction to Media Files</h2>
+        
+        <div class="help-topic">
+            <p>Media files such as images, diagrams, and charts can greatly enhance Kryptopedia articles by making complex concepts more accessible, providing visual references, and improving overall comprehension. This guide will help you understand how to properly add and use media in your articles.</p>
+            
+            <div class="help-box tip-box">
+                <strong>Tip:</strong> Well-chosen media can significantly improve an article's effectiveness. Images should complement your text and add value rather than simply decorating the page.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Types of Media Supported</h3>
+            <p>Kryptopedia supports several types of media files:</p>
+            
+            <table class="file-type-table">
+                <thead>
+                    <tr>
+                        <th>File Type</th>
+                        <th>Extensions</th>
+                        <th>Best Used For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Images</td>
+                        <td>.jpg, .jpeg, .png, .gif</td>
+                        <td>Photographs, screenshots, diagrams, logos</td>
+                    </tr>
+                    <tr>
+                        <td>Vector Graphics</td>
+                        <td>.svg</td>
+                        <td>Logos, icons, diagrams that need to scale</td>
+                    </tr>
+                    <tr>
+                        <td>Documents</td>
+                        <td>.pdf</td>
+                        <td>Technical papers, specifications, detailed documentation</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="help-box warning-box">
+                <strong>Note:</strong> There is a file size limit of 10MB per upload to ensure optimal site performance. Please optimize your files before uploading.
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Uploading Media Files</h2>
+        
+        <div class="help-topic">
+            <h3>The Upload Process</h3>
+            <p>Before you can add media to an article, you need to upload it to Kryptopedia. Here's the workflow:</p>
+            
+            <div class="media-workflow">
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <strong>Prepare your file</strong>: Ensure your file is in a supported format and optimized for web use (compressed, appropriate dimensions).
+                    </div>
+                </div>
+                
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <strong>Navigate to upload page</strong>: Click on "Upload File" in the sidebar navigation or go to <a href="/upload-file">the upload page</a> directly.
+                    </div>
+                </div>
+                
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <strong>Select and upload your file</strong>: Click the "Choose File" button, select your file, and then click "Upload".
+                    </div>
+                </div>
+                
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <strong>Note the file URL</strong>: After upload, you'll receive a URL for your file. Copy this for use in your article.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="help-box tip-box">
+                <strong>Tip:</strong> Choose descriptive filenames that reflect the content of the file before uploading. This helps with organization and searchability.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>File Naming Best Practices</h3>
+            <p>Good file names are important for organization and clarity:</p>
+            <ul>
+                <li>Use descriptive names that indicate the content (e.g., "ethereum_blockchain_diagram.png" rather than "image1.png")</li>
+                <li>Avoid spaces in filenames; use underscores or hyphens instead</li>
+                <li>Keep filenames reasonably short but descriptive</li>
+                <li>Use lowercase letters to avoid case-sensitivity issues</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Adding Media to Articles</h2>
+        
+        <div class="help-topic">
+            <h3>Basic Image Insertion</h3>
+            <p>Once you've uploaded an image, you can add it to your article using the editor's image insertion tool or by adding the appropriate HTML:</p>
+            
+            <div class="code-block">
+&lt;img src="/media/your_filename.jpg" alt="Descriptive text about the image" width="500"&gt;
+            </div>
+            
+            <p>The key components are:</p>
+            <ul>
+                <li><strong>src</strong>: The path to your image (provided after upload)</li>
+                <li><strong>alt</strong>: Alternative text that describes the image (important for accessibility)</li>
+                <li><strong>width</strong>: Optional attribute to specify image size (maintain aspect ratio)</li>
+            </ul>
+            
+            <div class="help-box">
+                <strong>Important:</strong> Always include meaningful alt text with your images. This helps users with visual impairments and improves article accessibility.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Image Placement and Sizing</h3>
+            <p>Consider the following for optimal image placement:</p>
+            <ul>
+                <li><strong>Context</strong>: Place images near the relevant text they illustrate</li>
+                <li><strong>Spacing</strong>: Add appropriate margins around images for readability</li>
+                <li><strong>Size</strong>: Adjust image size to balance detail with page layout</li>
+                <li><strong>Alignment</strong>: Align images to complement the text flow</li>
+            </ul>
+            
+            <p>To center an image with a caption:</p>
+            
+            <div class="code-block">
+&lt;figure style="text-align: center;"&gt;
+    &lt;img src="/media/your_filename.jpg" alt="Descriptive text" width="500"&gt;
+    &lt;figcaption&gt;Your caption text here&lt;/figcaption&gt;
+&lt;/figure&gt;
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Example Media Usage</h3>
+            <p>Here's how a properly formatted image with caption might appear in an article:</p>
+            
+            <div class="media-example">
+                <div style="text-align: center;">
+                    <img src="/api/placeholder/500/300" alt="Blockchain transaction example diagram" class="media-example-img">
+                    <p><em>Figure 1: Diagram showing the flow of a blockchain transaction from initiation to confirmation</em></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Media Best Practices</h2>
+        
+        <div class="help-topic">
+            <h3>Image Optimization</h3>
+            <p>For optimal performance and user experience:</p>
+            <ul>
+                <li><strong>File Size</strong>: Keep images under 500KB when possible</li>
+                <li><strong>Dimensions</strong>: Resize images to appropriate dimensions before uploading</li>
+                <li><strong>Format</strong>: Use appropriate formats for content type:
+                    <ul>
+                        <li>JPEG: For photographs and complex images with many colors</li>
+                        <li>PNG: For screenshots, diagrams, and images requiring transparency</li>
+                        <li>SVG: For diagrams, charts, and logos that need to scale</li>
+                        <li>GIF: For simple animations (use sparingly)</li>
+                    </ul>
+                </li>
+                <li><strong>Compression</strong>: Use image compression tools to reduce file size without significant quality loss</li>
+            </ul>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Copyright and Attribution</h3>
+            <p>Always ensure you have the right to use and share the media you upload:</p>
+            <ul>
+                <li>Only upload media you created yourself, that is in the public domain, or that has a license permitting reuse</li>
+                <li>Provide proper attribution for any media that requires it</li>
+                <li>Include source information in the image caption or in the article text</li>
+            </ul>
+            
+            <div class="help-box warning-box">
+                <strong>Warning:</strong> Uploading copyrighted material without permission can lead to its removal and may have legal consequences. When in doubt about the copyright status of media, do not upload it.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Accessibility Considerations</h3>
+            <p>Make your media accessible to all users:</p>
+            <ul>
+                <li>Always include descriptive alt text for images</li>
+                <li>Use captions to provide context for figures and diagrams</li>
+                <li>Ensure sufficient color contrast in diagrams and charts</li>
+                <li>Don't rely solely on images to convey critical information</li>
+            </ul>
+            
+            <p>Good alt text should be concise but descriptive. For example:</p>
+            <ul>
+                <li>Poor: "Graph"</li>
+                <li>Better: "Graph showing Bitcoin price trend from 2010 to 2023"</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+        <a href="/help" class="action-button">Return to Help Center</a>
+    </div>
+</div>
+{% endblock %}
