@@ -12,7 +12,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 import config
 from services.database import Database
-from utils.template_filters import strftime_filter, truncate_filter, strip_html_filter, format_number_filter, escapejs_filter
+from utils.template_filters import strftime_filter, truncate_filter, strip_html_filter, format_number_filter, escapejs_filter, pluralize_filter
 
 # Configure logging
 logging.basicConfig(
@@ -72,6 +72,7 @@ templates.env.filters["truncate"] = truncate_filter
 templates.env.filters["strip_html"] = strip_html_filter
 templates.env.filters["format_number"] = format_number_filter
 templates.env.filters["escapejs"] = escapejs_filter
+templates.env.filters["pluralize"] = pluralize_filter
 
 # Make templates available to the page_router by adding it to app.state
 # This ensures all routes use the same template instance

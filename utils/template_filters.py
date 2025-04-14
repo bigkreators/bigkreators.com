@@ -174,3 +174,19 @@ def escapejs_filter(text: str) -> str:
     text = text.replace("\t", "\\t")
     
     return text
+
+def pluralize_filter(count: int, singular: str = "", plural: str = "s") -> str:
+    """
+    Return singular or plural suffix based on the count value.
+    
+    Args:
+        count: The count to check for plurality
+        singular: The singular suffix (default: "")
+        plural: The plural suffix (default: "s")
+        
+    Returns:
+        str: The appropriate suffix based on count
+    """
+    if count == 1:
+        return singular
+    return plural

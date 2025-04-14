@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block title %}Featured Articles - Kryptopedia{% endblock %}
+
+{% set active_page = 'featured' %}
+
+{% block sidebar_extra %}
+<h3>Browse Content</h3>
+<ul>
+    <li><a href="/articles">All Articles</a></li>
+    <li><a href="/categories">Browse Categories</a></li>
+    <li><a href="/tags">Browse Tags</a></li>
+    <li><a href="/special/recentchanges">Recent Changes</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="featured-articles-container">
+    <h1>Featured Articles</h1>
+    
+    <p class="intro-text">
+        Featured articles are outstanding works that have been selected for their quality, comprehensiveness, and relevance.
+        These articles represent some of the best content Kryptopedia has to offer.
+    </p>
+    
+    {% if articles %}
+        <div class="articles-grid">
+            {% for article in articles %}
+                <div class="article-card">
+                    <div class="article-card-header">
+                        {% if article.featured_until %}
+                            <div class="featured-badge">Featured until {{ article.featured_until|strftime('%b %d, %Y') }}</div>
+                        {% endif %}
+                    </div>
+                    <h2 class="article-title">
+                        <a href="/articles/{{ article.slug }}">{{ article.title }}</a>
+                    </h2>
+                    <div class="article-meta">
+                        <span class="article-date">{{ article.createdAt|strftime('%b %d, %Y') }}</span>
+                        {% if article.views %}
+                            <span class="article-views">{{ article.views }} views</span>
+                        {% endif %}
+                    </div>
+                    <div class="article-summary">
+                        {{ article.summary }}
+                    </div>
+                    
+                    {% if article.categories or article.tags %}
+                        <div class="article-taxonomies">
+                            {% if article.categories %}
+                                <div class="article-categories">
+                                    {% for category in article.categories %}
+                                        <a href="/articles?category={{ category }}" class="category-tag">{{ category }}</a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            {% if article.tags %}
+                                <div class="article-tags">
+                                    {% for tag in article.tags %}
+                                        <a href="/articles?tag={{ tag }}" class="tag">{{ tag }}</a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    
+                    <div class="article-actions">
+                        <a href="/articles/{{ article.slug }}" class="read-more-btn">Read Article</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-articles">
+            <p>There are currently no featured articles.</p>
+            <p>Outstanding articles can be nominated for featuring by admin users.</p>
+            
+            <div class="call-to-action">
+                <a href="/create-article" class="action-button">Create an Article</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .featured-articles-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .intro-text {
+        margin-bottom: 30px;
+        color: #555;
+        line-height: 1.6;
+    }
+    
+    .articles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+    }
+    
+    .article-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 25px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .article-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .article-card-header {
+        margin-bottom: 15px;
+    }
+    
+    .featured-badge {
+        display: inline-block;
+        background-color: #ffcd3c;
+        color: #664d03;
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .article-title {
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-size: 22px;
+        color: #333;
+    }
+    
+    .article-title a {
+        color: #0645ad;
+        text-decoration: none;
+    }
+    
+    .article-title a:hover {
+        text-decoration: underline;
+    }
+    
+    .article-meta {
+        display: flex;
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 15px;
+        gap: 15px;
+    }
+    
+    .article-summary {
+        margin-bottom: 20px;
+        color: #444;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+    
+    .article-taxonomies {
+        margin-bottom: 20px;
+    }
+    
+    .article-categories, .article-tags {
+        margin-bottom: 10px;
+    }
+    
+    .category-tag, .tag {
+        display: inline-block;
+        padding: 3px 10px;
+        background-color: #f0f0f0;
+        border-radius: 12px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        font-size: 13px;
+        color: #555;
+        text-decoration: none;
+    }
+    
+    .category-tag {
+        background-color: #e3f2fd;
+        color: #0d47a1;
+    }
+    
+    .category-tag:hover {
+        background-color: #bbdefb;
+    }
+    
+    .tag:hover {
+        background-color: #e0e0e0;
+    }
+    
+    .article-actions {
+        margin-top: auto;
+    }
+    
+    .read-more-btn {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: background-color 0.2s ease;
+    }
+    
+    .read-more-btn:hover {
+        background-color: #053a7a;
+    }
+    
+    .no-articles {
+        padding: 40px;
+        text-align: center;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .call-to-action {
+        margin-top: 20px;
+    }
+    
+    .action-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-size: 16px;
+        transition: background-color 0.2s ease;
+    }
+    
+    .action-button:hover {
+        background-color: #053a7a;
+    }
+    
+    @media (max-width: 768px) {
+        .articles-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

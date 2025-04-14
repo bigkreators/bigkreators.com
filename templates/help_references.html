@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+
+{% block title %}Adding References Guide - Kryptopedia Help{% endblock %}
+
+{% set active_page = 'help' %}
+
+{% block extra_css %}
+<style>
+    .help-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .help-section {
+        margin-bottom: 40px;
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .help-section h2 {
+        color: #333;
+        margin-top: 0;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+    
+    .help-section h3 {
+        color: #0645ad;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    
+    .help-topic {
+        margin-bottom: 30px;
+    }
+    
+    .help-topic p {
+        line-height: 1.6;
+    }
+    
+    .help-topic ul, .help-topic ol {
+        line-height: 1.6;
+        margin-left: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .help-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0645ad;
+        padding: 15px;
+        margin: 20px 0;
+        border-radius: 0 4px 4px 0;
+    }
+    
+    .tip-box {
+        border-left-color: #28a745;
+    }
+    
+    .warning-box {
+        border-left-color: #ffc107;
+    }
+    
+    .example-box {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+    }
+    
+    .example-box pre {
+        margin: 10px 0 0 0;
+    }
+    
+    .code-block {
+        background-color: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        margin: 15px 0;
+    }
+    
+    .breadcrumbs {
+        margin-bottom: 20px;
+    }
+    
+    .breadcrumbs a {
+        color: #0645ad;
+        text-decoration: none;
+    }
+    
+    .breadcrumbs span {
+        color: #666;
+        margin: 0 5px;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    
+    table th, table td {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    
+    table th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+    }
+    
+    table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Help Topics</h3>
+<ul>
+    <li><a href="/help">Help Home</a></li>
+    <li><a href="/help/formatting">Formatting Guide</a></li>
+    <li><a href="/help/references" class="active">Adding References</a></li>
+    <li><a href="/help/media">Adding Media</a></li>
+    <li><a href="/help/categories">Using Categories</a></li>
+</ul>
+
+<h3>Related Links</h3>
+<ul>
+    <li><a href="/create-article">Create Article</a></li>
+    <li><a href="/articles">Browse Articles</a></li>
+    <li><a href="/contact">Contact Us</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="help-container">
+    <div class="breadcrumbs">
+        <a href="/help">Help</a> <span>›</span> <a href="/help/references">Adding References</a>
+    </div>
+    
+    <h1>Adding References in Kryptopedia</h1>
+    
+    <div class="help-section">
+        <h2>Why References Are Important</h2>
+        
+        <div class="help-topic">
+            <p>References are essential for establishing credibility and reliability in wiki content. They allow readers to:</p>
+            <ul>
+                <li>Verify the information provided</li>
+                <li>Explore topics in more depth</li>
+                <li>Assess the quality of the research behind an article</li>
+                <li>Follow the development of ideas and concepts</li>
+            </ul>
+            
+            <p>All factual claims in Kryptopedia should be backed by reliable references whenever possible, especially when presenting:</p>
+            <ul>
+                <li>Technical information</li>
+                <li>Statistical data</li>
+                <li>Quotes or statements attributed to specific individuals or groups</li>
+                <li>Controversial information</li>
+                <li>Cutting-edge or emerging knowledge</li>
+            </ul>
+            
+            <div class="help-box tip-box">
+                <strong>Tip:</strong> Good references enhance the credibility of your contributions and help build a trusted knowledge base for all users.
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Reference Formatting</h2>
+        
+        <div class="help-topic">
+            <h3>Basic Reference Syntax</h3>
+            <p>Kryptopedia uses a simple reference system for citations. You can add references using the following syntax:</p>
+            
+            <div class="code-block">[^1]: Author, A. (Year). Title of the work. Publisher. URL</div>
+            
+            <p>To cite this reference in the text, use:</p>
+            
+            <div class="code-block">This is a statement that needs a citation[^1].</div>
+            
+            <p>The footnote references will appear at the bottom of the article in a "References" section.</p>
+            
+            <div class="example-box">
+                <strong>Example:</strong>
+                
+                <p>Bitcoin was created by an individual or group using the pseudonym Satoshi Nakamoto[^1].</p>
+                
+                <p>References:</p>
+                <p>[^1]: Nakamoto, S. (2008). Bitcoin: A Peer-to-Peer Electronic Cash System. https://bitcoin.org/bitcoin.pdf</p>
+            </div>
+            
+            <div class="help-box warning-box">
+                <strong>Important:</strong> Make sure to place the reference definitions at the end of your article, ideally under a "References" heading.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Citation Styles</h3>
+            <p>Kryptopedia supports several common citation styles, including:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Style</th>
+                        <th>Example</th>
+                        <th>Common Use</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>APA</td>
+                        <td>Smith, J. (2020). Title of article. <em>Journal Name</em>, 10(2), 30-45.</td>
+                        <td>Technology, Psychology, Social Sciences</td>
+                    </tr>
+                    <tr>
+                        <td>MLA</td>
+                        <td>Smith, John. "Title of Article." <em>Journal Name</em>, vol. 10, no. 2, 2020, pp. 30-45.</td>
+                        <td>Humanities, Arts, Literature</td>
+                    </tr>
+                    <tr>
+                        <td>Chicago</td>
+                        <td>Smith, John. "Title of Article." <em>Journal Name</em> 10, no. 2 (2020): 30-45.</td>
+                        <td>History, Arts, Business</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p>Choose a citation style that's appropriate for your topic and be consistent throughout your article.</p>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Sources for URLs and DOIs</h3>
+            <p>For online references, include URLs or DOIs (Digital Object Identifiers) whenever possible:</p>
+            
+            <div class="code-block">[^1]: Smith, J. (2020). Title of the article. Journal Name. https://doi.org/10.xxxx/xxxxx</div>
+            
+            <p>DOIs are preferred over URLs when available, as they are permanent identifiers that won't change even if the website address changes.</p>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Reliable Sources</h2>
+        
+        <div class="help-topic">
+            <h3>What Makes a Source Reliable?</h3>
+            <p>When adding references to Kryptopedia, prioritize sources that are:</p>
+            <ul>
+                <li><strong>Accurate:</strong> Factually correct and precise</li>
+                <li><strong>Verifiable:</strong> Other users can check the source</li>
+                <li><strong>Notable:</strong> Recognized within the relevant field</li>
+                <li><strong>Published:</strong> Properly published rather than self-published</li>
+                <li><strong>Recent:</strong> Up-to-date, especially for technical topics</li>
+                <li><strong>Peer-reviewed:</strong> Academic sources that have undergone review</li>
+            </ul>
+            
+            <div class="help-box">
+                <strong>Good sources include:</strong>
+                <ul>
+                    <li>Academic journals and conference proceedings</li>
+                    <li>Books from reputable publishers</li>
+                    <li>Industry standards and technical documentation</li>
+                    <li>Reputable news sources and specialized publications</li>
+                    <li>Official documentation and white papers</li>
+                    <li>Government and institutional reports</li>
+                </ul>
+            </div>
+            
+            <div class="help-box warning-box">
+                <strong>Exercise caution with:</strong>
+                <ul>
+                    <li>Personal blogs or social media posts</li>
+                    <li>Forums and discussion boards</li>
+                    <li>Self-published materials without editorial oversight</li>
+                    <li>Sources with clear commercial biases</li>
+                    <li>Articles without named authors or publication dates</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Primary, Secondary, and Tertiary Sources</h3>
+            <p>Different types of sources have different values in research:</p>
+            
+            <ul>
+                <li><strong>Primary sources:</strong> Original documents, data, or accounts (e.g., research papers, patents, white papers)</li>
+                <li><strong>Secondary sources:</strong> Analyses or interpretations of primary sources (e.g., review articles, textbooks)</li>
+                <li><strong>Tertiary sources:</strong> Collections or summaries of secondary sources (e.g., encyclopedias, bibliographies)</li>
+            </ul>
+            
+            <p>When possible, prefer primary and reliable secondary sources over tertiary sources.</p>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Advanced Reference Techniques</h2>
+        
+        <div class="help-topic">
+            <h3>Reusing the Same Reference</h3>
+            <p>To cite the same reference multiple times, you can use the same reference identifier:</p>
+            
+            <div class="code-block">
+Bitcoin was proposed in 2008[^1]. The system went live in January 2009[^1].
+
+[^1]: Nakamoto, S. (2008). Bitcoin: A Peer-to-Peer Electronic Cash System. https://bitcoin.org/bitcoin.pdf
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Adding Notes to References</h3>
+            <p>You can add additional notes or context to your references:</p>
+            
+            <div class="code-block">
+[^1]: Nakamoto, S. (2008). Bitcoin: A Peer-to-Peer Electronic Cash System. https://bitcoin.org/bitcoin.pdf. This is the original white paper that introduced Bitcoin to the world.
+            </div>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Organizing Multiple References</h3>
+            <p>When an article has many references, organize them under a clear "References" heading at the end of the document:</p>
+            
+            <div class="code-block">
+## References
+
+[^1]: First reference
+[^2]: Second reference
+[^3]: Third reference
+            </div>
+            
+            <div class="help-box tip-box">
+                <strong>Tip:</strong> Keep your reference numbers sequential to make it easier for readers to follow along. Consider using a reference management tool if you're working with many sources.
+            </div>
+        </div>
+    </div>
+    
+    <div class="help-section">
+        <h2>Common Issues and Solutions</h2>
+        
+        <div class="help-topic">
+            <h3>Handling Missing Information</h3>
+            <p>Sometimes you may not have all the information for a perfect citation. Here's how to handle common issues:</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Missing Information</th>
+                        <th>How to Handle</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>No author</td>
+                        <td>Use the organization name or "Anonymous" if appropriate</td>
+                    </tr>
+                    <tr>
+                        <td>No date</td>
+                        <td>Use "n.d." (no date)</td>
+                    </tr>
+                    <tr>
+                        <td>No page numbers</td>
+                        <td>Omit page numbers or use paragraph numbers if appropriate</td>
+                    </tr>
+                    <tr>
+                        <td>Website no longer available</td>
+                        <td>Try to find an archived version using the Internet Archive (archive.org)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="help-topic">
+            <h3>Troubleshooting References</h3>
+            <p>Common issues with references and how to fix them:</p>
+            
+            <ul>
+                <li><strong>References not appearing:</strong> Make sure the reference definition format is correct and placed at the end of the article</li>
+                <li><strong>Reference numbers not linking:</strong> Check that the reference ID in the text matches exactly with the reference definition</li>
+                <li><strong>Formatting problems:</strong> Ensure there's a space between the text and the reference marker</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; margin-bottom: 20px;">
+        <a href="/help" class="action-button">Return to Help Center</a>
+    </div>
+</div>
+{% endblock %}
