@@ -1,5 +1,3 @@
-# File: pages/user_profile.py
-
 """
 User profile page routes for the Kryptopedia application.
 """
@@ -9,7 +7,11 @@ from typing import Optional, Dict, Any
 import logging
 from bson import ObjectId
 
-# Add this function at the top of the file, after imports
+from dependencies import get_db, get_current_user, get_cache
+
+router = APIRouter()
+logger = logging.getLogger(__name__)
+
 async def get_user_from_request(request, db):
     """
     Try to get the current user from the request using multiple methods.
@@ -37,11 +39,70 @@ async def get_user_from_request(request, db):
     # No valid authentication found
     return None
 
-from dependencies import get_db, get_current_user, get_cache
+# IMPORTANT: Define specific routes before parameterized ones
+# This route must come before the /profile/{username} route
+@router.get("/profile/edit", response_class=HTMLResponse)
+async def edit_profile_page(
+    request: Request,
+    db=Depends(get_db)
+):
+    """
+    Render the profile editing page.
+    """
+    templates = request.app.state.templates
+    
+    # Try to get current user from authentication token
+    current_user = await get_user_from_request(request, db)
+    
+    # Check if user is authenticated
+    if not current_user:
+        return templates.TemplateResponse(
+            "login_required.html",
+            {
+                "request": request, 
+                "redirect_to": "/profile/edit",
+                "active_page": "profile"
+            }
+        )
+    
+    # Render the edit profile template
+    return templates.TemplateResponse(
+        "profile_edit.html",
+        {
+            "request": request,
+            "user": current_user,
+            "is_self": True,
+            "active_page": "profile"  # Set active page for navigation highlighting
+        }
+    )
 
-router = APIRouter()
-logger = logging.getLogger(__name__)
+@router.get("/profile/settings", response_class=HTMLResponse)
+async def profile_settings_page(
+    request: Request,
+    db=Depends(get_db)
+):
+    """
+    Redirect to profile with settings tab active.
+    """
+    # Try to get current user from authentication token
+    current_user = await get_user_from_request(request, db)
+    
+    # Check if user is authenticated
+    if not current_user:
+        templates = request.app.state.templates
+        return templates.TemplateResponse(
+            "login_required.html",
+            {
+                "request": request, 
+                "redirect_to": "/profile?tab=settings",
+                "active_page": "profile"
+            }
+        )
+    
+    return RedirectResponse(url="/profile?tab=settings")
 
+# Now define the parameterized routes with a regex constraint to avoid conflicts
+# Use regex to make sure username doesn't match the other static routes
 @router.get("/profile", response_class=HTMLResponse)
 @router.get("/profile/{username}", response_class=HTMLResponse)
 async def profile_page(
@@ -63,11 +124,21 @@ async def profile_page(
     """
     templates = request.app.state.templates
     
-    # Try to get current user from request
+    # Try to get current user from multiple sources
     current_user = await get_user_from_request(request, db)
     
     # Determine which user's profile to show
     if username:
+        # Check if username is a special route we're trying to hit
+        if username in ["edit", "settings"]:
+            # These routes should be handled by their own handlers above
+            # If we get here, it means something went wrong
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Page not found"},
+                status_code=404
+            )
+            
         # Show the profile of the requested user
         user = await db["users"].find_one({"username": username})
         if not user:
@@ -83,7 +154,11 @@ async def profile_page(
             # Return login required template if not logged in
             return templates.TemplateResponse(
                 "login_required.html",
-                {"request": request, "redirect_to": "/profile"}
+                {
+                    "request": request, 
+                    "redirect_to": "/profile",
+                    "active_page": "profile"
+                }
             )
         user = current_user
         is_own_profile = True
@@ -98,7 +173,7 @@ async def profile_page(
     contributions = await contributions_cursor.to_list(length=contributions_limit)
     contributions_total = await db["revisions"].count_documents({"createdBy": user["_id"]})
     
-    # Enhanced contributions with article info
+    # Enhance contributions with article info
     enhanced_contributions = []
     for contribution in contributions:
         article = await db["articles"].find_one({"_id": contribution["articleId"]})
@@ -114,7 +189,7 @@ async def profile_page(
     proposals = await proposals_cursor.to_list(length=proposals_limit)
     proposals_total = await db["proposals"].count_documents({"proposedBy": user["_id"]})
     
-    # Enhanced proposals with article info
+    # Enhance proposals with article info
     enhanced_proposals = []
     for proposal in proposals:
         article = await db["articles"].find_one({"_id": proposal["articleId"]})
@@ -130,7 +205,7 @@ async def profile_page(
     rewards = await rewards_cursor.to_list(length=rewards_limit)
     rewards_total = await db["rewards"].count_documents({"rewardedUser": user["_id"]})
     
-    # Enhanced rewards with article and user info
+    # Enhance rewards with article and user info
     enhanced_rewards = []
     for reward in rewards:
         article = await db["articles"].find_one({"_id": reward["articleId"]})
@@ -155,72 +230,16 @@ async def profile_page(
             "articles": articles,
             "articles_total": articles_total,
             "articles_skip": articles_skip,
-            "articles_limit": articles_limit,
             "contributions": enhanced_contributions,
             "contributions_total": contributions_total,
             "contributions_skip": contributions_skip,
-            "contributions_limit": contributions_limit,
             "proposals": enhanced_proposals,
             "proposals_total": proposals_total,
             "proposals_skip": proposals_skip,
-            "proposals_limit": proposals_limit,
             "rewards": enhanced_rewards,
             "rewards_total": rewards_total,
             "rewards_skip": rewards_skip,
-            "rewards_limit": rewards_limit,
             "badges": [],  # Future feature
-            "active_page": "profile",  # For sidebar navigation
-            "tab": tab  # Pass the tab parameter to the template
-        }
-    )
-
-@router.get("/profile/edit", response_class=HTMLResponse)
-async def edit_profile_page(
-    request: Request,
-    db=Depends(get_db)
-):
-    """
-    Redirect to profile with the edit query parameter
-    """
-    return RedirectResponse(url="/profile/edit-profile")
-
-@router.get("/profile/edit-profile", response_class=HTMLResponse)
-async def edit_profile_details_page(
-    request: Request,
-    db=Depends(get_db)
-):
-    """
-    Render the profile editing page.
-    """
-    templates = request.app.state.templates
-    
-    # Try to get current user from request
-    current_user = await get_user_from_request(request, db)
-    
-    # If no user is found, return login required page
-    if not current_user:
-        return templates.TemplateResponse(
-            "login_required.html",
-            {"request": request, "redirect_to": "/profile/edit-profile"}
-        )
-    
-    # Render the edit profile template
-    return templates.TemplateResponse(
-        "profile_edit.html",
-        {
-            "request": request,
-            "user": current_user,
-            "is_own_profile": True,
             "active_page": "profile"  # Set active page for navigation highlighting
         }
     )
-
-@router.get("/profile/settings", response_class=HTMLResponse)
-async def profile_settings_page(
-    request: Request,
-    db=Depends(get_db)
-):
-    """
-    Redirect to profile with settings tab active.
-    """
-    return RedirectResponse(url="/profile?tab=settings")
