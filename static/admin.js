@@ -1,4 +1,4 @@
-// File: static/js/admin.js
+// File: static/admin.js
 // Admin functionality for Kryptopedia
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -29,27 +29,29 @@ function initAdminDashboard() {
     }
 }
 
-// Setup tab navigation
+// Setup tab navigation - this is the fixed function
 function setupTabNavigation() {
     const tabLinks = document.querySelectorAll('.admin-tab-link');
     const tabContents = document.querySelectorAll('.admin-tab-content');
     
-    // Get tab from URL hash
-    const hash = window.location.hash || '#users-tab';
+    // Get tab from URL hash or default to first tab
+    const hash = window.location.hash;
+    const defaultTab = tabContents.length > 0 ? tabContents[0].id : 'users-tab';
+    const initialTab = hash ? hash.substring(1) : defaultTab;
     
-    // Activate tab from hash
-    activateTab(hash.substring(1));
+    // Activate the initial tab
+    activateTab(initialTab);
     
-    // Add click event to tab links
+    // Add click handlers to tab links
     tabLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             const tabId = this.getAttribute('href').substring(1);
             
-            // Update URL hash
+            // Update URL hash without page reload
             window.location.hash = tabId;
             
-            // Activate tab
+            // Activate the selected tab
             activateTab(tabId);
         });
     });
@@ -146,19 +148,19 @@ function renderDashboardStats(data) {
     // Article stats
     html += `
         <div class="stat-item">
-            <div class="stat-value">${data.articles}</div>
+            <div class="stat-value">${data.articles || 0}</div>
             <div class="stat-label">Total Articles</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.published_articles}</div>
+            <div class="stat-value">${data.published_articles || 0}</div>
             <div class="stat-label">Published</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.draft_articles}</div>
+            <div class="stat-value">${data.draft_articles || 0}</div>
             <div class="stat-label">Drafts</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.hidden_articles}</div>
+            <div class="stat-value">${data.hidden_articles || 0}</div>
             <div class="stat-label">Hidden</div>
         </div>
     `;
@@ -166,19 +168,19 @@ function renderDashboardStats(data) {
     // User stats
     html += `
         <div class="stat-item">
-            <div class="stat-value">${data.users}</div>
+            <div class="stat-value">${data.users || 0}</div>
             <div class="stat-label">Total Users</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.admins}</div>
+            <div class="stat-value">${data.admins || 0}</div>
             <div class="stat-label">Admins</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.editors}</div>
+            <div class="stat-value">${data.editors || 0}</div>
             <div class="stat-label">Editors</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.new_users_week}</div>
+            <div class="stat-value">${data.new_users_week || 0}</div>
             <div class="stat-label">New This Week</div>
         </div>
     `;
@@ -186,19 +188,19 @@ function renderDashboardStats(data) {
     // Activity stats
     html += `
         <div class="stat-item">
-            <div class="stat-value">${data.edits_week}</div>
+            <div class="stat-value">${data.edits_week || 0}</div>
             <div class="stat-label">Edits This Week</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.proposals_week}</div>
+            <div class="stat-value">${data.proposals_week || 0}</div>
             <div class="stat-label">Proposals This Week</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.pending_proposals}</div>
+            <div class="stat-value">${data.pending_proposals || 0}</div>
             <div class="stat-label">Pending Proposals</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value">${data.new_articles_week}</div>
+            <div class="stat-value">${data.new_articles_week || 0}</div>
             <div class="stat-label">New Articles This Week</div>
         </div>
     `;
@@ -254,12 +256,12 @@ function renderRecentActivity(activities) {
             <div class="activity-item">
                 <div class="activity-icon ${iconClass}"></div>
                 <div class="activity-content">
-                    <span class="activity-user">${activity.user.username}</span>
+                    <span class="activity-user">${activity.user ? activity.user.username : 'Unknown'}</span>
         `;
         
         if (activity.type === 'new_user') {
             html += ` ${actionText}`;
-        } else {
+        } else if (activity.article) {
             html += ` ${actionText} <a href="/articles/${activity.article.slug}">${activity.article.title}</a>`;
         }
         
@@ -333,7 +335,7 @@ function loadUsers() {
         return response.json();
     })
     .then(data => {
-        renderUsersTable(data.users);
+        renderUsersTable(data.users || []);
     })
     .catch(error => {
         console.error('Error loading users:', error);
@@ -367,7 +369,7 @@ function renderUsersTable(users) {
     
     users.forEach(user => {
         // Format date
-        const joinDate = new Date(user.joinDate);
+        const joinDate = user.joinDate ? new Date(user.joinDate) : new Date();
         const formattedDate = joinDate.toLocaleDateString();
         
         // Get role badge class
@@ -643,7 +645,7 @@ function loadArticles() {
     let status = statusFilter ? statusFilter.value : '';
     
     // Build API url
-    let apiUrl = '/api/articles?limit=20';
+    let apiUrl = '/api/admin/articles?limit=20';
     if (search) apiUrl += `&search=${encodeURIComponent(search)}`;
     if (status) apiUrl += `&status=${encodeURIComponent(status)}`;
     
@@ -665,7 +667,7 @@ function loadArticles() {
         return response.json();
     })
     .then(data => {
-        renderArticlesTable(data.articles);
+        renderArticlesTable(data.articles || []);
     })
     .catch(error => {
         console.error('Error loading articles:', error);
@@ -699,7 +701,7 @@ function renderArticlesTable(articles) {
     
     articles.forEach(article => {
         // Format date
-        const createdAt = new Date(article.createdAt);
+        const createdAt = article.createdAt ? new Date(article.createdAt) : new Date();
         const formattedDate = createdAt.toLocaleDateString();
         
         // Get status badge class
@@ -845,7 +847,7 @@ function loadProposals() {
         return response.json();
     })
     .then(data => {
-        renderProposalsTable(data.proposals, status);
+        renderProposalsTable(data.proposals || [], status);
     })
     .catch(error => {
         console.error('Error loading proposals:', error);
@@ -879,7 +881,7 @@ function renderProposalsTable(proposals, currentStatus) {
     
     proposals.forEach(proposal => {
         // Format date
-        const proposedAt = new Date(proposal.proposedAt);
+        const proposedAt = proposal.proposedAt ? new Date(proposal.proposedAt) : new Date();
         const formattedDate = proposedAt.toLocaleDateString();
         
         // Get status badge class
@@ -895,9 +897,9 @@ function renderProposalsTable(proposals, currentStatus) {
         html += `
             <tr id="proposal-row-${proposal._id}">
                 <td>${formattedDate}</td>
-                <td><a href="/articles/${proposal.articleId}">${proposal.articleTitle}</a></td>
-                <td>${proposal.proposerUsername}</td>
-                <td>${proposal.summary}</td>
+                <td><a href="/articles/${proposal.articleId}">${proposal.articleTitle || 'Unknown Article'}</a></td>
+                <td>${proposal.proposerUsername || 'Unknown'}</td>
+                <td>${proposal.summary || ''}</td>
                 <td><span class="status-badge ${statusBadgeClass}">${proposal.status}</span></td>
                 <td class="table-actions">
                     <a href="/articles/${proposal.articleId}/proposals/${proposal._id}" class="view-btn">View</a>
@@ -1038,7 +1040,7 @@ function clearCache() {
     clearCacheBtn.disabled = true;
     clearCacheBtn.textContent = 'Clearing...';
     
-    fetch('/api/admin/system/clear-cache', {
+    fetch('/api/admin/cache/clear', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${token}`

@@ -367,13 +367,28 @@ async def article_management_page(
     # Enhance articles with creator information
     enhanced_articles = []
     for article in articles:
-        creator = await db["users"].find_one({"_id": article["createdBy"]})
-        creator_username = creator["username"] if creator else "Unknown"
-        
-        enhanced_articles.append({
-            **article,
-            "creatorUsername": creator_username
-        })
+        try:
+            # Safely get createdBy field with fallback
+            creator_id = article.get("createdBy")
+            creator_username = "Unknown"
+            
+            # Only look up the creator if we have a valid ID
+            if creator_id:
+                creator = await db["users"].find_one({"_id": creator_id})
+                if creator:
+                    creator_username = creator.get("username", "Unknown")
+            
+            enhanced_articles.append({
+                **article,
+                "creatorUsername": creator_username
+            })
+        except Exception as e:
+            # If there's any error processing this article, log it and include a basic version
+            logger.error(f"Error processing article {article.get('_id')}: {e}")
+            enhanced_articles.append({
+                **article,
+                "creatorUsername": "Unknown"
+            })
     
     return templates.TemplateResponse(
         "article_management.html",
