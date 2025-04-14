@@ -488,8 +488,7 @@ async def admin_statistics_page(
     
     return RedirectResponse(url="/special/statistics")
 
-# API endpoints remain the same but with updated authentication
-# These endpoints already use the get_current_admin dependency which handles auth correctly
+# API endpoints for admin functionality
 
 # Add an API endpoint to fetch dashboard data
 @router.get("/api/admin/dashboard/stats")
@@ -511,3 +510,104 @@ async def get_admin_dashboard_stats(current_user: Dict[str, Any] = Depends(get_c
     except Exception as e:
         logger.error(f"Error getting dashboard stats: {e}")
         raise HTTPException(status_code=500, detail="Failed to get dashboard statistics")
+
+@router.put("/api/admin/users/{user_id}/role")
+async def change_user_role(
+    user_id: str,
+    role: str = Query(..., description="New role to assign (user, editor, or admin)"),
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db)
+):
+    """
+    Change a user's role (admin only).
+    Valid roles are 'user', 'editor', and 'admin'.
+    """
+    try:
+        # Validate role
+        if role not in ["user", "editor", "admin"]:
+            raise HTTPException(status_code=400, detail="Invalid role. Must be 'user', 'editor', or 'admin'")
+        
+        # Verify valid ObjectId
+        if not ObjectId.is_valid(user_id):
+            raise HTTPException(status_code=400, detail="Invalid user ID")
+        
+        # Check that user exists
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Prevent admins from changing their own role
+        if str(user["_id"]) == str(current_user["_id"]):
+            raise HTTPException(status_code=403, detail="Cannot change your own role")
+        
+        # Update user role
+        result = await db["users"].update_one(
+            {"_id": ObjectId(user_id)},
+            {"$set": {"role": role}}
+        )
+        
+        if result.modified_count == 0:
+            return {"message": "No changes made (role was already set to that value)"}
+        
+        return {"message": f"User role updated to {role} successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error changing user role: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to change user role: {str(e)}")
+
+@router.delete("/api/admin/users/{user_id}")
+async def delete_user(
+    user_id: str,
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    db=Depends(get_db)
+):
+    """
+    Delete a user (admin only).
+    """
+    try:
+        # Verify valid ObjectId
+        if not ObjectId.is_valid(user_id):
+            raise HTTPException(status_code=400, detail="Invalid user ID")
+        
+        # Check that user exists
+        user = await db["users"].find_one({"_id": ObjectId(user_id)})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Prevent admins from deleting themselves
+        if str(user["_id"]) == str(current_user["_id"]):
+            raise HTTPException(status_code=403, detail="Cannot delete your own account")
+        
+        # Delete user
+        result = await db["users"].delete_one({"_id": ObjectId(user_id)})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to delete user")
+        
+        return {"message": "User deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting user: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete user: {str(e)}")
+
+@router.post("/api/admin/system/clear-cache")
+async def clear_system_cache(
+    current_user: Dict[str, Any] = Depends(get_current_admin),
+    cache=Depends(get_cache)
+):
+    """
+    Clear the application cache (admin only).
+    """
+    try:
+        # Clear cache
+        result = await cache.clear()
+        
+        if result:
+            return {"message": "Cache cleared successfully"}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to clear cache")
+    except Exception as e:
+        logger.error(f"Error clearing cache: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to clear cache: {str(e)}")
