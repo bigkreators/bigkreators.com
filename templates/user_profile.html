@@ -1,3 +1,5 @@
+```html
+<!-- File: templates/user_profile.html -->
 {% extends "base.html" %}
 
 {% block title %}User Profile - Kryptopedia{% endblock %}
@@ -245,6 +247,111 @@
         background-color: #f8d7da;
         color: #721c24;
     }
+
+    /* Settings tab styles */
+    .settings-section {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .settings-section h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        color: #333;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    .checkbox-group {
+        margin-bottom: 10px;
+    }
+    
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-weight: normal;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        margin-right: 10px;
+    }
+    
+    .form-actions {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+    
+    .primary-button {
+        padding: 10px 16px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .primary-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .danger-zone {
+        margin-top: 30px;
+        background-color: #f8d7da;
+        border-radius: 8px;
+        padding: 20px;
+    }
+    
+    .danger-zone h3 {
+        color: #721c24;
+        border-bottom-color: #f5c6cb;
+    }
+    
+    .danger-button {
+        background-color: #dc3545;
+    }
+    
+    .danger-button:hover {
+        background-color: #bd2130;
+    }
+
+    /* Password section */
+    .password-section {
+        margin-top: 20px;
+    }
+    
+    .help-text {
+        color: #6c757d;
+        font-size: 0.875em;
+        margin-top: 5px;
+    }
 </style>
 {% endblock %}
 
@@ -253,7 +360,6 @@
 <ul>
     {% if is_own_profile %}
     <li><a href="/profile/edit">Edit Profile</a></li>
-    <li><a href="/profile/settings">Account Settings</a></li>
     {% endif %}
     
     <li><a href="/special/statistics">Wiki Statistics</a></li>
@@ -316,12 +422,12 @@
         
         <div class="profile-tabs">
             <ul>
-                <li><a href="articles" class="profile-tab-link active">Articles</a></li>
-                <li><a href="contributions" class="profile-tab-link">Contributions</a></li>
-                <li><a href="proposals" class="profile-tab-link">Proposals</a></li>
-                <li><a href="rewards" class="profile-tab-link">Rewards</a></li>
+                <li><a href="#articles" class="profile-tab-link active" data-tab="articles">Articles</a></li>
+                <li><a href="#contributions" class="profile-tab-link" data-tab="contributions">Contributions</a></li>
+                <li><a href="#proposals" class="profile-tab-link" data-tab="proposals">Proposals</a></li>
+                <li><a href="#rewards" class="profile-tab-link" data-tab="rewards">Rewards</a></li>
                 {% if is_own_profile %}
-                <li><a href="settings" class="profile-tab-link">Settings</a></li>
+                <li><a href="#settings" class="profile-tab-link" data-tab="settings">Settings</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -484,40 +590,88 @@
         <div id="settings" class="profile-tab-content">
             <h2>Account Settings</h2>
             
-            <p>This section allows you to manage your account settings and preferences.</p>
-            
             <div class="settings-section">
                 <h3>Email Preferences</h3>
                 
                 <form id="email-preferences-form">
-                    <div class="form-group">
+                    <div class="checkbox-group">
                         <label>
-                            <input type="checkbox" name="email_notifications" {% if user.emailPreferences and user.emailPreferences.notifications %}checked{% endif %}>
-                            Receive email notifications
+                            <input type="checkbox" name="emailPreferences.articleUpdates" {% if user.emailPreferences and user.emailPreferences.articleUpdates %}checked{% endif %}>
+                            Receive notifications about updates to articles I've contributed to
+                        </label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="emailPreferences.proposalUpdates" {% if user.emailPreferences and user.emailPreferences.proposalUpdates %}checked{% endif %}>
+                            Receive notifications about my edit proposals
+                        </label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="emailPreferences.rewards" {% if user.emailPreferences and user.emailPreferences.rewards %}checked{% endif %}>
+                            Receive notifications about rewards
+                        </label>
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="emailPreferences.newsletter" {% if user.emailPreferences and user.emailPreferences.newsletter %}checked{% endif %}>
+                            Receive newsletter and site announcements
                         </label>
                     </div>
                     
                     <div class="form-group">
-                        <label>
-                            <input type="checkbox" name="email_article_updates" {% if user.emailPreferences and user.emailPreferences.articleUpdates %}checked{% endif %}>
-                            Notify me about updates to articles I've contributed to
-                        </label>
+                        <label for="settings-email">Email Address:</label>
+                        <input type="email" id="settings-email" name="email" value="{{ user.email }}">
+                        <p class="help-text">This email is used for notifications and account recovery</p>
                     </div>
                     
                     <div class="form-group">
-                        <label>
-                            <input type="checkbox" name="email_proposal_updates" {% if user.emailPreferences and user.emailPreferences.proposalUpdates %}checked{% endif %}>
-                            Notify me about updates to my proposals
-                        </label>
+                        <label for="settings-current-password">Current Password:</label>
+                        <input type="password" id="settings-current-password" name="currentPassword" placeholder="Enter your current password to save changes">
                     </div>
                     
-                    <button type="submit" class="action-button">Save Preferences</button>
+                    <div class="form-actions">
+                        <button type="submit" class="primary-button" id="save-preferences-btn">Save Preferences</button>
+                    </div>
                 </form>
             </div>
             
-            <div class="settings-section" style="margin-top: 30px;">
-                <h3>Account Security</h3>
-                <a href="/profile/edit#password" class="action-button">Change Password</a>
+            <div class="settings-section password-section">
+                <h3>Change Password</h3>
+                
+                <form id="change-password-form">
+                    <div class="form-group">
+                        <label for="current-password">Current Password:</label>
+                        <input type="password" id="current-password" name="currentPassword" placeholder="Enter your current password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="new-password">New Password:</label>
+                        <input type="password" id="new-password" name="newPassword" placeholder="Enter your new password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password:</label>
+                        <input type="password" id="confirm-password" name="confirmPassword" placeholder="Confirm your new password">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="primary-button" id="change-password-btn">Change Password</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="settings-section danger-zone">
+                <h3>Account Management</h3>
+                
+                <p>These actions cannot be undone. Please proceed with caution.</p>
+                
+                <div class="form-actions">
+                    <button id="delete-account-btn" class="primary-button danger-button">Delete Account</button>
+                </div>
             </div>
         </div>
         {% endif %}
@@ -526,7 +680,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/profile.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Handle tab switching
@@ -552,7 +705,7 @@
             // Update tab links
             tabLinks.forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('href') === tabId) {
+                if (link.getAttribute('data-tab') === tabId) {
                     link.classList.add('active');
                 }
             });
@@ -567,7 +720,7 @@
         tabLinks.forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
-                const tabId = this.getAttribute('href');
+                const tabId = this.getAttribute('data-tab');
                 
                 // Update URL without page reload
                 const url = new URL(window.location);
@@ -578,6 +731,31 @@
             });
         });
         
+        // Display success or error messages
+        function showMessage(messageType, message) {
+            const messageElement = document.getElementById(`${messageType}-message`);
+            if (messageElement) {
+                messageElement.textContent = message;
+                messageElement.style.display = 'block';
+                
+                // Scroll to message
+                messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    messageElement.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        function showSuccess(message) {
+            showMessage('success', message);
+        }
+        
+        function showError(message) {
+            showMessage('error', message);
+        }
+        
         // Handle email preferences form submission
         const emailPreferencesForm = document.getElementById('email-preferences-form');
         if (emailPreferencesForm) {
@@ -585,25 +763,48 @@
                 e.preventDefault();
                 
                 // Get form values
-                const notifications = document.querySelector('input[name="email_notifications"]').checked;
-                const articleUpdates = document.querySelector('input[name="email_article_updates"]').checked;
-                const proposalUpdates = document.querySelector('input[name="email_proposal_updates"]').checked;
+                const articleUpdates = document.querySelector('input[name="emailPreferences.articleUpdates"]').checked;
+                const proposalUpdates = document.querySelector('input[name="emailPreferences.proposalUpdates"]').checked;
+                const rewards = document.querySelector('input[name="emailPreferences.rewards"]').checked;
+                const newsletter = document.querySelector('input[name="emailPreferences.newsletter"]').checked;
+                const email = document.getElementById('settings-email').value;
+                const currentPassword = document.getElementById('settings-current-password').value;
+                
+                // Validate form
+                if (!email) {
+                    showError('Email address is required');
+                    return;
+                }
+                
+                if (!currentPassword) {
+                    showError('Current password is required to save changes');
+                    return;
+                }
                 
                 // Create preferences object
-                const preferences = {
+                const userData = {
+                    email: email,
                     emailPreferences: {
-                        notifications: notifications,
                         articleUpdates: articleUpdates,
-                        proposalUpdates: proposalUpdates
-                    }
+                        proposalUpdates: proposalUpdates,
+                        rewards: rewards,
+                        newsletter: newsletter
+                    },
+                    currentPassword: currentPassword
                 };
                 
                 // Get token
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    alert('You must be logged in to update your preferences');
+                    showError('You must be logged in to update your preferences');
                     return;
                 }
+                
+                // Show loading state
+                const saveButton = document.getElementById('save-preferences-btn');
+                const originalText = saveButton.textContent;
+                saveButton.disabled = true;
+                saveButton.textContent = 'Saving...';
                 
                 // Send API request
                 fetch('/api/auth/profile', {
@@ -612,44 +813,166 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify(preferences)
+                    body: JSON.stringify(userData)
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to update preferences');
+                        return response.json().then(data => {
+                            throw new Error(data.detail || 'Failed to update preferences');
+                        });
                     }
                     return response.json();
                 })
                 .then(data => {
-                    // Show success message
-                    const successMessage = document.getElementById('success-message');
-                    if (successMessage) {
-                        successMessage.textContent = 'Preferences updated successfully';
-                        successMessage.style.display = 'block';
-                        
-                        // Hide after 3 seconds
-                        setTimeout(() => {
-                            successMessage.style.display = 'none';
-                        }, 3000);
-                    }
+                    showSuccess('Preferences updated successfully');
+                    
+                    // Clear password field
+                    document.getElementById('settings-current-password').value = '';
                 })
                 .catch(error => {
                     console.error('Error updating preferences:', error);
-                    
-                    // Show error message
-                    const errorMessage = document.getElementById('error-message');
-                    if (errorMessage) {
-                        errorMessage.textContent = error.message || 'Failed to update preferences';
-                        errorMessage.style.display = 'block';
-                        
-                        // Hide after 3 seconds
-                        setTimeout(() => {
-                            errorMessage.style.display = 'none';
-                        }, 3000);
-                    }
+                    showError(error.message || 'Failed to update preferences');
+                })
+                .finally(() => {
+                    // Reset button state
+                    saveButton.disabled = false;
+                    saveButton.textContent = originalText;
                 });
+            });
+        }
+        
+        // Handle password change form
+        const changePasswordForm = document.getElementById('change-password-form');
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Get form values
+                const currentPassword = document.getElementById('current-password').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+                
+                // Validate form
+                if (!currentPassword) {
+                    showError('Current password is required');
+                    return;
+                }
+                
+                if (!newPassword) {
+                    showError('New password is required');
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    showError('New passwords do not match');
+                    return;
+                }
+                
+                // Create data object
+                const userData = {
+                    currentPassword: currentPassword,
+                    password: newPassword
+                };
+                
+                // Get token
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    showError('You must be logged in to change your password');
+                    return;
+                }
+                
+                // Show loading state
+                const changeButton = document.getElementById('change-password-btn');
+                const originalText = changeButton.textContent;
+                changeButton.disabled = true;
+                changeButton.textContent = 'Changing...';
+                
+                // Send API request
+                fetch('/api/auth/profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(userData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.detail || 'Failed to change password');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showSuccess('Password changed successfully');
+                    
+                    // Clear form
+                    document.getElementById('current-password').value = '';
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('confirm-password').value = '';
+                })
+                .catch(error => {
+                    console.error('Error changing password:', error);
+                    showError(error.message || 'Failed to change password');
+                })
+                .finally(() => {
+                    // Reset button state
+                    changeButton.disabled = false;
+                    changeButton.textContent = originalText;
+                });
+            });
+        }
+        
+        // Handle account deletion
+        const deleteAccountBtn = document.getElementById('delete-account-btn');
+        if (deleteAccountBtn) {
+            deleteAccountBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        showError('You must be logged in to delete your account');
+                        return;
+                    }
+                    
+                    // Get additional confirmation
+                    const confirmation = prompt('Please type "DELETE" to confirm account deletion:');
+                    if (confirmation !== 'DELETE') {
+                        showError('Account deletion cancelled');
+                        return;
+                    }
+                    
+                    // Send API request
+                    fetch('/api/auth/me', {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.detail || 'Failed to delete account');
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Clear token
+                        localStorage.removeItem('token');
+                        
+                        // Show success message and redirect
+                        alert('Your account has been deleted. You will now be redirected to the homepage.');
+                        window.location.href = '/';
+                    })
+                    .catch(error => {
+                        console.error('Error deleting account:', error);
+                        showError(error.message || 'Failed to delete account');
+                    });
+                }
             });
         }
     });
 </script>
 {% endblock %}
+```

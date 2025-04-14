@@ -274,3 +274,98 @@ async def logout():
     This endpoint is mainly for logging purposes.
     """
     return {"message": "Successfully logged out"}
+
+# File: routes/auth.py (updates to add profile endpoint)
+
+@router.put("/profile", response_model=Dict[str, Any])
+async def update_profile(
+    user_data: Dict[str, Any],
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db=Depends(get_db)
+):
+    """
+    Update the current user's profile information.
+    """
+    try:
+        # Verify current password
+        if not user_data.get("currentPassword"):
+            raise HTTPException(status_code=400, detail="Current password is required")
+        
+        if not verify_password(user_data["currentPassword"], current_user["passwordHash"]):
+            raise HTTPException(status_code=400, detail="Current password is incorrect")
+        
+        # Prepare update data
+        update_data = {}
+        
+        # Basic profile fields
+        if "displayName" in user_data:
+            update_data["displayName"] = user_data["displayName"]
+        
+        if "bio" in user_data:
+            update_data["bio"] = user_data["bio"]
+        
+        if "location" in user_data:
+            update_data["location"] = user_data["location"]
+        
+        if "website" in user_data:
+            update_data["website"] = user_data["website"]
+        
+        # Email field
+        if "email" in user_data and user_data["email"] != current_user["email"]:
+            # Check if email is already in use
+            existing_user = await db["users"].find_one({"email": user_data["email"]})
+            if existing_user and str(existing_user["_id"]) != str(current_user["_id"]):
+                raise HTTPException(status_code=400, detail="Email is already in use")
+            
+            update_data["email"] = user_data["email"]
+        
+        # Email preferences
+        if "emailPreferences" in user_data:
+            update_data["emailPreferences"] = user_data["emailPreferences"]
+        
+        # Password update
+        if user_data.get("password"):
+            update_data["passwordHash"] = hash_password(user_data["password"])
+        
+        # Only update if there are changes
+        if not update_data:
+            return {"message": "No changes to save"}
+        
+        # Update user in database
+        result = await db["users"].update_one(
+            {"_id": current_user["_id"]},
+            {"$set": update_data}
+        )
+        
+        if result.modified_count == 0:
+            return {"message": "No changes made"}
+        
+        return {"message": "Profile updated successfully"}
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating profile: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update profile: {str(e)}")
+
+@router.delete("/me")
+async def delete_account(
+    current_user: Dict[str, Any] = Depends(get_current_user),
+    db=Depends(get_db)
+):
+    """
+    Delete the current user's account.
+    """
+    try:
+        # Delete the user
+        result = await db["users"].delete_one({"_id": current_user["_id"]})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=500, detail="Failed to delete account")
+        
+        return {"message": "Account deleted successfully"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting account: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete account: {str(e)}")
