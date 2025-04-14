@@ -7,7 +7,7 @@ from bson import ObjectId
 from typing import Optional, Dict, Any
 import logging
 
-from dependencies import get_db, get_current_user
+from dependencies import get_db, get_current_user, get_cache
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -17,40 +17,100 @@ async def articles_list_page(
     request: Request,
     category: Optional[str] = None,
     tag: Optional[str] = None,
+    sort: Optional[str] = Query(None, description="Sort order: newest, oldest, mostviewed, title"),
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    db=Depends(get_db)
+    db=Depends(get_db),
+    cache=Depends(get_cache)
 ):
     """
-    Render the articles list page.
+    Render the articles list page with optional filtering by category or tag.
     """
     templates = request.app.state.templates
     
+    # Try to get articles list from cache if no filters are applied
+    cache_key = None
+    if not category and not tag:
+        cache_key = f"articles_list_{sort}_{skip}_{limit}"
+        cached_data = await cache.get(cache_key)
+        
+        if cached_data:
+            return templates.TemplateResponse(
+                "articles_list.html",
+                {
+                    "request": request,
+                    **cached_data
+                }
+            )
+    
     # Build query
     query = {"status": "published"}
+    
     if category:
         query["categories"] = category
+    
     if tag:
         query["tags"] = tag
     
     # Get total count
-    total_count = await db["articles"].count_documents(query)
+    total = await db["articles"].count_documents(query)
     
-    # Get articles
-    cursor = db["articles"].find(query).sort("createdAt", -1).skip(skip).limit(limit)
+    # Determine sort order
+    sort_options = {}
+    if sort == "oldest":
+        sort_options = [("createdAt", 1)]
+    elif sort == "mostviewed":
+        sort_options = [("views", -1)]
+    elif sort == "title":
+        sort_options = [("title", 1)]
+    else:  # Default to newest
+        sort_options = [("createdAt", -1)]
+    
+    # Get articles with pagination and sorting
+    cursor = db["articles"].find(query).sort(sort_options).skip(skip).limit(limit)
     articles = await cursor.to_list(length=limit)
     
-    # Render template
+    # Get categories for sidebar
+    categories_pipeline = [
+        {"$unwind": "$categories"},
+        {"$group": {"_id": "$categories", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 10}
+    ]
+    categories = await db["articles"].aggregate(categories_pipeline).to_list(length=10)
+    
+    # Get tags for sidebar
+    tags_pipeline = [
+        {"$unwind": "$tags"},
+        {"$group": {"_id": "$tags", "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 10}
+    ]
+    tags = await db["articles"].aggregate(tags_pipeline).to_list(length=10)
+    
+    # Prepare template data
+    template_data = {
+        "articles": articles,
+        "category": category,
+        "tag": tag,
+        "sort": sort or "newest",
+        "categories": categories,
+        "tags": tags,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "active_page": "articles"
+    }
+    
+    # Cache the result if no filters
+    if cache_key:
+        await cache.set(cache_key, template_data, 300)
+    
     return templates.TemplateResponse(
         "articles_list.html",
         {
             "request": request,
-            "articles": articles,
-            "total": total_count,
-            "skip": skip,
-            "limit": limit,
-            "category": category,
-            "tag": tag
+            **template_data
         }
     )
 
