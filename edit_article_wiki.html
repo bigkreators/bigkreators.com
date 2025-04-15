@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Propose Edit: {{ article.title }} - Kryptopedia{% endblock %}
+{% block title %}Edit Article: {{ article.title }} - Kryptopedia{% endblock %}
 
 {% set active_page = 'articles' %}
 
@@ -8,20 +8,12 @@
 <!-- Include wiki editor styles -->
 <link rel="stylesheet" href="/static/wiki-editor.css">
 <style>
-    .form-section {
-        margin-bottom: 20px;
-        padding: 15px;
+    .login-required {
+        text-align: center;
+        padding: 40px 20px;
         background-color: #f8f9fa;
         border-radius: 8px;
-    }
-    
-    .proposal-notice {
-        padding: 15px;
-        margin-bottom: 20px;
-        background-color: #fff3cd;
-        border: 1px solid #ffeeba;
-        border-radius: 4px;
-        color: #856404;
+        margin: 20px 0;
     }
     
     .status-message {
@@ -43,12 +35,19 @@
         color: #155724;
     }
     
-    .login-required {
-        text-align: center;
-        padding: 40px 20px;
+    /* Form sections */
+    .form-section {
+        margin-bottom: 20px;
+        padding: 20px;
         background-color: #f8f9fa;
-        border-radius: 8px;
-        margin: 20px 0;
+        border-radius: 4px;
+    }
+    
+    .form-section h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 18px;
+        color: #333;
     }
     
     .help-text {
@@ -79,40 +78,66 @@
 {% endblock %}
 
 {% block content %}
-<h1>Propose Edit: {{ article.title }}</h1>
-
-<div class="proposal-notice">
-    <p><strong>Note:</strong> You are creating a proposal to edit this article. Your changes will be reviewed by an editor before being published.</p>
-</div>
+<h1>Edit Article: {{ article.title }}</h1>
 
 <div id="login-message" class="login-required" style="display: none;">
-    <p>You need to be logged in to propose edits to articles.</p>
+    <p>You need to be logged in to edit articles.</p>
     <button id="login-to-edit" class="primary-button">Login</button>
 </div>
 
 <div class="status-message error-message" id="error-message"></div>
 <div class="status-message success-message" id="success-message"></div>
 
-<form id="propose-edit-form">
+<form id="edit-article-form">
     <div class="form-section">
+        <h3>Article Basics</h3>
+        
         <div class="form-group">
-            <label for="proposal-summary">Proposal Summary:</label>
-            <input type="text" id="proposal-summary" name="summary" placeholder="Briefly describe your proposed changes" required>
-            <p class="help-text">Explain why these changes are needed and what they improve.</p>
+            <label for="article-title">Title:</label>
+            <input type="text" id="article-title" name="title" value="{{ article.title }}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="article-summary">Summary:</label>
+            <textarea id="article-summary" name="summary" rows="3" required>{{ article.summary }}</textarea>
+            <p class="help-text">A brief description of the article. This will be used as the short description.</p>
         </div>
     </div>
     
     <div class="form-section">
+        <h3>Article Content</h3>
+        <p class="help-text">Use wiki markup to format your article. The toolbar above provides common formatting options.</p>
+        
         <div class="form-group">
-            <label for="article-content">Proposed Content:</label>
+            <label for="article-content">Content:</label>
             <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
         </div>
         
         <div class="wiki-preview-area" style="display: none;"></div>
     </div>
     
+    <div class="form-section">
+        <h3>Article Metadata</h3>
+        
+        <div class="form-group">
+            <label for="article-categories">Categories (comma-separated):</label>
+            <input type="text" id="article-categories" name="categories" value="{{ article.categories|join(', ') }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="article-tags">Tags (comma-separated):</label>
+            <input type="text" id="article-tags" name="tags" value="{{ article.tags|join(', ') }}">
+        </div>
+        
+        <div class="form-group">
+            <label for="edit-comment">Edit Summary:</label>
+            <input type="text" id="edit-comment" name="editComment" placeholder="Briefly describe your changes" required>
+            <p class="help-text">This will appear in the article's revision history.</p>
+        </div>
+    </div>
+    
     <div class="form-actions">
-        <button type="submit" id="submit-proposal" class="primary-button">Submit Proposal</button>
+        <button type="submit" id="save-article" class="primary-button">Save Changes</button>
         <button type="button" id="preview-button" class="preview-button">Show Preview</button>
         <a href="/articles/{{ article.slug }}" class="cancel-button">Cancel</a>
     </div>
@@ -127,14 +152,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
     const token = localStorage.getItem('token');
     const loginMessage = document.getElementById('login-message');
-    const proposeForm = document.getElementById('propose-edit-form');
+    const editForm = document.getElementById('edit-article-form');
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
     
     // Handle auth state
     if (!token) {
         loginMessage.style.display = 'block';
-        proposeForm.style.display = 'none';
+        editForm.style.display = 'none';
         
         // Setup login button
         document.getElementById('login-to-edit').addEventListener('click', function() {
@@ -145,26 +170,29 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     } else {
         loginMessage.style.display = 'none';
-        proposeForm.style.display = 'block';
+        editForm.style.display = 'block';
         
         // Preview button functionality
         document.getElementById('preview-button').addEventListener('click', function() {
             const previewArea = document.querySelector('.wiki-preview-area');
             const content = document.getElementById('article-content').value;
-            const proposalSummary = document.getElementById('proposal-summary').value;
+            const summary = document.getElementById('article-summary').value;
+            
+            // Add short description if not already present
+            let fullContent = content;
+            if (summary && !content.includes('{{Short description|')) {
+                fullContent = `{{Short description|${summary}}}\n\n${content}`;
+            }
             
             if (previewArea.style.display === 'none') {
-                // Send content to server for preview, including the proposal summary as context
+                // Send content to server for preview
                 fetch('/api/preview', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({ 
-                        content: content,
-                        proposalSummary: proposalSummary // Provide context
-                    })
+                    body: JSON.stringify({ content: fullContent })
                 })
                 .then(response => response.json())
                 .then(data => {
@@ -183,44 +211,67 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Handle form submission
-        proposeForm.addEventListener('submit', function(e) {
+        editForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Get form values
-            const proposalSummary = document.getElementById('proposal-summary').value;
-            const proposedContent = document.getElementById('article-content').value;
+            let articleTitle = document.getElementById('article-title').value;
+            let articleSummary = document.getElementById('article-summary').value;
+            let articleContent = document.getElementById('article-content').value;
+            
+            const categoriesInput = document.getElementById('article-categories').value;
+            const tagsInput = document.getElementById('article-tags').value;
+            const editComment = document.getElementById('edit-comment').value;
+            
+            // Process categories and tags
+            const categories = categoriesInput.split(',')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+                
+            const tags = tagsInput.split(',')
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
             
             // Validate
-            if (!proposalSummary) {
-                showError('Please provide a proposal summary.');
+            if (!articleTitle || !articleSummary || !articleContent) {
+                showError('Please fill in all required fields.');
                 return;
             }
             
-            if (!proposedContent) {
-                showError('Please provide the proposed content.');
+            if (!editComment) {
+                showError('Please provide a summary of your changes.');
                 return;
+            }
+            
+            // Add short description if not already present
+            if (articleSummary && !articleContent.includes('{{Short description|')) {
+                articleContent = `{{Short description|${articleSummary}}}\n\n${articleContent}`;
             }
             
             // Prepare data
-            const proposalData = {
-                content: proposedContent,
-                summary: proposalSummary
+            const articleData = {
+                title: articleTitle,
+                summary: articleSummary,
+                content: articleContent,
+                categories: categories,
+                tags: tags,
+                editComment: editComment
             };
             
             // Show loading state
-            const submitButton = document.getElementById('submit-proposal');
-            const originalText = submitButton.textContent;
-            submitButton.innerHTML = '<span class="loading-indicator"></span>Submitting...';
-            submitButton.disabled = true;
+            const saveButton = document.getElementById('save-article');
+            const originalText = saveButton.textContent;
+            saveButton.innerHTML = '<span class="loading-indicator"></span>Saving...';
+            saveButton.disabled = true;
             
             // Send API request
-            fetch('/api/articles/{{ article._id }}/proposals', {
-                method: 'POST',
+            fetch('/api/articles/{{ article._id }}', {
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify(proposalData)
+                body: JSON.stringify(articleData)
             })
             .then(response => {
                 if (!response.ok) {
@@ -229,26 +280,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         throw new Error('Your session has expired. Please log in again.');
                     }
                     return response.json().then(data => {
-                        throw new Error(data.detail || 'Failed to submit proposal');
+                        throw new Error(data.detail || 'Failed to update article');
                     });
                 }
                 return response.json();
             })
             .then(data => {
-                showSuccess('Your edit proposal has been submitted successfully! It will be reviewed by an editor.');
+                showSuccess('Article updated successfully!');
                 
                 // Redirect to article view after a delay
                 setTimeout(() => {
-                    window.location.href = `/articles/${article.slug}`;
-                }, 3000);
+                    window.location.href = `/articles/${data.slug}`;
+                }, 1500);
             })
             .catch(error => {
-                console.error('Error submitting proposal:', error);
-                showError(error.message || 'Failed to submit proposal. Please try again.');
-                
+                console.error('Error updating article:', error);
+                showError(error.message || 'Failed to update article. Please try again.');
+            })
+            .finally(() => {
                 // Reset button state
-                submitButton.innerHTML = originalText;
-                submitButton.disabled = false;
+                saveButton.innerHTML = originalText;
+                saveButton.disabled = false;
             });
         });
     }

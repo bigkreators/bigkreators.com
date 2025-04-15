@@ -1,3 +1,5 @@
+# File: pages/articles.py
+
 """
 Article page routes for the Kryptopedia application.
 """
@@ -119,5 +121,181 @@ async def article_page(
         return templates.TemplateResponse(
             "error.html",
             {"request": request, "message": "Error rendering article"},
+            status_code=500
+        )
+
+# File: pages/articles.py
+
+# Add to the existing file
+
+@router.get("/create-article-wiki", response_class=HTMLResponse)
+async def create_article_wiki_page(request: Request):
+    """
+    Render the wiki-style article creation page.
+    """
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "create_article_wiki.html",
+        {"request": request}
+    )
+
+@router.get("/edit-article-wiki/{article_id}", response_class=HTMLResponse)
+async def edit_article_wiki_page(
+    request: Request,
+    article_id: str = Path(..., description="Article ID"),
+    db=Depends(get_db)
+):
+    """
+    Render the wiki-style article editing page.
+    """
+    templates = request.app.state.templates
+    
+    # Check if article exists
+    if not ObjectId.is_valid(article_id):
+        return templates.TemplateResponse(
+            "404.html",
+            {"request": request, "message": "Invalid article ID"},
+            status_code=404
+        )
+    
+    article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+    if not article:
+        return templates.TemplateResponse(
+            "404.html",
+            {"request": request, "message": "Article not found"},
+            status_code=404
+        )
+    
+    # Render template
+    return templates.TemplateResponse(
+        "edit_article_wiki.html",
+        {"request": request, "article": article}
+    )
+
+# File: pages/proposals.py
+
+# Add to the existing router
+
+@router.get("/articles/{article_id}/propose-wiki", response_class=HTMLResponse)
+async def propose_edit_wiki_page(
+    request: Request,
+    article_id: str = Path(..., description="Article ID"),
+    db=Depends(get_db)
+):
+    """
+    Render the wiki-style page for creating an edit proposal.
+    """
+    templates = request.app.state.templates
+    
+    # Check if article exists
+    if not ObjectId.is_valid(article_id):
+        return templates.TemplateResponse(
+            "404.html",
+            {"request": request, "message": "Invalid article ID"},
+            status_code=404
+        )
+    
+    article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+    if not article:
+        return templates.TemplateResponse(
+            "404.html",
+            {"request": request, "message": "Article not found"},
+            status_code=404
+        )
+    
+    # Render template
+    return templates.TemplateResponse(
+        "propose_edit_wiki.html",
+        {"request": request, "article": article}
+    )
+
+# File: pages/articles.py
+
+# Add to the existing file
+
+@router.get("/articles/{article_id}/talk", response_class=HTMLResponse)
+async def article_talk_page(
+    request: Request,
+    article_id: str,
+    db=Depends(get_db)
+):
+    """
+    Render the article talk/discussion page.
+    """
+    templates = request.app.state.templates
+    
+    try:
+        # Check if article exists
+        if not ObjectId.is_valid(article_id):
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Invalid article ID"},
+                status_code=404
+            )
+        
+        article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+        if not article:
+            return templates.TemplateResponse(
+                "404.html",
+                {"request": request, "message": "Article not found"},
+                status_code=404
+            )
+        
+        # Get talk sections for this article
+        cursor = db["talk_sections"].find({"articleId": ObjectId(article_id)}).sort("createdAt", -1)
+        talk_sections = await cursor.to_list(length=100)
+        
+        # Enhance sections with comments
+        enhanced_sections = []
+        for section in talk_sections:
+            # Get comments for this section
+            comments_cursor = db["talk_comments"].find({
+                "sectionId": section["_id"]
+            }).sort("createdAt", 1)
+            
+            comments = await comments_cursor.to_list(length=100)
+            
+            # Enhance comments with user info
+            enhanced_comments = []
+            for comment in comments:
+                user = await db["users"].find_one({"_id": comment["userId"]})
+                username = user["username"] if user else "Unknown"
+                
+                enhanced_comments.append({
+                    **comment,
+                    "username": username
+                })
+            
+            enhanced_sections.append({
+                **section,
+                "comments": enhanced_comments
+            })
+        
+        # Get current user
+        current_user = None
+        try:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.replace("Bearer ", "")
+                from dependencies.auth import get_current_user
+                current_user = await get_current_user(token=token, db=db)
+        except:
+            pass
+        
+        # Render the talk page template
+        return templates.TemplateResponse(
+            "talk_page.html",
+            {
+                "request": request,
+                "article": article,
+                "talk_sections": enhanced_sections,
+                "current_user": current_user
+            }
+        )
+    except Exception as e:
+        logger.error(f"Error loading talk page: {e}")
+        return templates.TemplateResponse(
+            "error.html",
+            {"request": request, "message": f"Error loading talk page: {str(e)}"},
             status_code=500
         )

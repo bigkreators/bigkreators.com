@@ -1,3 +1,4 @@
+<!-- File: templates/edit_article_wiki.html -->
 {% extends "base.html" %}
 
 {% block title %}Edit Article: {{ article.title }} - Kryptopedia{% endblock %}
@@ -8,12 +9,39 @@
 <!-- Include wiki editor styles -->
 <link rel="stylesheet" href="/static/wiki-editor.css">
 <style>
-    .login-required {
-        text-align: center;
-        padding: 40px 20px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        margin: 20px 0;
+    .editor-container {
+        margin-bottom: 20px;
+    }
+    
+    .form-section {
+        margin-bottom: 20px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .form-group input[type="text"],
+    .form-group textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .form-group textarea {
+        min-height: 200px;
+        font-family: monospace;
+    }
+    
+    .tag-input {
+        width: 100%;
     }
     
     .status-message {
@@ -35,19 +63,62 @@
         color: #155724;
     }
     
-    /* Form sections */
-    .form-section {
-        margin-bottom: 20px;
-        padding: 20px;
+    .login-required {
+        text-align: center;
+        padding: 40px 20px;
         background-color: #f8f9fa;
-        border-radius: 4px;
+        border-radius: 8px;
+        margin: 20px 0;
     }
     
-    .form-section h3 {
-        margin-top: 0;
-        margin-bottom: 15px;
-        font-size: 18px;
+    /* Loading indicator */
+    .loading-indicator {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        border: 2px solid rgba(0,0,0,0.2);
+        border-left-color: #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+    
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* Form actions */
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .primary-button {
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .primary-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .cancel-button {
+        padding: 8px 16px;
+        background-color: #f5f5f5;
         color: #333;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    
+    .cancel-button:hover {
+        background-color: #e5e5e5;
     }
     
     .help-text {
@@ -90,8 +161,6 @@
 
 <form id="edit-article-form">
     <div class="form-section">
-        <h3>Article Basics</h3>
-        
         <div class="form-group">
             <label for="article-title">Title:</label>
             <input type="text" id="article-title" name="title" value="{{ article.title }}" required>
@@ -105,9 +174,6 @@
     </div>
     
     <div class="form-section">
-        <h3>Article Content</h3>
-        <p class="help-text">Use wiki markup to format your article. The toolbar above provides common formatting options.</p>
-        
         <div class="form-group">
             <label for="article-content">Content:</label>
             <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
@@ -117,16 +183,16 @@
     </div>
     
     <div class="form-section">
-        <h3>Article Metadata</h3>
-        
         <div class="form-group">
             <label for="article-categories">Categories (comma-separated):</label>
-            <input type="text" id="article-categories" name="categories" value="{{ article.categories|join(', ') }}">
+            <input type="text" id="article-categories" name="categories" value="{{ article.categories|join(', ') }}" class="tag-input">
+            <p class="help-text">Categories help organize articles and make them easier to find.</p>
         </div>
         
         <div class="form-group">
             <label for="article-tags">Tags (comma-separated):</label>
-            <input type="text" id="article-tags" name="tags" value="{{ article.tags|join(', ') }}">
+            <input type="text" id="article-tags" name="tags" value="{{ article.tags|join(', ') }}" class="tag-input">
+            <p class="help-text">Tags provide additional keywords to help in searching and related articles.</p>
         </div>
         
         <div class="form-group">
@@ -145,7 +211,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- Include wiki editor script -->
 <script src="/static/wikiEditor.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -244,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Add short description if not already present
-            if (articleSummary && !articleContent.includes('{{Short description|')) {
+            if (!articleContent.includes('{{Short description|')) {
                 articleContent = `{{Short description|${articleSummary}}}\n\n${articleContent}`;
             }
             

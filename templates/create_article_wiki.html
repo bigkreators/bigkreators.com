@@ -224,21 +224,18 @@ document.addEventListener('DOMContentLoaded', function() {
         const content = document.getElementById('article-content').value;
         const summary = document.getElementById('article-summary').value;
         
-        // Add short description if not already present
-        let fullContent = content;
-        if (summary && !content.includes('{{Short description|')) {
-            fullContent = `{{Short description|${summary}}}\n\n${content}`;
-        }
-        
         if (previewArea.style.display === 'none') {
-            // Send content to server for preview
+            // Send content and summary separately to server for preview
             fetch('/api/preview', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ content: fullContent })
+                body: JSON.stringify({ 
+                    content: content,
+                    summary: summary // Send summary separately
+                })
             })
             .then(response => response.json())
             .then(data => {
@@ -290,17 +287,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Add short description if not already present
-        let finalContent = content;
-        if (!content.includes('{{Short description|')) {
-            finalContent = `{{Short description|${summary}}}\n\n${content}`;
-        }
-        
-        // Create article data object
+        // Create article data object - let the server handle the short description
         const articleData = {
             title,
             summary,
-            content: finalContent,
+            content: content, // Send the original content
             categories,
             tags,
             metadata

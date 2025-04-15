@@ -1,0 +1,111 @@
+classDiagram
+    class User {
+        +id: ObjectId
+        +username: str
+        +email: EmailStr
+        +passwordHash: str
+        +role: str
+        +joinDate: datetime
+        +lastLogin: datetime
+        +reputation: int
+        +contributions: UserContributions
+    }
+
+    class UserContributions {
+        +articlesCreated: int
+        +editsPerformed: int
+        +rewardsReceived: int
+    }
+
+    class Article {
+        +id: ObjectId
+        +title: str
+        +slug: str
+        +content: str
+        +summary: str
+        +categories: List[str]
+        +tags: List[str]
+        +createdBy: ObjectId
+        +createdAt: datetime
+        +lastUpdatedAt: datetime
+        +lastUpdatedBy: ObjectId
+        +featuredUntil: datetime
+        +status: str
+        +views: int
+        +metadata: ArticleMetadata
+    }
+
+    class ArticleMetadata {
+        +hasAudio: bool
+        +hasSpecialSymbols: bool
+        +containsMadeUpContent: bool
+    }
+
+    class Revision {
+        +id: ObjectId
+        +articleId: ObjectId
+        +content: str
+        +createdBy: ObjectId
+        +createdAt: datetime
+        +comment: str
+        +diff: str
+    }
+
+    class Proposal {
+        +id: ObjectId
+        +articleId: ObjectId
+        +content: str
+        +summary: str
+        +proposedBy: ObjectId
+        +proposedAt: datetime
+        +status: str
+        +reviewedBy: ObjectId
+        +reviewedAt: datetime
+        +reviewComment: str
+    }
+
+    class Media {
+        +id: ObjectId
+        +filename: str
+        +originalName: str
+        +mimeType: str
+        +size: int
+        +path: str
+        +uploadedBy: ObjectId
+        +uploadedAt: datetime
+        +usedInArticles: List[ObjectId]
+        +metadata: MediaMetadata
+    }
+
+    class MediaMetadata {
+        +duration: int
+        +dimensions: Dict[str, int]
+    }
+
+    class Reward {
+        +id: ObjectId
+        +articleId: ObjectId
+        +revisionId: ObjectId
+        +rewardType: str
+        +points: int
+        +rewardedUser: ObjectId
+        +rewardedBy: ObjectId
+        +rewardedAt: datetime
+    }
+
+    User "1" -- "many" Article : creates
+    User "1" -- "many" Revision : makes
+    User "1" -- "many" Proposal : submits
+    User "1" -- "many" Media : uploads
+    User "1" -- "many" Reward : gives
+    User "1" -- "many" Reward : receives
+    User *-- UserContributions : has
+
+    Article *-- ArticleMetadata : has
+    Article "1" -- "many" Revision : has
+    Article "1" -- "many" Proposal : has
+    Article "many" -- "many" Media : uses
+
+    Media *-- MediaMetadata : has
+
+    Revision -- Reward : may have

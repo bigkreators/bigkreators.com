@@ -1,0 +1,45 @@
+flowchart TD
+    A[User Views Article] --> B{User has Edit Rights?}
+    B -->|Yes| C[Direct Edit]
+    B -->|No| D[Create Edit Proposal]
+    
+    C --> E[Save Changes]
+    E --> F[New Revision Created]
+    F --> G[Article Updated]
+    G --> H[Update Search Index]
+    H --> I[Invalidate Cache]
+    
+    D --> J[Submit Proposal]
+    J --> K[Editor Reviews Proposal]
+    K --> L{Approve or Reject?}
+    
+    L -->|Approve| M[Proposal Approved]
+    L -->|Reject| N[Proposal Rejected]
+    
+    M --> O[New Revision Created]
+    O --> P[Article Updated]
+    P --> Q[Update Search Index]
+    Q --> R[Invalidate Cache]
+    Q --> S[Update User's Contribution Count]
+    
+    N --> T[Notification to Proposer]
+    
+    %% User Role Decision Process
+    User([General User]) --> View[View Articles]
+    User --> Create[Create Articles]
+    User --> ProposeEdits[Propose Edits]
+    
+    Editor([Editor User]) --> View
+    Editor --> Create
+    Editor --> DirectEdit[Direct Edit Articles]
+    Editor --> ReviewProposals[Review Edit Proposals]
+    
+    Admin([Admin User]) --> EditorFeatures[All Editor Features]
+    Admin --> ManageUsers[Manage Users]
+    Admin --> ManageSystem[Manage System]
+    
+    %% Reward Process
+    V[User Reads Article] --> W{Want to Reward?}
+    W -->|Yes| X[Give Reward to Author]
+    X --> Y[Author Gets Points]
+    Y --> Z[Reputation Increases]

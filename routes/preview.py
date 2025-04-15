@@ -18,19 +18,42 @@ async def preview_wiki_markup(
 ):
     """
     Generate HTML preview of wiki markup.
+    
+    Accepts:
+        - content: The wiki markup content
+        - summary: Optional article summary for short description
+        - proposalSummary: Optional context for proposal previews
     """
     try:
         content = data.get("content")
         if not content:
             raise HTTPException(status_code=400, detail="Content is required")
         
+        # Get optional summary/description if provided
+        summary = data.get("summary")
+        
+        # If summary is provided, add short description markup to content
+        # This way the server handles the markup transformation
+        if summary and not content.startswith("{{Short description|"):
+            content = f"{{{{Short description|{summary}}}}}\n\n{content}"
+        
         # Parse wiki markup
         html, short_description = parse_wiki_markup(content)
         
-        return {
+        # Prepare response with both HTML and extracted short description
+        response = {
             "html": html,
             "short_description": short_description
         }
+        
+        # If this is a proposal preview, add context
+        proposal_summary = data.get("proposalSummary")
+        if proposal_summary:
+            response["proposal_context"] = {
+                "summary": proposal_summary
+            }
+        
+        return response
     except HTTPException:
         raise
     except Exception as e:
