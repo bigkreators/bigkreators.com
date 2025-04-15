@@ -248,9 +248,7 @@
             console.error('Could not find edit-article-form');
         }
     });
-</script>
 
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
     const token = localStorage.getItem('token');
@@ -308,11 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!editComment) {
                 showError('Please provide a summary of your changes.');
                 return;
-            }
-            
-            // Add short description if not already present
-            if (!articleContent.includes('{{Short description|')) {
-                articleContent = `{{Short description|${articleSummary}}}\n\n${articleContent}`;
             }
             
             // Prepare data
