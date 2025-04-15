@@ -67,3 +67,7 @@ export function addKeyboardShortcuts(textarea) {
         }
     });
 }
+
+export default {
+    addKeyboardShortcuts
+};

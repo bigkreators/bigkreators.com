@@ -30,3 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+export default {
+    initializeWikiEditor,
+    registerEditorComponents
+};

@@ -1,19 +1,19 @@
+// File: static/js/wiki-editor/toolbar.js
 /**
  * Toolbar Component for Wiki Editor
  * 
  * This file handles creating and managing the toolbar for the wiki editor.
  */
 
-import { insertWikiMarkup, wrapSelectedText, prependToSelectedLines, removeIndent } from './text-utils.js';
-import { 
-    openTemplateGallery, 
-    openTableDialog, 
-    openHeadingDialog, 
-    openLinkDialog, 
-    openSearchReplaceDialog,
-    openCitationDialog,
-    openReferenceDialog
-} from './dialogs.js';
+import { insertWikiMarkup, wrapSelectedText, prependToSelectedLines, removeIndent } from './utils/text-utils.js';
+import { openTemplateGallery } from './components/template-gallery.js';
+import { openTableDialog } from './components/table-dialog.js';
+import { openHeadingDialog } from './components/heading-dialog.js';
+import { openLinkDialog } from './components/link-dialog.js';
+import { openSearchReplaceDialog } from './components/search-replace-dialog.js';
+import { openCitationDialog } from './components/citation-dialog.js';
+import { openReferenceDialog } from './components/reference-dialog.js';
+import { openImageDialog } from './components/image-dialog.js';
 import { previewContent } from './preview.js';
 
 /**
@@ -104,11 +104,29 @@ export function createEditorToolbar() {
 }
 
 /**
- * Set up event handlers for toolbar buttons
- * @param {HTMLElement} toolbar - The toolbar element
- * @param {HTMLElement} textarea - The content textarea
- * @param {HTMLElement} previewArea - The preview area element
+ * Remove wiki links from selected text
+ * @param {HTMLElement} textarea - The textarea element
  */
+export function removeWikiLinks(textarea) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+    
+    // Remove internal wiki links: [[Link|Text]] -> Text, [[Link]] -> Link
+    let result = selectedText.replace(/\[\[(.*?)\|(.*?)\]\]/g, '$2');
+    result = result.replace(/\[\[(.*?)\]\]/g, '$1');
+    
+    // Remove external links: [URL Text] -> Text, [URL] -> URL
+    result = result.replace(/\[(https?:\/\/[^\s\]]+)\s+(.*?)\]/g, '$2');
+    result = result.replace(/\[(https?:\/\/[^\s\]]+)\]/g, '$1');
+    
+    // Replace the selected text with the modified text
+    textarea.value = textarea.value.substring(0, start) + result + textarea.value.substring(end);
+    
+    textarea.focus();
+    textarea.setSelectionRange(start, start + result.length);
+}
+
 export function setupToolbarHandlers(toolbar, textarea, previewArea) {
     const buttons = toolbar.querySelectorAll('.wiki-toolbar-btn');
     
@@ -118,7 +136,7 @@ export function setupToolbarHandlers(toolbar, textarea, previewArea) {
             
             switch(action) {
                 case 'insertFile':
-                    insertWikiMarkup(textarea, '[[File:image.jpg|thumb|Description]]');
+                    openImageDialog(textarea);
                     break;
                 case 'insertTemplate':
                     openTemplateGallery(textarea);
@@ -205,26 +223,3 @@ export function setupToolbarHandlers(toolbar, textarea, previewArea) {
     });
 }
 
-/**
- * Remove wiki links from selected text
- * @param {HTMLElement} textarea - The textarea element
- */
-export function removeWikiLinks(textarea) {
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    
-    // Remove internal wiki links: [[Link|Text]] -> Text, [[Link]] -> Link
-    let result = selectedText.replace(/\[\[(.*?)\|(.*?)\]\]/g, '$2');
-    result = result.replace(/\[\[(.*?)\]\]/g, '$1');
-    
-    // Remove external links: [URL Text] -> Text, [URL] -> URL
-    result = result.replace(/\[(https?:\/\/[^\s\]]+)\s+(.*?)\]/g, '$2');
-    result = result.replace(/\[(https?:\/\/[^\s\]]+)\]/g, '$1');
-    
-    // Replace the selected text with the modified text
-    textarea.value = textarea.value.substring(0, start) + result + textarea.value.substring(end);
-    
-    textarea.focus();
-    textarea.setSelectionRange(start, start + result.length);
-}
