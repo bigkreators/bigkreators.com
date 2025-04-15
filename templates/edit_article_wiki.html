@@ -6,7 +6,6 @@
 {% set active_page = 'articles' %}
 
 {% block extra_css %}
-<!-- Include wiki editor styles -->
 <link rel="stylesheet" href="/static/wiki-editor.css">
 <style>
     .editor-container {
@@ -211,7 +210,23 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="/static/wikiEditor.js"></script>
+<!-- Make sure to include the required JavaScript modules -->
+<script type="module">
+    import { initializeWikiEditor } from '/static/js/wiki-editor/main.js';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the wiki editor
+        const form = document.getElementById('edit-article-form');
+        if (form) {
+            try {
+                initializeWikiEditor(form);
+            } catch (error) {
+                console.error('Error initializing wiki editor:', error);
+            }
+        }
+    });
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
@@ -237,43 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loginMessage.style.display = 'none';
         editForm.style.display = 'block';
         
-        // Preview button functionality
-        document.getElementById('preview-button').addEventListener('click', function() {
-            const previewArea = document.querySelector('.wiki-preview-area');
-            const content = document.getElementById('article-content').value;
-            const summary = document.getElementById('article-summary').value;
-            
-            // Add short description if not already present
-            let fullContent = content;
-            if (summary && !content.includes('{{Short description|')) {
-                fullContent = `{{Short description|${summary}}}\n\n${content}`;
-            }
-            
-            if (previewArea.style.display === 'none') {
-                // Send content to server for preview
-                fetch('/api/preview', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ content: fullContent })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${data.html}</div>`;
-                    previewArea.style.display = 'block';
-                    this.textContent = 'Hide Preview';
-                })
-                .catch(error => {
-                    console.error('Error generating preview:', error);
-                    showError('Failed to generate preview. Please try again.');
-                });
-            } else {
-                previewArea.style.display = 'none';
-                this.textContent = 'Show Preview';
-            }
-        });
+        // Preview button functionality is handled by the wiki editor
         
         // Handle form submission
         editForm.addEventListener('submit', function(e) {

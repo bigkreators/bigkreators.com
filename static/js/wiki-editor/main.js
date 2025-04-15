@@ -31,7 +31,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-export default {
-    initializeWikiEditor,
-    registerEditorComponents
-};
+// Export the initializeWikiEditor function for direct usage
+export { initializeWikiEditor, registerEditorComponents };

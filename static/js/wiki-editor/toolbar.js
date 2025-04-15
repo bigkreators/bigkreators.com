@@ -6,7 +6,6 @@
  */
 
 import { insertWikiMarkup, wrapSelectedText, prependToSelectedLines, removeIndent } from './utils/text-utils.js';
-import { openTemplateGallery } from './components/template-gallery.js';
 import { openTableDialog } from './components/table-dialog.js';
 import { openHeadingDialog } from './components/heading-dialog.js';
 import { openLinkDialog } from './components/link-dialog.js';
@@ -14,6 +13,7 @@ import { openSearchReplaceDialog } from './components/search-replace-dialog.js';
 import { openCitationDialog } from './components/citation-dialog.js';
 import { openReferenceDialog } from './components/reference-dialog.js';
 import { openImageDialog } from './components/image-dialog.js';
+import { openTemplateGallery } from './components/template-gallery.js';
 import { previewContent } from './preview.js';
 
 /**
@@ -21,6 +21,7 @@ import { previewContent } from './preview.js';
  * @returns {HTMLElement} The toolbar element
  */
 export function createEditorToolbar() {
+    console.log('Creating Wiki Editor toolbar');
     const toolbar = document.createElement('div');
     toolbar.className = 'wiki-editor-toolbar';
     
@@ -49,10 +50,7 @@ export function createEditorToolbar() {
             { icon: 'list-ul', title: 'Bulleted list', action: 'bulletList' },
             { icon: 'list-ol', title: 'Numbered list', action: 'numberedList' },
             { icon: 'indent', title: 'Indent', action: 'indent' },
-            { icon: 'outdent', title: 'Outdent', action: 'outdent' },
-            { icon: 'align-left', title: 'Align left', action: 'alignLeft' },
-            { icon: 'align-center', title: 'Align center', action: 'alignCenter' },
-            { icon: 'align-right', title: 'Align right', action: 'alignRight' }
+            { icon: 'outdent', title: 'Outdent', action: 'outdent' }
         ],
         // Links and references group
         [
@@ -127,99 +125,107 @@ export function removeWikiLinks(textarea) {
     textarea.setSelectionRange(start, start + result.length);
 }
 
+/**
+ * Set up toolbar button event handlers
+ * @param {HTMLElement} toolbar - The toolbar element
+ * @param {HTMLElement} textarea - The textarea element
+ * @param {HTMLElement} previewArea - The preview area element
+ */
 export function setupToolbarHandlers(toolbar, textarea, previewArea) {
+    console.log('Setting up toolbar handlers for Wiki Editor');
     const buttons = toolbar.querySelectorAll('.wiki-toolbar-btn');
     
     buttons.forEach(button => {
         button.addEventListener('click', function() {
             const action = this.getAttribute('data-action');
+            console.log('Toolbar button clicked:', action);
             
-            switch(action) {
-                case 'insertFile':
-                    openImageDialog(textarea);
-                    break;
-                case 'insertTemplate':
-                    openTemplateGallery(textarea);
-                    break;
-                case 'insertTable':
-                    openTableDialog(textarea);
-                    break;
-                case 'insertMath':
-                    wrapSelectedText(textarea, '<math>', '</math>');
-                    break;
-                case 'insertCode':
-                    wrapSelectedText(textarea, '<code>', '</code>');
-                    break;
-                case 'searchReplace':
-                    openSearchReplaceDialog(textarea);
-                    break;
-                case 'superscript':
-                    wrapSelectedText(textarea, '<sup>', '</sup>');
-                    break;
-                case 'subscript':
-                    wrapSelectedText(textarea, '<sub>', '</sub>');
-                    break;
-                case 'bold':
-                    wrapSelectedText(textarea, "'''", "'''");
-                    break;
-                case 'italic':
-                    wrapSelectedText(textarea, "''", "''");
-                    break;
-                case 'underline':
-                    wrapSelectedText(textarea, '<u>', '</u>');
-                    break;
-                case 'strikethrough':
-                    wrapSelectedText(textarea, '<s>', '</s>');
-                    break;
-                case 'heading':
-                    openHeadingDialog(textarea);
-                    break;
-                case 'insertLink':
-                    openLinkDialog(textarea);
-                    break;
-                case 'removeLink':
-                    removeWikiLinks(textarea);
-                    break;
-                case 'bulletList':
-                    prependToSelectedLines(textarea, '* ');
-                    break;
-                case 'numberedList':
-                    prependToSelectedLines(textarea, '# ');
-                    break;
-                case 'indent':
-                    prependToSelectedLines(textarea, ':');
-                    break;
-                case 'outdent':
-                    removeIndent(textarea);
-                    break;
-                case 'alignLeft':
-                    wrapSelectedText(textarea, '<div style="text-align:left">', '</div>');
-                    break;
-                case 'alignCenter':
-                    wrapSelectedText(textarea, '<div style="text-align:center">', '</div>');
-                    break;
-                case 'alignRight':
-                    wrapSelectedText(textarea, '<div style="text-align:right">', '</div>');
-                    break;
-                case 'insertCitation':
-                    openCitationDialog(textarea);
-                    break;
-                case 'insertReference':
-                    openReferenceDialog(textarea);
-                    break;
-                case 'undo':
-                    textarea.focus();
-                    document.execCommand('undo');
-                    break;
-                case 'redo':
-                    textarea.focus();
-                    document.execCommand('redo');
-                    break;
-                case 'preview':
-                    previewContent(textarea.form);
-                    break;
+            try {
+                switch(action) {
+                    case 'insertFile':
+                        openImageDialog(textarea);
+                        break;
+                    case 'insertTemplate':
+                        openTemplateGallery(textarea);
+                        break;
+                    case 'insertTable':
+                        openTableDialog(textarea);
+                        break;
+                    case 'insertMath':
+                        wrapSelectedText(textarea, '<math>', '</math>');
+                        break;
+                    case 'insertCode':
+                        wrapSelectedText(textarea, '<code>', '</code>');
+                        break;
+                    case 'searchReplace':
+                        openSearchReplaceDialog(textarea);
+                        break;
+                    case 'superscript':
+                        wrapSelectedText(textarea, '<sup>', '</sup>');
+                        break;
+                    case 'subscript':
+                        wrapSelectedText(textarea, '<sub>', '</sub>');
+                        break;
+                    case 'bold':
+                        wrapSelectedText(textarea, "'''", "'''");
+                        break;
+                    case 'italic':
+                        wrapSelectedText(textarea, "''", "''");
+                        break;
+                    case 'underline':
+                        wrapSelectedText(textarea, '<u>', '</u>');
+                        break;
+                    case 'strikethrough':
+                        wrapSelectedText(textarea, '<s>', '</s>');
+                        break;
+                    case 'heading':
+                        openHeadingDialog(textarea);
+                        break;
+                    case 'insertLink':
+                        openLinkDialog(textarea);
+                        break;
+                    case 'removeLink':
+                        removeWikiLinks(textarea);
+                        break;
+                    case 'bulletList':
+                        prependToSelectedLines(textarea, '* ');
+                        break;
+                    case 'numberedList':
+                        prependToSelectedLines(textarea, '# ');
+                        break;
+                    case 'indent':
+                        prependToSelectedLines(textarea, ':');
+                        break;
+                    case 'outdent':
+                        removeIndent(textarea);
+                        break;
+                    case 'insertCitation':
+                        openCitationDialog(textarea);
+                        break;
+                    case 'insertReference':
+                        openReferenceDialog(textarea);
+                        break;
+                    case 'undo':
+                        textarea.focus();
+                        document.execCommand('undo');
+                        break;
+                    case 'redo':
+                        textarea.focus();
+                        document.execCommand('redo');
+                        break;
+                    case 'preview':
+                        if (textarea.form) {
+                            previewContent(textarea.form);
+                        } else {
+                            console.error('No form found for textarea');
+                        }
+                        break;
+                    default:
+                        console.warn('Unknown toolbar action:', action);
+                }
+            } catch (error) {
+                console.error(`Error executing toolbar action '${action}':`, error);
             }
         });
     });
 }
-

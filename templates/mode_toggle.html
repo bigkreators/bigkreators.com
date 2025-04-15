@@ -1,0 +1,14 @@
+<!-- File: templates/mode_toggle.html -->
+<div class="mode-toggle" id="mode-toggle">
+    <button class="mode-toggle-button" data-mode="wiki">Wiki Markup</button>
+    <button class="mode-toggle-button" data-mode="html">HTML</button>
+</div>
+
+<script src="/static/js/wiki-mode-toggle.js"></script>
+<link rel="stylesheet" href="/static/css/wiki-mode-toggle.css">
+
+{% if mode == 'wiki' %}
+<div class="wiki-notice">
+    <p><span class="wiki-icon">ℹ️</span> You are using the <strong>Wiki Markup</strong> editing mode. Toggle to HTML mode if you prefer the rich text editor.</p>
+</div>
+{% endif %}

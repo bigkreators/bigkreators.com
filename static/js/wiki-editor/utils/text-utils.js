@@ -103,6 +103,9 @@ export function removeIndent(textarea) {
     
     textarea.focus();
     textarea.setSelectionRange(start, start + newText.length);
+    
+    // Trigger input event
+    textarea.dispatchEvent(new Event('input'));
 }
 
 /**

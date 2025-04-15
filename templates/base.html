@@ -7,6 +7,21 @@
     <link rel="stylesheet" href="/static/style.css">
     {% block extra_css %}{% endblock %}
 </head>
+<!-- Add this right before the closing </body> tag -->
+<script type="module">
+    // Preload wiki editor modules for faster initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('article-content')) {
+            import('/static/js/wiki-editor/main.js')
+                .then(module => {
+                    console.log('Wiki Editor modules preloaded');
+                })
+                .catch(error => {
+                    console.error('Error preloading Wiki Editor modules:', error);
+                });
+        }
+    });
+</script>
 <body>
     <!-- Header -->
     <header>

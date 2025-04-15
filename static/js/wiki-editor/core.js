@@ -8,10 +8,8 @@
 
 // Import core dependencies
 import { createEditorToolbar, setupToolbarHandlers } from './toolbar.js';
-import { addLineNumbers } from './utils/dom-utils.js';
 import { addPreviewButton } from './preview.js';
 import { addKeyboardShortcuts } from './keyboard.js';
-import { getComponent } from './component-registry.js';
 
 /**
  * Initialize the Wiki Editor on a form
@@ -20,12 +18,18 @@ import { getComponent } from './component-registry.js';
 export function initializeWikiEditor(form) {
     // Find the content textarea
     const contentTextarea = form.querySelector('#article-content');
-    if (!contentTextarea) return;
+    if (!contentTextarea) {
+        console.error('Wiki Editor initialization failed: #article-content not found');
+        return;
+    }
+    
+    console.log('Initializing Wiki Editor on', contentTextarea);
     
     // If Summernote is initialized, destroy it
     if (typeof $ !== 'undefined' && $.fn.summernote) {
         try {
             $(contentTextarea).summernote('destroy');
+            console.log('Summernote editor destroyed');
         } catch (e) {
             console.error('Error destroying Summernote:', e);
         }
@@ -43,45 +47,22 @@ export function initializeWikiEditor(form) {
     editorContainer.appendChild(toolbar);
     editorContainer.appendChild(contentTextarea);
     
-    // Add line numbering to textarea
-    addLineNumbers(contentTextarea);
-    
     // Add the preview area after the editor container (hidden initially)
-    const previewArea = document.createElement('div');
-    previewArea.className = 'wiki-preview-area';
-    previewArea.style.display = 'none';
-    editorContainer.parentNode.insertBefore(previewArea, editorContainer.nextSibling);
+    const previewArea = form.querySelector('.wiki-preview-area');
+    if (!previewArea) {
+        console.error('Wiki Preview area not found');
+    }
     
     // Set up the form submission handler to transform the content
     form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
         // Transform the article content by adding the short description
         transformContent(form);
         
-        // Submit the form
-        const event = new Event('wiki-editor-submit', {
-            bubbles: true,
-            cancelable: true
-        });
-        
-        const shouldProceed = form.dispatchEvent(event);
-        if (shouldProceed) {
-            // If using the original form submission logic
-            const originalSubmit = form.getAttribute('data-original-submit');
-            if (originalSubmit && window[originalSubmit]) {
-                window[originalSubmit]();
-            } else {
-                form.submit();
-            }
-        }
+        // The actual submission is handled by the form's existing event handler
     });
     
-    // Add show preview button to form actions
+    // Add show preview button to form actions if not already present
     addPreviewButton(form);
-    
-    // Style the cancel button
-    styleCancelButton(form);
     
     // Set up event handlers for toolbar buttons
     setupToolbarHandlers(toolbar, contentTextarea, previewArea);
@@ -89,30 +70,7 @@ export function initializeWikiEditor(form) {
     // Add keyboard shortcuts
     addKeyboardShortcuts(contentTextarea);
     
-    // Initialize editor components
-    initializeEditorComponents();
-}
-
-/**
- * Initialize all the editor components
- */
-function initializeEditorComponents() {
-    // These will be created on-demand when needed
-    // We don't need to eagerly create them
-}
-
-/**
- * Style the cancel button
- * @param {HTMLElement} form - The form element
- */
-function styleCancelButton(form) {
-    const cancelButton = form.querySelector('.cancel-button');
-    if (cancelButton) {
-        // Ensure the button has the cancel-button class
-        if (!cancelButton.classList.contains('cancel-button')) {
-            cancelButton.classList.add('cancel-button');
-        }
-    }
+    console.log('Wiki Editor initialized successfully');
 }
 
 /**
@@ -134,5 +92,6 @@ function transformContent(form) {
         // Add short description at the beginning
         content = `{{Short description|${summary}}}\n\n${content}`;
         contentTextarea.value = content;
+        console.log('Added short description to content');
     }
 }

@@ -1,0 +1,48 @@
+/* File: static/css/wiki-mode-toggle.css */
+.mode-toggle {
+    display: inline-flex;
+    background-color: #f5f5f5;
+    border-radius: 20px;
+    padding: 4px;
+    margin: 10px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mode-toggle-button {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.mode-toggle-button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.mode-toggle-button.active {
+    background-color: #0645ad;
+    color: white;
+}
+
+.wiki-notice {
+    background-color: #f8f9fa;
+    border: 1px solid #eaecf0;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+.wiki-notice p {
+    margin: 0;
+    color: #333;
+}
+
+.wiki-notice .wiki-icon {
+    margin-right: 8px;
+    color: #0645ad;
+}
