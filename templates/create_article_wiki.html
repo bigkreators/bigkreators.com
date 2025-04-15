@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+{% block title %}Create Article - Kryptopedia{% endblock %}
+
+{% set active_page = 'contribute' %}
+
+{% block extra_css %}
+<!-- Include wiki editor styles -->
+<link rel="stylesheet" href="/static/wiki-editor.css">
+<style>
+    .login-required-message {
+        text-align: center;
+        padding: 30px;
+        background-color: #f8f9fa;
+        border-radius: 6px;
+        margin: 20px 0;
+    }
+    
+    .login-required-message p {
+        margin-bottom: 20px;
+        font-size: 1.1em;
+    }
+
+    /* Status messages */
+    .status-message {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    /* Wiki preview area */
+    .wiki-preview-area {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-top: 20px;
+        background-color: #fff;
+        border-radius: 4px;
+    }
+    
+    .help-text {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+    }
+    
+    /* Form sections */
+    .form-section {
+        margin-bottom: 20px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+    
+    .form-section h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 18px;
+        color: #333;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Article Guidelines</h3>
+<ul>
+    <li><a href="/help/formatting">Wiki Formatting Guide</a></li>
+    <li><a href="/help/references">Adding References</a></li>
+    <li><a href="/help/media">Adding Media</a></li>
+    <li><a href="/help/categories">Using Categories</a></li>
+</ul>
+
+<h3>Quick Help</h3>
+<ul>
+    <li>Use '''text''' for <strong>bold text</strong></li>
+    <li>Use ''text'' for <em>italic text</em></li>
+    <li>Use == Heading == for section headers</li>
+    <li>Use [[Link]] for internal links</li>
+    <li>Use [https://example.com Text] for external links</li>
+    <li>Use * for bullet lists, # for numbered lists</li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1>Create a New Article</h1>
+
+<div id="login-message" class="login-required-message" style="display: none;">
+    <p>You need to be logged in to create articles.</p>
+    <button id="login-to-create" class="primary-button">Login</button>
+</div>
+
+<!-- Status messages -->
+<div id="error-message" class="status-message error-message"></div>
+<div id="success-message" class="status-message success-message"></div>
+
+<form id="create-article-form">
+    <div class="form-section">
+        <h3>Article Basics</h3>
+        
+        <div class="form-group">
+            <label for="article-title">Title:</label>
+            <input type="text" id="article-title" name="title" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="article-summary">Summary:</label>
+            <textarea id="article-summary" name="summary" rows="3" required></textarea>
+            <p class="help-text">A brief description of the article. This will be used as the short description.</p>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <h3>Article Content</h3>
+        <p class="help-text">Use wiki markup to format your article. The toolbar above provides common formatting options.</p>
+        
+        <div class="form-group">
+            <label for="article-content">Content:</label>
+            <textarea id="article-content" name="content" required></textarea>
+        </div>
+        
+        <div class="wiki-preview-area" style="display: none;"></div>
+    </div>
+    
+    <div class="form-section">
+        <h3>Article Metadata</h3>
+        
+        <div class="form-group">
+            <label for="article-categories">Categories (comma-separated):</label>
+            <input type="text" id="article-categories" name="categories">
+            <p class="help-text">Categories help organize articles and make them easier to find.</p>
+        </div>
+        
+        <div class="form-group">
+            <label for="article-tags">Tags (comma-separated):</label>
+            <input type="text" id="article-tags" name="tags">
+            <p class="help-text">Tags provide additional keywords to help in searching and related articles.</p>
+        </div>
+        
+        <div class="form-group metadata-checkboxes">
+            <label>Article Contains:</label>
+            <div>
+                <input type="checkbox" id="has-audio" name="hasAudio">
+                <label for="has-audio">Audio</label>
+            </div>
+            <div>
+                <input type="checkbox" id="has-special-symbols" name="hasSpecialSymbols">
+                <label for="has-special-symbols">Special Symbols</label>
+            </div>
+            <div>
+                <input type="checkbox" id="contains-made-up-content" name="containsMadeUpContent">
+                <label for="contains-made-up-content">Made-up Content</label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" id="save-article" class="primary-button">Create Article</button>
+        <button type="button" id="preview-button" class="preview-button">Show Preview</button>
+        <button type="button" class="cancel-button" onclick="window.location.href='/'">Cancel</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include wiki editor script -->
+<script src="/static/wikiEditor.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    if (!token) {
+        // Show a message that login is required
+        document.getElementById('create-article-form').style.display = 'none';
+        document.getElementById('login-message').style.display = 'block';
+        
+        document.getElementById('login-to-create').addEventListener('click', function() {
+            // Open login modal
+            document.getElementById('login-modal').style.display = 'block';
+            
+            // When login is successful, reload the page
+            document.getElementById('login-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                login(function() {
+                    window.location.reload();
+                });
+            });
+        });
+        
+        return;
+    }
+
+    // Show error message function
+    function showError(message) {
+        const errorMessage = document.getElementById('error-message');
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        setTimeout(function() {
+            errorMessage.style.display = 'none';
+        }, 5000);
+    }
+    
+    // Show success message function
+    function showSuccess(message) {
+        const successMessage = document.getElementById('success-message');
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+    }
+    
+    // Preview button functionality
+    document.getElementById('preview-button').addEventListener('click', function() {
+        const previewArea = document.querySelector('.wiki-preview-area');
+        const content = document.getElementById('article-content').value;
+        const summary = document.getElementById('article-summary').value;
+        
+        // Add short description if not already present
+        let fullContent = content;
+        if (summary && !content.includes('{{Short description|')) {
+            fullContent = `{{Short description|${summary}}}\n\n${content}`;
+        }
+        
+        if (previewArea.style.display === 'none') {
+            // Send content to server for preview
+            fetch('/api/preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ content: fullContent })
+            })
+            .then(response => response.json())
+            .then(data => {
+                previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${data.html}</div>`;
+                previewArea.style.display = 'block';
+                this.textContent = 'Hide Preview';
+            })
+            .catch(error => {
+                console.error('Error generating preview:', error);
+                showError('Failed to generate preview. Please try again.');
+            });
+        } else {
+            previewArea.style.display = 'none';
+            this.textContent = 'Show Preview';
+        }
+    });
+    
+    // Handle article creation
+    document.getElementById('create-article-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        const title = document.getElementById('article-title').value;
+        const summary = document.getElementById('article-summary').value;
+        const content = document.getElementById('article-content').value;
+        const categories = document.getElementById('article-categories').value.split(',').map(item => item.trim()).filter(item => item !== '');
+        const tags = document.getElementById('article-tags').value.split(',').map(item => item.trim()).filter(item => item !== '');
+        
+        // Get metadata
+        const metadata = {
+            hasAudio: document.getElementById('has-audio').checked,
+            hasSpecialSymbols: document.getElementById('has-special-symbols').checked,
+            containsMadeUpContent: document.getElementById('contains-made-up-content').checked
+        };
+        
+        // Validate form
+        if (!title) {
+            showError('Please enter a title for the article.');
+            return;
+        }
+        
+        if (!summary) {
+            showError('Please provide a summary for the article.');
+            return;
+        }
+        
+        if (!content) {
+            showError('Please enter content for the article.');
+            return;
+        }
+        
+        // Add short description if not already present
+        let finalContent = content;
+        if (!content.includes('{{Short description|')) {
+            finalContent = `{{Short description|${summary}}}\n\n${content}`;
+        }
+        
+        // Create article data object
+        const articleData = {
+            title,
+            summary,
+            content: finalContent,
+            categories,
+            tags,
+            metadata
+        };
+        
+        // Check token again before submitting
+        const currentToken = localStorage.getItem('token');
+        if (!currentToken) {
+            showError('Your session has expired. Please login again.');
+            document.getElementById('login-modal').style.display = 'block';
+            return;
+        }
+        
+        // Show loading indicator
+        const saveButton = document.getElementById('save-article');
+        const originalButtonText = saveButton.textContent;
+        saveButton.innerHTML = '<span class="loading-indicator"></span> Creating...';
+        saveButton.disabled = true;
+        
+        // Send API request
+        fetch('/api/articles/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify(articleData)
+        })
+        .then(response => {
+            if (response.status === 401) {
+                // Token is invalid or expired
+                localStorage.removeItem('token');
+                showError('Your session has expired. Please login again.');
+                document.getElementById('login-modal').style.display = 'block';
+                throw new Error('Unauthorized');
+            }
+            
+            if (!response.ok) {
+                return response.text().then(text => {
+                    try {
+                        const data = JSON.parse(text);
+                        throw new Error(data.detail || 'Failed to create article');
+                    } catch (e) {
+                        throw new Error('Failed to create article: ' + text);
+                    }
+                });
+            }
+            
+            return response.json();
+        })
+        .then(data => {
+            showSuccess('Article created successfully!');
+            
+            // Redirect to the new article after a brief delay
+            setTimeout(function() {
+                window.location.href = `/articles/${data.slug}`;
+            }, 1000);
+        })
+        .catch(error => {
+            // Reset button
+            saveButton.textContent = originalButtonText;
+            saveButton.disabled = false;
+            
+            if (error.message !== 'Unauthorized') {
+                console.error('Error creating article:', error);
+                showError(error.message || 'Failed to create article. Please try again.');
+            }
+        });
+    });
+});
+
+// Helper function for login
+function login(callback) {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    // Create form data for OAuth2 format
+    const formData = new URLSearchParams();
+    formData.append('username', email); // API expects username field
+    formData.append('password', password);
+    
+    fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Login failed');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Store token
+        localStorage.setItem('token', data.access_token);
+        
+        // Close modal
+        document.getElementById('login-modal').style.display = 'none';
+        
+        // Call the callback function if provided
+        if (typeof callback === 'function') {
+            callback();
+        } else {
+            // Reload page if no callback
+            window.location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error logging in:', error);
+        alert('Login failed. Please check your credentials and try again.');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Propose Edit: {{ article.title }} - Kryptopedia{% endblock %}
+
+{% set active_page = 'articles' %}
+
+{% block extra_css %}
+<!-- Include wiki editor styles -->
+<link rel="stylesheet" href="/static/wiki-editor.css">
+<style>
+    .form-section {
+        margin-bottom: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .proposal-notice {
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #fff3cd;
+        border: 1px solid #ffeeba;
+        border-radius: 4px;
+        color: #856404;
+    }
+    
+    .status-message {
+        padding: 10px 15px;
+        border-radius: 4px;
+        margin: 15px 0;
+        display: none;
+    }
+    
+    .error-message {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .success-message {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .login-required {
+        text-align: center;
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin: 20px 0;
+    }
+    
+    .help-text {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block sidebar_extra %}
+<h3>Article Actions</h3>
+<ul>
+    <li><a href="/articles/{{ article.slug }}">View Article</a></li>
+    <li><a href="/articles/{{ article._id }}/history">History</a></li>
+    <li><a href="/articles">All Articles</a></li>
+</ul>
+
+<h3>Wiki Formatting</h3>
+<ul>
+    <li>Use '''text''' for <strong>bold text</strong></li>
+    <li>Use ''text'' for <em>italic text</em></li>
+    <li>Use == Heading == for section headers</li>
+    <li>Use [[Link]] for internal links</li>
+    <li>Use [https://example.com Text] for external links</li>
+    <li>Use * for bullet lists, # for numbered lists</li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1>Propose Edit: {{ article.title }}</h1>
+
+<div class="proposal-notice">
+    <p><strong>Note:</strong> You are creating a proposal to edit this article. Your changes will be reviewed by an editor before being published.</p>
+</div>
+
+<div id="login-message" class="login-required" style="display: none;">
+    <p>You need to be logged in to propose edits to articles.</p>
+    <button id="login-to-edit" class="primary-button">Login</button>
+</div>
+
+<div class="status-message error-message" id="error-message"></div>
+<div class="status-message success-message" id="success-message"></div>
+
+<form id="propose-edit-form">
+    <div class="form-section">
+        <div class="form-group">
+            <label for="proposal-summary">Proposal Summary:</label>
+            <input type="text" id="proposal-summary" name="summary" placeholder="Briefly describe your proposed changes" required>
+            <p class="help-text">Explain why these changes are needed and what they improve.</p>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <div class="form-group">
+            <label for="article-content">Proposed Content:</label>
+            <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
+        </div>
+        
+        <div class="wiki-preview-area" style="display: none;"></div>
+    </div>
+    
+    <div class="form-actions">
+        <button type="submit" id="submit-proposal" class="primary-button">Submit Proposal</button>
+        <button type="button" id="preview-button" class="preview-button">Show Preview</button>
+        <a href="/articles/{{ article.slug }}" class="cancel-button">Cancel</a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Include wiki editor script -->
+<script src="/static/wikiEditor.js">

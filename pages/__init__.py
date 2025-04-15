@@ -7,6 +7,7 @@ from fastapi import APIRouter
 # Import routers from all page modules
 from .home import router as home_router
 from .articles import router as articles_router
+from .articles_html import router as articles_html_router
 from .admin import router as admin_router
 from .special import router as special_router
 from .proposals import router as proposals_router
@@ -34,6 +35,7 @@ router.include_router(help_router)
 router.include_router(community_router)
 router.include_router(donate_router)
 router.include_router(upload_router)
+router.include_router(articles_html_router)
 
 # Export modules
 __all__ = [
