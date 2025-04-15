@@ -1,3 +1,4 @@
+// File: static/js/wiki-editor/utils/text-utils.js
 /**
  * Text Manipulation Utilities for Wiki Editor
  * 
@@ -111,4 +112,39 @@ export function removeIndent(textarea) {
  */
 export function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * Escape HTML special characters
+ * @param {string} html - String to escape
+ * @returns {string} Escaped HTML string
+ */
+export function escapeHTML(html) {
+    const div = document.createElement('div');
+    div.textContent = html;
+    return div.innerHTML;
+}
+
+/**
+ * Unescape HTML special characters
+ * @param {string} html - String to unescape
+ * @returns {string} Unescaped HTML string
+ */
+export function unescapeHTML(html) {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent;
+}
+
+/**
+ * Get the selected text range info
+ * @param {HTMLElement} textarea - The textarea element
+ * @returns {Object} Object with start, end, and text properties
+ */
+export function getSelectedTextInfo(textarea) {
+    return {
+        start: textarea.selectionStart,
+        end: textarea.selectionEnd,
+        text: textarea.value.substring(textarea.selectionStart, textarea.selectionEnd)
+    };
 }

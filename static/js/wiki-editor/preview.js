@@ -1,10 +1,11 @@
+// File: static/js/wiki-editor/preview.js
 /**
  * Preview Functionality for Wiki Editor
  * 
  * This file contains functions for previewing wiki content.
  */
 
-import { transformWikiMarkup } from './utils.js';
+import { transformWikiMarkup } from './utils/transform-utils.js';
 
 /**
  * Add preview button to form actions
@@ -97,23 +98,27 @@ export function previewContent(form) {
                 console.error('Error fetching preview:', error);
                 
                 // Fall back to client-side rendering
-                const html = transformWikiMarkup(content);
-                previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${html}</div>`;
-                previewArea.style.display = 'block';
-                const previewButton = document.getElementById('preview-button');
-                if (previewButton) {
-                    previewButton.textContent = 'Hide Preview';
-                }
+                clientSidePreview(content, previewArea);
             });
         } else {
-            // Transform wiki markup to HTML (client-side)
-            const html = transformWikiMarkup(content);
-            previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${html}</div>`;
-            previewArea.style.display = 'block';
-            const previewButton = document.getElementById('preview-button');
-            if (previewButton) {
-                previewButton.textContent = 'Hide Preview';
-            }
+            // Use client-side preview when no token is available
+            clientSidePreview(content, previewArea);
         }
+    }
+}
+
+/**
+ * Perform client-side preview rendering
+ * @param {string} content - Wiki markup content
+ * @param {HTMLElement} previewArea - The preview container element
+ */
+function clientSidePreview(content, previewArea) {
+    const result = transformWikiMarkup(content);
+    previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${result.html}</div>`;
+    previewArea.style.display = 'block';
+    
+    const previewButton = document.getElementById('preview-button');
+    if (previewButton) {
+        previewButton.textContent = 'Hide Preview';
     }
 }

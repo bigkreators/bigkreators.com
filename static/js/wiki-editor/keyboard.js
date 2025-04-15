@@ -1,11 +1,13 @@
+// File: static/js/wiki-editor/keyboard.js
 /**
  * Keyboard Shortcuts for Wiki Editor
  * 
  * This file contains keyboard shortcut functionality for the wiki editor.
  */
 
-import { wrapSelectedText, insertWikiMarkup, prependToSelectedLines } from './text-utils.js';
-import { openLinkDialog, openSearchReplaceDialog } from './dialogs.js';
+import { wrapSelectedText, insertWikiMarkup, prependToSelectedLines, removeIndent } from './utils/text-utils.js';
+import { openLinkDialog } from './components/link-dialog.js';
+import { openSearchReplaceDialog } from './components/search-replace-dialog.js';
 import { previewContent } from './preview.js';
 
 /**

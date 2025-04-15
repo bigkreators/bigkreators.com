@@ -1,16 +1,17 @@
+// File: static/js/wiki-editor/core.js
 /**
- * Core Wiki Editor Implementation for Kryptopedia
+ * Core Wiki Editor Implementation
  * 
  * This file contains the main initialization and core functionality
  * for the wiki editor component.
  */
 
-// Import dependencies
+// Import core dependencies
 import { createEditorToolbar, setupToolbarHandlers } from './toolbar.js';
-import { addLineNumbers } from './utils.js';
-import { addPreviewButton, previewContent } from './preview.js';
-import { createCitationDialog, createReferenceDialog, createTableDialog, createTemplateGallery, createSearchReplaceDialog } from './dialogs.js';
+import { addLineNumbers } from './utils/dom-utils.js';
+import { addPreviewButton } from './preview.js';
 import { addKeyboardShortcuts } from './keyboard.js';
+import { getComponent } from './component-registry.js';
 
 /**
  * Initialize the Wiki Editor on a form
@@ -88,18 +89,16 @@ export function initializeWikiEditor(form) {
     // Add keyboard shortcuts
     addKeyboardShortcuts(contentTextarea);
     
-    // Add the citation and reference dialogs
-    createCitationDialog();
-    createReferenceDialog();
-    
-    // Add the table dialog
-    createTableDialog();
-    
-    // Add the template gallery dialog
-    createTemplateGallery();
-    
-    // Create search and replace dialog (once)
-    createSearchReplaceDialog();
+    // Initialize editor components
+    initializeEditorComponents();
+}
+
+/**
+ * Initialize all the editor components
+ */
+function initializeEditorComponents() {
+    // These will be created on-demand when needed
+    // We don't need to eagerly create them
 }
 
 /**
@@ -137,22 +136,3 @@ function transformContent(form) {
         contentTextarea.value = content;
     }
 }
-
-// Initialize wiki editor on appropriate pages when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize wiki editor on appropriate pages
-    const editForms = [
-        'create-article-form',
-        'edit-article-form',
-        'propose-edit-form',
-        'talk-page-form',
-        'quick-edit-form'
-    ];
-    
-    editForms.forEach(formId => {
-        const form = document.getElementById(formId);
-        if (form) {
-            initializeWikiEditor(form);
-        }
-    });
-});

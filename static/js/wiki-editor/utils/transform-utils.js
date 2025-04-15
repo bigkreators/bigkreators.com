@@ -1,27 +1,25 @@
+// File: static/js/wiki-editor/utils/transform-utils.js
 /**
- * Wiki Markup Transformations
+ * Transformation Utilities for Wiki Editor
  * 
- * This file contains functions for transforming wiki markup to HTML
- * and handling various wiki syntax elements.
+ * This file contains utility functions for transforming wiki markup to HTML.
  */
 
 /**
- * Transform wiki markup to HTML
- * @param {string} markup - The wiki markup to transform
- * @returns {string} HTML version of the markup
+ * Transform wiki markup to HTML for preview
+ * @param {string} markup - Wiki markup content
+ * @returns {Object} Object with html and shortDescription properties
  */
 export function transformWikiMarkup(markup) {
-    // This is a client-side transformation for preview purposes
-    // The server should handle the full transformation
-    let html = markup;
-
     // Extract short description if present
     let shortDescription = null;
-    const shortDescMatch = /\{\{Short description\|(.*?)\}\}/g.exec(html);
+    const shortDescMatch = /\{\{Short description\|(.*?)\}\}/g.exec(markup);
     if (shortDescMatch) {
         shortDescription = shortDescMatch[1].trim();
-        html = html.replace(shortDescMatch[0], '');
+        markup = markup.replace(shortDescMatch[0], '');
     }
+
+    let html = markup;
 
     // Handle text formatting
     html = html.replace(/'''(.*?)'''/g, '<strong>$1</strong>');
@@ -39,18 +37,37 @@ export function transformWikiMarkup(markup) {
     html = html.replace(/==\s*(.*?)\s*==/g, '<h2>$1</h2>');
     html = html.replace(/=\s*(.*?)\s*=/g, '<h1>$1</h1>');
 
-    // Handle links
-    // Internal links [[Page name]]
-    html = html.replace(/\[\[(.*?)\]\]/g, '<a href="/articles/$1">$1</a>');
-    // Internal links with display text [[Page name|Display text]]
-    html = html.replace(/\[\[(.*?)\|(.*?)\]\]/g, '<a href="/articles/$1">$2</a>');
-    // External links [http://example.com Display text]
-    html = html.replace(/\[(https?:\/\/[^\s\]]+)\s+(.*?)\]/g, '<a href="$1" target="_blank">$2</a>');
-    // External links without display text [http://example.com]
-    html = html.replace(/\[(https?:\/\/[^\s\]]+)\]/g, '<a href="$1" target="_blank">$1</a>');
-
     // Handle lists
-    const lines = html.split('\n');
+    html = transformLists(html);
+
+    // Handle links
+    html = transformLinks(html);
+
+    // Handle tables
+    html = transformTables(html);
+    
+    // Handle templates
+    html = transformTemplates(html);
+    
+    // Handle images
+    html = transformImages(html);
+    
+    // Handle references
+    html = transformReferences(html);
+
+    // Handle paragraphs
+    html = transformParagraphs(html);
+
+    return { html, shortDescription };
+}
+
+/**
+ * Transform wiki lists to HTML
+ * @param {string} markup - Wiki markup with lists
+ * @returns {string} HTML with transformed lists
+ */
+function transformLists(markup) {
+    const lines = markup.split('\n');
     let inList = false;
     let listType = null;
     let result = [];
@@ -82,7 +99,7 @@ export function transformWikiMarkup(markup) {
             }
             result.push(`<li>${line.substring(2)}</li>`);
         }
-        // Not a list
+        // Not a list item
         else {
             if (inList) {
                 result.push(`</${listType}>`);
@@ -98,29 +115,35 @@ export function transformWikiMarkup(markup) {
         result.push(`</${listType}>`);
     }
 
-    html = result.join('\n');
-
-    // Handle tables
-    html = transformTables(html);
-
-    // Handle templates
-    html = transformTemplates(html);
-
-    // Handle images
-    html = transformImages(html);
-
-    // Handle references
-    html = transformReferences(html);
-
-    // Handle paragraphs
-    html = transformParagraphs(html);
-
-    return { html, shortDescription };
+    return result.join('\n');
 }
 
 /**
- * Transform wiki table markup to HTML
- * @param {string} markup - Wiki markup containing tables
+ * Transform wiki links to HTML
+ * @param {string} markup - Wiki markup with links
+ * @returns {string} HTML with transformed links
+ */
+function transformLinks(markup) {
+    let html = markup;
+    
+    // Handle internal links [[Page name]]
+    html = html.replace(/\[\[(.*?)\]\]/g, '<a href="/articles/$1">$1</a>');
+    
+    // Handle internal links with display text [[Page name|Display text]]
+    html = html.replace(/\[\[(.*?)\|(.*?)\]\]/g, '<a href="/articles/$1">$2</a>');
+    
+    // Handle external links [http://example.com Display text]
+    html = html.replace(/\[(https?:\/\/[^\s\]]+)\s+(.*?)\]/g, '<a href="$1" target="_blank" rel="noopener">$2</a>');
+    
+    // Handle external links without display text [http://example.com]
+    html = html.replace(/\[(https?:\/\/[^\s\]]+)\]/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    
+    return html;
+}
+
+/**
+ * Transform wiki tables to HTML
+ * @param {string} markup - Wiki markup with tables
  * @returns {string} HTML with transformed tables
  */
 function transformTables(markup) {
@@ -175,8 +198,8 @@ function transformTables(markup) {
 }
 
 /**
- * Transform wiki template markup to HTML
- * @param {string} markup - Wiki markup containing templates
+ * Transform wiki templates to HTML
+ * @param {string} markup - Wiki markup with templates
  * @returns {string} HTML with transformed templates
  */
 function transformTemplates(markup) {
@@ -232,7 +255,7 @@ function transformTemplates(markup) {
 }
 
 /**
- * Render infobox template as HTML
+ * Render infobox template 
  * @param {Object} params - Template parameters
  * @returns {string} HTML infobox
  */
@@ -269,7 +292,7 @@ function renderInfobox(params) {
 }
 
 /**
- * Render quote template as HTML
+ * Render quote template
  * @param {Object} params - Template parameters
  * @returns {string} HTML blockquote
  */
@@ -300,200 +323,39 @@ function renderQuote(params) {
 }
 
 /**
- * Render citation template as HTML
+ * Render citation template
  * @param {string} type - Citation type
  * @param {Object} params - Template parameters
  * @returns {string} HTML citation
  */
 function renderCitation(type, params) {
-    const citationType = type.replace(/^cite\s+/, '');
+    // Simple rendering for client-side preview
+    let html = '<span class="wiki-citation">[';
     
-    switch (citationType.toLowerCase()) {
-        case 'web':
-            return renderWebCitation(params);
-        case 'book':
-            return renderBookCitation(params);
-        case 'journal':
-            return renderJournalCitation(params);
-        default:
-            return renderGenericCitation(params);
-    }
-}
-
-/**
- * Render web citation
- * @param {Object} params - Citation parameters
- * @returns {string} HTML citation
- */
-function renderWebCitation(params) {
-    const title = params.title || '';
-    const url = params.url || '';
-    const author = params.author || '';
-    const website = params.website || '';
-    const date = params.date || '';
-    const accessDate = params['access-date'] || params.accessdate || '';
-    
-    let html = '<span class="wiki-citation">';
-    
-    if (author) {
-        html += `${author}. `;
-    }
-    
-    if (title) {
-        if (url) {
-            html += `"<a href="${url}" target="_blank" rel="noopener">${title}</a>". `;
-        } else {
-            html += `"${title}". `;
-        }
-    }
-    
-    if (website) {
-        html += `<em>${website}</em>. `;
-    }
-    
-    if (date) {
-        html += `${date}. `;
-    }
-    
-    if (accessDate) {
-        html += `Retrieved ${accessDate}.`;
-    }
-    
-    html += '</span>';
-    return html;
-}
-
-/**
- * Render book citation
- * @param {Object} params - Citation parameters
- * @returns {string} HTML citation
- */
-function renderBookCitation(params) {
-    const title = params.title || '';
-    const author = params.author || '';
-    const publisher = params.publisher || '';
-    const year = params.year || '';
-    const pages = params.pages || '';
-    const isbn = params.isbn || '';
-    
-    let html = '<span class="wiki-citation">';
-    
-    if (author) {
-        html += `${author}. `;
-    }
-    
-    if (title) {
-        html += `<em>${title}</em>. `;
-    }
-    
-    if (publisher) {
-        html += `${publisher}`;
-        if (year) {
-            html += `, ${year}`;
-        }
-        html += `. `;
-    } else if (year) {
-        html += `${year}. `;
-    }
-    
-    if (pages) {
-        html += `pp. ${pages}. `;
-    }
-    
-    if (isbn) {
-        html += `ISBN: ${isbn}`;
-    }
-    
-    html += '</span>';
-    return html;
-}
-
-/**
- * Render journal citation
- * @param {Object} params - Citation parameters
- * @returns {string} HTML citation
- */
-function renderJournalCitation(params) {
-    const title = params.title || '';
-    const author = params.author || '';
-    const journal = params.journal || '';
-    const volume = params.volume || '';
-    const issue = params.issue || '';
-    const year = params.year || '';
-    const pages = params.pages || '';
-    const doi = params.doi || '';
-    
-    let html = '<span class="wiki-citation">';
-    
-    if (author) {
-        html += `${author}. `;
-    }
-    
-    if (title) {
-        html += `"${title}". `;
-    }
-    
-    if (journal) {
-        html += `<em>${journal}</em>`;
-        
-        if (volume) {
-            html += ` ${volume}`;
-            if (issue) {
-                html += `(${issue})`;
-            }
-        }
-        
-        if (year) {
-            html += ` (${year})`;
-        }
-        
-        html += `. `;
-    }
-    
-    if (pages) {
-        html += `pp. ${pages}. `;
-    }
-    
-    if (doi) {
-        html += `DOI: ${doi}`;
-    }
-    
-    html += '</span>';
-    return html;
-}
-
-/**
- * Render generic citation
- * @param {Object} params - Citation parameters
- * @returns {string} HTML citation
- */
-function renderGenericCitation(params) {
-    let html = '<span class="wiki-citation">';
-    
-    // Try to make a reasonable citation from available params
     if (params.author) {
-        html += `${params.author}. `;
+        html += params.author;
+        if (params.year) {
+            html += `, ${params.year}`;
+        }
+        html += '. ';
     }
     
     if (params.title) {
-        html += `"${params.title}". `;
+        html += `"${params.title}"`;
+        if (params.url) {
+            html += ` <a href="${params.url}" target="_blank">(link)</a>`;
+        }
+    } else if (params.url) {
+        html += `<a href="${params.url}" target="_blank">${params.url}</a>`;
     }
     
-    if (params.source) {
-        html += `<em>${params.source}</em>. `;
-    }
-    
-    if (params.date || params.year) {
-        html += `${params.date || params.year}. `;
-    }
-    
-    html += '</span>';
+    html += ']</span>';
     return html;
 }
 
 /**
- * Transform wiki image markup to HTML
- * @param {string} markup - Wiki markup containing images
+ * Transform wiki images to HTML
+ * @param {string} markup - Wiki markup with images
  * @returns {string} HTML with transformed images
  */
 function transformImages(markup) {
@@ -537,8 +399,8 @@ function transformImages(markup) {
 }
 
 /**
- * Transform wiki reference markup to HTML
- * @param {string} markup - Wiki markup containing references
+ * Transform wiki references to HTML
+ * @param {string} markup - Wiki markup with references
  * @returns {string} HTML with transformed references
  */
 function transformReferences(markup) {
@@ -554,7 +416,7 @@ function transformReferences(markup) {
             content: content.trim()
         });
         
-        return `<sup class="wiki-reference">[<a href="#ref-${index}">${index}</a>]</sup>`;
+        return `<sup class="wiki-reference">[${index}]</sup>`;
     });
     
     // Replace reference list placeholder
@@ -602,9 +464,9 @@ function transformParagraphs(markup) {
 }
 
 /**
- * Extract all headings from wiki markup
+ * Extract headings from wiki markup
  * @param {string} markup - Wiki markup content
- * @returns {Array<{level: number, text: string, id: string}>} Array of headings with level and text
+ * @returns {Array<{level: number, text: string, id: string}>} Array of headings
  */
 export function extractHeadings(markup) {
     const headings = [];
