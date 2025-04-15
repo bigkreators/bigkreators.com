@@ -287,11 +287,19 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Create article data object - let the server handle the short description
+        // Process content to add short description if needed
+        let processedContent = content;
+        {% raw %}
+        if (!processedContent.includes('{{Short description|')) {
+            processedContent = `{{Short description|${summary}}}\n\n${processedContent}`;
+        }
+        {% endraw %}
+        
+        // Create article data object with the processed content
         const articleData = {
             title,
             summary,
-            content: content, // Send the original content
+            content: processedContent,
             categories,
             tags,
             metadata

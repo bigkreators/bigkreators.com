@@ -125,6 +125,23 @@
         color: #666;
         margin-top: 5px;
     }
+    
+    /* Wiki editor container */
+    .wiki-editor-container {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        background-color: #fff;
+    }
+
+    /* Preview area */
+    .wiki-preview-area {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-top: 20px;
+        background-color: #fff;
+        border-radius: 4px;
+    }
 </style>
 {% endblock %}
 
@@ -175,7 +192,10 @@
     <div class="form-section">
         <div class="form-group">
             <label for="article-content">Content:</label>
-            <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
+            <div class="wiki-editor-container">
+                <div class="wiki-editor-toolbar"></div>
+                <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
+            </div>
         </div>
         
         <div class="wiki-preview-area" style="display: none;"></div>
@@ -218,11 +238,14 @@
         // Initialize the wiki editor
         const form = document.getElementById('edit-article-form');
         if (form) {
+            console.log('Initializing wiki editor on edit-article-form');
             try {
                 initializeWikiEditor(form);
             } catch (error) {
                 console.error('Error initializing wiki editor:', error);
             }
+        } else {
+            console.error('Could not find edit-article-form');
         }
     });
 </script>

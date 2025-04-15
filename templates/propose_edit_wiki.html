@@ -1,3 +1,4 @@
+<!-- File: templates/propose_edit_wiki.html -->
 {% extends "base.html" %}
 
 {% block title %}Propose Edit: {{ article.title }} - Kryptopedia{% endblock %}
@@ -56,6 +57,56 @@
         color: #666;
         margin-top: 5px;
     }
+    
+    /* Wiki editor container */
+    .wiki-editor-container {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        background-color: #fff;
+    }
+    
+    /* Preview area */
+    .wiki-preview-area {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-top: 20px;
+        background-color: #fff;
+        border-radius: 4px;
+    }
+    
+    /* Form actions */
+    .form-actions {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .primary-button {
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .primary-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .cancel-button {
+        padding: 8px 16px;
+        background-color: #f5f5f5;
+        color: #333;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+    
+    .cancel-button:hover {
+        background-color: #e5e5e5;
+    }
 </style>
 {% endblock %}
 
@@ -105,7 +156,10 @@
     <div class="form-section">
         <div class="form-group">
             <label for="article-content">Proposed Content:</label>
-            <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
+            <div class="wiki-editor-container">
+                <div class="wiki-editor-toolbar"></div>
+                <textarea id="article-content" name="content" required>{{ article.content }}</textarea>
+            </div>
         </div>
         
         <div class="wiki-preview-area" style="display: none;"></div>
@@ -121,7 +175,25 @@
 
 {% block extra_js %}
 <!-- Include wiki editor script -->
-<script src="/static/wikiEditor.js"></script>
+<script type="module">
+    import { initializeWikiEditor } from '/static/js/wiki-editor/main.js';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the wiki editor
+        const form = document.getElementById('propose-edit-form');
+        if (form) {
+            console.log('Initializing wiki editor on propose-edit-form');
+            try {
+                initializeWikiEditor(form);
+            } catch (error) {
+                console.error('Error initializing wiki editor:', error);
+            }
+        } else {
+            console.error('Could not find propose-edit-form');
+        }
+    });
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
@@ -147,57 +219,19 @@ document.addEventListener('DOMContentLoaded', function() {
         loginMessage.style.display = 'none';
         proposeForm.style.display = 'block';
         
-        // Preview button functionality
-        document.getElementById('preview-button').addEventListener('click', function() {
-            const previewArea = document.querySelector('.wiki-preview-area');
-            const content = document.getElementById('article-content').value;
-            const proposalSummary = document.getElementById('proposal-summary').value;
-            
-            if (previewArea.style.display === 'none') {
-                // Send content to server for preview, including the proposal summary as context
-                fetch('/api/preview', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ 
-                        content: content,
-                        proposalSummary: proposalSummary // Provide context
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${data.html}</div>`;
-                    previewArea.style.display = 'block';
-                    this.textContent = 'Hide Preview';
-                })
-                .catch(error => {
-                    console.error('Error generating preview:', error);
-                    showError('Failed to generate preview. Please try again.');
-                });
-            } else {
-                previewArea.style.display = 'none';
-                this.textContent = 'Show Preview';
-            }
-        });
+        // Preview button functionality is handled by the wiki editor module
         
         // Handle form submission
         proposeForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Get form values
-            const proposalSummary = document.getElementById('proposal-summary').value;
-            const proposedContent = document.getElementById('article-content').value;
+            let proposalSummary = document.getElementById('proposal-summary').value;
+            let proposedContent = document.getElementById('article-content').value;
             
             // Validate
-            if (!proposalSummary) {
-                showError('Please provide a proposal summary.');
-                return;
-            }
-            
-            if (!proposedContent) {
-                showError('Please provide the proposed content.');
+            if (!proposalSummary || !proposedContent) {
+                showError('Please fill in all required fields.');
                 return;
             }
             

@@ -51,6 +51,319 @@
     background-color: #c8ccd1;
 }
 
+/* Line Numbers */
+.wiki-editor-wrapper {
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+
+.wiki-editor-line-numbers {
+    width: 40px;
+    font-family: monospace;
+    font-size: 14px;
+    color: #999;
+    text-align: right;
+    padding: 10px 5px 10px 0;
+    border-right: 1px solid #ddd;
+    background-color: #f8f9fa;
+    overflow: hidden;
+    user-select: none;
+}
+
+.line-number {
+    padding-right: 5px;
+}
+
+/* Preview Area */
+.wiki-preview-area {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 15px;
+    background-color: #fff;
+}
+
+.wiki-preview-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.preview-loading {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+/* Autosave Indicator */
+.autosave-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.wiki-autosave-notice {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 10px 15px;
+    margin: 15px 0;
+    border-radius: 4px;
+}
+
+.wiki-autosave-notice button {
+    margin-left: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.wiki-autosave-notice button:hover {
+    background-color: #f8f9fa;
+}
+
+/* Mode Toggle */
+.mode-toggle {
+    display: inline-flex;
+    background-color: #f5f5f5;
+    border-radius: 20px;
+    padding: 4px;
+    margin: 10px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mode-toggle-button {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.mode-toggle-button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.mode-toggle-button.active {
+    background-color: #0645ad;
+    color: white;
+}
+
+.wiki-notice {
+    background-color: #f8f9fa;
+    border: 1px solid #eaecf0;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+.wiki-notice p {
+    margin: 0;
+    color: #333;
+}
+
+.wiki-notice .wiki-icon {
+    margin-right: 8px;
+    color: #0645ad;
+}
+
+/* Dialogs */
+.wiki-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.wiki-dialog.show {
+    display: block;
+    opacity: 1;
+}
+
+.wiki-dialog-content {
+    position: relative;
+    background-color: #fff;
+    margin: 50px auto;
+    padding: 20px;
+    max-width: 600px;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.close-dialog {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #666;
+}
+
+.close-dialog:hover {
+    color: #333;
+}
+
+.dialog-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.dialog-actions button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+.dialog-actions button:hover {
+    background-color: #e9ecef;
+}
+
+.dialog-actions button:first-child {
+    background-color: #0645ad;
+    color: white;
+    border-color: #0645ad;
+}
+
+.dialog-actions button:first-child:hover {
+    background-color: #053a7a;
+}
+
+/* Component-specific styles */
+.wiki-heading-dialog .heading-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.wiki-heading-dialog .heading-option {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.wiki-heading-dialog .heading-option:hover {
+    background-color: #f8f9fa;
+}
+
+.wiki-template-gallery .template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.wiki-template-gallery .template-item {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.wiki-template-gallery .template-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Form button styles */
+.primary-button {
+    padding: 8px 16px;
+    background-color: #0645ad;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    background-color: #053a7a;
+}
+
+.preview-button {
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.preview-button:hover {
+    background-color: #e5e5e5;
+}
+
+/* Wiki Article Preview Styles */
+.wiki-short-description {
+    font-style: italic;
+    color: #666;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eaecf0;
+}
+
+.wiki-infobox {
+    float: right;
+    margin: 0 0 1em 1em;
+    border: 1px solid #a2a9b1;
+    background-color: #f8f9fa;
+    width: 300px;
+    border-collapse: collapse;
+}
+
+.wiki-infobox th, .wiki-infobox td {
+    padding: 8px;
+    border: 1px solid #a2a9b1;
+}
+
+.wiki-infobox-title {
+    font-size: 1.2em;
+    text-align: center;
+    background-color: #eaecf0;
+}
+
+.wiki-collapsible .collapsible-header {
+    cursor: pointer;
+    user-select: none;
+}
+
+.wiki-collapsible .collapsible-header:before {
+    content: '▼';
+    display: inline-block;
+    margin-right: 5px;
+    transition: transform 0.2s;
+}
+
+.wiki-collapsible .collapsible-header.collapsed:before {
+    transform: rotate(-90deg);
+}
+
+.wiki-collapsible .collapsible-content.collapsed {
+    display: none;
+}
+
 /* Icons */
 .wiki-icon {
     width: 20px;
@@ -169,4 +482,46 @@
     resize: vertical;
 }
 
-/
+/* Wiki Lightbox */
+.wiki-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 1100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+}
+
+.lightbox-content img {
+    max-width: 100%;
+    max-height: 80vh;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.lightbox-caption {
+    color: white;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: -30px;
+    right: 0;
+    color: white;
+    font-size: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
