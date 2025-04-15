@@ -1,0 +1,67 @@
+/**
+ * Keyboard Shortcuts for Wiki Editor
+ * 
+ * This file contains keyboard shortcut functionality for the wiki editor.
+ */
+
+import { wrapSelectedText, insertWikiMarkup, prependToSelectedLines } from './text-utils.js';
+import { openLinkDialog, openSearchReplaceDialog } from './dialogs.js';
+import { previewContent } from './preview.js';
+
+/**
+ * Add keyboard shortcuts to the editor
+ * @param {HTMLElement} textarea - The textarea element
+ */
+export function addKeyboardShortcuts(textarea) {
+    textarea.addEventListener('keydown', function(e) {
+        // Ctrl+B: Bold
+        if (e.ctrlKey && e.key === 'b') {
+            e.preventDefault();
+            wrapSelectedText(textarea, "'''", "'''");
+        }
+        // Ctrl+I: Italic
+        else if (e.ctrlKey && e.key === 'i') {
+            e.preventDefault();
+            wrapSelectedText(textarea, "''", "''");
+        }
+        // Ctrl+U: Underline
+        else if (e.ctrlKey && e.key === 'u') {
+            e.preventDefault();
+            wrapSelectedText(textarea, '<u>', '</u>');
+        }
+        // Ctrl+K: Link
+        else if (e.ctrlKey && e.key === 'k') {
+            e.preventDefault();
+            openLinkDialog(textarea);
+        }
+        // Ctrl+F: Search
+        else if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            openSearchReplaceDialog(textarea);
+        }
+        // Ctrl+P: Preview
+        else if (e.ctrlKey && e.key === 'p') {
+            e.preventDefault();
+            previewContent(textarea.form);
+        }
+        // Tab: Insert tab or handle indentation
+        else if (e.key === 'Tab') {
+            e.preventDefault();
+            
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            
+            // If text is selected, indent/outdent selection
+            if (start !== end) {
+                if (e.shiftKey) {
+                    removeIndent(textarea); // Outdent
+                } else {
+                    prependToSelectedLines(textarea, '  '); // Indent with 2 spaces
+                }
+            } else {
+                // No selection, insert tab at cursor
+                insertWikiMarkup(textarea, '  ');
+            }
+        }
+    });
+}
