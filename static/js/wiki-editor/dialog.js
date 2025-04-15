@@ -766,3 +766,270 @@ export function openTemplateGallery(textarea) {
     // Set up custom template insert button
     const customInsertButton = document.getElementById('insert-custom-template');
     const newCustomButton = customInsertButton.cloneNode(true);
+    customInsertButton.parentNode.replaceChild(newCustomButton, customInsertButton);
+    
+    newCustomButton.addEventListener('click', () => {
+        const templateName = document.getElementById('custom-template-name').value.trim();
+        const paramsText = document.getElementById('custom-template-params').value.trim();
+        
+        if (!templateName) {
+            alert('Please enter a template name');
+            return;
+        }
+        
+        let markup = `{{${templateName}`;
+        
+        if (paramsText) {
+            const params = paramsText.split('\n');
+            params.forEach(param => {
+                if (param.trim()) {
+                    markup += `|${param.trim()}`;
+                }
+            });
+        }
+        
+        markup += '}}';
+        
+        insertWikiMarkup(textarea, markup);
+        dialog.style.display = 'none';
+    });
+    
+    // Clear search and reset display
+    const searchInput = document.getElementById('template-search');
+    searchInput.value = '';
+    const templateItems = document.querySelectorAll('.template-item');
+    templateItems.forEach(item => {
+        item.style.display = 'block';
+    });
+    
+    // Show dialog
+    dialog.style.display = 'block';
+    
+    // Focus search input
+    searchInput.focus();
+}
+
+/**
+ * Create search and replace dialog
+ */
+export function createSearchReplaceDialog() {
+    if (document.getElementById('search-replace-dialog')) return;
+    
+    const dialog = document.createElement('div');
+    dialog.id = 'search-replace-dialog';
+    dialog.className = 'wiki-dialog';
+    
+    dialog.innerHTML = `
+        <div class="wiki-dialog-content">
+            <span class="close-dialog">&times;</span>
+            <h3>Search and Replace</h3>
+            <div class="form-group">
+                <label for="search-text">Search for:</label>
+                <input type="text" id="search-text">
+            </div>
+            <div class="form-group">
+                <label for="replace-text">Replace with:</label>
+                <input type="text" id="replace-text">
+            </div>
+            <div class="search-options">
+                <label>
+                    <input type="checkbox" id="search-case-sensitive">
+                    Match case
+                </label>
+                <label>
+                    <input type="checkbox" id="search-whole-word">
+                    Whole word
+                </label>
+            </div>
+            <div class="dialog-actions">
+                <button type="button" id="find-next-btn">Find Next</button>
+                <button type="button" id="replace-btn">Replace</button>
+                <button type="button" id="replace-all-btn">Replace All</button>
+                <button type="button" id="close-dialog-btn">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(dialog);
+}
+
+/**
+ * Open search and replace dialog
+ * @param {HTMLElement} textarea - The textarea element
+ */
+export function openSearchReplaceDialog(textarea) {
+    const dialog = document.getElementById('search-replace-dialog');
+    if (!dialog) {
+        createSearchReplaceDialog();
+    }
+    
+    // Get the selected text
+    const selectedText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+    if (selectedText) {
+        document.getElementById('search-text').value = selectedText;
+    }
+    
+    // Setup search and replace functionality
+    setupSearchReplaceDialog(dialog, textarea);
+    
+    // Show dialog
+    dialog.style.display = 'block';
+    
+    // Focus the search text input
+    document.getElementById('search-text').focus();
+}
+
+/**
+ * Set up search and replace dialog functionality
+ * @param {HTMLElement} dialog - The dialog element
+ * @param {HTMLElement} textarea - The textarea element
+ */
+function setupSearchReplaceDialog(dialog, textarea) {
+    const closeButtons = dialog.querySelectorAll('.close-dialog, #close-dialog-btn');
+    closeButtons.forEach(btn => {
+        // Remove existing event listeners
+        const newBtn = btn.cloneNode(true);
+        btn.parentNode.replaceChild(newBtn, btn);
+        
+        // Add new event listener
+        newBtn.addEventListener('click', () => {
+            dialog.style.display = 'none';
+        });
+    });
+    
+    // Click outside to close
+    window.addEventListener('click', function(event) {
+        if (event.target === dialog) {
+            dialog.style.display = 'none';
+        }
+    });
+    
+    // Find Next button
+    const findNextBtn = dialog.querySelector('#find-next-btn');
+    const newFindBtn = findNextBtn.cloneNode(true);
+    findNextBtn.parentNode.replaceChild(newFindBtn, findNextBtn);
+    
+    let lastIndex = -1;
+    
+    newFindBtn.addEventListener('click', function() {
+        const searchText = dialog.querySelector('#search-text').value;
+        if (!searchText) return;
+        
+        const content = textarea.value;
+        const caseSensitive = document.getElementById('search-case-sensitive').checked;
+        const wholeWord = document.getElementById('search-whole-word').checked;
+        
+        let searchRegex;
+        try {
+            if (wholeWord) {
+                searchRegex = new RegExp(`\\b${escapeRegExp(searchText)}\\b`, caseSensitive ? 'g' : 'gi');
+            } else {
+                searchRegex = new RegExp(escapeRegExp(searchText), caseSensitive ? 'g' : 'gi');
+            }
+        } catch (e) {
+            alert('Invalid search pattern');
+            return;
+        }
+        
+        // Reset the lastIndex if we're at the end of the string
+        if (lastIndex >= content.length) {
+            lastIndex = -1;
+        }
+        
+        // Start searching from lastIndex + 1
+        searchRegex.lastIndex = lastIndex + 1;
+        const match = searchRegex.exec(content);
+        
+        if (match) {
+            lastIndex = match.index;
+            textarea.focus();
+            textarea.setSelectionRange(match.index, match.index + match[0].length);
+        } else {
+            // Start from beginning if not found
+            lastIndex = -1;
+            alert('No more occurrences found. Starting from the beginning next time.');
+        }
+    });
+    
+    // Replace button
+    const replaceBtn = dialog.querySelector('#replace-btn');
+    const newReplaceBtn = replaceBtn.cloneNode(true);
+    replaceBtn.parentNode.replaceChild(newReplaceBtn, replaceBtn);
+    
+    newReplaceBtn.addEventListener('click', function() {
+        const searchText = dialog.querySelector('#search-text').value;
+        const replaceText = dialog.querySelector('#replace-text').value;
+        if (!searchText) return;
+        
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const selectedText = textarea.value.substring(start, end);
+        
+        const caseSensitive = document.getElementById('search-case-sensitive').checked;
+        const wholeWord = document.getElementById('search-whole-word').checked;
+        
+        let searchRegex;
+        try {
+            if (wholeWord) {
+                searchRegex = new RegExp(`\\b${escapeRegExp(searchText)}\\b`, caseSensitive ? '' : 'i');
+            } else {
+                searchRegex = new RegExp(escapeRegExp(searchText), caseSensitive ? '' : 'i');
+            }
+        } catch (e) {
+            alert('Invalid search pattern');
+            return;
+        }
+        
+        if (searchRegex.test(selectedText)) {
+            // Replace current selection
+            const newText = selectedText.replace(searchRegex, replaceText);
+            textarea.value = textarea.value.substring(0, start) + 
+                            newText + 
+                            textarea.value.substring(end);
+            
+            textarea.focus();
+            textarea.setSelectionRange(start, start + newText.length);
+            
+            // Update last index for next search
+            lastIndex = start;
+        } else {
+            // Find next occurrence first
+            newFindBtn.click();
+        }
+    });
+    
+    // Replace All button
+    const replaceAllBtn = dialog.querySelector('#replace-all-btn');
+    const newReplaceAllBtn = replaceAllBtn.cloneNode(true);
+    replaceAllBtn.parentNode.replaceChild(newReplaceAllBtn, replaceAllBtn);
+    
+    newReplaceAllBtn.addEventListener('click', function() {
+        const searchText = dialog.querySelector('#search-text').value;
+        const replaceText = dialog.querySelector('#replace-text').value;
+        if (!searchText) return;
+        
+        const content = textarea.value;
+        const caseSensitive = document.getElementById('search-case-sensitive').checked;
+        const wholeWord = document.getElementById('search-whole-word').checked;
+        
+        let searchRegex;
+        try {
+            if (wholeWord) {
+                searchRegex = new RegExp(`\\b${escapeRegExp(searchText)}\\b`, caseSensitive ? 'g' : 'gi');
+            } else {
+                searchRegex = new RegExp(escapeRegExp(searchText), caseSensitive ? 'g' : 'gi');
+            }
+        } catch (e) {
+            alert('Invalid search pattern');
+            return;
+        }
+        
+        const newContent = content.replace(searchRegex, replaceText);
+        textarea.value = newContent;
+        lastIndex = -1;
+        
+        // Count occurrences
+        const count = (content.match(searchRegex) || []).length;
+        alert(`Replaced ${count} occurrence(s).`);
+    });
+}
