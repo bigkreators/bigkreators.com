@@ -14,7 +14,7 @@ import { openCitationDialog } from './components/citation-dialog.js';
 import { openReferenceDialog } from './components/reference-dialog.js';
 import { openImageDialog } from './components/image-dialog.js';
 import { openTemplateGallery } from './components/template-gallery.js';
-import { previewContent } from './preview.js';
+import { previewContent } from './enhanced-preview.js';
 
 /**
  * Create the editor toolbar with Wikipedia-like buttons
