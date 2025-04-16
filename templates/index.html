@@ -1,99 +1,377 @@
+<!-- File: templates/home.html -->
 {% extends "base.html" %}
 
 {% block title %}Home - Kryptopedia{% endblock %}
 
 {% set active_page = 'home' %}
 
-{% block sidebar_extra %}
-<h3>Tools</h3>
-<ul>
-    <li><a href="/create-article" id="create-article">Create Article</a></li>
-    <li><a href="/upload-file" id="upload-file">Upload File</a></li>
-    <li><a href="/special-pages">Special Pages</a></li>
-    <li><a href="/admin" id="admin-dashboard">Admin Dashboard</a></li>
-</ul>
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stats-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stats-card h3 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        color: #333;
+        font-size: 18px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .stats-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #0645ad;
+        margin-bottom: 10px;
+    }
+    
+    .stats-label {
+        color: #666;
+    }
+    
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .section-title {
+        font-size: 24px;
+        margin: 0;
+    }
+    
+    .section-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .action-button {
+        padding: 8px 16px;
+        background-color: #0645ad;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+    }
+    
+    .action-button:hover {
+        background-color: #053a7a;
+    }
+    
+    .articles-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .article-card {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .article-card:hover {
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    
+    .card-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .article-title {
+        font-size: 18px;
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+    
+    .article-title a {
+        color: #0645ad;
+        text-decoration: none;
+    }
+    
+    .article-meta {
+        color: #666;
+        font-size: 13px;
+        margin-bottom: 10px;
+    }
+    
+    .article-summary {
+        color: #333;
+        flex-grow: 1;
+        margin-bottom: 15px;
+    }
+    
+    .card-actions {
+        padding: 10px 20px;
+        background-color: #f9f9fa;
+        border-top: 1px solid #eee;
+    }
+    
+    .read-more {
+        color: #0645ad;
+        text-decoration: none;
+        font-size: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .featured-article {
+        grid-column: 1 / -1;
+        background-color: #f0f7ff;
+        border: 1px solid #d1e6ff;
+    }
+    
+    .activity-list {
+        background-color: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .activity-item {
+        padding: 15px 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #f0f7ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    
+    .activity-icon.edit-icon {
+        background-color: #e3f2fd;
+        color: #0277bd;
+    }
+    
+    .activity-icon.new-icon {
+        background-color: #e8f5e9;
+        color: #2e7d32;
+    }
+    
+    .activity-content {
+        flex-grow: 1;
+    }
+    
+    .activity-user {
+        font-weight: 600;
+        color: #0645ad;
+    }
+    
+    .activity-time {
+        color: #999;
+        font-size: 13px;
+    }
+    
+    .welcome-banner {
+        background-color: #f9f9fa;
+        border-radius: 8px;
+        padding: 30px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+    
+    .welcome-banner h2 {
+        margin-top: 0;
+        color: #333;
+    }
+    
+    .welcome-banner p {
+        color: #666;
+        margin-bottom: 20px;
+    }
+    
+    .cta-button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #0645ad;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+    
+    .cta-button:hover {
+        background-color: #053a7a;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<h1>Welcome to Kryptopedia!</h1>
+<div class="welcome-banner">
+    <h2>Welcome to Kryptopedia</h2>
+    <p>Welcome to Kryptopedia, a collaborative knowledge base dedicated to your favorite topics. Our goal is to create a comprehensive resource where enthusiasts and experts can share information, discoveries, and insights.</p>
+    <a href="/create-article" class="cta-button auth-required">Create an Article</a>
+    <a href="/articles" class="cta-button">Browse Articles</a>
+</div>
 
-<p>Welcome to Kryptopedia, a collaborative knowledge base dedicated to your favorite topics. Our goal is to create a comprehensive resource where enthusiasts and experts can share information, discoveries, and insights.</p>
+<div class="section-header">
+    <h2 class="section-title">Featured Article</h2>
+</div>
 
 {% if featured_article %}
-<div class="featured-content">
-    <h3>Featured Article</h3>
-    <p>Check out our featured article: <a href="/articles/{{ featured_article.slug }}">{{ featured_article.title }}</a>. {{ featured_article.summary }}</p>
+<div class="articles-grid">
+    <div class="article-card featured-article">
+        <div class="card-content">
+            <h3 class="article-title"><a href="/articles/{{ featured_article.slug }}">{{ featured_article.title }}</a></h3>
+            <div class="article-meta">
+                <span>Published: {{ featured_article.createdAt|strftime('%b %d, %Y') }}</span>
+                {% if featured_article.views %} • <span>{{ featured_article.views }} views</span>{% endif %}
+            </div>
+            <div class="article-summary">
+                {{ featured_article.summary|truncate(200) }}
+            </div>
+        </div>
+        <div class="card-actions">
+            <a href="/articles/{{ featured_article.slug }}" class="read-more">
+                Read Article
+                <span class="read-more-icon">→</span>
+            </a>
+        </div>
+    </div>
 </div>
 {% endif %}
 
-<h1>Explore the Wiki</h1>
+<div class="section-header">
+    <h2 class="section-title">Recent Articles</h2>
+    <div class="section-actions">
+        <a href="/articles?sort=newest" class="action-button">View All</a>
+    </div>
+</div>
 
 {% if recent_articles %}
+<div class="articles-grid">
     {% for article in recent_articles %}
-    <div class="article-preview">
-        <h3><a href="/articles/{{ article.slug }}">{{ article.title }}</a></h3>
-        <p>{{ article.summary }}</p>
+    <div class="article-card">
+        <div class="card-content">
+            <h3 class="article-title"><a href="/articles/{{ article.slug }}">{{ article.title }}</a></h3>
+            <div class="article-meta">
+                <span>{{ article.createdAt|strftime('%b %d, %Y') }}</span>
+                {% if article.views %} • <span>{{ article.views }} views</span>{% endif %}
+            </div>
+            <div class="article-summary">
+                {{ article.summary|truncate(100) }}
+            </div>
+        </div>
+        <div class="card-actions">
+            <a href="/articles/{{ article.slug }}" class="read-more">
+                Read Article
+                <span class="read-more-icon">→</span>
+            </a>
+        </div>
     </div>
     {% endfor %}
+</div>
 {% else %}
-    <p>No articles yet. Be the first to <a href="/create-article" id="create-first-article">create an article</a>!</p>
+<p>No recent articles found.</p>
 {% endif %}
 
-<h2>Getting Started</h2>
-<p>New to the wiki? Here are some ways to get started:</p>
-<ul>
-    <li>Browse our articles to find topics that interest you</li>
-    <li>Check out the help section to learn how to navigate and contribute</li>
-    <li>Visit the community portal to connect with other contributors</li>
-    <li>Create an account to start contributing your knowledge</li>
-</ul>
+<div class="section-header">
+    <h2 class="section-title">Recent Activity</h2>
+</div>
+
+<div class="activity-list">
+    {% for activity in recent_activity %}
+    <div class="activity-item">
+        <div class="activity-icon {% if activity.type == 'edit' %}edit-icon{% else %}new-icon{% endif %}">
+            {% if activity.type == 'edit' %}✏️{% else %}+{% endif %}
+        </div>
+        <div class="activity-content">
+            <span class="activity-user">{{ activity.user.username }}</span>
+            {% if activity.type == 'edit' %}
+                edited <a href="/articles/{{ activity.article.slug }}">{{ activity.article.title }}</a>
+            {% elif activity.type == 'new_article' %}
+                created <a href="/articles/{{ activity.article.slug }}">{{ activity.article.title }}</a>
+            {% elif activity.type == 'new_user' %}
+                joined Kryptopedia
+            {% endif %}
+            {% if activity.comment %}: "{{ activity.comment }}"{% endif %}
+        </div>
+        <div class="activity-time">{{ activity.timestamp|strftime('%b %d, %H:%M') }}</div>
+    </div>
+    {% endfor %}
+    
+    {% if not recent_activity %}
+    <div class="activity-item">
+        <div class="activity-content">No recent activity</div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
 
-{% block modals %}
-<!-- Login Modal -->
-<div id="login-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Login to Kryptopedia</h2>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="#" id="register-link">Register</a></p>
-    </div>
-</div>
-
-<!-- Register Modal -->
-<div id="register-modal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Register for Kryptopedia</h2>
-        <form id="register-form">
-            <div class="form-group">
-                <label for="reg-username">Username:</label>
-                <input type="text" id="reg-username" name="username" required>
-            </div>
-            <div class="form-group">
-                <label for="reg-email">Email:</label>
-                <input type="email" id="reg-email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label for="reg-password">Password:</label>
-                <input type="password" id="reg-password" name="password" required>
-            </div>
-            <div class="form-group">
-                <label for="reg-confirm-password">Confirm Password:</label>
-                <input type="password" id="reg-confirm-password" name="confirm-password" required>
-            </div>
-            <button type="submit">Register</button>
-        </form>
-    </div>
-</div>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if user is logged in for auth-required elements
+    const token = localStorage.getItem('token');
+    const authRequiredElements = document.querySelectorAll('.auth-required');
+    
+    if (token) {
+        // User is logged in, enable auth-required elements
+        authRequiredElements.forEach(element => {
+            element.classList.remove('hidden');
+        });
+    } else {
+        // User is not logged in, add click handler to show login modal
+        authRequiredElements.forEach(element => {
+            if (element.tagName === 'A') {
+                const href = element.getAttribute('href');
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Store the redirect URL
+                    sessionStorage.setItem('redirectAfterLogin', href);
+                    
+                    // Show login modal
+                    const loginModal = document.getElementById('login-modal');
+                    if (loginModal) {
+                        loginModal.style.display = 'block';
+                    }
+                });
+            }
+        });
+    }
+});
+</script>
 {% endblock %}
