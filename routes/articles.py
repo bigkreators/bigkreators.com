@@ -349,16 +349,20 @@ async def update_article(
             detail=f"Failed to update article: {str(e)}"
         )
 
+# File: routes/articles.py
+
 @router.delete("/{id}")
 async def delete_article(
     id: str,
+    permanent: bool = Query(False, description="Permanently delete the article instead of archiving"),
     current_user: Dict[str, Any] = Depends(get_current_admin),
     db=Depends(get_db),
     search=Depends(get_search),
     cache=Depends(get_cache)
 ):
     """
-    Delete an article (admin only). Actually marks it as archived.
+    Delete an article (admin only). By default, marks it as archived.
+    If permanent=True, the article will be permanently deleted.
     """
     # Check if article exists
     if not ObjectId.is_valid(id):
@@ -368,35 +372,73 @@ async def delete_article(
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
     
-    # Mark as archived instead of actually deleting
     try:
-        await db["articles"].update_one(
-            {"_id": ObjectId(id)},
-            {"$set": {"status": "archived"}}
-        )
+        if permanent:
+            # Actually delete the article
+            result = await db["articles"].delete_one({"_id": ObjectId(id)})
+            
+            if result.deleted_count == 0:
+                raise HTTPException(status_code=500, detail="Failed to delete article")
+                
+            # Delete all related revisions, proposals, etc.
+            await db["revisions"].delete_many({"articleId": ObjectId(id)})
+            await db["proposals"].delete_many({"articleId": ObjectId(id)})
+            await db["rewards"].delete_many({"articleId": ObjectId(id)})
+            
+            message = "Article permanently deleted"
+        else:
+            # Mark as archived
+            await db["articles"].update_one(
+                {"_id": ObjectId(id)},
+                {"$set": {"status": "archived"}}
+            )
+            message = "Article archived successfully"
         
         # Remove from search
         if search:
-            await search.delete(
-                index="articles",
-                id=id
-            )
+            try:
+                await search.delete(
+                    index="articles",
+                    id=id
+                )
+            except Exception as e:
+                logger.error(f"Error removing article from search: {e}")
         
-        # Invalidate cache
+        # More aggressive cache invalidation
         if cache:
-            await cache.delete(f"article:{id}")
-            if article.get("slug"):
-                await cache.delete(f"article:{article['slug']}")
-            await cache.delete("featured_article")
-            await cache.delete("recent_articles")
+            try:
+                # Clear specific article caches
+                await cache.delete(f"article:{id}")
+                if article.get("slug"):
+                    await cache.delete(f"article:{article['slug']}")
+                
+                # Clear article list caches - all variations
+                await cache.delete("featured_article")
+                await cache.delete("recent_articles")
+                
+                # Clear all article list caches with pattern matching if supported
+                try:
+                    await cache.clear() # Try to clear entire cache
+                except:
+                    # Otherwise clear common patterns
+                    for i in range(0, 10):
+                        await cache.delete(f"articles:list:::{i}:10")
+                        await cache.delete(f"articles:list:newest:{i}:10")
+                        await cache.delete(f"articles:list:oldest:{i}:10")
+                        await cache.delete(f"articles:list:mostviewed:{i}:10")
+                        await cache.delete(f"articles:list:alphabetical:{i}:10")
+            except Exception as e:
+                logger.error(f"Error clearing cache: {e}")
         
-        return {"message": "Article archived successfully"}
+        return {"message": message}
     
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error(f"Error archiving article: {e}")
+        logger.error(f"Error handling article deletion: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f"Failed to archive article: {str(e)}"
+            detail=f"Failed to process article deletion: {str(e)}"
         )
 # File: routes/articles.py (Article Update Route)
 

@@ -12,6 +12,7 @@ import { addLineNumbers } from './line-numbers.js';
 import { showWikiPreview } from './enhanced-preview.js';
 import { addKeyboardShortcuts } from './keyboard.js';
 import { addShortDescription } from './utils/transform-wiki.js';
+import { getServerPreview } from '../wiki-editor-backend-integration.js';
 
 /**
  * Initialize the Wiki Editor on a form
@@ -108,6 +109,39 @@ export function initializeWikiEditor(form) {
     setupAutoSave(form);
     
     console.log('Wiki Editor initialized successfully');
+}
+
+/**
+ * Toggle preview visibility
+ * @param {HTMLElement} form - The form containing the editor
+ * @param {HTMLElement} button - The preview button
+ */
+function togglePreview(form, button) {
+    const contentTextarea = form.querySelector('#article-content');
+    const summaryTextarea = form.querySelector('#article-summary');
+    const previewArea = form.querySelector('.wiki-preview-area');
+    
+    if (!contentTextarea || !previewArea) return;
+    
+    // Get content and summary
+    const content = contentTextarea.value;
+    const summary = summaryTextarea ? summaryTextarea.value : '';
+    
+    if (previewArea.style.display === 'none') {
+        // Show preview
+        previewArea.innerHTML = '<div class="preview-loading">Loading preview...</div>';
+        previewArea.style.display = 'block';
+        button.textContent = 'Hide Preview';
+        
+        // Get preview from server
+        getServerPreview(content, summary, function(html) {
+            previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${html}</div>`;
+        });
+    } else {
+        // Hide preview
+        previewArea.style.display = 'none';
+        button.textContent = 'Show Preview';
+    }
 }
 
 /**
