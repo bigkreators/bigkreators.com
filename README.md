@@ -42,43 +42,86 @@ A collaborative knowledge base wiki platform built with FastAPI and MongoDB.
 - **Authentication**: JWT-based auth
 - **Deployment**: Docker support (optional)
 
-## Quick Start
+## Installation
 
-1. Clone the repository:
+### Quick Start (Automated)
+
+The easiest way to get started is using our automated installation script:
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/kryptopedia.git
+cd kryptopedia
+
+# Run the installation script
+./install.sh
+```
+
+This script will:
+- Create a virtual environment
+- Install all required dependencies
+- Set up MongoDB connection
+- Initialize the database with sample content
+- Create necessary directories
+
+### Step-by-Step Installation
+
+If you prefer to install manually or the automated script doesn't work for your system, follow these steps:
+
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/yourusername/kryptopedia.git
    cd kryptopedia
    ```
 
-2. Create and activate a virtual environment:
+2. **Install dependencies:**
+   Run the dependencies installation script which will set up Python, MongoDB, Docker, and optional Node.js:
+   ```bash
+   ./setup-dependencies.sh
+   ```
+
+3. **Set up directory structure:**
+   Create the necessary directory structure for the application:
+   ```bash
+   ./setup-directory-structure.sh
+   ```
+
+4. **Create and activate a virtual environment:**
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. Install dependencies:
+5. **Install Python dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. Make sure MongoDB is running:
+6. **Make sure MongoDB is running:**
    ```bash
+   # Create a directory for MongoDB data if it doesn't exist
+   mkdir -p mongodb_data
+   
+   # Start MongoDB
    mongod --dbpath=./mongodb_data
    ```
 
-5. Initialize the database:
+7. **Initialize the database:**
+   This will create the initial admin user and demo article:
    ```bash
    python setup-data.py
    ```
 
-6. Start the application:
+8. **Start the application:**
+   ```bash
+   ./start-local.sh
+   ```
+   Or if you prefer to run it manually:
    ```bash
    uvicorn main:app --reload
    ```
 
-7. Open http://localhost:8000 in your browser
-
-For detailed installation instructions, see [INSTALLATION.md](INSTALLATION.md).
+9. **Open http://localhost:8000 in your browser**
 
 ## Default Admin Account
 
@@ -145,3 +188,18 @@ If you encounter issues, check out the common problems and solutions in our [INS
 ```bash
 python diagnose.py
 ```
+
+### Common Issues
+
+1. **MongoDB connection fails**: 
+   - Ensure MongoDB is running with `mongod --dbpath=./mongodb_data`
+   - Check the MongoDB URI in your `.env` file
+
+2. **Missing dependencies**:
+   - Run `./setup-dependencies.sh` to ensure all system dependencies are installed
+
+3. **Permission issues**:
+   - Make sure scripts are executable with `chmod +x *.sh`
+
+4. **Directory structure issues**:
+   - Run `./setup-directory-structure.sh` to recreate the correct directory structure
