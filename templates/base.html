@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Kryptopedia{% endblock %}</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/css/wiki-mode-toggle.css">
     {% block extra_css %}{% endblock %}
 </head>
 <!-- Add this right before the closing </body> tag -->
@@ -136,5 +137,6 @@
     
     <!-- Any additional modals that might be needed per-page -->
     {% block modals %}{% endblock %}
+<script src="/static/js/wiki-mode-toggle.js"></script>
 </body>
 </html>
