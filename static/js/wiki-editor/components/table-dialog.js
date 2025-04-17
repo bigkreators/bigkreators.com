@@ -86,12 +86,18 @@ export function openTableDialog(textarea) {
     });
     
     newInsertButton.addEventListener('click', () => {
-        generateTable(textarea);
+        generateTable(textarea, dialog);
         hideDialog(dialog);
     });
     
     // Show dialog
     showDialog(dialog);
+    
+    // Focus the first input
+    const firstInput = dialog.querySelector('#table-rows');
+    if (firstInput) {
+        firstInput.focus();
+    }
     
     return dialog;
 }
@@ -99,13 +105,27 @@ export function openTableDialog(textarea) {
 /**
  * Generate table based on dialog fields
  * @param {HTMLElement} textarea - The textarea element
+ * @param {HTMLElement} dialog - The dialog element containing the form fields
  */
-function generateTable(textarea) {
-    const rows = parseInt(document.getElementById('table-rows').value);
-    const columns = parseInt(document.getElementById('table-columns').value);
-    const includeHeader = document.getElementById('table-header').checked;
-    const caption = document.getElementById('table-caption').value.trim();
-    const tableClass = document.getElementById('table-class').value;
+function generateTable(textarea, dialog) {
+    // Get form elements directly from the dialog to ensure correct reference
+    const rowsInput = dialog.querySelector('#table-rows');
+    const columnsInput = dialog.querySelector('#table-columns');
+    const headerCheckbox = dialog.querySelector('#table-header');
+    const captionInput = dialog.querySelector('#table-caption');
+    const classSelect = dialog.querySelector('#table-class');
+    
+    // Validate that all required inputs exist
+    if (!rowsInput || !columnsInput || !headerCheckbox || !classSelect) {
+        console.error('Table dialog: Missing required form fields');
+        return;
+    }
+    
+    const rows = parseInt(rowsInput.value) || 3;
+    const columns = parseInt(columnsInput.value) || 3;
+    const includeHeader = headerCheckbox.checked;
+    const caption = captionInput ? captionInput.value.trim() : '';
+    const tableClass = classSelect.value || 'wikitable';
     
     let tableMarkup = `{| class="${tableClass}"\n`;
     

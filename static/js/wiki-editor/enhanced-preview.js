@@ -34,7 +34,7 @@ export function showWikiPreview(form) {
         
         // Get the preview content
         getServerPreview(content, summary, (html) => {
-            renderPreview(previewArea, html);
+            previewContent(previewArea, html);
             
             // Update button text
             const previewButton = document.getElementById('preview-button');
@@ -59,7 +59,7 @@ export function showWikiPreview(form) {
  * @param {HTMLElement} previewArea - The preview container element
  * @param {string} html - The HTML content to render
  */
-function renderPreview(previewArea, html) {
+function previewContent(previewArea, html) {
     // Create preview container
     const previewContent = document.createElement('div');
     previewContent.className = 'wiki-preview-content';
@@ -209,5 +209,6 @@ function sortTable(table, columnIndex) {
 }
 
 export default {
-    showWikiPreview
+    showWikiPreview,
+    previewContent
 };

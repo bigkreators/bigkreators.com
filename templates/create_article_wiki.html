@@ -124,11 +124,14 @@
     <div class="form-section">
         <h3>Article Content</h3>
         <p class="help-text">Use wiki markup to format your article. The toolbar above provides common formatting options.</p>
-        
-        <div class="form-group">
-            <label for="article-content">Content:</label>
-            <textarea id="article-content" name="content" required></textarea>
-        </div>
+
+<div class="form-group">
+    <label for="article-content">Content:</label>
+    <div class="wiki-editor-container">
+        <div class="wiki-editor-toolbar"></div>
+        <textarea id="article-content" name="content" required></textarea>
+    </div>
+</div>
         
         <div class="wiki-preview-area" style="display: none;"></div>
     </div>

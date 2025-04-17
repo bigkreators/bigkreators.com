@@ -20,11 +20,6 @@ import { getServerPreview } from './wiki-editor-backend-integration.js';
  * @param {HTMLElement} form - The form element containing the editor
  */
 export function initializeWikiEditor(form) {
-    if (!form) {
-        console.error('Wiki Editor initialization failed: form not provided');
-        return;
-    }
-    
     // Find the content textarea
     const contentTextarea = form.querySelector('#article-content');
     if (!contentTextarea) {
@@ -40,7 +35,7 @@ export function initializeWikiEditor(form) {
             $(contentTextarea).summernote('destroy');
             console.log('Summernote editor destroyed');
         } catch (e) {
-            // Ignore errors if Summernote wasn't initialized
+            console.error('Error destroying Summernote:', e);
         }
     }
     
@@ -48,40 +43,17 @@ export function initializeWikiEditor(form) {
     const toolbar = createEditorToolbar();
     
     // Create editor container if it doesn't exist already
-    let editorContainer = contentTextarea.closest('.wiki-editor-container');
-    if (!editorContainer) {
-        // Check if container already exists as a parent
-        const parent = contentTextarea.parentNode;
-        if (parent && parent.classList.contains('wiki-editor-container')) {
-            editorContainer = parent;
-        } else {
-            // Create a new container
-            editorContainer = document.createElement('div');
-            editorContainer.className = 'wiki-editor-container';
-            // Insert container before textarea
-            contentTextarea.parentNode.insertBefore(editorContainer, contentTextarea);
-            // Move textarea into the container
-            editorContainer.appendChild(contentTextarea);
-        }
+    let toolbarDiv = editorContainer.querySelector('.wiki-editor-toolbar');
+    if (!toolbarDiv) {
+        toolbarDiv = document.createElement('div');
+        toolbarDiv.className = 'wiki-editor-toolbar';
+        editorContainer.insertBefore(toolbarDiv, editorContainer.firstChild);
     }
+    toolbarDiv.innerHTML = toolbarContent.innerHTML;
     
-    // Remove any existing toolbar to avoid duplication
-    const existingToolbar = editorContainer.querySelector('.wiki-editor-toolbar');
-    if (existingToolbar) {
-        existingToolbar.remove();
-    }
+    // Ensure the editor CSS is loaded
+    ensureEditorStyles();
     
-    // Make sure container is properly positioned in the DOM
-    if (!document.body.contains(editorContainer)) {
-        console.error('Editor container is not in the DOM');
-        return;
-    }
-    
-    // Insert the toolbar at the beginning of the container
-    editorContainer.insertBefore(toolbar, editorContainer.firstChild);
-    
-    // Make sure CSS for toolbar is loaded
-    ensureStylesLoaded();
     
     // Create or identify preview area
     let previewArea = form.querySelector('.wiki-preview-area');
@@ -145,110 +117,22 @@ export function initializeWikiEditor(form) {
 }
 
 /**
- * Ensure all necessary CSS styles are loaded
+ * Ensure that the editor styles are loaded
  */
-function ensureStylesLoaded() {
-    // Check for toolbar styles
-    if (!document.getElementById('wiki-editor-toolbar-style')) {
-        const style = document.createElement('style');
-        style.id = 'wiki-editor-toolbar-style';
-        style.textContent = `
-            .wiki-editor-toolbar {
-                background-color: #f8f9fa;
-                border-bottom: 1px solid #ddd;
-                padding: 8px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-            
-            .wiki-toolbar-group {
-                display: flex;
-                gap: 3px;
-                padding: 0 5px;
-                border-right: 1px solid #ddd;
-                margin-right: 5px;
-            }
-            
-            .wiki-toolbar-group:last-child {
-                border-right: none;
-            }
-            
-            .wiki-toolbar-btn {
-                background-color: #f8f9fa;
-                border: 1px solid #e0e0e0;
-                border-radius: 3px;
-                padding: 6px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 2px;
-                width: 28px;
-                height: 28px;
-            }
-            
-            .wiki-toolbar-btn:hover {
-                background-color: #eaecf0;
-                border-color: #c8ccd1;
-            }
-            
-            .wiki-toolbar-btn:active {
-                background-color: #c8ccd1;
-            }
-            
-            .wiki-icon {
-                width: 18px;
-                height: 18px;
-                display: inline-block;
-                background-size: contain;
-                background-position: center;
-                background-repeat: no-repeat;
-                opacity: 0.7;
-            }
-            
-            .wiki-editor-container {
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                margin-bottom: 15px;
-                background-color: #fff;
-            }
-            
-            textarea#article-content {
-                width: 100%;
-                min-height: 300px;
-                padding: 10px;
-                border: none;
-                border-top: 1px solid #ddd;
-                resize: vertical;
-                font-family: monospace;
-                font-size: 14px;
-                line-height: 1.5;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    // Check if wiki editor CSS is loaded
-    const linkElement = document.querySelector('link[href="/static/wiki-editor.css"]');
-    if (!linkElement) {
+function ensureEditorStyles() {
+    // Check if the CSS link already exists
+    if (!document.getElementById('wiki-editor-toolbar-styles')) {
+        // Create link to external CSS file
         const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = '/static/wiki-editor.css';
-        document.head.appendChild(link);
-    }
-    
-    // Check for toolbar CSS
-    const toolbarCssLink = document.querySelector('link[href="/static/css/wiki-editor-toolbar.css"]');
-    if (!toolbarCssLink) {
-        const link = document.createElement('link');
+        link.id = 'wiki-editor-toolbar-styles';
         link.rel = 'stylesheet';
         link.href = '/static/css/wiki-editor-toolbar.css';
         document.head.appendChild(link);
+        
+        console.log('Wiki Editor toolbar styles loaded');
     }
 }
 
-// Rest of the file remains unchanged
 /**
  * Toggle preview visibility
  * @param {HTMLElement} form - The form containing the editor

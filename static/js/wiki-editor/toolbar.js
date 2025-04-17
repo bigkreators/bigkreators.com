@@ -92,9 +92,7 @@ export function createEditorToolbar() {
         
         // Add separator between groups (except after the last group)
         if (groupIndex < buttonGroups.length - 1) {
-            const separator = document.createElement('div');
-            separator.className = 'wiki-toolbar-separator';
-            toolbar.appendChild(separator);
+            // The separator is now handled by CSS border-right on the groups
         }
     });
     
