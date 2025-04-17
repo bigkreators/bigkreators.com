@@ -1,4 +1,5 @@
 // File: static/js/wiki-editor/core.js
+
 /**
  * Core Wiki Editor Implementation
  * 
@@ -41,14 +42,61 @@ export function initializeWikiEditor(form) {
     // Create the editor toolbar
     const toolbar = createEditorToolbar();
     
-    // Create editor container and insert it before the textarea
-    const editorContainer = document.createElement('div');
-    editorContainer.className = 'wiki-editor-container';
-    contentTextarea.parentNode.insertBefore(editorContainer, contentTextarea);
+    // Create editor container if it doesn't exist already
+    let editorContainer = contentTextarea.closest('.wiki-editor-container');
+    if (!editorContainer) {
+        editorContainer = document.createElement('div');
+        editorContainer.className = 'wiki-editor-container';
+        contentTextarea.parentNode.insertBefore(editorContainer, contentTextarea);
+        
+        // Move textarea into the container
+        editorContainer.appendChild(contentTextarea);
+    }
     
-    // Move textarea into the container
-    editorContainer.appendChild(toolbar);
-    editorContainer.appendChild(contentTextarea);
+    // Insert toolbar at the beginning of the container
+    // Make sure we're not duplicating the toolbar
+    const existingToolbar = editorContainer.querySelector('.wiki-editor-toolbar');
+    if (existingToolbar) {
+        existingToolbar.remove();
+    }
+    
+    // Insert the toolbar before the textarea
+    editorContainer.insertBefore(toolbar, editorContainer.firstChild);
+    
+    // Make sure CSS for toolbar is applied
+    const styleElement = document.getElementById('wiki-editor-toolbar-style');
+    if (!styleElement) {
+        const style = document.createElement('style');
+        style.id = 'wiki-editor-toolbar-style';
+        style.textContent = `
+            .wiki-editor-toolbar {
+                background-color: #f8f9fa;
+                border-bottom: 1px solid #ddd;
+                padding: 8px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            
+            .wiki-toolbar-btn {
+                background-color: #f8f9fa;
+                border: 1px solid #e0e0e0;
+                border-radius: 3px;
+                padding: 6px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 2px;
+            }
+            
+            .wiki-toolbar-btn:hover {
+                background-color: #eaecf0;
+                border-color: #c8ccd1;
+            }
+        `;
+        document.head.appendChild(style);
+    }
     
     // Create or identify preview area
     let previewArea = form.querySelector('.wiki-preview-area');

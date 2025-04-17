@@ -14,7 +14,7 @@ import { openCitationDialog } from './components/citation-dialog.js';
 import { openReferenceDialog } from './components/reference-dialog.js';
 import { openImageDialog } from './components/image-dialog.js';
 import { openTemplateGallery } from './components/template-gallery.js';
-import { previewContent } from './enhanced-preview.js';
+import { showWikiPreview } from './enhanced-preview.js';
 
 /**
  * Create the editor toolbar with Wikipedia-like buttons
@@ -215,7 +215,7 @@ export function setupToolbarHandlers(toolbar, textarea, previewArea) {
                         break;
                     case 'preview':
                         if (textarea.form) {
-                            previewContent(textarea.form);
+                            showWikiPreview(textarea.form);
                         } else {
                             console.error('No form found for textarea');
                         }
@@ -229,3 +229,9 @@ export function setupToolbarHandlers(toolbar, textarea, previewArea) {
         });
     });
 }
+
+export default {
+    createEditorToolbar,
+    setupToolbarHandlers,
+    removeWikiLinks
+};

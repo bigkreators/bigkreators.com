@@ -20,6 +20,8 @@ import {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Wiki Editor: DOM loaded');
+    
     // Register editor components
     registerEditorComponents();
     
@@ -36,7 +38,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById(formId);
         if (form) {
             console.log('Initializing wiki editor on form:', formId);
-            initializeWikiEditor(form);
+            // Ensure the form is fully loaded
+            setTimeout(() => {
+                initializeWikiEditor(form);
+            }, 100); // Small delay to ensure DOM is ready
+        }
+    });
+    
+    // Also look for wiki-editor-container class to initialize
+    document.querySelectorAll('.wiki-editor-container').forEach(container => {
+        const form = container.closest('form');
+        if (form && !form.classList.contains('wiki-editor-initialized')) {
+            console.log('Initializing wiki editor on container:', container);
+            form.classList.add('wiki-editor-initialized');
+            setTimeout(() => {
+                initializeWikiEditor(form);
+            }, 100);
         }
     });
     
