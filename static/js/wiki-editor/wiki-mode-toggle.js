@@ -1,12 +1,14 @@
 // File: static/js/wiki-mode-toggle.js
 /**
- * Wiki Mode Toggle Component
+ * Wiki Mode Toggle Functionality
  * 
- * This file provides functionality for toggling between wiki markup
- * and HTML editing/viewing modes.
+ * This file provides the mode toggle functionality for switching between
+ * wiki markup and HTML editing/viewing modes.
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Wiki Mode Toggle script loaded');
+    
     // Find all mode toggle containers
     const toggleContainers = document.querySelectorAll('.mode-toggle');
     
@@ -90,10 +92,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (this.classList.contains('active')) {
                         return;
                     }
-                    
-                    // Update active state
-                    buttons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
                     
                     // Get current URL and update query parameter
                     const url = new URL(window.location.href);
