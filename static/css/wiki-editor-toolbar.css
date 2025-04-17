@@ -317,3 +317,75 @@ textarea#article-content {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+/* static/css/wiki-editor-toolbar.css */
+/* Add these basic icon styles to ensure visibility */
+
+/* Basic icon style */
+.wiki-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+}
+
+/* Default icon colors */
+.wiki-toolbar-btn .wiki-icon {
+    background-color: #333;
+}
+
+/* Icon hover effect */
+.wiki-toolbar-btn:hover .wiki-icon {
+    opacity: 1;
+}
+
+/* Simple fallback icons using HTML entities */
+.wiki-icon-bold::before {
+    content: "B";
+    font-weight: bold;
+}
+
+.wiki-icon-italic::before {
+    content: "I";
+    font-style: italic;
+}
+
+.wiki-icon-underline::before {
+    content: "U";
+    text-decoration: underline;
+}
+
+.wiki-icon-heading::before {
+    content: "H";
+}
+
+.wiki-icon-list-ul::before {
+    content: "•";
+}
+
+.wiki-icon-list-ol::before {
+    content: "1.";
+}
+
+.wiki-icon-link::before {
+    content: "🔗";
+}
+
+.wiki-icon-image::before {
+    content: "🖼️";
+}
+
+.wiki-icon-table::before {
+    content: "☷";
+}
+
+.wiki-icon-reference::before {
+    content: "†";
+}
+
+.wiki-icon-preview::before {
+    content: "👁️";
+}
