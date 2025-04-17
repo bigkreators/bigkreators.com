@@ -12,7 +12,7 @@ import { addLineNumbers } from './line-numbers.js';
 import { showWikiPreview } from './enhanced-preview.js';
 import { addKeyboardShortcuts } from './keyboard.js';
 import { addShortDescription } from './utils/transform-wiki.js';
-import { getServerPreview } from '../wiki-editor-backend-integration.js';
+import { getServerPreview } from './wiki-editor-backend-integration.js';
 
 /**
  * Initialize the Wiki Editor on a form

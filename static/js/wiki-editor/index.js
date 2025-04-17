@@ -9,7 +9,7 @@
 // Import and re-export core functionality
 import { initializeWikiEditor } from './core.js';
 import { registerEditorComponents } from './component-registry.js';
-import { addModeToggle } from './mode-toggle.js';
+import { addModeToggle } from './wiki-mode-toggle.js';
 import { addLineNumbers } from './line-numbers.js';
 import { showWikiPreview } from './enhanced-preview.js';
 import { 
@@ -35,6 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
     supportedForms.forEach(formId => {
         const form = document.getElementById(formId);
         if (form) {
+            console.log('Initializing wiki editor on form:', formId);
             initializeWikiEditor(form);
         }
     });

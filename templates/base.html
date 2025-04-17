@@ -9,20 +9,6 @@
     {% block extra_css %}{% endblock %}
 </head>
 <!-- Add this right before the closing </body> tag -->
-<script type="module">
-    // Preload wiki editor modules for faster initialization
-    document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('article-content')) {
-            import('/static/js/wiki-editor/main.js')
-                .then(module => {
-                    console.log('Wiki Editor modules preloaded');
-                })
-                .catch(error => {
-                    console.error('Error preloading Wiki Editor modules:', error);
-                });
-        }
-    });
-</script>
 <body>
     <!-- Header -->
     <header>
@@ -137,6 +123,62 @@
     
     <!-- Any additional modals that might be needed per-page -->
     {% block modals %}{% endblock %}
+<script>
+    // Immediate execution script to ensure mode toggle works
+    (function() {
+        // Check if mode toggle is already loaded
+        if (window.wikiModeToggleLoaded) return;
+        
+        // Mark as loaded to prevent multiple initializations
+        window.wikiModeToggleLoaded = true;
+        
+        // Create and add script element
+        const script = document.createElement('script');
+        script.src = '/static/js/wiki-mode-toggle.js';
+        script.async = false; // Ensure synchronous loading for this critical script
+        
+        // Handle load failure
+        script.onerror = function() {
+            console.error('Failed to load wiki-mode-toggle.js');
+            fallbackInitialize();
+        };
+        
+        document.body.appendChild(script);
+        
+        // Fallback implementation if script loading fails
+        function fallbackInitialize() {
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleButtons = document.querySelectorAll('.mode-toggle-button');
+                
+                toggleButtons.forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        const mode = this.getAttribute('data-mode');
+                        if (this.classList.contains('active')) return;
+                        
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('mode', mode);
+                        window.location.href = url.toString();
+                    });
+                });
+            });
+        }
+    })();
+</script>
 <script src="/static/js/wiki-editor/wiki-mode-toggle.js"></script>
+<!-- Add this right before the closing </body> tag -->
+<script type="module">
+    // Preload wiki editor modules for faster initialization
+    document.addEventListener('DOMContentLoaded', function() {
+        if (document.getElementById('article-content')) {
+            import('/static/js/wiki-editor/index.js')
+                .then(module => {
+                    console.log('Wiki Editor modules loaded successfully');
+                })
+                .catch(error => {
+                    console.error('Error loading Wiki Editor modules:', error);
+                });
+        }
+    });
+</script>
 </body>
 </html>
