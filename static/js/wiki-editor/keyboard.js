@@ -8,7 +8,7 @@
 import { wrapSelectedText, insertWikiMarkup, prependToSelectedLines, removeIndent } from './utils/text-utils.js';
 import { openLinkDialog } from './components/link-dialog.js';
 import { openSearchReplaceDialog } from './components/search-replace-dialog.js';
-import { previewContent } from './enhanced-preview.js';
+import { showWikiPreview } from './enhanced-preview.js';
 
 /**
  * Add keyboard shortcuts to the editor
@@ -44,7 +44,9 @@ export function addKeyboardShortcuts(textarea) {
         // Ctrl+P: Preview
         else if (e.ctrlKey && e.key === 'p') {
             e.preventDefault();
-            previewContent(textarea.form);
+            if (textarea.form) {
+                showWikiPreview(textarea.form);
+            }
         }
         // Tab: Insert tab or handle indentation
         else if (e.key === 'Tab') {
