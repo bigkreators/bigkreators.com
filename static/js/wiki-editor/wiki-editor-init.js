@@ -1,6 +1,6 @@
 // static/js/wiki-editor-init.js
 
-import { initializeWikiEditor } from './wiki-editor/core.js';
+import { initializeWikiEditor } from './core.js';
 import { initializeBackendConnection } from './wiki-editor-backend-integration.js';
 
 document.addEventListener('DOMContentLoaded', function() {

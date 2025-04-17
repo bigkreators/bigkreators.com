@@ -4,7 +4,7 @@
  * This file contains functions for text formatting options.
  */
 
-import { wrapSelectedText, prependToSelectedLines, removeIndent } from './text-utils.js';
+import { wrapSelectedText, prependToSelectedLines, removeIndent } from './utils/text-utils.js';
 
 /**
  * Apply bold formatting to selected text

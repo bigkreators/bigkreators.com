@@ -4,7 +4,7 @@
  * This file contains functions for handling image insertion and formatting.
  */
 
-import { insertWikiMarkup } from './text-utils.js';
+import { insertWikiMarkup } from './utils/text-utils.js';
 
 /**
  * Open image dialog
