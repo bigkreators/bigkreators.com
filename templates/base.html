@@ -123,27 +123,21 @@
     
     <!-- Any additional modals that might be needed per-page -->
     {% block modals %}{% endblock %}
-<!-- Add this at the end of base.html, before the closing </body> tag -->
+<script src="/static/js/wiki-editor/wiki-mode-toggle.js"></script>
+<!-- Add this right before the closing </body> tag -->
 <script type="module">
+    // Preload wiki editor modules for faster initialization
     document.addEventListener('DOMContentLoaded', function() {
-        // Check if there's a textarea with id article-content
         if (document.getElementById('article-content')) {
-            // Import and initialize the wiki editor
             import('/static/js/wiki-editor/index.js')
                 .then(module => {
-                    const textarea = document.getElementById('article-content');
-                    const form = textarea.closest('form');
-                    if (form) {
-                        module.initializeWikiEditor(form);
-                    }
+                    console.log('Wiki Editor modules loaded successfully');
                 })
                 .catch(error => {
-                    console.error('Error loading wiki editor:', error);
+                    console.error('Error loading Wiki Editor modules:', error);
                 });
         }
     });
 </script>
-<script src="/static/js/wiki-editor/wiki-mode-toggle.js"></script>
-<!-- Add this right before the closing </body> tag -->
 </body>
 </html>

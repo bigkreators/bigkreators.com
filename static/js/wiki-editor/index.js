@@ -38,8 +38,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById(formId);
         if (form) {
             console.log('Initializing wiki editor on form:', formId);
-            // Initialize immediately
-            initializeWikiEditor(form);
+            // Ensure the form is fully loaded
+            setTimeout(() => {
+                initializeWikiEditor(form);
+            }, 100); // Small delay to ensure DOM is ready
         }
     });
     
@@ -49,24 +51,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (form && !form.classList.contains('wiki-editor-initialized')) {
             console.log('Initializing wiki editor on container:', container);
             form.classList.add('wiki-editor-initialized');
-            initializeWikiEditor(form);
+            setTimeout(() => {
+                initializeWikiEditor(form);
+            }, 100);
         }
     });
-
+    
+    // Add mode toggle where needed
     addModeToggle();
     
-    // Also initialize directly on any #article-content elements if they exist
-    document.querySelectorAll('#article-content').forEach(textarea => {
-        if (!textarea.closest('.wiki-editor-container')) {
-            console.log('Found article-content without container, initializing');
-            const form = textarea.closest('form');
-            if (form) {
-                initializeWikiEditor(form);
-            }
-        }
-    });
-});
+    // Initialize line numbers on all wiki mode pages
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentMode = urlParams.get('mode') || 'wiki';
     
+    if (currentMode === 'wiki') {
+        const contentTextareas = document.querySelectorAll('#article-content');
+        contentTextareas.forEach(textarea => {
+            addLineNumbers(textarea);
+        });
+    }
+});
+
 // Export public API
 export {
     initializeWikiEditor,
