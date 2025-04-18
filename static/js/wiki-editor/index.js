@@ -1,18 +1,25 @@
 // File: static/js/wiki-editor/index.js
+
 /**
- * Wiki Editor Public API
+ * Core Wiki Editor Implementation
  * 
- * This file serves as the public API for the wiki editor,
- * exporting the main functionality for use by other modules.
+ * This file contains the main initialization and core functionality
+ * for the wiki editor component.
  */
 
-// Fix: Add type="module" to script tag when including this file
-// Or ensure it's loaded with proper MIME type
+// Import core dependencies
+import { createEditorToolbar, setupToolbarHandlers } from './toolbar.js';
+import { addLineNumbers } from './line-numbers.js';
+import { showWikiPreview } from './enhanced-preview.js';
+import { addKeyboardShortcuts } from './keyboard.js';
+import { addShortDescription } from './utils/transform-wiki.js';
+import { getServerPreview } from './wiki-editor-backend-integration.js';
 
-// Import and re-export core functionality
-const initializeWikiEditor = function(form) {
-    console.log('Initializing Wiki Editor on form:', form.id || 'unnamed form');
-    
+/**
+ * Initialize the Wiki Editor on a form
+ * @param {HTMLElement} form - The form element containing the editor
+ */
+export function initializeWikiEditor(form) {
     // Find the content textarea
     const contentTextarea = form.querySelector('#article-content');
     if (!contentTextarea) {
@@ -20,250 +27,317 @@ const initializeWikiEditor = function(form) {
         return;
     }
     
-    // Create toolbar if needed
+    console.log('Check Summernote Editor on', contentTextarea);
+    
+    // If Summernote is initialized, destroy it
+    if (typeof $ !== 'undefined' && $.fn.summernote) {
+        try {
+            $(contentTextarea).summernote('destroy');
+            console.log('Summernote editor destroyed');
+        } catch (e) {
+            console.error('Error destroying Summernote:', e);
+        }
+    }
+
+    console.log('Initializing Wiki Editor on', contentTextarea);
+
+    // Find or create editor container
     let editorContainer = contentTextarea.closest('.wiki-editor-container');
     if (!editorContainer) {
+        console.log('could not find editor container, wrapping ', contentTextarea);
+ 
         // Wrap textarea in container
         editorContainer = document.createElement('div');
         editorContainer.className = 'wiki-editor-container';
         contentTextarea.parentNode.insertBefore(editorContainer, contentTextarea);
         editorContainer.appendChild(contentTextarea);
     }
-    
+
     // Create toolbar if it doesn't exist
     let toolbar = editorContainer.querySelector('.wiki-editor-toolbar');
     if (!toolbar) {
-        toolbar = document.createElement('div');
-        toolbar.className = 'wiki-editor-toolbar';
-        
-        // Add common formatting buttons
-        toolbar.innerHTML = `
-            <div class="wiki-toolbar-group">
-                <button type="button" class="wiki-toolbar-btn" title="Bold (Ctrl+B)" data-action="bold">
-                    <span class="wiki-icon wiki-icon-bold"></span>
-                </button>
-                <button type="button" class="wiki-toolbar-btn" title="Italic (Ctrl+I)" data-action="italic">
-                    <span class="wiki-icon wiki-icon-italic"></span>
-                </button>
-                <button type="button" class="wiki-toolbar-btn" title="Heading" data-action="heading">
-                    <span class="wiki-icon wiki-icon-heading"></span>
-                </button>
-                <button type="button" class="wiki-toolbar-btn" title="Link (Ctrl+K)" data-action="link">
-                    <span class="wiki-icon wiki-icon-link"></span>
-                </button>
-            </div>
-            <div class="wiki-toolbar-group">
-                <button type="button" class="wiki-toolbar-btn" title="Bulleted List" data-action="bulletList">
-                    <span class="wiki-icon wiki-icon-list-ul"></span>
-                </button>
-                <button type="button" class="wiki-toolbar-btn" title="Numbered List" data-action="numberedList">
-                    <span class="wiki-icon wiki-icon-list-ol"></span>
-                </button>
-            </div>
-            <div class="wiki-toolbar-group">
-                <button type="button" class="wiki-toolbar-btn" title="Preview" data-action="preview">
-                    <span class="wiki-icon wiki-icon-preview"></span>
-                </button>
-            </div>
-        `;
-        
+        console.log('could not find toolbar, creating ', contentTextarea);
+        // Create new toolbar
+        toolbar = createEditorToolbar();
         editorContainer.insertBefore(toolbar, contentTextarea);
-        
-        // Set up basic event handlers for toolbar buttons
-        setupBasicToolbarHandlers(toolbar, contentTextarea);
     }
-    
-    // Add line numbers
-    addLineNumbers(contentTextarea);
-    
-    // Find or create preview area
+
+    // Create or identify preview area
     let previewArea = form.querySelector('.wiki-preview-area');
     if (!previewArea) {
+        console.log('could not find preview area, creating ', contentTextarea);
+        // Create one if it doesn't exist
         previewArea = document.createElement('div');
         previewArea.className = 'wiki-preview-area';
         previewArea.style.display = 'none';
         editorContainer.parentNode.insertBefore(previewArea, editorContainer.nextSibling);
+        console.log('Created wiki preview area');
+    }
+
+    // Ensure the editor CSS is loaded
+    ensureEditorStyles();
+    
+    
+    // Set up the form submission handler to transform the content
+    form.addEventListener('submit', function(e) {
+        // Transform the article content by adding the short description
+        transformContent(form);
+        
+        // The actual submission is handled by the form's existing event handler
+    });
+    
+    // Add line numbers
+    addLineNumbers(contentTextarea);
+    
+    // Add preview button to form actions if not already present
+    const formActions = form.querySelector('.form-actions');
+    if (formActions) {
+        // Check if preview button already exists
+        if (!formActions.querySelector('#preview-button')) {
+            // Create preview button
+            const previewButton = document.createElement('button');
+            previewButton.type = 'button';
+            previewButton.id = 'preview-button';
+            previewButton.className = 'preview-button';
+            previewButton.textContent = 'Show Preview';
+            
+            // Insert after the save button
+            const saveButton = formActions.querySelector('[type="submit"]');
+            if (saveButton && saveButton.nextSibling) {
+                formActions.insertBefore(previewButton, saveButton.nextSibling);
+            } else {
+                formActions.appendChild(previewButton);
+            }
+            
+            // Add click handler
+            previewButton.addEventListener('click', function() {
+                showWikiPreview(form);
+            });
+        }
     }
     
-    // Set up preview button handler
-    const previewButton = document.getElementById('preview-button');
-    if (previewButton) {
-        previewButton.addEventListener('click', function() {
-            togglePreview(form, previewButton);
-        });
-    }
+    // Set up event handlers for toolbar buttons
+    setupToolbarHandlers(toolbar, contentTextarea, previewArea);
+    
+    // Add keyboard shortcuts
+    addKeyboardShortcuts(contentTextarea);
+    
+    // Add AutoSave functionality
+    setupAutoSave(form);
     
     console.log('Wiki Editor initialized successfully');
-};
-
-// Basic toolbar handlers
-function setupBasicToolbarHandlers(toolbar, textarea) {
-    toolbar.addEventListener('click', function(e) {
-        const button = e.target.closest('.wiki-toolbar-btn');
-        if (!button) return;
-        
-        const action = button.getAttribute('data-action');
-        if (!action) return;
-        
-        e.preventDefault();
-        
-        switch (action) {
-            case 'bold':
-                wrapSelectedText(textarea, "'''", "'''");
-                break;
-            case 'italic':
-                wrapSelectedText(textarea, "''", "''");
-                break;
-            case 'heading':
-                const level = prompt('Heading level (1-6):', '2');
-                const equals = '='.repeat(parseInt(level) || 2);
-                wrapSelectedText(textarea, equals + ' ', ' ' + equals);
-                break;
-            case 'link':
-                const linkText = textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
-                const target = prompt('Link target:', linkText);
-                if (target) {
-                    wrapSelectedText(textarea, '[[' + target + (target !== linkText ? '|' : ''), ']]');
-                }
-                break;
-            case 'bulletList':
-                prependToLines(textarea, '* ');
-                break;
-            case 'numberedList':
-                prependToLines(textarea, '# ');
-                break;
-            case 'preview':
-                const form = textarea.closest('form');
-                if (form) {
-                    const previewBtn = form.querySelector('#preview-button');
-                    if (previewBtn) {
-                        previewBtn.click();
-                    } else {
-                        togglePreview(form);
-                    }
-                }
-                break;
-        }
-    });
 }
 
-// Helper functions
-function wrapSelectedText(textarea, before, after) {
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    const replacement = before + selectedText + after;
-    
-    textarea.value = textarea.value.substring(0, start) + replacement + textarea.value.substring(end);
-    textarea.focus();
-    textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
+/**
+ * Ensure that the editor styles are loaded
+ */
+function ensureEditorStyles() {
+    // Check if the CSS link already exists
+    if (!document.getElementById('wiki-editor-toolbar-styles')) {
+        // Create link to external CSS file
+        const link = document.createElement('link');
+        link.id = 'wiki-editor-toolbar-styles';
+        link.rel = 'stylesheet';
+        link.href = '/static/css/wiki-editor-toolbar.css';
+        document.head.appendChild(link);
+        
+        console.log('Wiki Editor toolbar styles loaded');
+    }
 }
 
-function prependToLines(textarea, prefix) {
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-    const lines = selectedText.split('\n');
-    
-    const newText = lines.map(line => prefix + line).join('\n');
-    textarea.value = textarea.value.substring(0, start) + newText + textarea.value.substring(end);
-    textarea.focus();
-    textarea.setSelectionRange(start, start + newText.length);
-}
-
+/**
+ * Toggle preview visibility
+ * @param {HTMLElement} form - The form containing the editor
+ * @param {HTMLElement} button - The preview button
+ */
 function togglePreview(form, button) {
+    const contentTextarea = form.querySelector('#article-content');
+    const summaryTextarea = form.querySelector('#article-summary');
     const previewArea = form.querySelector('.wiki-preview-area');
-    const textarea = form.querySelector('#article-content');
-    if (!previewArea || !textarea) return;
+    
+    if (!contentTextarea || !previewArea) return;
+    
+    // Get content and summary
+    const content = contentTextarea.value;
+    const summary = summaryTextarea ? summaryTextarea.value : '';
     
     if (previewArea.style.display === 'none') {
         // Show preview
-        const content = textarea.value;
         previewArea.innerHTML = '<div class="preview-loading">Loading preview...</div>';
         previewArea.style.display = 'block';
+        button.textContent = 'Hide Preview';
         
-        // Simple client-side preview
-        setTimeout(() => {
-            let html = content;
-            
-            // Basic transformations
-            html = html.replace(/'''(.*?)'''/g, '<strong>$1</strong>');
-            html = html.replace(/''(.*?)''/g, '<em>$1</em>');
-            html = html.replace(/====== (.*?) ======/g, '<h6>$1</h6>');
-            html = html.replace(/===== (.*?) =====/g, '<h5>$1</h5>');
-            html = html.replace(/==== (.*?) ====/g, '<h4>$1</h4>');
-            html = html.replace(/=== (.*?) ===/g, '<h3>$1</h3>');
-            html = html.replace(/== (.*?) ==/g, '<h2>$1</h2>');
-            html = html.replace(/= (.*?) =/g, '<h1>$1</h1>');
-            
-            // Links
-            html = html.replace(/\[\[(.*?)\|(.*?)\]\]/g, '<a href="/articles/$1">$2</a>');
-            html = html.replace(/\[\[(.*?)\]\]/g, '<a href="/articles/$1">$1</a>');
-            
+        // Get preview from server
+        getServerPreview(content, summary, function(html) {
             previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${html}</div>`;
-            
-            if (button) {
-                button.textContent = 'Hide Preview';
-            }
-        }, 300);
+        });
     } else {
         // Hide preview
         previewArea.style.display = 'none';
-        if (button) {
-            button.textContent = 'Show Preview';
-        }
+        button.textContent = 'Show Preview';
     }
 }
 
-function addLineNumbers(textarea) {
-    // Create line numbers container
-    const lineNumbersContainer = document.createElement('div');
-    lineNumbersContainer.className = 'wiki-editor-line-numbers';
+/**
+ * Transform the article content before submission
+ * @param {HTMLElement} form - The form element containing the editor
+ */
+function transformContent(form) {
+    const contentTextarea = form.querySelector('#article-content');
+    const summaryTextarea = form.querySelector('#article-summary');
     
-    // Create wrapper
-    const wrapper = document.createElement('div');
-    wrapper.className = 'wiki-editor-wrapper';
+    if (!contentTextarea || !summaryTextarea) return;
     
-    // Insert wrapper and move textarea
-    textarea.parentNode.insertBefore(wrapper, textarea);
-    wrapper.appendChild(lineNumbersContainer);
-    wrapper.appendChild(textarea);
+    // Get content and summary
+    let content = contentTextarea.value;
+    const summary = summaryTextarea.value.trim();
     
-    // Update line numbers
-    function updateLineNumbers() {
-        const lines = textarea.value.split('\n');
-        lineNumbersContainer.innerHTML = '';
+    // Use the addShortDescription utility
+    const newContent = addShortDescription(content, summary);
+    if (newContent !== content) {
+        contentTextarea.value = newContent;
+        console.log('Added short description to content');
+    }
+}
+
+/**
+ * Set up autosave functionality
+ * @param {HTMLElement} form - The form element
+ */
+function setupAutoSave(form) {
+    const contentTextarea = form.querySelector('#article-content');
+    if (!contentTextarea) return;
+    
+    const formId = form.id || 'wiki-editor-form';
+    const autosaveKey = `wiki-autosave-${formId}`;
+    
+    // Check for existing autosave data
+    const savedData = localStorage.getItem(autosaveKey);
+    if (savedData) {
+        try {
+            const data = JSON.parse(savedData);
+            
+            // If the data is less than 24 hours old, offer to restore
+            const saveTime = new Date(data.timestamp);
+            const now = new Date();
+            const hoursDiff = (now - saveTime) / (1000 * 60 * 60);
+            
+            if (hoursDiff < 24 && data.content && data.content !== contentTextarea.value) {
+                // Create autosave notice
+                const notice = document.createElement('div');
+                notice.className = 'wiki-autosave-notice';
+                notice.innerHTML = `
+                    <p>
+                        <strong>Autosaved content found</strong> from ${formatTimeAgo(saveTime)}.
+                        <button type="button" id="restore-autosave">Restore</button>
+                        <button type="button" id="discard-autosave">Discard</button>
+                    </p>
+                `;
+                
+                // Insert before the editor container
+                const editorContainer = contentTextarea.closest('.wiki-editor-container');
+                editorContainer.parentNode.insertBefore(notice, editorContainer);
+                
+                // Add restore functionality
+                document.getElementById('restore-autosave').addEventListener('click', function() {
+                    contentTextarea.value = data.content;
+                    
+                    // Fill other fields if available
+                    if (data.title) {
+                        const titleInput = form.querySelector('#article-title');
+                        if (titleInput) titleInput.value = data.title;
+                    }
+                    
+                    if (data.summary) {
+                        const summaryTextarea = form.querySelector('#article-summary');
+                        if (summaryTextarea) summaryTextarea.value = data.summary;
+                    }
+                    
+                    // Remove notice
+                    notice.remove();
+                });
+                
+                // Add discard functionality
+                document.getElementById('discard-autosave').addEventListener('click', function() {
+                    localStorage.removeItem(autosaveKey);
+                    notice.remove();
+                });
+            }
+        } catch (e) {
+            console.error('Error parsing autosave data:', e);
+            localStorage.removeItem(autosaveKey);
+        }
+    }
+    
+    // Set up autosave
+    let autosaveTimeout = null;
+    contentTextarea.addEventListener('input', function() {
+        clearTimeout(autosaveTimeout);
+        autosaveTimeout = setTimeout(function() {
+            // Get form data
+            const data = {
+                content: contentTextarea.value,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Add title and summary if available
+            const titleInput = form.querySelector('#article-title');
+            if (titleInput) data.title = titleInput.value;
+            
+            const summaryTextarea = form.querySelector('#article-summary');
+            if (summaryTextarea) data.summary = summaryTextarea.value;
+            
+            // Save to localStorage
+            localStorage.setItem(autosaveKey, JSON.stringify(data));
+            
+            // Visual indicator (optional)
+            const saveIndicator = document.createElement('div');
+            saveIndicator.className = 'autosave-indicator';
+            saveIndicator.textContent = 'Autosaved';
+            document.body.appendChild(saveIndicator);
+            
+            setTimeout(() => {
+                saveIndicator.style.opacity = '0';
+                setTimeout(() => saveIndicator.remove(), 500);
+            }, 1500);
+        }, 2000); // Autosave after 2 seconds of inactivity
+    });
+    
+    // Clear autosave on successful form submission
+    form.addEventListener('submit', function() {
+        // We'll clear after submission is successful, in the form's own submit handler
+        const originalContent = contentTextarea.value;
         
-        for (let i = 0; i < lines.length; i++) {
-            const lineNumber = document.createElement('div');
-            lineNumber.className = 'line-number';
-            lineNumber.textContent = i + 1;
-            lineNumbersContainer.appendChild(lineNumber);
-        }
-    }
-    
-    // Initial update
-    updateLineNumbers();
-    
-    // Update on events
-    textarea.addEventListener('input', updateLineNumbers);
-    textarea.addEventListener('scroll', function() {
-        lineNumbersContainer.scrollTop = textarea.scrollTop;
+        // Set up a check to run later
+        setTimeout(function() {
+            // If the content has changed, the form was likely submitted successfully
+            if (contentTextarea.value !== originalContent || !document.contains(contentTextarea)) {
+                localStorage.removeItem(autosaveKey);
+            }
+        }, 1000);
     });
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Find wiki editors
-    const forms = document.querySelectorAll('form');
-    forms.forEach(form => {
-        if (form.querySelector('#article-content')) {
-            initializeWikiEditor(form);
-        }
-    });
-});
+/**
+ * Format time ago for autosave
+ * @param {Date} date - The date to format
+ * @returns {string} Formatted time ago
+ */
+function formatTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffSec = Math.round(diffMs / 1000);
+    const diffMin = Math.round(diffSec / 60);
+    const diffHour = Math.round(diffMin / 60);
+    
+    if (diffSec < 60) {
+        return `${diffSec} seconds ago`;
+    } else if (diffMin < 60) {
+        return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
+    } else {
+        return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`;
+    }
+}
 
-// Export for use by other scripts
-window.wikiEditor = {
-    initialize: initializeWikiEditor
-};
+export { showWikiPreview };
+
