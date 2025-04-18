@@ -125,20 +125,9 @@
     <!-- Any additional modals that might be needed per-page -->
     {% block modals %}{% endblock %}
 <script src="/static/js/wiki-editor/wiki-mode-toggle.js"></script>
+<!-- File: templates/base.html -->
+<!-- Add this at the end of the body tag -->
+
 <!-- Add this right before the closing </body> tag -->
-<script type="module">
-    // Preload wiki editor modules for faster initialization
-    document.addEventListener('DOMContentLoaded', function() {
-        if (document.getElementById('article-content')) {
-            import('/static/js/wiki-editor/index.js')
-                .then(module => {
-                    console.log('Wiki Editor modules loaded successfully');
-                })
-                .catch(error => {
-                    console.error('Error loading Wiki Editor modules:', error);
-                });
-        }
-    });
-</script>
 </body>
 </html>
