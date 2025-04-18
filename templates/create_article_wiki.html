@@ -40,15 +40,6 @@
         color: #155724;
     }
     
-    /* Wiki preview area */
-    .wiki-preview-area {
-        border: 1px solid #ddd;
-        padding: 20px;
-        margin-top: 20px;
-        background-color: #fff;
-        border-radius: 4px;
-    }
-    
     .help-text {
         font-size: 14px;
         color: #666;
@@ -176,202 +167,26 @@
 {% endblock %}
 
 {% block extra_js %}
-<script type="module" src="/static/js/wiki-editor/index.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in
-    const token = localStorage.getItem('token');
-    if (!token) {
-        // Show a message that login is required
-        document.getElementById('create-article-form').style.display = 'none';
-        document.getElementById('login-message').style.display = 'block';
-        
-        document.getElementById('login-to-create').addEventListener('click', function() {
-            // Open login modal
-            document.getElementById('login-modal').style.display = 'block';
-            
-            // When login is successful, reload the page
-            document.getElementById('login-form').addEventListener('submit', function(e) {
-                e.preventDefault();
-                login(function() {
-                    window.location.reload();
-                });
-            });
-        });
-        
-        return;
-    }
-
-    // Show error message function
-    function showError(message) {
-        const errorMessage = document.getElementById('error-message');
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
-        setTimeout(function() {
-            errorMessage.style.display = 'none';
-        }, 5000);
-    }
+<script type="module">
+    import { initializeWikiEditor } from '/static/js/wiki-editor/index.js';
     
-    // Show success message function
-    function showSuccess(message) {
-        const successMessage = document.getElementById('success-message');
-        successMessage.textContent = message;
-        successMessage.style.display = 'block';
-    }
-    
-    // Preview button functionality
-    document.getElementById('preview-button').addEventListener('click', function() {
-        const previewArea = document.querySelector('.wiki-preview-area');
-        const content = document.getElementById('article-content').value;
-        const summary = document.getElementById('article-summary').value;
-        
-        if (previewArea.style.display === 'none') {
-            // Send content and summary separately to server for preview
-            fetch('/api/preview', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ 
-                    content: content,
-                    summary: summary // Send summary separately
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${data.html}</div>`;
-                previewArea.style.display = 'block';
-                this.textContent = 'Hide Preview';
-            })
-            .catch(error => {
-                console.error('Error generating preview:', error);
-                showError('Failed to generate preview. Please try again.');
-            });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the wiki editor
+        const form = document.getElementById('create-article-form');
+        if (form) {
+            console.log('Initializing wiki editor on create-article-form');
+            try {
+                initializeWikiEditor(form);
+            } catch (error) {
+                console.error('Error initializing wiki editor:', error);
+            }
         } else {
-            previewArea.style.display = 'none';
-            this.textContent = 'Show Preview';
+            console.error('Could not find create-article-form');
         }
     });
-    
-    // Handle article creation
-    document.getElementById('create-article-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Get form values
-        const title = document.getElementById('article-title').value;
-        const summary = document.getElementById('article-summary').value;
-        const content = document.getElementById('article-content').value;
-        const categories = document.getElementById('article-categories').value.split(',').map(item => item.trim()).filter(item => item !== '');
-        const tags = document.getElementById('article-tags').value.split(',').map(item => item.trim()).filter(item => item !== '');
-        
-        // Get metadata
-        const metadata = {
-            hasAudio: document.getElementById('has-audio').checked,
-            hasSpecialSymbols: document.getElementById('has-special-symbols').checked,
-            containsMadeUpContent: document.getElementById('contains-made-up-content').checked
-        };
-        
-        // Validate form
-        if (!title) {
-            showError('Please enter a title for the article.');
-            return;
-        }
-        
-        if (!summary) {
-            showError('Please provide a summary for the article.');
-            return;
-        }
-        
-        if (!content) {
-            showError('Please enter content for the article.');
-            return;
-        }
-        
-        // Process content to add short description if needed
-        let processedContent = content;
-        {% raw %}
-        if (!processedContent.includes('{{Short description|')) {
-            processedContent = `{{Short description|${summary}}}\n\n${processedContent}`;
-        }
-        {% endraw %}
-        
-        // Create article data object with the processed content
-        const articleData = {
-            title,
-            summary,
-            content: processedContent,
-            categories,
-            tags,
-            metadata
-        };
-        
-        // Check token again before submitting
-        const currentToken = localStorage.getItem('token');
-        if (!currentToken) {
-            showError('Your session has expired. Please login again.');
-            document.getElementById('login-modal').style.display = 'block';
-            return;
-        }
-        
-        // Show loading indicator
-        const saveButton = document.getElementById('save-article');
-        const originalButtonText = saveButton.textContent;
-        saveButton.innerHTML = '<span class="loading-indicator"></span> Creating...';
-        saveButton.disabled = true;
-        
-        // Send API request
-        fetch('/api/articles/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentToken}`
-            },
-            body: JSON.stringify(articleData)
-        })
-        .then(response => {
-            if (response.status === 401) {
-                // Token is invalid or expired
-                localStorage.removeItem('token');
-                showError('Your session has expired. Please login again.');
-                document.getElementById('login-modal').style.display = 'block';
-                throw new Error('Unauthorized');
-            }
-            
-            if (!response.ok) {
-                return response.text().then(text => {
-                    try {
-                        const data = JSON.parse(text);
-                        throw new Error(data.detail || 'Failed to create article');
-                    } catch (e) {
-                        throw new Error('Failed to create article: ' + text);
-                    }
-                });
-            }
-            
-            return response.json();
-        })
-        .then(data => {
-            showSuccess('Article created successfully!');
-            
-            // Redirect to the new article after a brief delay
-            setTimeout(function() {
-                window.location.href = `/articles/${data.slug}`;
-            }, 1000);
-        })
-        .catch(error => {
-            // Reset button
-            saveButton.textContent = originalButtonText;
-            saveButton.disabled = false;
-            
-            if (error.message !== 'Unauthorized') {
-                console.error('Error creating article:', error);
-                showError(error.message || 'Failed to create article. Please try again.');
-            }
-        });
-    });
-});
+</script>
 
+<script>
 // Helper function for login
 function login(callback) {
     const email = document.getElementById('email').value;
