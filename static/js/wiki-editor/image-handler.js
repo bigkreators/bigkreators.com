@@ -1,3 +1,4 @@
+// File: static/js/wiki-editor/image-handler.js
 /**
  * Image Handler for Wiki Editor
  * 
@@ -11,6 +12,7 @@ import { insertWikiMarkup } from './utils/text-utils.js';
  * @param {HTMLElement} textarea - The textarea element
  */
 export function openImageDialog(textarea) {
+    console.log('Opening image dialog for', textarea);
     // Create dialog
     const dialog = document.createElement('div');
     dialog.className = 'wiki-dialog wiki-image-dialog';
@@ -85,6 +87,7 @@ export function openImageDialog(textarea) {
     
     const insertButton = document.getElementById('insert-image-btn');
     insertButton.addEventListener('click', () => {
+        console.log('Insert image button clicked');
         const filename = document.getElementById('image-filename').value.trim();
         const caption = document.getElementById('image-caption').value.trim();
         const size = document.querySelector('input[name="image-size"]:checked').value;
@@ -117,6 +120,7 @@ export function openImageDialog(textarea) {
         
         imageMarkup += ']]';
         
+        console.log('Inserting image markup:', imageMarkup);
         insertWikiMarkup(textarea, imageMarkup);
         dialog.remove();
     });
@@ -179,3 +183,8 @@ export function transformImages(markup) {
         return html;
     });
 }
+
+export default {
+    openImageDialog,
+    transformImages
+};

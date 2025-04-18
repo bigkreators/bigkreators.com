@@ -37,6 +37,10 @@ const componentInstances = {};
 export function registerEditorComponents() {
     // No initialization needed at this point
     // Components will be created on demand
+    console.log('Registering editor components');
+    Object.keys(componentCreators).forEach(key => {
+        console.log(`Component registered: ${key}`);
+    });
 }
 
 /**
@@ -48,7 +52,13 @@ export function getComponent(componentName) {
     // If component doesn't exist yet, create it
     if (!componentInstances[componentName]) {
         if (componentCreators[componentName]) {
-            componentInstances[componentName] = componentCreators[componentName]();
+            try {
+                componentInstances[componentName] = componentCreators[componentName]();
+                console.log(`Component created: ${componentName}`);
+            } catch (e) {
+                console.error(`Error creating component ${componentName}:`, e);
+                return null;
+            }
         } else {
             console.error(`Component "${componentName}" not found in registry`);
             return null;
@@ -74,3 +84,11 @@ export function hasComponent(componentName) {
 export function getComponentNames() {
     return Object.keys(componentCreators);
 }
+
+// Export functions
+export default {
+    registerEditorComponents,
+    getComponent,
+    hasComponent,
+    getComponentNames
+};

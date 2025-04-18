@@ -20,6 +20,7 @@ import { getServerPreview } from './wiki-editor-backend-integration.js';
  * @param {HTMLElement} form - The form element containing the editor
  */
 export function initializeWikiEditor(form) {
+    console.log('Wiki Editor initialization starting...');
     // Find the content textarea
     const contentTextarea = form.querySelector('#article-content');
     if (!contentTextarea) {
@@ -27,7 +28,7 @@ export function initializeWikiEditor(form) {
         return;
     }
     
-    console.log('Check Summernote Editor on', contentTextarea);
+    console.log('Found textarea element:', contentTextarea);
     
     // If Summernote is initialized, destroy it
     if (typeof $ !== 'undefined' && $.fn.summernote) {
@@ -39,51 +40,50 @@ export function initializeWikiEditor(form) {
         }
     }
 
-    console.log('Initializing Wiki Editor on', contentTextarea);
-
     // Find or create editor container
     let editorContainer = contentTextarea.closest('.wiki-editor-container');
     if (!editorContainer) {
-        console.log('could not find editor container, wrapping ', contentTextarea);
- 
+        console.log('Creating new editor container');
         // Wrap textarea in container
         editorContainer = document.createElement('div');
         editorContainer.className = 'wiki-editor-container';
         contentTextarea.parentNode.insertBefore(editorContainer, contentTextarea);
         editorContainer.appendChild(contentTextarea);
+    } else {
+        console.log('Found existing editor container');
     }
 
     // Create toolbar if it doesn't exist
     let toolbar = editorContainer.querySelector('.wiki-editor-toolbar');
     if (!toolbar) {
-        console.log('could not find toolbar, creating ', contentTextarea);
+        console.log('Creating new toolbar');
         // Create new toolbar
         toolbar = createEditorToolbar();
         editorContainer.insertBefore(toolbar, contentTextarea);
+    } else {
+        console.log('Found existing toolbar');
     }
 
     // Create or identify preview area
     let previewArea = form.querySelector('.wiki-preview-area');
     if (!previewArea) {
-        console.log('could not find preview area, creating ', contentTextarea);
+        console.log('Creating new preview area');
         // Create one if it doesn't exist
         previewArea = document.createElement('div');
         previewArea.className = 'wiki-preview-area';
         previewArea.style.display = 'none';
         editorContainer.parentNode.insertBefore(previewArea, editorContainer.nextSibling);
-        console.log('Created wiki preview area');
+    } else {
+        console.log('Found existing preview area');
     }
 
     // Ensure the editor CSS is loaded
     ensureEditorStyles();
     
-    
     // Set up the form submission handler to transform the content
     form.addEventListener('submit', function(e) {
         // Transform the article content by adding the short description
         transformContent(form);
-        
-        // The actual submission is handled by the form's existing event handler
     });
     
     // Add line numbers
@@ -117,6 +117,7 @@ export function initializeWikiEditor(form) {
     }
     
     // Set up event handlers for toolbar buttons
+    console.log('Setting up toolbar handlers with textarea:', contentTextarea);
     setupToolbarHandlers(toolbar, contentTextarea, previewArea);
     
     // Add keyboard shortcuts
@@ -339,5 +340,5 @@ function formatTimeAgo(date) {
     }
 }
 
-export { showWikiPreview };
-
+// Export functions
+export { showWikiPreview  };
