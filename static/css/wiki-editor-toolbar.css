@@ -1,223 +1,408 @@
-/* static/css/wiki-editor-toolbar.css */
+/* File: static/wiki-editor.css */
+/* Main styles for the Wiki Editor */
 
-/* Wiki Editor Toolbar Styles */
+/* Editor container */
+.wiki-editor-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    background-color: #fff;
+}
+
+/* Editor toolbar */
 .wiki-editor-toolbar {
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
-  border-bottom: none;
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-  padding: 8px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-/* Toolbar button groups */
+/* Toolbar groups */
 .wiki-toolbar-group {
-  display: flex;
-  gap: 3px;
-  padding: 0 5px;
-  border-right: 1px solid #ddd;
-  margin-right: 5px;
+    display: flex;
+    gap: 3px;
+    padding: 0 5px;
 }
 
-.wiki-toolbar-group:last-child {
-  border-right: none;
+/* Toolbar separator */
+.wiki-toolbar-separator {
+    width: 1px;
+    background-color: #ddd;
+    margin: 0 5px;
 }
 
 /* Toolbar buttons */
 .wiki-toolbar-btn {
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 3px;
-  padding: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  transition: background-color 0.2s, border-color 0.2s;
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2px;
 }
 
 .wiki-toolbar-btn:hover {
-  background-color: #f0f0f0;
-  border-color: #c8ccd1;
+    background-color: #eaecf0;
+    border-color: #c8ccd1;
 }
 
 .wiki-toolbar-btn:active {
-  background-color: #e0e0e0;
+    background-color: #c8ccd1;
 }
 
-/* Toolbar icons */
-.wiki-icon {
-  width: 18px;
-  height: 18px;
-  display: inline-block;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.7;
-}
-
-.wiki-toolbar-btn:hover .wiki-icon {
-  opacity: 1;
-}
-
-/* Wiki editor container */
-.wiki-editor-container {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 15px;
-  background-color: #fff;
-  overflow: hidden;
-}
-
-/* Editor textarea */
+/* Editor content area */
 textarea#article-content {
-  width: 100%;
-  min-height: 300px;
-  padding: 10px;
-  border: none;
-  border-top: 1px solid #ddd;
-  resize: vertical;
-  font-family: monospace;
-  font-size: 14px;
-  line-height: 1.5;
+    width: 100%;
+    min-height: 400px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    border: none;
+    resize: vertical;
 }
 
-/* Define all toolbar icons using SVG data URIs for better compatibility */
-.wiki-icon-bold {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M15.6 11.8c.7-.7 1.1-1.7 1.1-2.8 0-2.8-2.2-5-5-5H7v14h5.3c2.6 0 4.8-1.9 4.9-4.5 0-.8-.2-1.6-.6-2.3-.3-.3-.6-.6-1-.8zM10 7.5h2c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-2v-3zm2.5 9h-2.5v-3h2.5c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5z'/%3E%3C/svg%3E");
+/* Line numbers */
+.wiki-editor-wrapper {
+    display: flex;
+    width: 100%;
+    position: relative;
 }
 
-.wiki-icon-italic {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M10 5v3h2.2l-3.4 8H6v3h8v-3h-2.2l3.4-8H18V5h-8z'/%3E%3C/svg%3E");
+.wiki-editor-line-numbers {
+    width: 40px;
+    font-family: monospace;
+    font-size: 14px;
+    color: #999;
+    text-align: right;
+    padding: 10px 5px 10px 0;
+    border-right: 1px solid #ddd;
+    background-color: #f8f9fa;
+    overflow: hidden;
+    user-select: none;
 }
 
-.wiki-icon-underline {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M12 17c3.31 0 6-2.69 6-6V3h-2.5v8c0 1.93-1.57 3.5-3.5 3.5S8.5 12.93 8.5 11V3H6v8c0 3.31 2.69 6 6 6zm-7 2v2h14v-2H5z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-strikethrough {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M7.24 8.75c-.26-.48-.39-1.03-.39-1.67 0-.61.13-1.16.4-1.67.26-.5.63-.93 1.11-1.29.48-.35 1.05-.63 1.7-.83.66-.19 1.39-.29 2.18-.29.81 0 1.54.11 2.21.34.66.22 1.23.54 1.69.94.47.4.83.88 1.08 1.43.25.55.38 1.15.38 1.81h-3.01c0-.31-.05-.59-.15-.85-.09-.27-.24-.49-.44-.68-.2-.19-.45-.33-.75-.44-.3-.1-.66-.16-1.06-.16-.39 0-.74.04-1.03.13-.29.09-.53.21-.72.36-.19.16-.34.34-.44.55-.1.21-.15.43-.15.66 0 .48.25.88.74 1.21.38.25.77.48 1.41.7H7.39c-.05-.08-.11-.17-.15-.25zM21 12v-2H3v2h9.62c.18.07.4.14.55.2.37.17.66.34.87.51.21.17.35.36.43.57.07.2.11.43.11.69 0 .23-.05.45-.14.66-.09.2-.23.38-.42.53-.19.15-.42.26-.71.35-.29.08-.63.13-1.01.13-.43 0-.83-.04-1.18-.13s-.66-.23-.91-.42c-.25-.19-.45-.44-.59-.75-.14-.31-.25-.76-.25-1.21H6.4c0 .55.08 1.13.24 1.58.16.45.37.85.65 1.21.28.35.6.66.98.92.37.26.78.48 1.22.65.44.17.9.3 1.38.39.48.08.96.13 1.44.13.8 0 1.53-.09 2.18-.28s1.21-.45 1.67-.79c.46-.34.82-.77 1.07-1.27s.38-1.07.38-1.71c0-.6-.1-1.14-.31-1.61-.05-.11-.11-.23-.17-.33H21z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-heading {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M17 3v8h-4V3h-2v18h2v-8h4v8h2V3z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-list-ul {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M4 10.5c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5-.67-1.5-1.5-1.5zm0-6c-.83 0-1.5.67-1.5 1.5S3.17 7.5 4 7.5 5.5 6.83 5.5 6 4.83 4.5 4 4.5zm0 12c-.83 0-1.5.68-1.5 1.5s.68 1.5 1.5 1.5 1.5-.68 1.5-1.5-.67-1.5-1.5-1.5zM7 19h14v-2H7v2zm0-6h14v-2H7v2zm0-8v2h14V5H7z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-list-ol {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M2 17h2v.5H3v1h1v.5H2v1h3v-4H2v1zm1-9h1V4H2v1h1v3zm-1 3h1.8L2 13.1v.9h3v-1H3.2L5 10.9V10H2v1zm5-6v2h14V5H7zm0 14h14v-2H7v2zm0-6h14v-2H7v2z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-link {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-unlink {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M17 7h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1 0 1.43-.98 2.63-2.31 2.98l1.46 1.46C20.88 15.61 22 13.95 22 12c0-2.76-2.24-5-5-5zm-1 4h-2.19l2 2H16v-2zM2 4.27l3.11 3.11C3.29 8.12 2 9.91 2 12c0 2.76 2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1 0-1.59 1.21-2.9 2.76-3.07L8.73 11H8v2h2.73L13 15.27V17h1.73l4.01 4L20 19.74 3.27 3 2 4.27z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-file-image {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-template {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M4 5h16v2H4V5zm0 4h4v10H4V9zm6 0h4v10h-4V9zm6 0h4v10h-4V9z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-table {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm1 2v5h5V5H5zm7 0v5h5V5h-5zm-7 7v5h5v-5H5zm7 0v5h5v-5h-5z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-math {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M4 5h16v2H4V5zm0 6h16v2H4v-2zm0 6h16v2H4v-2z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-code {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-citation {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M6 17h3l2-4V7H5v6h3zm8 0h3l2-4V7h-6v6h3z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-reference {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-1.99 6H7V7h10.01v2zm0 4H7v-2h10.01v2zm-3 4H7v-2h7.01v2z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-search {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-undo {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-redo {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-preview {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-indent {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M3 9h18v2H3V9zm3-4h12v2H6V5zm-3 8h18v2H3v-2zm0 4h18v2H3v-2zm3-4h12v2H6v-2z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-outdent {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M3 9h18v2H3V9zm3-4h12v2H6V5zm-3 8h18v2H3v-2zm0 4h18v2H3v-2zm3-4h12v2H6v-2z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-superscript {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M22 7h-2v1h3v1h-4V7c0-.55.45-1 1-1h2V5h-3V4h3c.55 0 1 .45 1 1v1c0 .55-.45 1-1 1zM5.88 20h2.66l3.4-5.42h.12l3.4 5.42h2.66l-4.65-7.27L17.81 6h-2.68l-3.07 4.99h-.12L8.85 6H6.19l4.32 6.73L5.88 20z'/%3E%3C/svg%3E");
-}
-
-.wiki-icon-subscript {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23333' d='M22 18h-2v1h3v1h-4v-2c0-.55.45-1 1-1h2v-1h-3v-1h3c.55 0 1 .45 1 1v1c0 .55-.45 1-1 1zM5.88 18h2.66l3.4-5.42h.12l3.4 5.42h2.66l-4.65-7.27L17.81 4h-2.68l-3.07 4.99h-.12L8.85 4H6.19l4.32 6.73L5.88 18z'/%3E%3C/svg%3E");
+.line-number {
+    padding-right: 5px;
 }
 
 /* Preview area */
 .wiki-preview-area {
-  border: 1px solid #ddd;
-  padding: 20px;
-  margin-top: 20px;
-  background-color: #fff;
-  border-radius: 4px;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #fff;
+    border-radius: 4px;
 }
 
 .wiki-preview-content {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    margin-top: 15px;
 }
 
-/* Loading indicator for preview */
+/* Dialog boxes */
+.wiki-dialog {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    overflow: auto;
+}
+
+.wiki-dialog-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: relative;
+}
+
+.close-dialog {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #888;
+}
+
+.close-dialog:hover {
+    color: #333;
+}
+
+/* Dialog form elements */
+.wiki-dialog .form-group {
+    margin-bottom: 15px;
+}
+
+.wiki-dialog label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.wiki-dialog input[type="text"],
+.wiki-dialog input[type="number"],
+.wiki-dialog textarea,
+.wiki-dialog select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.wiki-dialog textarea {
+    min-height: 150px;
+}
+
+/* Dialog action buttons */
+.dialog-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.dialog-actions button {
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Template gallery */
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.template-item {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+.template-item h4 {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.template-preview {
+    font-family: monospace;
+    background-color: #f0f0f0;
+    padding: 5px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Autosave indicator */
+.autosave-indicator {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+    z-index: 1000;
+}
+
+/* Wiki mode toggle */
+.mode-toggle {
+    display: inline-flex;
+    background-color: #f5f5f5;
+    border-radius: 20px;
+    padding: 4px;
+    margin: 10px 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mode-toggle-button {
+    padding: 6px 12px;
+    border-radius: 16px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    transition: all 0.2s ease;
+}
+
+.mode-toggle-button:hover {
+    background-color: rgba(0,0,0,0.05);
+}
+
+.mode-toggle-button.active {
+    background-color: #0645ad;
+    color: white;
+}
+
+/* Icons for toolbar buttons */
+.wiki-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    background-size: 16px;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+}
+
+.wiki-icon:hover {
+    opacity: 1;
+}
+
+/* Define all toolbar icons using data URIs */
+.wiki-icon-bold {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' d='M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z'%3E%3C/path%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' d='M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-italic {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' d='M19 4h-9M14 20H5M15 4L9 20'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-underline {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' d='M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3'%3E%3C/path%3E%3Cline x1='4' y1='21' x2='20' y2='21' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3C/svg%3E");
+}
+
+.wiki-icon-strikethrough {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' d='M17 9V5H7v4M16 15H8M12 21v-4M3 9h18'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-heading {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' d='M6 12h12M6 4V20M18 4V20'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-list-ul {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cline x1='8' y1='6' x2='21' y2='6' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Cline x1='8' y1='12' x2='21' y2='12' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Cline x1='8' y1='18' x2='21' y2='18' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Ccircle cx='3' cy='6' r='1' fill='currentColor'%3E%3C/circle%3E%3Ccircle cx='3' cy='12' r='1' fill='currentColor'%3E%3C/circle%3E%3Ccircle cx='3' cy='18' r='1' fill='currentColor'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+.wiki-icon-list-ol {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cline x1='10' y1='6' x2='21' y2='6' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Cline x1='10' y1='12' x2='21' y2='12' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Cline x1='10' y1='18' x2='21' y2='18' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Ctext x='3' y='8' font-family='sans-serif' font-size='9' fill='currentColor'%3E1%3C/text%3E%3Ctext x='3' y='14' font-family='sans-serif' font-size='9' fill='currentColor'%3E2%3C/text%3E%3Ctext x='3' y='20' font-family='sans-serif' font-size='9' fill='currentColor'%3E3%3C/text%3E%3C/svg%3E");
+}
+
+.wiki-icon-link {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'%3E%3C/path%3E%3Cpath fill='none' stroke='currentColor' stroke-width='2' d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-file-image {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/rect%3E%3Ccircle cx='8.5' cy='8.5' r='1.5' fill='currentColor'%3E%3C/circle%3E%3Cpolyline points='21 15 16 10 5 21' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.wiki-icon-template {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/rect%3E%3Cline x1='3' y1='9' x2='21' y2='9' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Cline x1='9' y1='21' x2='9' y2='9' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3C/svg%3E");
+}
+
+.wiki-icon-table {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Crect x='3' y='3' width='18' height='18' rx='2' ry='2' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/rect%3E%3Cline x1='3' y1='9' x2='21' y2='9' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Cline x1='3' y1='15' x2='21' y2='15' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Cline x1='9' y1='3' x2='9' y2='21' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3Cline x1='15' y1='3' x2='15' y2='21' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3C/svg%3E");
+}
+
+.wiki-icon-math {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M4 6h16M4 12h16M4 18h16M8 6v12M16 12l-4 4M16 16l-4 -4' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-code {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpolyline points='16 18 22 12 16 6' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/polyline%3E%3Cpolyline points='8 6 2 12 8 18' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.wiki-icon-search {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Ccircle cx='11' cy='11' r='8' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65' stroke='currentColor' stroke-width='2'%3E%3C/line%3E%3C/svg%3E");
+}
+
+.wiki-icon-undo {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M3 7v6h6M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-redo {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M21 7v6h-6M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-preview {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='3' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/circle%3E%3C/svg%3E");
+}
+
+.wiki-icon-citation {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M6 9h12M6 13h12M6 17h8' stroke='currentColor' stroke-width='2' fill='none'%3E%3C/path%3E%3Cpath d='M10 21V9M7 21h6' stroke='currentColor' stroke-width='2' fill='none'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-reference {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3Cpath d='M8 7h6M8 11h8' stroke='currentColor' stroke-width='2' fill='none'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-indent {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M3 8h18M3 12h18M3 16h18M10 4L6 8M10 16L6 12' stroke='currentColor' stroke-width='2' fill='none'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-outdent {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M3 8h18M3 12h18M3 16h18M6 4l4 4M6 16l4 -4' stroke='currentColor' stroke-width='2' fill='none'%3E%3C/path%3E%3C/svg%3E");
+}
+
+/* Preview notice */
+.wiki-autosave-notice {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Loading indicators */
 .preview-loading {
-  padding: 20px;
-  text-align: center;
-  color: #666;
+    padding: 20px;
+    text-align: center;
+    color: #666;
 }
 
 .preview-loading:after {
-  content: '';
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  margin-left: 10px;
-  border: 2px solid #ddd;
-  border-top: 2px solid #0645ad;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-left-color: #0645ad;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+    vertical-align: middle;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Preview button style */
+.preview-button {
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.preview-button:hover {
+    background-color: #e9ecef;
 }
