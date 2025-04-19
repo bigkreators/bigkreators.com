@@ -187,6 +187,12 @@ async def get_article(
         
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
+        
+        # Ensure upvotes and downvotes fields exist
+        if "upvotes" not in article:
+            article["upvotes"] = 0
+        if "downvotes" not in article:
+            article["downvotes"] = 0
             
         # Cache for 1 hour
         await cache.set(cache_key, article, 3600)

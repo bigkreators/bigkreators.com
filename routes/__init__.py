@@ -16,5 +16,6 @@ __all__ = [
     'proposals',
     'rewards',
     'special',
-    'page_routes'
+    'page_routes',
+    'votes'
 ]

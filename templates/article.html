@@ -126,6 +126,41 @@ hr {
 .status-draft {
     background-color: #17a2b8;
 }
+
+/* Voting styles */
+.vote-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.vote-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px 10px;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.vote-button:hover {
+    color: #333;
+}
+
+.vote-button.upvote.active {
+    color: #4CAF50;
+}
+
+.vote-button.downvote.active {
+    color: #F44336;
+}
+
+.vote-count {
+    margin: 0 10px;
+    font-weight: bold;
+    color: #333;
+}
 </style>
 {% endblock %}
 
@@ -156,6 +191,18 @@ hr {
             {% endif %}
         {% endif %}
     </h1>
+    
+    <!-- Add vote buttons here -->
+    <div class="vote-container">
+        <button class="vote-button upvote" id="upvote-button" title="Upvote">
+            <i class="fas fa-arrow-up"></i>
+        </button>
+        <span class="vote-count" id="vote-count">{{ article.upvotes|default(0) }}</span>
+        <button class="vote-button downvote" id="downvote-button" title="Downvote">
+            <i class="fas fa-arrow-down"></i>
+        </button>
+    </div>
+    
     <div class="article-meta">
         <span>Views: {{ article.views }}</span>
         <span>Last updated: {{ article.lastUpdatedAt|strftime('%Y-%m-%d') or article.createdAt|strftime('%Y-%m-%d') }}</span>
@@ -348,6 +395,130 @@ document.addEventListener('DOMContentLoaded', function() {
             element.style.display = 'none';
         });
     }
+    
+    // Add voting functionality
+    const upvoteButton = document.getElementById('upvote-button');
+    const downvoteButton = document.getElementById('downvote-button');
+    const voteCount = document.getElementById('vote-count');
+    
+    // Function to get current vote status
+    async function getVoteStatus() {
+        try {
+            const response = await fetch(`/api/articles/{{ article._id }}/votes`, {
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to get vote status');
+            }
+            
+            const data = await response.json();
+            
+            // Update vote count
+            voteCount.textContent = data.upvotes - data.downvotes;
+            
+            // Set active state based on user's vote
+            if (data.userVote === 'upvote') {
+                upvoteButton.classList.add('active');
+                downvoteButton.classList.remove('active');
+            } else if (data.userVote === 'downvote') {
+                downvoteButton.classList.add('active');
+                upvoteButton.classList.remove('active');
+            } else {
+                upvoteButton.classList.remove('active');
+                downvoteButton.classList.remove('active');
+            }
+        } catch (error) {
+            console.error('Error getting vote status:', error);
+        }
+    }
+    
+    // Get initial vote status
+    getVoteStatus();
+    
+    // Handle upvote button
+    upvoteButton.addEventListener('click', async function() {
+        if (!token) {
+            // Show login modal if user is not logged in
+            const loginModal = document.getElementById('login-modal');
+            if (loginModal) loginModal.style.display = 'block';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/articles/{{ article._id }}/vote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ vote_type: 'upvote' })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to upvote article');
+            }
+            
+            const data = await response.json();
+            
+            // Update the vote count
+            voteCount.textContent = data.upvotes - data.downvotes;
+            
+            // Update button states
+            if (upvoteButton.classList.contains('active')) {
+                // Was active, now inactive
+                upvoteButton.classList.remove('active');
+            } else {
+                // Was inactive, now active
+                upvoteButton.classList.add('active');
+                downvoteButton.classList.remove('active');
+            }
+        } catch (error) {
+            console.error('Error upvoting article:', error);
+        }
+    });
+    
+    // Handle downvote button
+    downvoteButton.addEventListener('click', async function() {
+        if (!token) {
+            // Show login modal if user is not logged in
+            const loginModal = document.getElementById('login-modal');
+            if (loginModal) loginModal.style.display = 'block';
+            return;
+        }
+        
+        try {
+            const response = await fetch(`/api/articles/{{ article._id }}/vote`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ vote_type: 'downvote' })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to downvote article');
+            }
+            
+            const data = await response.json();
+            
+            // Update the vote count
+            voteCount.textContent = data.upvotes - data.downvotes;
+            
+            // Update button states
+            if (downvoteButton.classList.contains('active')) {
+                // Was active, now inactive
+                downvoteButton.classList.remove('active');
+            } else {
+                // Was inactive, now active
+                downvoteButton.classList.add('active');
+                upvoteButton.classList.remove('active');
+            }
+        } catch (error) {
+            console.error('Error downvoting article:', error);
+        }
+    });
     
     // Set up propose edit button
     const proposeEditButton = document.getElementById('propose-edit-button');
