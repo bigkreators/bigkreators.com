@@ -7,16 +7,34 @@
  * wiki markup transformation.
  */
 
-import { getServerPreview } from './utils/transform-wiki.js';
+import { getServerPreview } from './wiki-editor-backend-integration.js';
 
 /**
  * Show preview for wiki content
  * @param {HTMLElement} form - The form containing the wiki content
  */
 export function showWikiPreview(form) {
+    console.log('showWikiPreview called with form:', form);
     const contentTextarea = form.querySelector('#article-content');
     const summaryInput = form.querySelector('#article-summary');
-    const previewArea = form.querySelector('.wiki-preview-area');
+    
+    // Try different preview area selectors
+    let previewArea = form.querySelector('.wiki-preview-area');
+    if (!previewArea) {
+        previewArea = document.querySelector('.wiki-preview-area');
+    }
+    if (!previewArea) {
+        previewArea = document.createElement('div');
+        previewArea.className = 'wiki-preview-area';
+        previewArea.style.display = 'none';
+        form.appendChild(previewArea);
+    }
+    
+    console.log('Preview components:', {
+        contentTextarea,
+        summaryInput,
+        previewArea
+    });
     
     if (!contentTextarea || !previewArea) {
         console.error('Cannot show preview: missing required elements');
@@ -32,8 +50,14 @@ export function showWikiPreview(form) {
         previewArea.innerHTML = '<div class="preview-loading">Loading preview...</div>';
         previewArea.style.display = 'block';
         
+        console.log('Getting preview content for:', {
+            content: content.substring(0, 100) + '...',
+            summary
+        });
+        
         // Get the preview content
         getServerPreview(content, summary, (html) => {
+            console.log('Received preview HTML:', html.substring(0, 100) + '...');
             previewContent(previewArea, html);
             
             // Update button text

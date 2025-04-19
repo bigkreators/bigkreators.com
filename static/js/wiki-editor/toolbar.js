@@ -226,9 +226,44 @@ export function setupToolbarHandlers(toolbar, textarea, previewArea) {
                         break;
                     case 'preview':
                         if (textarea.form) {
+                            console.log('Triggering preview for form:', textarea.form);
                             showWikiPreview(textarea.form);
                         } else {
                             console.error('No form found for textarea');
+                            // Try to find form by walking up the DOM
+                            let parent = textarea.parentNode;
+                            while (parent && parent.tagName !== 'FORM') {
+                                parent = parent.parentNode;
+                            }
+                            
+                            if (parent && parent.tagName === 'FORM') {
+                                console.log('Found form via DOM traversal:', parent);
+                                showWikiPreview(parent);
+                            } else {
+                                // Create a temporary container
+                                console.log('Creating temporary container for preview');
+                                const tempContainer = document.createElement('div');
+                                tempContainer.className = 'temp-preview-container';
+                                tempContainer.style.display = 'flex';
+                                tempContainer.style.flexDirection = 'column';
+                                
+                                // Mock form object with querySelector method
+                                const mockForm = {
+                                    querySelector: (selector) => {
+                                        if (selector === '#article-content') {
+                                            return textarea;
+                                        } else if (selector === '#article-summary') {
+                                            return null; // No summary for this case
+                                        } else if (selector === '.wiki-preview-area') {
+                                            return previewArea;
+                                        }
+                                        return null;
+                                    },
+                                    appendChild: (el) => tempContainer.appendChild(el)
+                                };
+                                
+                                showWikiPreview(mockForm);
+                            }
                         }
                         break;
                     default:

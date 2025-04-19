@@ -1,4 +1,4 @@
-// static/js/wiki-editor-backend-integration.js
+// File: static/js/wiki-editor/wiki-editor-backend-integration.js
 
 /**
  * Wiki Editor Backend Integration
@@ -10,14 +10,8 @@
 // Function to fetch preview from backend
 export async function getServerPreview(content, summary, callback) {
     try {
+        console.log('getServerPreview called with content length:', content.length);
         const token = localStorage.getItem('token');
-        
-        if (!token) {
-            // Fall back to client-side preview if no token
-            const clientPreviewHtml = transformWikiMarkupLocally(content, summary);
-            callback(clientPreviewHtml);
-            return;
-        }
         
         // Prepare content with short description if needed
         let previewContent = content;
@@ -30,9 +24,12 @@ export async function getServerPreview(content, summary, callback) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': token ? `Bearer ${token}` : ''
             },
-            body: JSON.stringify({ content: previewContent })
+            body: JSON.stringify({ 
+                content: previewContent,
+                summary: summary
+            })
         });
         
         if (!response.ok) {
@@ -40,7 +37,16 @@ export async function getServerPreview(content, summary, callback) {
         }
         
         const data = await response.json();
-        callback(data.html);
+        console.log('Received preview data:', data);
+        
+        if (data && data.html) {
+            callback(data.html);
+        } else {
+            // Fallback to client-side preview
+            console.warn('No HTML in response, using fallback preview');
+            const clientPreviewHtml = transformWikiMarkupLocally(content, summary);
+            callback(clientPreviewHtml);
+        }
     } catch (error) {
         console.error('Error getting server preview:', error);
         // Fall back to client-side preview
@@ -66,6 +72,8 @@ function transformWikiMarkupLocally(content, summary) {
     // Basic transformations
     html = html.replace(/'''(.*?)'''/g, '<strong>$1</strong>');
     html = html.replace(/''(.*?)''/g, '<em>$1</em>');
+    html = html.replace(/===== (.*?) =====/g, '<h5>$1</h5>');
+    html = html.replace(/==== (.*?) ====/g, '<h4>$1</h4>');
     html = html.replace(/=== (.*?) ===/g, '<h3>$1</h3>');
     html = html.replace(/== (.*?) ==/g, '<h2>$1</h2>');
     html = html.replace(/= (.*?) =/g, '<h1>$1</h1>');
@@ -73,16 +81,55 @@ function transformWikiMarkupLocally(content, summary) {
     // Links
     html = html.replace(/\[\[(.*?)\]\]/g, '<a href="/articles/$1">$1</a>');
     html = html.replace(/\[\[(.*?)\|(.*?)\]\]/g, '<a href="/articles/$1">$2</a>');
+    html = html.replace(/\[(https?:\/\/.*?) (.*?)\]/g, '<a href="$1">$2</a>');
     
-    // Format paragraphs
-    const paragraphs = html.split('\n\n').map(para => {
+    // Lists
+    const lines = html.split('\n');
+    let result = [];
+    let inList = false;
+    let listType = '';
+    
+    for (const line of lines) {
+        if (line.startsWith('* ')) {
+            if (!inList || listType !== 'ul') {
+                if (inList) result.push(`</${listType}>`);
+                result.push('<ul>');
+                inList = true;
+                listType = 'ul';
+            }
+            result.push(`<li>${line.substring(2)}</li>`);
+        } else if (line.startsWith('# ')) {
+            if (!inList || listType !== 'ol') {
+                if (inList) result.push(`</${listType}>`);
+                result.push('<ol>');
+                inList = true;
+                listType = 'ol';
+            }
+            result.push(`<li>${line.substring(2)}</li>`);
+        } else {
+            if (inList) {
+                result.push(`</${listType}>`);
+                inList = false;
+            }
+            result.push(line);
+        }
+    }
+    
+    if (inList) {
+        result.push(`</${listType}>`);
+    }
+    
+    html = result.join('\n');
+    
+    // Split paragraphs
+    html = html.split('\n\n').map(para => {
         if (para.trim() && !para.trim().startsWith('<')) {
             return `<p>${para}</p>`;
         }
         return para;
-    }).join('\n\n');
+    }).join('\n');
     
-    return paragraphs;
+    return html;
 }
 
 // Save article function
@@ -172,7 +219,4 @@ export async function createEditProposal(articleId, content, summary) {
 // Initialize the connection to backend services
 export function initializeBackendConnection() {
     console.log('Wiki Editor Backend Integration initialized');
-    
-    // This could include setting up event handlers for auto-saving,
-    // or other initialization tasks
 }

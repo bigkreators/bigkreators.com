@@ -109,7 +109,20 @@ export function initializeWikiEditor(form) {
             }
             
             // Add click handler
-            previewButton.addEventListener('click', function() {
+            previewButton.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent form submission
+                showWikiPreview(form);
+            });
+        } else {
+            // Preview button exists, make sure it has a click handler
+            const previewButton = formActions.querySelector('#preview-button');
+            // Remove existing event listeners
+            const newPreviewButton = previewButton.cloneNode(true);
+            previewButton.parentNode.replaceChild(newPreviewButton, previewButton);
+            
+            // Add new click handler
+            newPreviewButton.addEventListener('click', function(e) {
+                e.preventDefault(); // Prevent form submission
                 showWikiPreview(form);
             });
         }
@@ -142,39 +155,6 @@ function ensureEditorStyles() {
         document.head.appendChild(link);
         
         console.log('Wiki Editor toolbar styles loaded');
-    }
-}
-
-/**
- * Toggle preview visibility
- * @param {HTMLElement} form - The form containing the editor
- * @param {HTMLElement} button - The preview button
- */
-function togglePreview(form, button) {
-    const contentTextarea = form.querySelector('#article-content');
-    const summaryTextarea = form.querySelector('#article-summary');
-    const previewArea = form.querySelector('.wiki-preview-area');
-    
-    if (!contentTextarea || !previewArea) return;
-    
-    // Get content and summary
-    const content = contentTextarea.value;
-    const summary = summaryTextarea ? summaryTextarea.value : '';
-    
-    if (previewArea.style.display === 'none') {
-        // Show preview
-        previewArea.innerHTML = '<div class="preview-loading">Loading preview...</div>';
-        previewArea.style.display = 'block';
-        button.textContent = 'Hide Preview';
-        
-        // Get preview from server
-        getServerPreview(content, summary, function(html) {
-            previewArea.innerHTML = `<h3>Preview:</h3><div class="wiki-preview-content">${html}</div>`;
-        });
-    } else {
-        // Hide preview
-        previewArea.style.display = 'none';
-        button.textContent = 'Show Preview';
     }
 }
 
@@ -340,4 +320,4 @@ function formatTimeAgo(date) {
 }
 
 // Export functions
-export { showWikiPreview  };
+export { showWikiPreview };
