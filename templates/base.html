@@ -1,3 +1,4 @@
+<!-- File: templates/base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,33 +8,39 @@
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/css/wiki-mode-toggle.css">
     <link rel="stylesheet" href="/static/css/wiki-editor-toolbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_css %}{% endblock %}
 </head>
-<!-- Add this right before the closing </body> tag -->
 <body>
     <!-- Header -->
     <header>
-        <a href="/" class="logo-link">
-            <span class="logo">Kryptopedia</span>
-        </a>
-        
-        <div class="search-bar">
-            <input type="text" id="search-input" placeholder="Search the wiki...">
-            <button id="search-button">Search</button>
+        <div class="header-container">
+            <a href="/" class="logo-link">
+                <span class="logo">Kryptopedia</span>
+            </a>
+            
+            <div class="search-bar">
+                <input type="text" id="search-input" placeholder="Search the wiki...">
+                <button id="search-button"><i class="fas fa-search"></i></button>
+            </div>
+            
+            <nav class="main-nav">
+                <input type="checkbox" id="nav-toggle" class="nav-toggle">
+                <label for="nav-toggle" class="nav-toggle-label">
+                    <span></span>
+                </label>
+                <ul>
+                    <li><a href="/" {% if active_page == 'home' %}class="active"{% endif %}><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="/articles" {% if active_page == 'articles' %}class="active"{% endif %}><i class="fas fa-book"></i> Articles</a></li>
+                    <li><a href="/random" id="random-article" {% if active_page == 'random' %}class="active"{% endif %}><i class="fas fa-random"></i> Random</a></li>
+                    <li><a href="/help" {% if active_page == 'help' %}class="active"{% endif %}><i class="fas fa-question-circle"></i> Help</a></li>
+                    <li><a href="/community" {% if active_page == 'community' %}class="active"{% endif %}><i class="fas fa-users"></i> Community</a></li>
+                    <li><a href="/donate" {% if active_page == 'donate' %}class="active"{% endif %}><i class="fas fa-heart"></i> Donate</a></li>
+                    <li id="profile-link-container" style="display: none;"><a href="/profile" {% if active_page == 'profile' %}class="active"{% endif %}><i class="fas fa-user"></i> My Profile</a></li>
+                    <li><a href="#" id="login-link"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                </ul>
+            </nav>
         </div>
-        
-        <nav>
-            <ul>
-                <li><a href="/" {% if active_page == 'home' %}class="active"{% endif %}>Home</a></li>
-                <li><a href="/articles" {% if active_page == 'articles' %}class="active"{% endif %}>Articles</a></li>
-                <li><a href="/random" id="random-article" {% if active_page == 'random' %}class="active"{% endif %}>Random</a></li>
-                <li><a href="/help" {% if active_page == 'help' %}class="active"{% endif %}>Help</a></li>
-                <li><a href="/community" {% if active_page == 'community' %}class="active"{% endif %}>Community</a></li>
-                <li><a href="/donate" {% if active_page == 'donate' %}class="active"{% endif %}>Donate</a></li>
-                <li><a href="/profile" {% if active_page == 'profile' %}class="active"{% endif %}>My Profile</a></li>
-                <li><a href="#" id="login-link">Login</a></li>
-            </ul>
-        </nav>
     </header>
     
     <!-- Main Content -->
@@ -41,17 +48,42 @@
         {% block sidebar %}
         <!-- Sidebar Navigation -->
         <div class="sidebar">
-            <h3>Navigation</h3>
-            <ul>
-                <li><a href="/">Main Page</a></li>
-                <li><a href="/articles">Articles</a></li>
-                <li><a href="/special/recentchanges" id="recent-changes">Recent Changes</a></li>
-                <li><a href="/help">Help</a></li>
-                <li><a href="/community">Community Portal</a></li>
-                <li><a href="/donate">Donate</a></li>
-            </ul>
+            <div class="sidebar-section">
+                <h3><i class="fas fa-compass"></i> Navigation</h3>
+                <ul>
+                    <li><a href="/"><i class="fas fa-home"></i> Main Page</a></li>
+                    <li><a href="/articles"><i class="fas fa-book"></i> Articles</a></li>
+                    <li><a href="/special/recentchanges" id="recent-changes"><i class="fas fa-history"></i> Recent Changes</a></li>
+                    <li><a href="/help"><i class="fas fa-question-circle"></i> Help</a></li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3><i class="fas fa-users"></i> Community</h3>
+                <ul>
+                    <li><a href="/community"><i class="fas fa-user-friends"></i> Community Portal</a></li>
+                    <li><a href="/create-article" class="auth-required"><i class="fas fa-plus-circle"></i> Create Article</a></li>
+                    <li><a href="/donate"><i class="fas fa-heart"></i> Donate</a></li>
+                </ul>
+            </div>
             
             {% block sidebar_extra %}{% endblock %}
+            
+            <div class="sidebar-section sidebar-stats">
+                <h3><i class="fas fa-chart-bar"></i> Wiki Stats</h3>
+                <div class="stats-item">
+                    <span class="stats-label">Articles:</span>
+                    <span class="stats-value">{{ article_count|default('2,145') }}</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Edits:</span>
+                    <span class="stats-value">{{ edit_count|default('15,872') }}</span>
+                </div>
+                <div class="stats-item">
+                    <span class="stats-label">Users:</span>
+                    <span class="stats-value">{{ user_count|default('1,234') }}</span>
+                </div>
+            </div>
         </div>
         {% endblock %}
         
@@ -63,13 +95,48 @@
     
     <!-- Footer -->
     <footer>
-        <p>Kryptopedia - A collaborative knowledge base</p>
-        <ul>
-            <li><a href="/about">About</a></li>
-            <li><a href="/privacy">Privacy Policy</a></li>
-            <li><a href="/terms">Terms of Use</a></li>
-            <li><a href="/contact">Contact</a></li>
-        </ul>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>About Kryptopedia</h4>
+                <ul>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/team">Our Team</a></li>
+                    <li><a href="/mission">Mission</a></li>
+                    <li><a href="/values">Values</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Policies</h4>
+                <ul>
+                    <li><a href="/privacy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms of Use</a></li>
+                    <li><a href="/rules">Community Rules</a></li>
+                    <li><a href="/copyright">Copyright</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="/help">Help Center</a></li>
+                    <li><a href="/guides">Editor Guides</a></li>
+                    <li><a href="/faq">FAQ</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Connect</h4>
+                <div class="social-links">
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-discord"></i></a>
+                </div>
+                <p class="copyright">© 2025 Kryptopedia. All rights reserved.</p>
+            </div>
+        </div>
     </footer>
 
     <!-- Login Modal -->
@@ -124,10 +191,6 @@
     
     <!-- Any additional modals that might be needed per-page -->
     {% block modals %}{% endblock %}
-<script src="/static/js/wiki-editor/wiki-mode-toggle.js"></script>
-<!-- File: templates/base.html -->
-<!-- Add this at the end of the body tag -->
-
-<!-- Add this right before the closing </body> tag -->
+    <script src="/static/js/wiki-editor/wiki-mode-toggle.js"></script>
 </body>
 </html>

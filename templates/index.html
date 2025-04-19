@@ -1,377 +1,88 @@
 <!-- File: templates/home.html -->
 {% extends "base.html" %}
 
-{% block title %}Home - Kryptopedia{% endblock %}
+{% block title %}Kryptopedia - Collaborative Knowledge Base{% endblock %}
 
 {% set active_page = 'home' %}
 
-{% block extra_css %}
-<style>
-    .dashboard-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .stats-card {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .stats-card h3 {
-        margin-top: 0;
-        margin-bottom: 15px;
-        color: #333;
-        font-size: 18px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .stats-value {
-        font-size: 32px;
-        font-weight: 700;
-        color: #0645ad;
-        margin-bottom: 10px;
-    }
-    
-    .stats-label {
-        color: #666;
-    }
-    
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .section-title {
-        font-size: 24px;
-        margin: 0;
-    }
-    
-    .section-actions {
-        display: flex;
-        gap: 10px;
-    }
-    
-    .action-button {
-        padding: 8px 16px;
-        background-color: #0645ad;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-    }
-    
-    .action-button:hover {
-        background-color: #053a7a;
-    }
-    
-    .articles-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
-    }
-    
-    .article-card {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-    }
-    
-    .article-card:hover {
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-        transition: all 0.3s ease;
-    }
-    
-    .card-content {
-        padding: 20px;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .article-title {
-        font-size: 18px;
-        margin-top: 0;
-        margin-bottom: 10px;
-    }
-    
-    .article-title a {
-        color: #0645ad;
-        text-decoration: none;
-    }
-    
-    .article-meta {
-        color: #666;
-        font-size: 13px;
-        margin-bottom: 10px;
-    }
-    
-    .article-summary {
-        color: #333;
-        flex-grow: 1;
-        margin-bottom: 15px;
-    }
-    
-    .card-actions {
-        padding: 10px 20px;
-        background-color: #f9f9fa;
-        border-top: 1px solid #eee;
-    }
-    
-    .read-more {
-        color: #0645ad;
-        text-decoration: none;
-        font-size: 14px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .featured-article {
-        grid-column: 1 / -1;
-        background-color: #f0f7ff;
-        border: 1px solid #d1e6ff;
-    }
-    
-    .activity-list {
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        overflow: hidden;
-    }
-    
-    .activity-item {
-        padding: 15px 20px;
-        border-bottom: 1px solid #eee;
-        display: flex;
-        align-items: center;
-    }
-    
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-    
-    .activity-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #f0f7ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 15px;
-        flex-shrink: 0;
-    }
-    
-    .activity-icon.edit-icon {
-        background-color: #e3f2fd;
-        color: #0277bd;
-    }
-    
-    .activity-icon.new-icon {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-    }
-    
-    .activity-content {
-        flex-grow: 1;
-    }
-    
-    .activity-user {
-        font-weight: 600;
-        color: #0645ad;
-    }
-    
-    .activity-time {
-        color: #999;
-        font-size: 13px;
-    }
-    
-    .welcome-banner {
-        background-color: #f9f9fa;
-        border-radius: 8px;
-        padding: 30px;
-        margin-bottom: 30px;
-        text-align: center;
-    }
-    
-    .welcome-banner h2 {
-        margin-top: 0;
-        color: #333;
-    }
-    
-    .welcome-banner p {
-        color: #666;
-        margin-bottom: 20px;
-    }
-    
-    .cta-button {
-        display: inline-block;
-        padding: 10px 20px;
-        background-color: #0645ad;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: 500;
-    }
-    
-    .cta-button:hover {
-        background-color: #053a7a;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="welcome-banner">
-    <h2>Welcome to Kryptopedia</h2>
-    <p>Welcome to Kryptopedia, a collaborative knowledge base dedicated to your favorite topics. Our goal is to create a comprehensive resource where enthusiasts and experts can share information, discoveries, and insights.</p>
-    <a href="/create-article" class="cta-button auth-required">Create an Article</a>
-    <a href="/articles" class="cta-button">Browse Articles</a>
-</div>
-
-<div class="section-header">
-    <h2 class="section-title">Featured Article</h2>
-</div>
-
-{% if featured_article %}
-<div class="articles-grid">
-    <div class="article-card featured-article">
-        <div class="card-content">
-            <h3 class="article-title"><a href="/articles/{{ featured_article.slug }}">{{ featured_article.title }}</a></h3>
-            <div class="article-meta">
-                <span>Published: {{ featured_article.createdAt|strftime('%b %d, %Y') }}</span>
-                {% if featured_article.views %} • <span>{{ featured_article.views }} views</span>{% endif %}
-            </div>
-            <div class="article-summary">
-                {{ featured_article.summary|truncate(200) }}
-            </div>
-        </div>
-        <div class="card-actions">
-            <a href="/articles/{{ featured_article.slug }}" class="read-more">
-                Read Article
-                <span class="read-more-icon">→</span>
-            </a>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<div class="section-header">
-    <h2 class="section-title">Recent Articles</h2>
-    <div class="section-actions">
-        <a href="/articles?sort=newest" class="action-button">View All</a>
+<div class="hero-section">
+    <h1 class="hero-title">Welcome to Kryptopedia</h1>
+    <p class="hero-subtitle">A collaborative knowledge base where you can explore, learn, and contribute to a growing collection of articles on a wide range of topics.</p>
+    <div class="hero-buttons">
+        <a href="/articles" class="btn btn-primary"><i class="fas fa-book"></i> Browse Articles</a>
+        <a href="/create-article" class="btn btn-secondary auth-required"><i class="fas fa-edit"></i> Create Article</a>
+        <a href="/random" class="btn btn-secondary"><i class="fas fa-random"></i> Random Article</a>
     </div>
 </div>
 
-{% if recent_articles %}
-<div class="articles-grid">
-    {% for article in recent_articles %}
-    <div class="article-card">
+<!-- Featured Articles -->
+<h2 class="section-title"><i class="fas fa-star"></i> Featured Articles</h2>
+<div class="cards-grid">
+    {% for article in featured_articles|default([
+        {'title': 'Introduction to Blockchain', 'slug': 'intro-blockchain', 'summary': 'Learn about the fundamentals of blockchain technology and its applications beyond cryptocurrencies.', 'views': 1245, 'tags': ['Blockchain', 'Technology'], 'createdAt': '2023-07-15'},
+        {'title': 'Smart Contracts Explained', 'slug': 'smart-contracts', 'summary': 'Understand how smart contracts work and why they are a key component of blockchain platforms.', 'views': 982, 'tags': ['Smart Contracts', 'Ethereum'], 'createdAt': '2023-08-22'},
+        {'title': 'Cryptographic Primitives', 'slug': 'crypto-primitives', 'summary': 'Explore the essential cryptographic building blocks that make secure blockchain systems possible.', 'views': 764, 'tags': ['Cryptography', 'Security'], 'createdAt': '2023-10-05'}
+    ]) %}
+    <div class="card">
+        <div class="card-image" style="background-image: url('/static/images/{{ article.image|default('placeholder-' ~ loop.index|string ~ '.jpg') }}');"></div>
         <div class="card-content">
-            <h3 class="article-title"><a href="/articles/{{ article.slug }}">{{ article.title }}</a></h3>
-            <div class="article-meta">
-                <span>{{ article.createdAt|strftime('%b %d, %Y') }}</span>
-                {% if article.views %} • <span>{{ article.views }} views</span>{% endif %}
+            <h3 class="card-title"><a href="/articles/{{ article.slug }}">{{ article.title }}</a></h3>
+            <div class="card-meta">
+                <span><i class="fas fa-calendar"></i> {{ article.createdAt|strftime('%b %d, %Y') }}</span>
+                <span><i class="fas fa-eye"></i> {{ article.views }} views</span>
             </div>
-            <div class="article-summary">
-                {{ article.summary|truncate(100) }}
+            <p class="card-description">{{ article.summary }}</p>
+            <div class="card-tags">
+                {% for tag in article.tags %}
+                <a href="/articles?tag={{ tag }}" class="tag">{{ tag }}</a>
+                {% endfor %}
             </div>
-        </div>
-        <div class="card-actions">
-            <a href="/articles/{{ article.slug }}" class="read-more">
-                Read Article
-                <span class="read-more-icon">→</span>
-            </a>
         </div>
     </div>
     {% endfor %}
 </div>
-{% else %}
-<p>No recent articles found.</p>
-{% endif %}
 
-<div class="section-header">
-    <h2 class="section-title">Recent Activity</h2>
+<!-- Contribute Section -->
+<div class="contribute-section">
+    <h2 class="contribute-title">Contribute to Kryptopedia</h2>
+    <p class="contribute-text">Share your knowledge and help grow our community. You can create new articles, improve existing ones, or help review proposed edits.</p>
+    <div class="contribute-buttons">
+        <a href="/create-article" class="btn btn-success auth-required"><i class="fas fa-plus-circle"></i> Create New Article</a>
+        <a href="/articles?need_review=true" class="btn btn-outline auth-required"><i class="fas fa-check-circle"></i> Review Edits</a>
+        <a href="/help/contributing" class="btn btn-outline"><i class="fas fa-question-circle"></i> How to Contribute</a>
+    </div>
 </div>
 
-<div class="activity-list">
-    {% for activity in recent_activity %}
-    <div class="activity-item">
-        <div class="activity-icon {% if activity.type == 'edit' %}edit-icon{% else %}new-icon{% endif %}">
-            {% if activity.type == 'edit' %}✏️{% else %}+{% endif %}
+<!-- Recent Changes -->
+<h2 class="section-title"><i class="fas fa-history"></i> Recent Changes</h2>
+<div class="changes-list">
+    {% for change in recent_changes|default([
+        {'type': 'edit', 'title': 'Blockchain Consensus Mechanisms', 'slug': 'consensus-mechanisms', 'user': 'crypto_enthusiast', 'comment': 'Updated Proof of Stake section', 'timestamp': '2023-11-10T14:30:00'},
+        {'type': 'new', 'title': 'Decentralized Finance (DeFi) Explained', 'slug': 'defi-explained', 'user': 'finance_wizard', 'comment': 'New article on DeFi fundamentals', 'timestamp': '2023-11-09T10:15:00'},
+        {'type': 'edit', 'title': 'Introduction to Blockchain', 'slug': 'intro-blockchain', 'user': 'blockchain_dev', 'comment': 'Added section on Layer 2 solutions', 'timestamp': '2023-11-08T16:45:00'},
+        {'type': 'edit', 'title': 'Cryptographic Hash Functions', 'slug': 'hash-functions', 'user': 'security_expert', 'comment': 'Fixed technical inaccuracies', 'timestamp': '2023-11-07T11:20:00'},
+        {'type': 'new', 'title': 'NFT Marketplaces Comparison', 'slug': 'nft-marketplaces', 'user': 'digital_artist', 'comment': 'New comparative guide on NFT platforms', 'timestamp': '2023-11-06T09:05:00'}
+    ]) %}
+    <div class="change-item">
+        <div class="change-icon {% if change.type == 'new' %}new{% else %}edit{% endif %}">
+            <i class="fas {% if change.type == 'new' %}fa-plus{% else %}fa-edit{% endif %}"></i>
         </div>
-        <div class="activity-content">
-            <span class="activity-user">{{ activity.user.username }}</span>
-            {% if activity.type == 'edit' %}
-                edited <a href="/articles/{{ activity.article.slug }}">{{ activity.article.title }}</a>
-            {% elif activity.type == 'new_article' %}
-                created <a href="/articles/{{ activity.article.slug }}">{{ activity.article.title }}</a>
-            {% elif activity.type == 'new_user' %}
-                joined Kryptopedia
-            {% endif %}
-            {% if activity.comment %}: "{{ activity.comment }}"{% endif %}
+        <div class="change-content">
+            <div class="change-title">
+                <a href="/articles/{{ change.slug }}">{{ change.title }}</a>
+            </div>
+            <div class="change-meta">
+                <span><i class="fas fa-user"></i> <span class="user">{{ change.user }}</span></span>
+                <span><i class="fas fa-comment"></i> {{ change.comment }}</span>
+                <span><i class="fas fa-clock"></i> {{ change.timestamp|strftime('%b %d, %Y') }}</span>
+            </div>
         </div>
-        <div class="activity-time">{{ activity.timestamp|strftime('%b %d, %H:%M') }}</div>
     </div>
     {% endfor %}
-    
-    {% if not recent_activity %}
-    <div class="activity-item">
-        <div class="activity-content">No recent activity</div>
-    </div>
-    {% endif %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in for auth-required elements
-    const token = localStorage.getItem('token');
-    const authRequiredElements = document.querySelectorAll('.auth-required');
-    
-    if (token) {
-        // User is logged in, enable auth-required elements
-        authRequiredElements.forEach(element => {
-            element.classList.remove('hidden');
-        });
-    } else {
-        // User is not logged in, add click handler to show login modal
-        authRequiredElements.forEach(element => {
-            if (element.tagName === 'A') {
-                const href = element.getAttribute('href');
-                element.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    
-                    // Store the redirect URL
-                    sessionStorage.setItem('redirectAfterLogin', href);
-                    
-                    // Show login modal
-                    const loginModal = document.getElementById('login-modal');
-                    if (loginModal) {
-                        loginModal.style.display = 'block';
-                    }
-                });
-            }
-        });
-    }
-});
-</script>
+<div class="text-center">
+    <a href="/special/recentchanges" class="btn btn-outline mt-20">View All Recent Changes</a>
+</div>
 {% endblock %}
