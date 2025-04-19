@@ -483,15 +483,52 @@ textarea#article-content {
     to { transform: rotate(360deg); }
 }
 
-/* Preview button style */
+/* Preview button style - Updated to match site theme */
 .preview-button {
     padding: 8px 16px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
+    background-color: #0645ad;
+    color: white;
+    border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 .preview-button:hover {
-    background-color: #e9ecef;
+    background-color: #053a7a;
+}
+
+/* Form action buttons - Updated to match site theme */
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.primary-button {
+    padding: 8px 16px;
+    background-color: #0645ad;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.primary-button:hover {
+    background-color: #053a7a;
+}
+
+.cancel-button {
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.cancel-button:hover {
+    background-color: #e5e5e5;
 }
