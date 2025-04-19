@@ -41,6 +41,9 @@ async def vote_article(
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
         
+        # Get article creator ID for updating upvote counts
+        article_creator_id = article.get("createdBy")
+        
         # Ensure upvotes and downvotes fields exist in the article document
         if "upvotes" not in article:
             article["upvotes"] = 0
@@ -67,6 +70,13 @@ async def vote_article(
                     {"_id": ObjectId(article_id)},
                     {"$inc": {"upvotes": 1}}
                 )
+                
+                # Increment creator's upvote count
+                if article_creator_id:
+                    await db["users"].update_one(
+                        {"_id": article_creator_id},
+                        {"$inc": {"contributions.upvotesReceived": 1}}
+                    )
             else:
                 await db["articles"].update_one(
                     {"_id": ObjectId(article_id)},
@@ -89,6 +99,13 @@ async def vote_article(
                         {"_id": ObjectId(article_id)},
                         {"$inc": {"upvotes": -1}}
                     )
+                    
+                    # Decrement creator's upvote count
+                    if article_creator_id:
+                        await db["users"].update_one(
+                            {"_id": article_creator_id},
+                            {"$inc": {"contributions.upvotesReceived": -1}}
+                        )
                 else:
                     await db["articles"].update_one(
                         {"_id": ObjectId(article_id)},
@@ -110,11 +127,25 @@ async def vote_article(
                         {"_id": ObjectId(article_id)},
                         {"$inc": {"upvotes": 1, "downvotes": -1}}
                     )
+                    
+                    # Increment creator's upvote count
+                    if article_creator_id:
+                        await db["users"].update_one(
+                            {"_id": article_creator_id},
+                            {"$inc": {"contributions.upvotesReceived": 1}}
+                        )
                 else:
                     await db["articles"].update_one(
                         {"_id": ObjectId(article_id)},
                         {"$inc": {"upvotes": -1, "downvotes": 1}}
                     )
+                    
+                    # Decrement creator's upvote count
+                    if article_creator_id:
+                        await db["users"].update_one(
+                            {"_id": article_creator_id},
+                            {"$inc": {"contributions.upvotesReceived": -1}}
+                        )
                     
                 message = f"Vote changed to {vote_type} successfully"
         
@@ -123,6 +154,10 @@ async def vote_article(
             await cache.delete(f"article:{article_id}")
             if article.get("slug"):
                 await cache.delete(f"article:{article['slug']}")
+                
+            # Also invalidate creator's profile cache if applicable
+            if article_creator_id:
+                await cache.delete(f"user:{article_creator_id}")
         
         # Get updated article
         updated_article = await db["articles"].find_one({"_id": ObjectId(article_id)})

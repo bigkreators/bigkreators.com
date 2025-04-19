@@ -403,6 +403,10 @@
                         <div class="stat-value rewards-count">{{ user.contributions.rewardsReceived if user.contributions else 0 }}</div>
                         <div class="stat-label">Rewards</div>
                     </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ user.contributions.upvotesReceived|default(0) }}</div>
+                        <div class="stat-label">Upvotes</div>
+                    </div>
                 </div>
                 
                 {% if is_own_profile %}
