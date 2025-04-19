@@ -1,4 +1,4 @@
-/* File: static/wiki-editor.css */
+/* File: static/css/wiki-editor-toolbar.css */
 /* Main styles for the Wiki Editor */
 
 /* Editor container */
@@ -14,7 +14,7 @@
     background-color: #f8f9fa;
     border-bottom: 1px solid #ddd;
     padding: 8px;
-    display: flex;
+    display: flex !important; /* Force display as flex */
     flex-wrap: wrap;
     gap: 8px;
 }
