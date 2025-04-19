@@ -35,22 +35,12 @@
     display: flex;
     gap: 3px;
     padding: 0 5px;
-    border-right: 1px solid #ddd;
     margin-right: 8px;
 }
 
 /* Last group shouldn't have a border */
 .wiki-toolbar-group:last-child {
     border-right: none;
-}
-
-/* Better separator styling */
-.wiki-toolbar-separator {
-    width: 1px;
-    background-color: #ddd;
-    margin: 0 5px;
-    height: 30px;
-    align-self: center;
 }
 
 /* Editor container */
@@ -76,13 +66,6 @@
     display: flex;
     gap: 3px;
     padding: 0 5px;
-}
-
-/* Toolbar separator */
-.wiki-toolbar-separator {
-    width: 1px;
-    background-color: #ddd;
-    margin: 0 5px;
 }
 
 /* Toolbar buttons */
@@ -390,6 +373,15 @@ textarea#article-content {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M21 7v6h-6M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3C/svg%3E");
 }
 
+/* Adding missing icons */
+.wiki-icon-superscript {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M5 15l6-10h2l6 10M13 6l3-2h3v2l-3 2' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-subscript {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M5 15l6-10h2l6 10M13 15l3-2h3v2l-3 2' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3C/path%3E%3C/svg%3E");
+}
+
 .wiki-icon-preview {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='3' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/circle%3E%3C/svg%3E");
 }
@@ -400,6 +392,10 @@ textarea#article-content {
 
 .wiki-icon-reference {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3Cpath d='M8 7h6M8 11h8' stroke='currentColor' stroke-width='2' fill='none'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.wiki-icon-unlink {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath d='M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3Cpath d='M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3Cpath d='M4 4l16 16' fill='none' stroke='currentColor' stroke-width='2'%3E%3C/path%3E%3C/svg%3E");
 }
 
 .wiki-icon-indent {
