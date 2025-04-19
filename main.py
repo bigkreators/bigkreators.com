@@ -22,7 +22,7 @@ logging.basicConfig(
 logger = logging.getLogger("kryptopedia")
 
 # Import the routes
-from routes import auth, articles, media, proposals, rewards, special, profile, media_additional, preview
+from routes import auth, articles, media, proposals, rewards, special, profile, media_additional, preview, votes
 from pages import router as page_router, add_error_handlers, community, donate, help, admin, upload
 
 
@@ -99,6 +99,7 @@ app.include_router(donate.router, prefix=f"{config.API_PREFIX}/donate", tags=["D
 app.include_router(admin.router, prefix=f"{config.API_PREFIX}/admin", tags=["Admin"])
 app.include_router(upload.router, prefix=f"{config.API_PREFIX}/upload", tags=["Upload"])
 app.include_router(preview.router, prefix=f"{config.API_PREFIX}", tags=["Preview"])
+app.include_router(votes.router, prefix=f"{config.API_PREFIX}", tags=["Votes"])
 
 # Include page routes at root level
 app.include_router(page_router)

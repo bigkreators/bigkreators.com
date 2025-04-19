@@ -26,6 +26,9 @@ from .media import (
 from .reward import (
     RewardCreate, Reward, RewardWithMetadata
 )
+from .vote import (
+    VoteBase, VoteCreate, Vote
+)
 
 # Export all models
 __all__ = [
@@ -37,5 +40,6 @@ __all__ = [
     'RevisionCreate', 'Revision', 'RevisionWithMetadata',
     'ProposalCreate', 'Proposal', 'ProposalWithMetadata',
     'MediaCreate', 'Media', 'MediaWithUploader', 'MediaMetadata',
-    'RewardCreate', 'Reward', 'RewardWithMetadata'
+    'RewardCreate', 'Reward', 'RewardWithMetadata',
+    'VoteBase', 'VoteCreate', 'Vote'
 ]
