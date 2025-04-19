@@ -6,143 +6,110 @@ from fastapi import APIRouter, Request, Depends, Query, HTTPException
 from fastapi.responses import HTMLResponse
 from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
-from dependencies import get_db, get_current_user, get_cache
 import logging
+
+from dependencies import get_db, get_current_user, get_cache
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-# File: pages/community.py
-
-# Inside the community_page function, modify the stats handling:
-
 @router.get("/community", response_class=HTMLResponse)
-async def community_page(request: Request, db=Depends(get_db)):
+async def community_page(request: Request, db=Depends(get_db), cache=Depends(get_cache)):
     """
     Render the community portal page.
     """
     templates = request.app.state.templates
     
-    # Initialize default stats in case of errors
-    stats = {
-        "articles": 0,
-        "users": 0,
-        "edits": 0,
-        "categories": 0
+    # Try to get from cache first
+    cache_key = "community_dashboard"
+    cached_data = await cache.get(cache_key)
+    
+    if cached_data:
+        return templates.TemplateResponse(
+            "community.html",
+            {
+                "request": request,
+                **cached_data
+            }
+        )
+    
+    # Initialize data with defaults
+    dashboard_data = {
+        "stats": {
+            "articles": 0,
+            "users": 0,
+            "edits": 0,
+            "categories": 0
+        },
+        "recent_activities": [],
+        "announcements": [],
+        "events": [],
+        "top_contributors": []
     }
     
-    recent_activities = []
-    announcements = []
-    events = []
-    top_contributors = []
-    
-    # Try to get real stats and data
     try:
-        # Article stats
-        try:
-            stats["articles"] = await db["articles"].count_documents({"status": "published"})
-            logger.debug(f"Article count: {stats['articles']}")
-        except Exception as e:
-            logger.error(f"Error getting article count: {e}")
-            # Keep default value
+        # Get article stats
+        dashboard_data["stats"]["articles"] = await db["articles"].count_documents({"status": "published"})
         
-        # User stats
-        try:
-            stats["users"] = await db["users"].count_documents({})
-            logger.debug(f"User count: {stats['users']}")
-        except Exception as e:
-            logger.error(f"Error getting user count: {e}")
-            # Keep default value
+        # Get user stats
+        dashboard_data["stats"]["users"] = await db["users"].count_documents({})
         
-        # Edits count
-        try:
-            stats["edits"] = await db["revisions"].count_documents({})
-            logger.debug(f"Edit count: {stats['edits']}")
-        except Exception as e:
-            logger.error(f"Error getting edit count: {e}")
-            # Keep default value
+        # Get edit stats
+        dashboard_data["stats"]["edits"] = await db["revisions"].count_documents({})
         
-        # Categories count
-        try:
-            pipeline = [
-                {"$match": {"status": "published"}},
-                {"$unwind": "$categories"},
-                {"$group": {"_id": "$categories"}},
-                {"$count": "total"}
-            ]
-            
-            categories_count = await db["articles"].aggregate(pipeline).to_list(length=1)
-            logger.debug(f"Categories result: {categories_count}")
-            
-            # Only try to access the count if we have results
-            if categories_count and len(categories_count) > 0 and "total" in categories_count[0]:
-                stats["categories"] = categories_count[0]["total"]
-            else:
-                # If the aggregation returned empty results, set to 0
-                stats["categories"] = 0
-                logger.debug("No categories found or aggregation returned no results")
-        except Exception as e:
-            logger.error(f"Error getting category count: {e}")
-            # Keep default value
+        # Get category count using aggregation
+        pipeline = [
+            {"$match": {"status": "published"}},
+            {"$unwind": "$categories"},
+            {"$group": {"_id": "$categories"}},
+            {"$count": "total"}
+        ]
+        
+        categories_count = await db["articles"].aggregate(pipeline).to_list(length=1)
+        if categories_count and len(categories_count) > 0:
+            dashboard_data["stats"]["categories"] = categories_count[0]["total"]
         
         # Get recent activity
-        try:
-            # Get recent revisions
-            revisions_cursor = db["revisions"].find().sort("createdAt", -1).limit(5)
-            revisions = await revisions_cursor.to_list(length=5)
-            
-            for rev in revisions:
-                try:
-                    article = await db["articles"].find_one({"_id": rev["articleId"]})
-                    user = await db["users"].find_one({"_id": rev["createdBy"]})
-                    
-                    if article and user:
-                        recent_activities.append({
-                            "type": "Edit",
-                            "timestamp": rev["createdAt"],
-                            "articleId": str(rev["articleId"]),
-                            "articleTitle": article["title"],
-                            "username": user["username"]
-                        })
-                except Exception as e:
-                    logger.error(f"Error processing revision {rev.get('_id')}: {e}")
-                    continue
-            
-            # Get recent proposals
-            proposals_cursor = db["proposals"].find().sort("proposedAt", -1).limit(5)
-            proposals = await proposals_cursor.to_list(length=5)
-            
-            for prop in proposals:
-                try:
-                    article = await db["articles"].find_one({"_id": prop["articleId"]})
-                    user = await db["users"].find_one({"_id": prop["proposedBy"]})
-                    
-                    if article and user:
-                        recent_activities.append({
-                            "type": "Proposal",
-                            "timestamp": prop["proposedAt"],
-                            "articleId": str(prop["articleId"]),
-                            "articleTitle": article["title"],
-                            "username": user["username"]
-                        })
-                except Exception as e:
-                    logger.error(f"Error processing proposal {prop.get('_id')}: {e}")
-                    continue
-            
-            # Sort by timestamp and limit to 10
-            recent_activities.sort(key=lambda x: x["timestamp"], reverse=True)
-            recent_activities = recent_activities[:10]
-        except Exception as e:
-            logger.error(f"Error getting recent activities: {e}")
-            # Keep default empty list
+        # Get recent revisions
+        revisions_cursor = db["revisions"].find().sort("createdAt", -1).limit(5)
+        revisions = await revisions_cursor.to_list(length=5)
         
-        # Generate sample data if we have no real data
-        if len(recent_activities) == 0:
-            logger.info("No recent activities found, generating sample data")
-            recent_activities = generate_sample_activities()
+        for rev in revisions:
+            article = await db["articles"].find_one({"_id": rev["articleId"]})
+            user = await db["users"].find_one({"_id": rev["createdBy"]})
+            
+            if article and user:
+                dashboard_data["recent_activities"].append({
+                    "type": "Edit",
+                    "timestamp": rev["createdAt"],
+                    "articleId": str(rev["articleId"]),
+                    "articleTitle": article["title"],
+                    "username": user["username"]
+                })
         
-        # Get announcements (in a real app, these would come from a database)
-        announcements = [
+        # Get recent proposals
+        proposals_cursor = db["proposals"].find().sort("proposedAt", -1).limit(5)
+        proposals = await proposals_cursor.to_list(length=5)
+        
+        for prop in proposals:
+            article = await db["articles"].find_one({"_id": prop["articleId"]})
+            user = await db["users"].find_one({"_id": prop["proposedBy"]})
+            
+            if article and user:
+                dashboard_data["recent_activities"].append({
+                    "type": "Proposal",
+                    "timestamp": prop["proposedAt"],
+                    "articleId": str(prop["articleId"]),
+                    "articleTitle": article["title"],
+                    "username": user["username"]
+                })
+        
+        # Sort activities by timestamp
+        dashboard_data["recent_activities"].sort(key=lambda x: x["timestamp"], reverse=True)
+        dashboard_data["recent_activities"] = dashboard_data["recent_activities"][:10]
+        
+        # Get sample announcements
+        dashboard_data["announcements"] = [
             {
                 "title": "New Article Categories Added",
                 "date": datetime.now() - timedelta(days=2),
@@ -155,8 +122,8 @@ async def community_page(request: Request, db=Depends(get_db)):
             }
         ]
         
-        # Get upcoming events (in a real app, these would come from a database)
-        events = [
+        # Get sample events
+        dashboard_data["events"] = [
             {
                 "title": "Monthly Community Meeting",
                 "date": datetime.now() + timedelta(days=7),
@@ -172,59 +139,42 @@ async def community_page(request: Request, db=Depends(get_db)):
         ]
         
         # Get top contributors
-        try:
-            top_contributors_cursor = db["users"].find().sort("contributions.editsPerformed", -1).limit(10)
-            top_contributors = await top_contributors_cursor.to_list(length=10)
-        except Exception as e:
-            logger.error(f"Error getting top contributors: {e}")
-            # Keep default empty list
+        contributors_cursor = db["users"].find().sort("contributions.editsPerformed", -1).limit(5)
+        dashboard_data["top_contributors"] = await contributors_cursor.to_list(length=5)
         
-        # Generate sample contributors if none found
-        if len(top_contributors) == 0:
-            logger.info("No top contributors found, generating sample data")
-            top_contributors = generate_sample_contributors()
+        # Remove sensitive information from contributors
+        for contributor in dashboard_data["top_contributors"]:
+            if "passwordHash" in contributor:
+                del contributor["passwordHash"]
+        
+        # If we end up with all zeros and no real data, use sample data
+        if (dashboard_data["stats"]["articles"] == 0 and
+            dashboard_data["stats"]["users"] == 0 and
+            dashboard_data["stats"]["edits"] == 0 and
+            dashboard_data["stats"]["categories"] == 0):
+            
+            dashboard_data["stats"] = {
+                "articles": 42,
+                "users": 15,
+                "edits": 128,
+                "categories": 8
+            }
+        
+        # Cache the dashboard data
+        await cache.set(cache_key, dashboard_data, 900)  # Cache for 15 minutes
         
     except Exception as e:
-        logger.error(f"Error in community page: {e}")
-        # We'll use the default values set at the beginning
-
-    # If we end up with all zeros and no real data, use hardcoded values
-    if stats["articles"] == 0 and stats["users"] == 0 and stats["edits"] == 0 and stats["categories"] == 0:
-        logger.info("All stats are zero, using sample data instead")
-        stats = {
-            "articles": 42,
-            "users": 15,
-            "edits": 128,
-            "categories": 8
-        }
+        logger.error(f"Error getting community dashboard data: {e}")
+        # Use default data in case of errors
     
-    # Log the stats we're returning to help with debugging
-    logger.info(f"Community page stats: {stats}")
-    
-    # Create empty versions of the extra variables needed for compatibility
-    active_users = []
-    recent_revisions = []
-    recent_discussions = []
-    upcoming_events = []
-    
-    # Render the template with whatever data we have (real or default/sample)
-    # Include both sets of variables for compatibility with both endpoints
+    # Render template with our data
     return templates.TemplateResponse(
         "community.html",
         {
             "request": request,
-            "stats": stats,
-            "recent_activities": recent_activities,
-            "announcements": announcements,
-            "events": events,
-            "top_contributors": top_contributors,
-            # Add these variables for compatibility with /community/extra
-            "active_users": active_users,
-            "recent_revisions": recent_revisions,
-            "recent_discussions": recent_discussions,
-            "upcoming_events": upcoming_events
+            **dashboard_data
         }
-    )        
+    )
 
 @router.get("/community/extra", response_class=HTMLResponse)
 async def community_portal(
