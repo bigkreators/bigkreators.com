@@ -12,6 +12,10 @@ import logging
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+# File: pages/community.py
+
+# Inside the community_page function, modify the stats handling:
+
 @router.get("/community", response_class=HTMLResponse)
 async def community_page(request: Request, db=Depends(get_db)):
     """
@@ -220,88 +224,7 @@ async def community_page(request: Request, db=Depends(get_db)):
             "recent_discussions": recent_discussions,
             "upcoming_events": upcoming_events
         }
-    )
-
-def generate_sample_activities():
-    """
-    Generate sample activities for when no real data exists
-    """
-    now = datetime.now()
-    
-    return [
-        {
-            "type": "Edit",
-            "timestamp": now - timedelta(hours=3),
-            "articleId": "sample1",
-            "articleTitle": "Introduction to Cryptocurrency",
-            "username": "admin"
-        },
-        {
-            "type": "Edit",
-            "timestamp": now - timedelta(hours=5),
-            "articleId": "sample2",
-            "articleTitle": "Blockchain Technology",
-            "username": "editor1"
-        },
-        {
-            "type": "Proposal",
-            "timestamp": now - timedelta(hours=8),
-            "articleId": "sample3",
-            "articleTitle": "Smart Contracts",
-            "username": "contributor"
-        },
-        {
-            "type": "Edit",
-            "timestamp": now - timedelta(days=1),
-            "articleId": "sample4",
-            "articleTitle": "Decentralized Finance",
-            "username": "expert"
-        },
-        {
-            "type": "Proposal",
-            "timestamp": now - timedelta(days=1, hours=12),
-            "articleId": "sample5",
-            "articleTitle": "Non-Fungible Tokens",
-            "username": "newuser"
-        }
-    ]
-
-def generate_sample_contributors():
-    """
-    Generate sample contributors for when no real data exists
-    """
-    return [
-        {
-            "_id": "sample1",
-            "username": "admin",
-            "role": "admin",
-            "contributions": {"editsPerformed": 120}
-        },
-        {
-            "_id": "sample2",
-            "username": "editor1",
-            "role": "editor",
-            "contributions": {"editsPerformed": 87}
-        },
-        {
-            "_id": "sample3",
-            "username": "contributor",
-            "role": "contributor",
-            "contributions": {"editsPerformed": 54}
-        },
-        {
-            "_id": "sample4",
-            "username": "expert",
-            "role": "contributor",
-            "contributions": {"editsPerformed": 42}
-        },
-        {
-            "_id": "sample5",
-            "username": "newuser",
-            "role": "user",
-            "contributions": {"editsPerformed": 15}
-        }
-    ]
+    )        
 
 @router.get("/community/extra", response_class=HTMLResponse)
 async def community_portal(
