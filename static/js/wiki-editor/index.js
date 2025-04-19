@@ -55,18 +55,13 @@ export function initializeWikiEditor(form) {
 
     // Create toolbar if it doesn't exist
     let toolbar = editorContainer.querySelector('.wiki-editor-toolbar');
-    if (!toolbar) {
-        console.log('Creating new toolbar');
-        // Create new toolbar
-        toolbar = createEditorToolbar();
-        // Explicitly set display style to ensure it's visible
-        toolbar.style.display = 'flex';
-        editorContainer.insertBefore(toolbar, contentTextarea);
-    } else {
-        console.log('Found existing toolbar');
-        // Ensure the toolbar is visible
-        toolbar.style.display = 'flex';
-    }
+    console.log('Creating new toolbar');
+    // Create new toolbar
+    toolbar = createEditorToolbar();
+    // Explicitly set display style to ensure it's visible
+     toolbar.style.display = 'flex';
+     editorContainer.insertBefore(toolbar, contentTextarea);
+
 
     // Create or identify preview area
     let previewArea = form.querySelector('.wiki-preview-area');

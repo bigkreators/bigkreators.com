@@ -1,6 +1,58 @@
 /* File: static/css/wiki-editor-toolbar.css */
 /* Main styles for the Wiki Editor */
 
+/* Button wrapper div */
+.wiki-toolbar-button-wrapper {
+    display: inline-block;
+    margin: 2px;
+}
+
+/* Make toolbar buttons more visible */
+.wiki-toolbar-btn {
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+}
+
+.wiki-toolbar-btn:hover {
+    background-color: #eaecf0;
+    border-color: #c8ccd1;
+}
+
+.wiki-toolbar-btn:active {
+    background-color: #c8ccd1;
+}
+
+/* Improved toolbar group styling */
+.wiki-toolbar-group {
+    display: flex;
+    gap: 3px;
+    padding: 0 5px;
+    border-right: 1px solid #ddd;
+    margin-right: 8px;
+}
+
+/* Last group shouldn't have a border */
+.wiki-toolbar-group:last-child {
+    border-right: none;
+}
+
+/* Better separator styling */
+.wiki-toolbar-separator {
+    width: 1px;
+    background-color: #ddd;
+    margin: 0 5px;
+    height: 30px;
+    align-self: center;
+}
+
 /* Editor container */
 .wiki-editor-container {
     border: 1px solid #ddd;

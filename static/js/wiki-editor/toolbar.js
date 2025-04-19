@@ -74,6 +74,11 @@ export function createEditorToolbar() {
         groupDiv.className = 'wiki-toolbar-group';
         
         group.forEach(button => {
+            // Create a div to wrap the button
+            const buttonDiv = document.createElement('div');
+            buttonDiv.className = 'wiki-toolbar-button-wrapper';
+            
+            // Create the button element
             const btnElement = document.createElement('button');
             btnElement.type = 'button';
             btnElement.className = 'wiki-toolbar-btn';
@@ -85,15 +90,14 @@ export function createEditorToolbar() {
             iconSpan.className = `wiki-icon wiki-icon-${button.icon}`;
             btnElement.appendChild(iconSpan);
             
-            groupDiv.appendChild(btnElement);
+            // Add button to its wrapper div
+            buttonDiv.appendChild(btnElement);
+            
+            // Add the button wrapper to the group
+            groupDiv.appendChild(buttonDiv);
         });
         
         toolbar.appendChild(groupDiv);
-        
-        // Add separator between groups (except after the last group)
-        if (groupIndex < buttonGroups.length - 1) {
-            // The separator is now handled by CSS border-right on the groups
-        }
     });
     
     return toolbar;
