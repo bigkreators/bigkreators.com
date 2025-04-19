@@ -1,3 +1,4 @@
+<!-- File: templates/quick_edit.html -->
 {% extends "base.html" %}
 
 {% block title %}Quick Edit - Kryptopedia{% endblock %}
@@ -57,110 +58,6 @@
         </div>
     </form>
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .intro-text {
-        margin-bottom: 20px;
-        color: #555;
-    }
-    
-    #edit-form-container {
-        background-color: #f8f9fa;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-    }
-    
-    .form-group {
-        margin-bottom: 15px;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-    }
-    
-    .form-group select,
-    .form-group input[type="text"],
-    .form-group textarea {
-        width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-    
-    .form-group textarea {
-        min-height: 300px;
-        font-family: monospace;
-    }
-    
-    .help-text {
-        font-size: 13px;
-        color: #666;
-        margin-top: 5px;
-    }
-    
-    .form-actions {
-        margin-top: 20px;
-        display: flex;
-        gap: 10px;
-    }
-    
-    .primary-button {
-        padding: 10px 15px;
-        background-color: #0645ad;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .primary-button:hover {
-        background-color: #053a7a;
-    }
-    
-    .secondary-button {
-        padding: 10px 15px;
-        background-color: #f0f0f0;
-        color: #333;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    
-    .secondary-button:hover {
-        background-color: #e0e0e0;
-    }
-    
-    .status-message {
-        padding: 10px 15px;
-        border-radius: 4px;
-        margin-bottom: 15px;
-    }
-    
-    .success-message {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    
-    .error-message {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-    }
-    
-    .login-required-message {
-        text-align: center;
-        padding: 30px;
-        background-color: #f8f9fa;
-        border-radius: 6px;
-        margin: 20px 0;
-    }
-</style>
 {% endblock %}
 
 {% block extra_js %}

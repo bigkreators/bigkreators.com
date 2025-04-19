@@ -1,3 +1,4 @@
+<!-- File: templates/article_revision.html -->
 {% extends "base.html" %}
 
 {% block title %}Revision: {{ article.title }} - Kryptopedia{% endblock %}
@@ -69,65 +70,6 @@
     <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="action-button auth-required">Restore This Version</a>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .revision-banner {
-        background-color: #fff3cd;
-        border: 1px solid #ffeeba;
-        padding: 10px 15px;
-        margin: 15px 0;
-        border-radius: 4px;
-    }
-    
-    .revision-notice {
-        color: #856404;
-    }
-    
-    .revision-notice a {
-        color: #0645ad;
-        text-decoration: underline;
-    }
-    
-    .revision-info {
-        margin-top: 20px;
-        background-color: #f8f9fa;
-        padding: 10px;
-        border-radius: 4px;
-    }
-    
-    .revision-info dt {
-        font-weight: bold;
-        margin-top: 8px;
-    }
-    
-    .revision-info dd {
-        margin-left: 10px;
-        margin-bottom: 5px;
-    }
-    
-    .revision-actions {
-        margin-top: 30px;
-        display: flex;
-        gap: 10px;
-    }
-    
-    .action-button {
-        display: inline-block;
-        padding: 8px 16px;
-        background-color: #0645ad;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-    
-    .action-button:hover {
-        background-color: #053a7a;
-        text-decoration: none;
-    }
-</style>
 {% endblock %}
 
 {% block extra_js %}
