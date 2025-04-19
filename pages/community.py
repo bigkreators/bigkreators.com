@@ -29,7 +29,11 @@ async def community_page(request: Request, db=Depends(get_db), cache=Depends(get
             "community.html",
             {
                 "request": request,
-                **cached_data
+                "stats": cached_data["stats"],
+                "recent_activities": cached_data["recent_activities"],
+                "announcements": cached_data["announcements"],
+                "events": cached_data["events"],
+                "top_contributors": cached_data["top_contributors"]
             }
         )
     
@@ -147,19 +151,6 @@ async def community_page(request: Request, db=Depends(get_db), cache=Depends(get
             if "passwordHash" in contributor:
                 del contributor["passwordHash"]
         
-        # If we end up with all zeros and no real data, use sample data
-        if (dashboard_data["stats"]["articles"] == 0 and
-            dashboard_data["stats"]["users"] == 0 and
-            dashboard_data["stats"]["edits"] == 0 and
-            dashboard_data["stats"]["categories"] == 0):
-            
-            dashboard_data["stats"] = {
-                "articles": 42,
-                "users": 15,
-                "edits": 128,
-                "categories": 8
-            }
-        
         # Cache the dashboard data
         await cache.set(cache_key, dashboard_data, 900)  # Cache for 15 minutes
         
@@ -167,12 +158,17 @@ async def community_page(request: Request, db=Depends(get_db), cache=Depends(get
         logger.error(f"Error getting community dashboard data: {e}")
         # Use default data in case of errors
     
-    # Render template with our data
+    # Render template with our data, ensuring we pass the individual fields 
+    # rather than unpacking dashboard_data
     return templates.TemplateResponse(
         "community.html",
         {
             "request": request,
-            **dashboard_data
+            "stats": dashboard_data["stats"],
+            "recent_activities": dashboard_data["recent_activities"],
+            "announcements": dashboard_data["announcements"],
+            "events": dashboard_data["events"],
+            "top_contributors": dashboard_data["top_contributors"]
         }
     )
 
