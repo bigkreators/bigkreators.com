@@ -1093,6 +1093,65 @@ hr {
     display: none;
 }
 
+/* Button styling for consistency */
+.primary-button, 
+button[type="submit"],
+#save-article,
+.action-button {
+    padding: 8px 16px;
+    background-color: #0645ad;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.primary-button:hover, 
+button[type="submit"]:hover,
+#save-article:hover,
+.action-button:hover {
+    background-color: #053a7a;
+}
+
+.preview-button {
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.preview-button:hover {
+    background-color: #e9ecef;
+}
+
+.cancel-button {
+    padding: 8px 16px;
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.cancel-button:hover {
+    background-color: #e9ecef;
+    text-decoration: none;
+}
+
+/* Form actions container styling */
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
 /* Responsive Styles */
 @media (max-width: 992px) {
     .container {
