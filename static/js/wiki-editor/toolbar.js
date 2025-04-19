@@ -84,11 +84,20 @@ export function createEditorToolbar() {
             btnElement.className = 'wiki-toolbar-btn';
             btnElement.title = button.title;
             btnElement.setAttribute('data-action', button.action);
+            btnElement.setAttribute('aria-label', button.title);
+            
+            // Create tooltip span
+            const tooltipSpan = document.createElement('span');
+            tooltipSpan.className = 'wiki-tooltip';
+            tooltipSpan.textContent = button.title;
             
             // Create icon
             const iconSpan = document.createElement('span');
             iconSpan.className = `wiki-icon wiki-icon-${button.icon}`;
             btnElement.appendChild(iconSpan);
+            
+            // Add tooltip to button
+            btnElement.appendChild(tooltipSpan);
             
             // Add button to its wrapper div
             buttonDiv.appendChild(btnElement);

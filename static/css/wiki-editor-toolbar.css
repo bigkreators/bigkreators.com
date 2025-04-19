@@ -5,6 +5,7 @@
 .wiki-toolbar-button-wrapper {
     display: inline-block;
     margin: 2px;
+    position: relative;
 }
 
 /* Make toolbar buttons more visible */
@@ -19,6 +20,7 @@
     justify-content: center;
     width: 30px;
     height: 30px;
+    position: relative;
 }
 
 .wiki-toolbar-btn:hover {
@@ -28,6 +30,45 @@
 
 .wiki-toolbar-btn:active {
     background-color: #c8ccd1;
+}
+
+/* Tooltip styling */
+.wiki-tooltip {
+    visibility: hidden;
+    width: auto;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: nowrap;
+    font-size: 12px;
+    pointer-events: none;
+}
+
+/* Arrow for tooltip */
+.wiki-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+/* Show the tooltip when hovering over the button */
+.wiki-toolbar-btn:hover .wiki-tooltip {
+    visibility: visible;
+    opacity: 1;
 }
 
 /* Improved toolbar group styling */
