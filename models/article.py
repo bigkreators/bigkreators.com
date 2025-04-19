@@ -40,8 +40,6 @@ class ArticleCreate(ArticleBase):
     """
     pass
 
-# File: models/article.py (partial update)
-
 class ArticleUpdate(BaseModel):
     """
     Model for updating article data.
@@ -71,6 +69,8 @@ class Article(ArticleBase, DBModel):
     featured_until: Optional[datetime] = Field(default=None, alias="featuredUntil")
     status: str = "published"
     views: int = 0
+    upvotes: int = 0  # Number of upvotes
+    downvotes: int = 0  # Number of downvotes
 
     model_config = ConfigDict(
         populate_by_name=True,
@@ -94,7 +94,9 @@ class Article(ArticleBase, DBModel):
                 "lastUpdatedBy": "60d21b4967d0d8992e610c86",
                 "featuredUntil": "2021-07-22T10:00:00",
                 "status": "published",
-                "views": 150
+                "views": 150,
+                "upvotes": 10,
+                "downvotes": 2
             }
         }
     )

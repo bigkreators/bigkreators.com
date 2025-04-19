@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @router.post("/articles/{article_id}/vote")
 async def vote_article(
     article_id: str,
-    vote_type: str,  # "upvote" or "downvote"
+    vote_data: Dict[str, str],  # Expected {"vote_type": "upvote"|"downvote"}
     current_user: Dict[str, Any] = Depends(get_current_user),
     db=Depends(get_db),
     cache=Depends(get_cache)
@@ -25,6 +25,9 @@ async def vote_article(
     Vote on an article (upvote or downvote).
     """
     try:
+        # Extract vote type from request data
+        vote_type = vote_data.get("vote_type")
+        
         # Validate article ID
         if not ObjectId.is_valid(article_id):
             raise HTTPException(status_code=400, detail="Invalid article ID")
@@ -38,19 +41,18 @@ async def vote_article(
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
         
+        # Ensure upvotes and downvotes fields exist in the article document
+        if "upvotes" not in article:
+            article["upvotes"] = 0
+        if "downvotes" not in article:
+            article["downvotes"] = 0
+        
         # Get current user's vote (if any)
         current_vote = await db["votes"].find_one({
             "articleId": ObjectId(article_id),
             "userId": current_user["_id"]
         })
         
-        # Initialize the vote count fields if they don't exist
-        await db["articles"].update_one(
-            {"_id": ObjectId(article_id)},
-            {"$setOnInsert": {"upvotes": 0, "downvotes": 0}},
-            upsert=True
-        )
-
         if not current_vote:
             # User hasn't voted before, create new vote
             await db["votes"].insert_one({
@@ -160,9 +162,19 @@ async def get_article_votes(
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
         
-        # Get vote counts
+        # Ensure upvotes and downvotes fields exist
         upvotes = article.get("upvotes", 0)
         downvotes = article.get("downvotes", 0)
+        
+        # If fields don't exist in the document, update the document with default values
+        if "upvotes" not in article or "downvotes" not in article:
+            await db["articles"].update_one(
+                {"_id": ObjectId(article_id)},
+                {"$set": {
+                    "upvotes": upvotes,
+                    "downvotes": downvotes
+                }}
+            )
         
         # Get user's vote if logged in
         user_vote = None

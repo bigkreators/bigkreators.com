@@ -11,7 +11,7 @@
 {% block sidebar_extra %}
 <h3>Article Tools</h3>
 <ul>
-    <li><a href="/edit-article/{{ article._id }}" id="edit-articlei" class="auth-required">Edit Article</a></li>
+    <li><a href="/edit-article/{{ article._id }}" id="edit-article" class="auth-required">Edit Article</a></li>
     <li><a href="/articles/{{ article._id }}/propose" id="propose-edit">Propose Edit</a></li>
     <li><a href="/articles/{{ article._id }}/history" id="article-history">History</a></li>
     <li><a href="/articles/{{ article._id }}/proposals" id="article-proposals">View Proposals</a></li>
@@ -49,7 +49,7 @@
         <button class="vote-button upvote" id="upvote-button" title="Upvote">
             <i class="fas fa-arrow-up"></i>
         </button>
-        <span class="vote-count" id="vote-count">{{ article.upvotes|default(0) }}</span>
+        <span class="vote-count" id="vote-count">{{ article.upvotes|default(0) - article.downvotes|default(0) }}</span>
         <button class="vote-button downvote" id="downvote-button" title="Downvote">
             <i class="fas fa-arrow-down"></i>
         </button>
@@ -109,8 +109,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // The existing JavaScript for login checks, etc.
-    
     // Check if user is logged in
     const token = localStorage.getItem('token');
     const authElements = document.querySelectorAll('.auth-required');
@@ -280,7 +278,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Rest of the existing JavaScript for modals, etc.
     // Set up reward button
     const rewardButton = document.getElementById('reward-button');
     if (rewardButton) {
@@ -299,76 +296,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Set up reward form submission
-    const rewardForm = document.getElementById('reward-form');
-    if (rewardForm) {
-        rewardForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            const articleId = document.getElementById('article-id').value;
-            const rewardType = document.getElementById('reward-type').value;
-            const points = parseInt(document.getElementById('points').value);
-            
-            // Get token
-            const token = localStorage.getItem('token');
-            if (!token) {
-                alert('You must be logged in to give rewards.');
-                return;
-            }
-            
-            // Create reward data
-            const rewardData = {
-                rewardType: rewardType,
-                points: points
-            };
-            
-            // Submit reward
-            fetch(`/api/rewards/articles/${articleId}/rewards`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(rewardData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.detail || 'Failed to give reward');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                alert('Reward given successfully!');
-                const rewardModal = document.getElementById('reward-modal');
-                if (rewardModal) rewardModal.style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error giving reward:', error);
-                alert(error.message || 'Failed to give reward. Please try again.');
-            });
-        });
-    }
-    
     // Set up share button
     const shareButton = document.getElementById('share-button');
     if (shareButton) {
         shareButton.addEventListener('click', function() {
             const shareModal = document.getElementById('share-modal');
             if (shareModal) shareModal.style.display = 'block';
-        });
-    }
-    
-    // Set up copy URL button
-    const copyUrlButton = document.getElementById('copy-url');
-    if (copyUrlButton) {
-        copyUrlButton.addEventListener('click', function() {
-            const shareUrl = document.getElementById('share-url');
-            shareUrl.select();
-            document.execCommand('copy');
-            alert('URL copied to clipboard!');
         });
     }
     
@@ -387,9 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
             event.target.style.display = 'none';
         }
     });
-
-    // Article management functionality
-    // [... Rest of your existing code for article management ...]
 });
 </script>
 {% endblock %}

@@ -39,7 +39,7 @@
         <button class="vote-button upvote" id="upvote-button" title="Upvote">
             <i class="fas fa-arrow-up"></i>
         </button>
-        <span class="vote-count" id="vote-count">{{ article.upvotes|default(0) }}</span>
+        <span class="vote-count" id="vote-count">{{ article.upvotes|default(0) - article.downvotes|default(0) }}</span>
         <button class="vote-button downvote" id="downvote-button" title="Downvote">
             <i class="fas fa-arrow-down"></i>
         </button>
