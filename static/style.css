@@ -905,6 +905,161 @@ footer {
     gap: 10px;
 }
 
+/* Moving vote container styles from article templates to here */
+.vote-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.vote-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 5px 10px;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.vote-button:hover {
+    color: #333;
+}
+
+.vote-button.upvote.active {
+    color: #4CAF50;
+}
+
+.vote-button.downvote.active {
+    color: #F44336;
+}
+
+.vote-count {
+    margin: 0 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Article Management Styles */
+.status-section, .danger-section {
+    margin-bottom: 20px;
+}
+
+.status-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.status-button {
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.status-button:hover {
+    background-color: #e0e0e0;
+}
+
+.status-button.active {
+    background-color: #0645ad;
+    color: white;
+    border-color: #0645ad;
+}
+
+.status-descriptions {
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
+}
+
+.status-descriptions p {
+    margin: 5px 0;
+}
+
+.danger-section {
+    margin-top: 20px;
+    padding-top: 15px;
+}
+
+.danger-button {
+    padding: 8px 16px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.danger-button:hover {
+    background-color: #c82333;
+}
+
+.danger-button:disabled {
+    background-color: #f8d7da;
+    cursor: not-allowed;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #eee;
+    margin: 20px 0;
+}
+
+.warning-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    color: #856404;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+}
+
+.article-title-confirm {
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.manage-button {
+    background-color: #6c757d;
+    color: white;
+}
+
+.manage-button:hover {
+    background-color: #5a6268;
+}
+
+.article-status-indicator {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 10px;
+    color: white;
+}
+
+.status-published {
+    background-color: #28a745;
+}
+
+.status-hidden {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.status-archived {
+    background-color: #6c757d;
+}
+
+.status-draft {
+    background-color: #17a2b8;
+}
+
 /* Utility Classes */
 .hidden {
     display: none !important;

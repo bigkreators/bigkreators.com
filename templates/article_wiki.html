@@ -6,42 +6,6 @@
 {% set active_page = 'articles' %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="/static/wiki-style.css">
-<style>
-    .vote-container {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-    
-    .vote-button {
-        background: none;
-        border: none;
-        font-size: 20px;
-        cursor: pointer;
-        padding: 5px 10px;
-        color: #666;
-        transition: color 0.3s ease;
-    }
-    
-    .vote-button:hover {
-        color: #333;
-    }
-    
-    .vote-button.upvote.active {
-        color: #4CAF50;
-    }
-    
-    .vote-button.downvote.active {
-        color: #F44336;
-    }
-    
-    .vote-count {
-        margin: 0 10px;
-        font-weight: bold;
-        color: #333;
-    }
-</style>
 {% endblock %}
 
 {% block sidebar_extra %}
