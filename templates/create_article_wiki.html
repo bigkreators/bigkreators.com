@@ -4,65 +4,6 @@
 
 {% set active_page = 'contribute' %}
 
-{% block extra_css %}
-<!-- Include wiki editor styles -->
-<style>
-    .login-required-message {
-        text-align: center;
-        padding: 30px;
-        background-color: #f8f9fa;
-        border-radius: 6px;
-        margin: 20px 0;
-    }
-    
-    .login-required-message p {
-        margin-bottom: 20px;
-        font-size: 1.1em;
-    }
-
-    /* Status messages */
-    .status-message {
-        padding: 10px 15px;
-        border-radius: 4px;
-        margin: 15px 0;
-        display: none;
-    }
-    
-    .error-message {
-        background-color: #f8d7da;
-        border: 1px solid #f5c6cb;
-        color: #721c24;
-    }
-    
-    .success-message {
-        background-color: #d4edda;
-        border: 1px solid #c3e6cb;
-        color: #155724;
-    }
-    
-    .help-text {
-        font-size: 14px;
-        color: #666;
-        margin-top: 5px;
-    }
-    
-    /* Form sections */
-    .form-section {
-        margin-bottom: 20px;
-        padding: 20px;
-        background-color: #f8f9fa;
-        border-radius: 4px;
-    }
-    
-    .form-section h3 {
-        margin-top: 0;
-        margin-bottom: 15px;
-        font-size: 18px;
-        color: #333;
-    }
-</style>
-{% endblock %}
-
 {% block sidebar_extra %}
 <h3>Article Guidelines</h3>
 <ul>
@@ -115,13 +56,13 @@
         <h3>Article Content</h3>
         <p class="help-text">Use wiki markup to format your article. The toolbar above provides common formatting options.</p>
 
-<div class="form-group">
-    <label for="article-content">Content:</label>
-    <div class="wiki-editor-container">
-        <div class="wiki-editor-toolbar"></div>
-        <textarea id="article-content" name="content" required></textarea>
-    </div>
-</div>
+        <div class="form-group">
+            <label for="article-content">Content:</label>
+            <div class="wiki-editor-container">
+                <div class="wiki-editor-toolbar"></div>
+                <textarea id="article-content" name="content" required></textarea>
+            </div>
+        </div>
         
         <div class="wiki-preview-area" style="display: none;"></div>
     </div>
