@@ -1,0 +1,295 @@
+<!-- File: templates/community_rules.html -->
+{% extends "base.html" %}
+
+{% block title %}Community Rules - Kryptopedia{% endblock %}
+
+{% set active_page = 'community' %}
+
+{% block content %}
+<div class="rules-container">
+    <h1>Community Rules</h1>
+    
+    <div class="rules-intro">
+        <p>Welcome to Kryptopedia. Our community is built on collaboration, respect, and the pursuit of knowledge. These rules are designed to create a positive environment where everyone can contribute effectively. By participating in Kryptopedia, you agree to follow these guidelines.</p>
+    </div>
+    
+    <div class="rules-toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#core-principles">Core Principles</a></li>
+            <li><a href="#content-standards">Content Standards</a></li>
+            <li><a href="#user-conduct">User Conduct</a></li>
+            <li><a href="#collaboration">Collaboration Guidelines</a></li>
+            <li><a href="#dispute-resolution">Dispute Resolution</a></li>
+            <li><a href="#enforcement">Rule Enforcement</a></li>
+        </ul>
+    </div>
+    
+    <div id="core-principles" class="rules-section">
+        <h2>Core Principles</h2>
+        <p>Our community is guided by these fundamental principles:</p>
+        
+        <div class="principle-card">
+            <h3>Accuracy and Verifiability</h3>
+            <p>Information shared on Kryptopedia should be factual, verifiable, and supported by reliable sources. Speculation should be clearly identified as such.</p>
+        </div>
+        
+        <div class="principle-card">
+            <h3>Neutrality</h3>
+            <p>Content should present information from a neutral point of view, fairly representing all significant perspectives without bias.</p>
+        </div>
+        
+        <div class="principle-card">
+            <h3>Collaborative Spirit</h3>
+            <p>Kryptopedia thrives through collaboration. Be open to working with others and having your contributions edited and improved.</p>
+        </div>
+        
+        <div class="principle-card">
+            <h3>Respect and Civility</h3>
+            <p>Treat all community members with respect, even in disagreement. Focus on content, not contributors.</p>
+        </div>
+        
+        <div class="principle-card">
+            <h3>Transparency</h3>
+            <p>Edits and administrative actions should be transparent, with clear explanations provided.</p>
+        </div>
+    </div>
+    
+    <div id="content-standards" class="rules-section">
+        <h2>Content Standards</h2>
+        <p>All content on Kryptopedia must adhere to these standards:</p>
+        
+        <h3>Acceptable Content</h3>
+        <ul>
+            <li>Factual, educational information relevant to the article topic</li>
+            <li>Content supported by reliable sources</li>
+            <li>Balanced presentation of different viewpoints</li>
+            <li>Original content or appropriately licensed material</li>
+        </ul>
+        
+        <h3>Prohibited Content</h3>
+        <ul>
+            <li>Misinformation or deliberately misleading content</li>
+            <li>Unsourced claims, especially on controversial topics</li>
+            <li>Promotional content or advertising</li>
+            <li>Content that violates copyright laws</li>
+            <li>Personal information or private data about individuals</li>
+            <li>Content that promotes illegal activities</li>
+            <li>Hate speech, harassment, or discriminatory content</li>
+            <li>Obscene, vulgar, or sexually explicit material</li>
+        </ul>
+        
+        <h3>Citations and Sources</h3>
+        <p>All significant claims should be supported by reliable sources:</p>
+        <ul>
+            <li>Academic publications, peer-reviewed journals, and reputable books</li>
+            <li>Established news organizations and industry publications</li>
+            <li>Official reports from governments, organizations, or companies</li>
+            <li>Primary source materials where appropriate</li>
+        </ul>
+        <p>Avoid using social media posts, personal blogs, or unreliable websites as primary sources.</p>
+    </div>
+    
+    <div id="user-conduct" class="rules-section">
+        <h2>User Conduct</h2>
+        <p>How we behave and interact with each other is as important as the content we create.</p>
+        
+        <h3>Expected Behavior</h3>
+        <ul>
+            <li>Assume good faith from other contributors</li>
+            <li>Focus on improving content rather than criticizing others</li>
+            <li>Provide constructive feedback in a respectful manner</li>
+            <li>Be open to receiving feedback and criticism</li>
+            <li>Use clear edit summaries to explain your changes</li>
+            <li>Respect the time and effort of others</li>
+        </ul>
+        
+        <h3>Prohibited Behavior</h3>
+        <ul>
+            <li>Harassment, intimidation, or personal attacks against others</li>
+            <li>Disruptive editing, including repeated reversions without discussion</li>
+            <li>Creating multiple accounts to bypass rules (sockpuppeting)</li>
+            <li>Impersonating other users or public figures</li>
+            <li>Deliberately introducing false or misleading information</li>
+            <li>Attempting to game the reward system</li>
+            <li>Spamming or excessive self-promotion</li>
+        </ul>
+        
+        <h3>Communication Guidelines</h3>
+        <ul>
+            <li>Use clear, concise language in discussions</li>
+            <li>Stay on topic and focus on content issues</li>
+            <li>Avoid heated or aggressive language</li>
+            <li>Respect others' time by being efficient in communications</li>
+            <li>Use discussion pages for extended conversations about articles</li>
+        </ul>
+    </div>
+    
+    <div id="collaboration" class="rules-section">
+        <h2>Collaboration Guidelines</h2>
+        <p>Effective collaboration is essential to Kryptopedia's success.</p>
+        
+        <h3>Editing Articles</h3>
+        <ul>
+            <li>Make incremental improvements rather than wholesale rewrites</li>
+            <li>Use the preview function before saving changes</li>
+            <li>Provide clear edit summaries explaining your changes</li>
+            <li>Check an article's history before making significant changes</li>
+            <li>Respect established conventions within articles</li>
+        </ul>
+        
+        <h3>Proposing Changes</h3>
+        <ul>
+            <li>Use the proposal system for significant changes to established articles</li>
+            <li>Clearly explain the rationale behind your proposals</li>
+            <li>Be patient during the review process</li>
+            <li>Be receptive to feedback from reviewers</li>
+        </ul>
+        
+        <h3>Reviewing Proposals</h3>
+        <ul>
+            <li>Evaluate changes based on content quality, not personal preference</li>
+            <li>Provide constructive feedback, especially when rejecting proposals</li>
+            <li>Focus on helping contributors improve their submissions</li>
+            <li>Review promptly to maintain community momentum</li>
+        </ul>
+    </div>
+    
+    <div id="dispute-resolution" class="rules-section">
+        <h2>Dispute Resolution</h2>
+        <p>When disagreements arise, follow these steps to resolve them constructively:</p>
+        
+        <h3>Step 1: Direct Discussion</h3>
+        <p>Start by discussing the issue on the article's discussion page. Focus on content rather than personalities, and try to understand all perspectives.</p>
+        
+        <h3>Step 2: Seek Third Opinion</h3>
+        <p>If direct discussion doesn't resolve the issue, request input from uninvolved editors through the <a href="/community/help">Help Forum</a>.</p>
+        
+        <h3>Step 3: Community Mediation</h3>
+        <p>For persistent disputes, request formal mediation through the <a href="/community/mediation">Mediation Request</a> page. A designated mediator will help facilitate discussion.</p>
+        
+        <h3>Step 4: Administrative Review</h3>
+        <p>As a last resort, administrators may be asked to review and make a determination based on community guidelines and previous consensus.</p>
+        
+        <h3>During Disputes</h3>
+        <ul>
+            <li>Maintain civility throughout the process</li>
+            <li>Avoid editing the disputed content until resolution</li>
+            <li>Focus on finding consensus, not "winning" the dispute</li>
+            <li>Take breaks if discussions become too heated</li>
+        </ul>
+    </div>
+    
+    <div id="enforcement" class="rules-section">
+        <h2>Rule Enforcement</h2>
+        <p>To maintain a healthy community, these rules are enforced through a progressive system:</p>
+        
+        <h3>Warning</h3>
+        <p>First-time or minor violations typically result in a warning explaining the issue and how to correct it.</p>
+        
+        <h3>Temporary Restrictions</h3>
+        <p>Repeated violations or more serious infractions may result in temporary editing restrictions, such as requiring approval for edits or limits on specific actions.</p>
+        
+        <h3>Temporary Blocks</h3>
+        <p>Continued violations despite warnings or restrictions may result in temporary blocks from editing, typically increasing in duration for repeat offenses.</p>
+        
+        <h3>Indefinite Blocks</h3>
+        <p>Severe violations or patterns of disruptive behavior that continue despite interventions may result in indefinite blocks.</p>
+        
+        <h3>Appeals</h3>
+        <p>Users who believe enforcement actions were unfair may appeal through the <a href="/community/appeals">Appeals Process</a>. Appeals are reviewed by uninvolved administrators.</p>
+        
+        <p>Enforcement actions are taken with the goal of maintaining community standards while helping users become productive contributors.</p>
+    </div>
+    
+    <div class="rules-footer">
+        <p>These community rules are subject to change as Kryptopedia evolves. Significant changes will be announced on the <a href="/community">Community Portal</a>.</p>
+        <p>Last updated: April 2025</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .rules-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .rules-intro {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #0645ad;
+    }
+    
+    .rules-toc {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .rules-toc ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .rules-toc li {
+        margin-bottom: 8px;
+    }
+    
+    .rules-toc a {
+        text-decoration: none;
+        color: #0645ad;
+    }
+    
+    .rules-toc a:hover {
+        text-decoration: underline;
+    }
+    
+    .rules-section {
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .rules-section h2 {
+        color: #0645ad;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+        margin-top: 30px;
+    }
+    
+    .rules-section h3 {
+        margin-top: 20px;
+        color: #333;
+    }
+    
+    .principle-card {
+        background-color: #f8f9fa;
+        border-left: 4px solid #0645ad;
+        padding: 15px;
+        margin-bottom: 15px;
+        border-radius: 4px;
+    }
+    
+    .principle-card h3 {
+        margin-top: 0;
+        color: #0645ad;
+    }
+    
+    .principle-card p {
+        margin-bottom: 0;
+    }
+    
+    .rules-footer {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 40px;
+        text-align: center;
+    }
+</style>
+{% endblock %}

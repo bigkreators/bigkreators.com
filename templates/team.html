@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Our Team - Kryptopedia{% endblock %}
+
+{% set active_page = 'team' %}
+
+{% block content %}
+<div class="page-header">
+    <h1>The Kryptopedia Team</h1>
+</div>
+
+<div class="team-intro">
+    <p>Kryptopedia was founded and is maintained by a diverse group of blockchain enthusiasts, developers, economists, and privacy advocates united by a shared vision of decentralized knowledge. While our platform emphasizes ideas over identities, we believe in transparency about who's building this resource.</p>
+</div>
+
+<div class="core-team-section">
+    <h2>Core Team</h2>
+    
+    <div class="team-member">
+        <div class="member-photo">
+            <img src="/static/images/placeholder-1.jpg" alt="Alex Nakagawa">
+        </div>
+        <div class="member-info">
+            <h3>Alex Nakagawa</h3>
+            <div class="member-title">Co-Founder & Lead Developer</div>
+            <div class="member-bio">
+                <p>Alex has been developing blockchain systems since 2013, having contributed to multiple Bitcoin Core releases and founded two previous crypto startups. With a background in distributed systems and cryptography, Alex architects Kryptopedia's technical infrastructure with a focus on decentralization and security.</p>
+                <p>Before Kryptopedia, Alex worked as a security researcher specializing in cryptocurrency exchanges and smart contract auditing. They hold degrees in Computer Science and Mathematics.</p>
+            </div>
+            <div class="member-links">
+                <a href="https://github.com/alexnakagawa" target="_blank"><i class="fab fa-github"></i> GitHub</a>
+                <a href="https://twitter.com/alexnakagawa_" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="team-member">
+        <div class="member-photo">
+            <img src="/static/images/placeholder-2.jpg" alt="Morgan Rivera">
+        </div>
+        <div class="member-info">
+            <h3>Morgan Rivera</h3>
+            <div class="member-title">Co-Founder & Content Strategist</div>
+            <div class="member-bio">
+                <p>Morgan brings over a decade of experience in digital publishing and content strategy to Kryptopedia. As an early Bitcoin adopter who witnessed the need for reliable crypto information, they've built the framework for our content structure and contribution guidelines.</p>
+                <p>Morgan previously worked as a technology journalist specializing in cryptocurrency reporting and has authored two books on blockchain technology and its implications for economic freedom.</p>
+            </div>
+            <div class="member-links">
+                <a href="https://twitter.com/morganrivera" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+                <a href="https://morganrivera.com" target="_blank"><i class="fas fa-globe"></i> Website</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="team-member">
+        <div class="member-photo">
+            <img src="/static/images/placeholder-3.jpg" alt="Dr. Wei Zhang">
+        </div>
+        <div class="member-info">
+            <h3>Dr. Wei Zhang</h3>
+            <div class="member-title">Economic Systems Architect</div>
+            <div class="member-bio">
+                <p>Wei designed Kryptopedia's token economics and reputation systems, creating the incentive structures that drive our platform. With a PhD in Game Theory and a background in Austrian Economics, Wei ensures that our economic mechanisms align user incentives with content quality.</p>
+                <p>Before joining Kryptopedia, Wei worked as a consultant for central banks and later became a cryptocurrency economic researcher, publishing influential papers on token incentive design and decentralized governance.</p>
+            </div>
+            <div class="member-links">
+                <a href="https://twitter.com/drweizhang" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+                <a href="https://papers.ssrn.com/sol3/cf_dev/AbsByAuth.cfm?per_id=123456" target="_blank"><i class="fas fa-file-alt"></i> Research</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="team-member">
+        <div class="member-photo">
+            <img src="/static/images/placeholder-4.jpg" alt="Jamie Hodges">
+        </div>
+        <div class="member-info">
+            <h3>Jamie Hodges</h3>
+            <div class="member-title">Community Director</div>
+            <div class="member-bio">
+                <p>Jamie oversees Kryptopedia's growing community of contributors, moderators, and users. They've developed our decentralized governance framework and conflict resolution processes, ensuring that community decisions respect our core libertarian values.</p>
+                <p>Jamie's background includes building decentralized communities for multiple open-source projects and advocating for digital privacy rights. They bring expertise in balancing community self-governance with platform integrity.</p>
+            </div>
+            <div class="member-links">
+                <a href="https://twitter.com/jamiehodges_" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
+                <a href="https://t.me/jamiehodges" target="_blank"><i class="fab fa-telegram"></i> Telegram</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="advisors-section">
+    <h2>Technical Advisors</h2>
+    
+    <div class="advisor-grid">
+        <div class="advisor-card">
+            <div class="advisor-photo">
+                <img src="/static/images/placeholder-5.jpg" alt="Sarah Chen">
+            </div>
+            <h3>Sarah Chen</h3>
+            <div class="advisor-title">Cryptography Specialist</div>
+            <p>Former security engineer at multiple cryptocurrency exchanges who advises on our encryption and security protocols.</p>
+        </div>
+        
+        <div class="advisor-card">
+            <div class="advisor-photo">
+                <img src="/static/images/placeholder-6.jpg" alt="Dr. Andrei Petrov">
+            </div>
+            <h3>Dr. Andrei Petrov</h3>
+            <div class="advisor-title">Consensus Systems Researcher</div>
+            <p>Academic specializing in Byzantine fault tolerance and decentralized governance mechanisms.</p>
+        </div>
+        
+        <div class="advisor-card">
+            <div class="advisor-photo">
+                <img src="/static/images/placeholder-7.jpg" alt="Maria Gonzalez">
+            </div>
+            <h3>Maria Gonzalez</h3>
+            <div class="advisor-title">Smart Contract Developer</div>
+            <p>Core contributor to multiple DeFi protocols who advises on our token distribution smart contracts.</p>
+        </div>
+        
+        <div class="advisor-card">
+            <div class="advisor-photo">
+                <img src="/static/images/placeholder-8.jpg" alt="Raj Patel">
+            </div>
+            <h3>Raj Patel</h3>
+            <div class="advisor-title">Privacy Technology Expert</div>
+            <p>Specialist in zero-knowledge proofs and privacy-preserving technologies for decentralized systems.</p>
+        </div>
+    </div>
+</div>
+
+<div class="contributors-section">
+    <h2>Top Contributors</h2>
+    
+    <p>Beyond our core team, Kryptopedia thrives thanks to our dedicated contributors who have helped build our knowledge base. These individuals have made exceptional contributions to our platform's content and community:</p>
+    
+    <div class="top-contributors">
+        <div class="contributor">
+            <span class="contributor-name">Satoshi2025</span>
+            <span class="contribution-count">423 contributions</span>
+            <span class="contributor-speciality">Bitcoin history & technology</span>
+        </div>
+        
+        <div class="contributor">
+            <span class="contributor-name">CipherPunk</span>
+            <span class="contribution-count">387 contributions</span>
+            <span class="contributor-speciality">Cryptographic protocols</span>
+        </div>
+        
+        <div class="contributor">
+            <span class="contributor-name">EthDeveloper</span>
+            <span class="contribution-count">341 contributions</span>
+            <span class="contributor-speciality">Smart contracts & DApps</span>
+        </div>
+        
+        <div class="contributor">
+            <span class="contributor-name">LibertyMaximalist</span>
+            <span class="contribution-count">298 contributions</span>
+            <span class="contributor-speciality">Economic theory & history</span>
+        </div>
+        
+        <div class="contributor">
+            <span class="contributor-name">PrivacyShield</span>
+            <span class="contribution-count">276 contributions</span>
+            <span class="contributor-speciality">Privacy coins & techniques</span>
+        </div>
+    </div>
+    
+    <p class="contributor-note">Note: Many of our most valuable contributors choose to participate pseudonymously, in keeping with cryptocurrency's tradition of prioritizing ideas over identities.</p>
+</div>
+
+<div class="join-team-section">
+    <h2>Join Our Team</h2>
+    
+    <p>Kryptopedia is constantly growing and we're always looking for talented individuals who share our vision and values. We have open positions in:</p>
+    
+    <ul class="open-positions">
+        <li>Blockchain Development</li>
+        <li>Content Moderation</li>
+        <li>Community Management</li>
+        <li>Economic Research</li>
+        <li>Technical Writing</li>
+        <li>Security Analysis</li>
+    </ul>
+    
+    <p>We embrace remote work and value skills over credentials. If you're passionate about cryptocurrency, decentralization, and individual freedom, we'd love to hear from you.</p>
+    
+    <div class="cta-button">
+        <a href="/careers" class="btn btn-primary">View Open Positions</a>
+    </div>
+</div>
+{% endblock %}

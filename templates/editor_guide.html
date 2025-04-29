@@ -1,0 +1,414 @@
+<!-- File: templates/editor_guide.html -->
+{% extends "base.html" %}
+
+{% block title %}Editor Guide - Kryptopedia{% endblock %}
+
+{% set active_page = 'help' %}
+
+{% block content %}
+<div class="guide-container">
+    <h1>Editor Guide</h1>
+    
+    <div class="guide-intro">
+        <p>Welcome to the Kryptopedia Editor Guide. This resource will help you understand how to create and edit content effectively on our collaborative knowledge platform. By following these guidelines, you'll help maintain the quality and consistency of our articles.</p>
+    </div>
+    
+    <div class="guide-toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#getting-started">Getting Started</a></li>
+            <li><a href="#wiki-syntax">Wiki Syntax</a></li>
+            <li><a href="#article-structure">Article Structure</a></li>
+            <li><a href="#editing-process">Editing Process</a></li>
+            <li><a href="#citations">Citations and References</a></li>
+            <li><a href="#categories">Categories and Tags</a></li>
+            <li><a href="#images">Adding Images</a></li>
+            <li><a href="#proposals">Proposing Edits</a></li>
+            <li><a href="#reviewing">Reviewing Edits</a></li>
+            <li><a href="#best-practices">Best Practices</a></li>
+        </ul>
+    </div>
+    
+    <div id="getting-started" class="guide-section">
+        <h2>Getting Started</h2>
+        <p>To start contributing to Kryptopedia, you'll need to:</p>
+        <ol>
+            <li><strong>Create an account</strong> - Register to get full editing capabilities</li>
+            <li><strong>Familiarize yourself with our community rules</strong> - Understand our standards</li>
+            <li><strong>Start small</strong> - Begin with minor edits before creating full articles</li>
+            <li><strong>Ask for help</strong> - Our community is here to support you</li>
+        </ol>
+        
+        <p>All users can create articles and propose edits, but editors and administrators review changes to maintain quality. As you contribute consistently, you may be promoted to editor status.</p>
+    </div>
+    
+    <div id="wiki-syntax" class="guide-section">
+        <h2>Wiki Syntax</h2>
+        <p>Kryptopedia uses a standard wiki markup language. Here are the basics:</p>
+        
+        <div class="wiki-syntax-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Wiki Syntax</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bold</td>
+                        <td><code>'''Bold text'''</code></td>
+                        <td><strong>Bold text</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Italic</td>
+                        <td><code>''Italic text''</code></td>
+                        <td><em>Italic text</em></td>
+                    </tr>
+                    <tr>
+                        <td>Heading (Level 2)</td>
+                        <td><code>== Heading ==</code></td>
+                        <td><h2 style="margin:0">Heading</h2></td>
+                    </tr>
+                    <tr>
+                        <td>Internal Link</td>
+                        <td><code>[[Article Title]]</code></td>
+                        <td><a href="#">Article Title</a></td>
+                    </tr>
+                    <tr>
+                        <td>Internal Link (different text)</td>
+                        <td><code>[[Article Title|Display Text]]</code></td>
+                        <td><a href="#">Display Text</a></td>
+                    </tr>
+                    <tr>
+                        <td>External Link</td>
+                        <td><code>[https://example.com Example Site]</code></td>
+                        <td><a href="https://example.com">Example Site</a></td>
+                    </tr>
+                    <tr>
+                        <td>Bullet List</td>
+                        <td><code>* Item 1<br>* Item 2</code></td>
+                        <td><ul style="margin:0"><li>Item 1</li><li>Item 2</li></ul></td>
+                    </tr>
+                    <tr>
+                        <td>Numbered List</td>
+                        <td><code># Item 1<br># Item 2</code></td>
+                        <td><ol style="margin:0"><li>Item 1</li><li>Item 2</li></ol></td>
+                    </tr>
+                    <tr>
+                        <td>Reference</td>
+                        <td><code>&lt;ref&gt;Citation details&lt;/ref&gt;</code></td>
+                        <td>Superscript<sup>[1]</sup></td>
+                    </tr>
+                    <tr>
+                        <td>Image</td>
+                        <td><code>[[File:example.jpg|thumb|Caption]]</code></td>
+                        <td>[Image with caption]</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <p>The Kryptopedia editor includes a toolbar that makes adding these elements easier. You can also use the "Preview" button to see how your markup will appear before saving.</p>
+    </div>
+    
+    <div id="article-structure" class="guide-section">
+        <h2>Article Structure</h2>
+        <p>A well-structured article typically includes these elements:</p>
+        
+        <h3>Introduction</h3>
+        <p>Begin with a concise introduction that explains the topic. The introduction should summarize the article without requiring subsections.</p>
+        
+        <h3>Main Content</h3>
+        <p>Organize the main content into logical sections using headings. Use subheadings to create a clear hierarchy:</p>
+        <ul>
+            <li><code>== Level 2 Heading ==</code> for main sections</li>
+            <li><code>=== Level 3 Heading ===</code> for subsections</li>
+            <li><code>==== Level 4 Heading ====</code> for sub-subsections</li>
+        </ul>
+        
+        <h3>References</h3>
+        <p>Include a References section at the end with <code>&lt;references /&gt;</code> to display all references used in the article.</p>
+        
+        <h3>See Also</h3>
+        <p>Optionally include a "See Also" section linking to related articles on Kryptopedia.</p>
+        
+        <h3>External Links</h3>
+        <p>Optionally include relevant external resources for further reading.</p>
+    </div>
+    
+    <div id="editing-process" class="guide-section">
+        <h2>Editing Process</h2>
+        <p>There are two ways to contribute to Kryptopedia:</p>
+        
+        <h3>Direct Editing</h3>
+        <p>Registered users can directly edit articles. To do this:</p>
+        <ol>
+            <li>Click the "Edit Article" button on any page</li>
+            <li>Make your changes in the editor</li>
+            <li>Add an edit summary explaining your changes</li>
+            <li>Click "Save Changes" to publish</li>
+        </ol>
+        
+        <h3>Proposing Edits</h3>
+        <p>For more substantial changes, or if you're new to Kryptopedia, consider using the proposal system:</p>
+        <ol>
+            <li>Click "Propose Edit" on an article</li>
+            <li>Make your changes in the editor</li>
+            <li>Provide a detailed summary explaining your proposal</li>
+            <li>Submit for review by editors</li>
+        </ol>
+        
+        <p>Editors will review your proposal and either approve or reject it with feedback.</p>
+    </div>
+    
+    <div id="citations" class="guide-section">
+        <h2>Citations and References</h2>
+        <p>Proper citation is essential to ensure the reliability of our content.</p>
+        
+        <h3>Adding References</h3>
+        <p>To add a reference:</p>
+        <ol>
+            <li>Place the cursor where you want the reference mark to appear</li>
+            <li>Use the reference button in the editor toolbar or add manually: <code>&lt;ref&gt;Citation details&lt;/ref&gt;</code></li>
+            <li>Add the citation details in the proper format (see below)</li>
+            <li>Place <code>&lt;references /&gt;</code> at the end of the article in a "References" section</li>
+        </ol>
+        
+        <h3>Citation Formats</h3>
+        <p>For websites:</p>
+        <code>&lt;ref&gt;cite web|title=Page Title|url=https://example.com|website=Website Name|access-date=2025-04-14&lt;/ref&gt;</code>
+        
+        <p>For books:</p>
+        <code>&lt;ref&gt;cite book|title=Book Title|author=Author Name|publisher=Publisher|year=Year|pages=xx-xx|isbn=ISBN&lt;/ref&gt;</code>
+        
+        <p>For journal articles:</p>
+        <code>&lt;ref&gt;cite journal|title=Article Title|author=Author Name|journal=Journal Name|volume=Volume|issue=Issue|year=Year|pages=xx-xx|doi=DOI&lt;/ref&gt;</code>
+    </div>
+    
+    <div id="categories" class="guide-section">
+        <h2>Categories and Tags</h2>
+        <p>Categories and tags help organize content and make it more discoverable.</p>
+        
+        <h3>Categories</h3>
+        <p>Categories group articles by broad topics. When creating or editing an article, add relevant categories in the category field. Use existing categories where possible to maintain organization.</p>
+        
+        <h3>Tags</h3>
+        <p>Tags are more specific keywords that may not fit into broader categories. They help in searching and connecting related content across different categories.</p>
+        
+        <p>Browse existing <a href="/categories">categories</a> and <a href="/tags">tags</a> to understand how content is organized.</p>
+    </div>
+    
+    <div id="images" class="guide-section">
+        <h2>Adding Images</h2>
+        <p>Images enhance articles and help explain concepts. To add an image:</p>
+        
+        <ol>
+            <li>First, upload the image using the <a href="/upload-file">Upload File</a> page</li>
+            <li>In your article, use the image syntax: <code>[[File:filename.jpg|thumb|Caption text]]</code></li>
+        </ol>
+        
+        <p>Additional image parameters:</p>
+        <ul>
+            <li><code>thumb</code> - Creates a thumbnail with caption</li>
+            <li><code>left</code>, <code>right</code>, or <code>center</code> - Alignment</li>
+            <li><code>width=300px</code> - Sets the image width</li>
+        </ul>
+        
+        <h3>Image Guidelines</h3>
+        <ul>
+            <li>Only use images you have rights to use (your own, public domain, or appropriately licensed)</li>
+            <li>Provide attribution for images when required by their license</li>
+            <li>Use appropriate file formats: JPG for photos, PNG for graphics, SVG for diagrams</li>
+            <li>Keep file sizes reasonable (typically under 1MB)</li>
+        </ul>
+    </div>
+    
+    <div id="proposals" class="guide-section">
+        <h2>Proposing Edits</h2>
+        <p>The proposal system allows for peer review before changes are implemented.</p>
+        
+        <h3>When to Use Proposals</h3>
+        <ul>
+            <li>Making substantial changes to established articles</li>
+            <li>Adding controversial content that might need discussion</li>
+            <li>When you're new to editing and want feedback</li>
+            <li>When an article is protected or semi-protected</li>
+        </ul>
+        
+        <h3>Creating a Good Proposal</h3>
+        <ol>
+            <li>Make focused, specific changes rather than overhauling an entire article</li>
+            <li>Provide a clear, detailed summary explaining why the changes improve the article</li>
+            <li>Cite reliable sources to support your additions</li>
+            <li>Be patient while waiting for review</li>
+        </ol>
+        
+        <p>Editors will review your proposal and may suggest improvements before approval.</p>
+    </div>
+    
+    <div id="reviewing" class="guide-section">
+        <h2>Reviewing Edits (for Editors)</h2>
+        <p>Editors play a crucial role in maintaining quality by reviewing proposed changes.</p>
+        
+        <h3>Review Guidelines</h3>
+        <ol>
+            <li>Check for accuracy and verifiability of information</li>
+            <li>Ensure proper formatting and wiki syntax</li>
+            <li>Verify that citations are properly formatted and from reliable sources</li>
+            <li>Look for neutral, balanced presentation of information</li>
+            <li>Confirm the edit improves the article</li>
+        </ol>
+        
+        <h3>Review Actions</h3>
+        <ul>
+            <li><strong>Approve</strong> - Accept the changes as they are</li>
+            <li><strong>Reject</strong> - Decline the changes, providing clear reasons</li>
+            <li><strong>Provide Feedback</strong> - Suggest improvements before making a decision</li>
+        </ul>
+        
+        <p>Always be constructive in feedback, focusing on content rather than the contributor.</p>
+    </div>
+    
+    <div id="best-practices" class="guide-section">
+        <h2>Best Practices</h2>
+        <p>Follow these principles to contribute effectively to Kryptopedia:</p>
+        
+        <h3>Content Principles</h3>
+        <ul>
+            <li><strong>Accuracy</strong> - Verify information with reliable sources</li>
+            <li><strong>Neutrality</strong> - Present information in a balanced, objective manner</li>
+            <li><strong>Clarity</strong> - Write in clear, concise language accessible to a general audience</li>
+            <li><strong>Completeness</strong> - Cover the topic comprehensively, but avoid unnecessary detail</li>
+        </ul>
+        
+        <h3>Editing Tips</h3>
+        <ul>
+            <li>Make incremental edits rather than overhauling articles at once</li>
+            <li>Use the Preview function before saving changes</li>
+            <li>Include descriptive edit summaries for all changes</li>
+            <li>Check an article's history before making significant changes</li>
+            <li>Discuss controversial changes on the article's discussion page first</li>
+            <li>Be patient with new editors and help them learn</li>
+        </ul>
+        
+        <h3>Etiquette</h3>
+        <ul>
+            <li>Assume good faith when reviewing others' contributions</li>
+            <li>Give constructive feedback rather than just criticizing</li>
+            <li>Acknowledge others' contributions</li>
+            <li>Be open to having your edits modified by others</li>
+            <li>Take breaks if discussions become heated</li>
+        </ul>
+    </div>
+    
+    <div class="guide-footer">
+        <p>This guide is continuously evolving. If you have suggestions for improving it, please <a href="/help/contribute">let us know</a>.</p>
+        <p>For more detailed help, see our <a href="/help">Help Center</a> or join our <a href="/community">Community Portal</a>.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .guide-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .guide-intro {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #0645ad;
+    }
+    
+    .guide-toc {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .guide-toc ul {
+        columns: 2;
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    .guide-toc li {
+        margin-bottom: 8px;
+    }
+    
+    .guide-toc a {
+        text-decoration: none;
+        color: #0645ad;
+    }
+    
+    .guide-toc a:hover {
+        text-decoration: underline;
+    }
+    
+    .guide-section {
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .guide-section h2 {
+        color: #0645ad;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+        margin-top: 30px;
+    }
+    
+    .guide-section h3 {
+        margin-top: 20px;
+        color: #333;
+    }
+    
+    .wiki-syntax-table {
+        overflow-x: auto;
+    }
+    
+    .wiki-syntax-table table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    
+    .wiki-syntax-table th, 
+    .wiki-syntax-table td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+    }
+    
+    .wiki-syntax-table th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+    
+    .wiki-syntax-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    code {
+        background-color: #f8f9fa;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-family: monospace;
+        word-break: break-all;
+    }
+    
+    .guide-footer {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-top: 40px;
+        text-align: center;
+    }
+</style>
+{% endblock %}

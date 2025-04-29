@@ -1,0 +1,759 @@
+<!-- File: templates/help_formatting.html -->
+{% extends "base.html" %}
+
+{% block title %}Wiki Formatting Guide - Kryptopedia{% endblock %}
+
+{% set active_page = 'help' %}
+
+{% block content %}
+<div class="formatting-container">
+    <h1>Wiki Formatting Guide</h1>
+    
+    <div class="formatting-intro">
+        <p>This guide provides detailed information on how to format content in Kryptopedia using wiki markup. Proper formatting creates consistent, readable articles that are easy to navigate.</p>
+    </div>
+    
+    <div class="formatting-toc">
+        <h2>Table of Contents</h2>
+        <ul>
+            <li><a href="#text-formatting">Text Formatting</a></li>
+            <li><a href="#paragraphs">Paragraphs and Line Breaks</a></li>
+            <li><a href="#headings">Headings and Sections</a></li>
+            <li><a href="#links">Links</a></li>
+            <li><a href="#lists">Lists</a></li>
+            <li><a href="#tables">Tables</a></li>
+            <li><a href="#images">Images and Media</a></li>
+            <li><a href="#templates">Templates</a></li>
+            <li><a href="#references">References and Citations</a></li>
+            <li><a href="#advanced">Advanced Formatting</a></li>
+        </ul>
+    </div>
+    
+    <div id="text-formatting" class="formatting-section">
+        <h2>Text Formatting</h2>
+        <p>Format text to emphasize important information or improve readability.</p>
+        
+        <div class="example-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Wiki Syntax</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bold</td>
+                        <td><code>'''Bold text'''</code></td>
+                        <td><strong>Bold text</strong></td>
+                    </tr>
+                    <tr>
+                        <td>Italic</td>
+                        <td><code>''Italic text''</code></td>
+                        <td><em>Italic text</em></td>
+                    </tr>
+                    <tr>
+                        <td>Bold and Italic</td>
+                        <td><code>'''''Bold and italic'''''</code></td>
+                        <td><strong><em>Bold and italic</em></strong></td>
+                    </tr>
+                    <tr>
+                        <td>Underline</td>
+                        <td><code>&lt;u&gt;Underlined text&lt;/u&gt;</code></td>
+                        <td><u>Underlined text</u></td>
+                    </tr>
+                    <tr>
+                        <td>Strikethrough</td>
+                        <td><code>&lt;s&gt;Strikethrough text&lt;/s&gt;</code></td>
+                        <td><s>Strikethrough text</s></td>
+                    </tr>
+                    <tr>
+                        <td>Superscript</td>
+                        <td><code>&lt;sup&gt;Superscript&lt;/sup&gt;</code></td>
+                        <td>x<sup>2</sup></td>
+                    </tr>
+                    <tr>
+                        <td>Subscript</td>
+                        <td><code>&lt;sub&gt;Subscript&lt;/sub&gt;</code></td>
+                        <td>H<sub>2</sub>O</td>
+                    </tr>
+                    <tr>
+                        <td>Code/Monospace</td>
+                        <td><code>&lt;code&gt;Monospace text&lt;/code&gt;</code></td>
+                        <td><code>Monospace text</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="format-tip">
+            <h3>Formatting Tips:</h3>
+            <ul>
+                <li>Use bold for first mentions of the article topic and important terms</li>
+                <li>Use italics for terms from other languages, book/publication titles, or emphasis</li>
+                <li>Avoid excessive formatting that can make text harder to read</li>
+                <li>Use underline sparingly as it can be confused with hyperlinks</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="paragraphs" class="formatting-section">
+        <h2>Paragraphs and Line Breaks</h2>
+        <p>Properly structuring text into paragraphs improves readability.</p>
+        
+        <h3>Paragraphs</h3>
+        <p>To create a new paragraph, leave a blank line between text blocks:</p>
+        <div class="code-example">
+            <pre>This is the first paragraph.
+
+This is the second paragraph.</pre>
+        </div>
+        <div class="result-example">
+            <p>This is the first paragraph.</p>
+            <p>This is the second paragraph.</p>
+        </div>
+        
+        <h3>Line Breaks</h3>
+        <p>To create a line break without starting a new paragraph, use the <code>&lt;br&gt;</code> tag:</p>
+        <div class="code-example">
+            <pre>This is the first line.&lt;br&gt;
+This is the second line in the same paragraph.</pre>
+        </div>
+        <div class="result-example">
+            <p>This is the first line.<br>
+            This is the second line in the same paragraph.</p>
+        </div>
+        
+        <h3>Indentation</h3>
+        <p>To indent text, use the colon character:</p>
+        <div class="code-example">
+            <pre>Normal text.
+:Indented once.
+::Indented twice.
+:::Indented three times.</pre>
+        </div>
+        <div class="result-example">
+            <p>Normal text.</p>
+            <p style="margin-left:20px">Indented once.</p>
+            <p style="margin-left:40px">Indented twice.</p>
+            <p style="margin-left:60px">Indented three times.</p>
+        </div>
+    </div>
+    
+    <div id="headings" class="formatting-section">
+        <h2>Headings and Sections</h2>
+        <p>Use headings to organize content into logical sections.</p>
+        
+        <div class="example-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>Wiki Syntax</th>
+                        <th>Use For</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Level 1</td>
+                        <td><code>= Heading 1 =</code></td>
+                        <td>Page title (rarely used in the article body)</td>
+                    </tr>
+                    <tr>
+                        <td>Level 2</td>
+                        <td><code>== Heading 2 ==</code></td>
+                        <td>Main sections of an article</td>
+                    </tr>
+                    <tr>
+                        <td>Level 3</td>
+                        <td><code>=== Heading 3 ===</code></td>
+                        <td>Subsections</td>
+                    </tr>
+                    <tr>
+                        <td>Level 4</td>
+                        <td><code>==== Heading 4 ====</code></td>
+                        <td>Sub-subsections</td>
+                    </tr>
+                    <tr>
+                        <td>Level 5</td>
+                        <td><code>===== Heading 5 =====</code></td>
+                        <td>Rarely needed level</td>
+                    </tr>
+                    <tr>
+                        <td>Level 6</td>
+                        <td><code>====== Heading 6 ======</code></td>
+                        <td>Rarely needed level</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="format-tip">
+            <h3>Heading Tips:</h3>
+            <ul>
+                <li>Start with Level 2 headings for main sections</li>
+                <li>Don't skip heading levels (e.g., don't jump from Level 2 to Level 4)</li>
+                <li>Ensure headings are descriptive but concise</li>
+                <li>Proper headings automatically generate a table of contents</li>
+                <li>Use sentence case for headings (capitalize only the first word and proper nouns)</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="links" class="formatting-section">
+        <h2>Links</h2>
+        <p>Links connect articles and provide references to internal and external resources.</p>
+        
+        <h3>Internal Links</h3>
+        <p>To link to another page within Kryptopedia:</p>
+        <div class="example-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Wiki Syntax</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Basic link</td>
+                        <td><code>[[Article Title]]</code></td>
+                        <td><a href="#">Article Title</a></td>
+                    </tr>
+                    <tr>
+                        <td>Link with different display text</td>
+                        <td><code>[[Article Title|Display Text]]</code></td>
+                        <td><a href="#">Display Text</a></td>
+                    </tr>
+                    <tr>
+                        <td>Link to a section</td>
+                        <td><code>[[Article Title#Section Name]]</code></td>
+                        <td><a href="#">Article Title</a> (links to specific section)</td>
+                    </tr>
+                    <tr>
+                        <td>Link to a section with display text</td>
+                        <td><code>[[Article Title#Section Name|Display Text]]</code></td>
+                        <td><a href="#">Display Text</a> (links to specific section)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h3>External Links</h3>
+        <p>To link to external websites:</p>
+        <div class="example-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Wiki Syntax</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Basic external link</td>
+                        <td><code>[https://example.com]</code></td>
+                        <td><a href="https://example.com">https://example.com</a></td>
+                    </tr>
+                    <tr>
+                        <td>External link with display text</td>
+                        <td><code>[https://example.com Display Text]</code></td>
+                        <td><a href="https://example.com">Display Text</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="format-tip">
+            <h3>Link Tips:</h3>
+            <ul>
+                <li>Use internal links to connect related articles</li>
+                <li>Don't over-link—typically link the first mention of a term in an article</li>
+                <li>Ensure the link text makes the destination clear</li>
+                <li>For external links, prioritize reliable and stable sources</li>
+                <li>Group external links in a dedicated "External Links" section at the end of the article</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="lists" class="formatting-section">
+        <h2>Lists</h2>
+        <p>Lists organize information in an easy-to-read format.</p>
+        
+        <h3>Bullet Lists</h3>
+        <p>For unordered lists, use asterisks (*):</p>
+        <div class="code-example">
+            <pre>* First item
+* Second item
+* Third item
+** Indented sub-item
+** Another sub-item
+* Fourth item</pre>
+        </div>
+        <div class="result-example">
+            <ul>
+                <li>First item</li>
+                <li>Second item</li>
+                <li>Third item
+                    <ul>
+                        <li>Indented sub-item</li>
+                        <li>Another sub-item</li>
+                    </ul>
+                </li>
+                <li>Fourth item</li>
+            </ul>
+        </div>
+        
+        <h3>Numbered Lists</h3>
+        <p>For ordered lists, use hash symbols (#):</p>
+        <div class="code-example">
+            <pre># First item
+# Second item
+# Third item
+## Indented sub-item
+## Another sub-item
+# Fourth item</pre>
+        </div>
+        <div class="result-example">
+            <ol>
+                <li>First item</li>
+                <li>Second item</li>
+                <li>Third item
+                    <ol>
+                        <li>Indented sub-item</li>
+                        <li>Another sub-item</li>
+                    </ol>
+                </li>
+                <li>Fourth item</li>
+            </ol>
+        </div>
+        
+        <h3>Definition Lists</h3>
+        <p>For definition lists (term and definition pairs):</p>
+        <div class="code-example">
+            <pre>; Term 1 : Definition 1
+; Term 2 : Definition 2
+; Term 3 : Definition 3</pre>
+        </div>
+        <div class="result-example">
+            <dl>
+                <dt>Term 1</dt>
+                <dd>Definition 1</dd>
+                <dt>Term 2</dt>
+                <dd>Definition 2</dd>
+                <dt>Term 3</dt>
+                <dd>Definition 3</dd>
+            </dl>
+        </div>
+        
+        <div class="format-tip">
+            <h3>List Tips:</h3>
+            <ul>
+                <li>Use bullet lists for items with no particular order</li>
+                <li>Use numbered lists for sequential items or steps</li>
+                <li>Keep list items parallel in structure (e.g., all start with verbs or all are nouns)</li>
+                <li>Avoid excessive nesting, which can make lists hard to read</li>
+                <li>End each list item with proper punctuation if it's a complete sentence</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="tables" class="formatting-section">
+        <h2>Tables</h2>
+        <p>Tables organize data into rows and columns.</p>
+        
+        <h3>Basic Table</h3>
+        <p>Create a simple table:</p>
+        <div class="code-example">
+            <pre>{| class="wikitable"
+|+ Caption (optional)
+! Header 1 !! Header 2 !! Header 3
+|-
+| Row 1, Cell 1 || Row 1, Cell 2 || Row 1, Cell 3
+|-
+| Row 2, Cell 1 || Row 2, Cell 2 || Row 2, Cell 3
+|-
+| Row 3, Cell 1 || Row 3, Cell 2 || Row 3, Cell 3
+|}</pre>
+        </div>
+        <div class="result-example">
+            <table class="example-wikitable">
+                <caption>Caption (optional)</caption>
+                <thead>
+                    <tr>
+                        <th>Header 1</th>
+                        <th>Header 2</th>
+                        <th>Header 3</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Row 1, Cell 1</td>
+                        <td>Row 1, Cell 2</td>
+                        <td>Row 1, Cell 3</td>
+                    </tr>
+                    <tr>
+                        <td>Row 2, Cell 1</td>
+                        <td>Row 2, Cell 2</td>
+                        <td>Row 2, Cell 3</td>
+                    </tr>
+                    <tr>
+                        <td>Row 3, Cell 1</td>
+                        <td>Row 3, Cell 2</td>
+                        <td>Row 3, Cell 3</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h3>Table Elements Explained</h3>
+        <ul>
+            <li><code>{|</code> - Table start</li>
+            <li><code>|+</code> - Caption (optional)</li>
+            <li><code>!</code> - Header cell</li>
+            <li><code>!!</code> - Additional header cell in the same row</li>
+            <li><code>|-</code> - Row break</li>
+            <li><code>|</code> - Data cell</li>
+            <li><code>||</code> - Additional data cell in the same row</li>
+            <li><code>|}</code> - Table end</li>
+        </ul>
+        
+        <h3>Advanced Table Features</h3>
+        <p>Additional table formatting options:</p>
+        <ul>
+            <li>Cell spanning: <code>| colspan="2" | Cell spanning two columns</code></li>
+            <li>Row spanning: <code>| rowspan="2" | Cell spanning two rows</code></li>
+            <li>Cell alignment: <code>| style="text-align: center;" | Centered text</code></li>
+            <li>Background color: <code>| style="background-color: #f0f0f0;" | Shaded cell</code></li>
+            <li>Sortable tables: Add <code>class="wikitable sortable"</code> to make columns sortable</li>
+        </ul>
+        
+        <div class="format-tip">
+            <h3>Table Tips:</h3>
+            <ul>
+                <li>Use tables for data that benefits from columnar organization</li>
+                <li>Include clear headers for each column</li>
+                <li>Keep tables as simple as possible for readability</li>
+                <li>Use the table editor tool in the wiki editor toolbar for easier creation</li>
+                <li>Consider whether the information could be better presented in a different format</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="images" class="formatting-section">
+        <h2>Images and Media</h2>
+        <p>Images enhance articles by providing visual information.</p>
+        
+        <h3>Basic Image Syntax</h3>
+        <div class="example-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Wiki Syntax</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Basic image</td>
+                        <td><code>[[File:example.jpg]]</code></td>
+                    </tr>
+                    <tr>
+                        <td>Image with caption</td>
+                        <td><code>[[File:example.jpg|Caption text]]</code></td>
+                    </tr>
+                    <tr>
+                        <td>Thumbnail with caption</td>
+                        <td><code>[[File:example.jpg|thumb|Caption text]]</code></td>
+                    </tr>
+                    <tr>
+                        <td>Resized image</td>
+                        <td><code>[[File:example.jpg|width=300px|Caption text]]</code></td>
+                    </tr>
+                    <tr>
+                        <td>Aligned image</td>
+                        <td><code>[[File:example.jpg|right|Caption text]]</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h3>Image Parameters</h3>
+        <p>Common parameters for image formatting:</p>
+        <ul>
+            <li><code>thumb</code> - Creates a thumbnail with caption</li>
+            <li><code>right</code>, <code>left</code>, or <code>center</code> - Controls image alignment</li>
+            <li><code>width=300px</code> - Sets the image width (height adjusts proportionally)</li>
+            <li><code>upright</code> - Adjusts image size to a standard thumbnail size (with thumb)</li>
+            <li><code>border</code> - Adds a border around the image</li>
+            <li><code>frameless</code> - Removes the frame but keeps the caption</li>
+        </ul>
+        
+        <h3>Galleries</h3>
+        <p>For displaying multiple images in a grid:</p>
+        <div class="code-example">
+            <pre>&lt;gallery&gt;
+File:example1.jpg|Caption 1
+File:example2.jpg|Caption 2
+File:example3.jpg|Caption 3
+&lt;/gallery&gt;</pre>
+        </div>
+        
+        <div class="format-tip">
+            <h3>Image Tips:</h3>
+            <ul>
+                <li>Upload images before trying to add them to articles</li>
+                <li>Use descriptive filenames that reflect the image content</li>
+                <li>Add appropriate alt text for accessibility</li>
+                <li>Use thumbnails for most images in articles</li>
+                <li>Keep file sizes reasonable (typically under 1MB)</li>
+                <li>Ensure you have rights to use any images you upload</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="templates" class="formatting-section">
+        <h2>Templates</h2>
+        <p>Templates are pre-formatted elements that can be inserted into articles.</p>
+        
+        <h3>Basic Template Syntax</h3>
+        <div class="code-example">
+            <pre>{{Template name}}</pre>
+        </div>
+        
+        <h3>Templates with Parameters</h3>
+        <div class="code-example">
+            <pre>{{Template name|parameter1=value1|parameter2=value2}}</pre>
+        </div>
+        
+        <h3>Common Templates</h3>
+        <div class="example-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Template</th>
+                        <th>Syntax</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Short Description</td>
+                        <td><code>{{Short description|Brief description}}</code></td>
+                        <td>Adds a brief description at the top of the article</td>
+                    </tr>
+                    <tr>
+                        <td>Infobox</td>
+                        <td><code>{{Infobox|title=Title|param1=value1}}</code></td>
+                        <td>Creates a standardized information box</td>
+                    </tr>
+                    <tr>
+                        <td>Quote</td>
+                        <td><code>{{Quote|text=Quote text|author=Author}}</code></td>
+                        <td>Formats a blockquote with attribution</td>
+                    </tr>
+                    <tr>
+                        <td>Notice</td>
+                        <td><code>{{Notice|type=note|text}}</code></td>
+                        <td>Displays a notice/warning box</td>
+                    </tr>
+                    <tr>
+                        <td>Reflist</td>
+                        <td><code>{{Reflist}}</code></td>
+                        <td>Displays the references list</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="format-tip">
+            <h3>Template Tips:</h3>
+            <ul>
+                <li>Use the template gallery in the editor toolbar to browse available templates</li>
+                <li>Templates help maintain consistent formatting across articles</li>
+                <li>Check template documentation for required and optional parameters</li>
+                <li>Test templates in the preview mode before saving</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="references" class="formatting-section">
+        <h2>References and Citations</h2>
+        <p>References add credibility to your content by citing sources.</p>
+        
+        <h3>Basic Reference</h3>
+        <div class="code-example">
+            <pre>This is a statement that needs a citation.&lt;ref&gt;Author Name, "Article Title", Publication, Date, Page.&lt;/ref&gt;</pre>
+        </div>
+        <div class="result-example">
+            <p>This is a statement that needs a citation.<sup>[1]</sup></p>
+        </div>
+        
+        <h3>Named References</h3>
+        <p>For citing the same source multiple times:</p>
+        <div class="code-example">
+            <pre>First citation.&lt;ref name="smith"&gt;John Smith, "Example Article", Journal, 2023, p. 42.&lt;/ref&gt;
+Later in the text.&lt;ref name="smith" /&gt;</pre>
+        </div>
+        <div class="result-example">
+            <p>First citation.<sup>[1]</sup><br>
+            Later in the text.<sup>[1]</sup></p>
+        </div>
+        
+        <h3>Citation Templates</h3>
+        <p>For formatted citations:</p>
+        <div class="code-example">
+            <pre>&lt;ref&gt;{{cite web|title=Page Title|url=https://example.com|website=Website Name|access-date=2025-04-14}}&lt;/ref&gt;</pre>
+        </div>
+        
+        <h3>Reference List</h3>
+        <p>To display all references, add this at the end of the article:</p>
+        <div class="code-example">
+            <pre>== References ==
+&lt;references /&gt;</pre>
+        </div>
+        
+        <div class="format-tip">
+            <h3>Reference Tips:</h3>
+            <ul>
+                <li>Use references for all factual claims, especially on controversial topics</li>
+                <li>Place reference tags directly after the punctuation they support</li>
+                <li>Use named references to avoid duplicating the same citation</li>
+                <li>Include complete information in citations (author, title, date, source)</li>
+                <li>Use citation templates for consistent formatting</li>
+                <li>Always include a References section at the end of the article</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div id="advanced" class="formatting-section">
+        <h2>Advanced Formatting</h2>
+        <p>These advanced techniques can enhance your articles further.</p>
+        
+        <h3>Collapsible Sections</h3>
+        <div class="code-example">
+            <pre>{{Collapse|
+Title=Collapsible Section Title
+|content=This content will be hidden by default and can be expanded by clicking the title.
+}}</pre>
+        </div>
+        
+        <h3>Math Formulas</h3>
+        <div class="code-example">
+            <pre>&lt;math&gt;E = mc^2&lt;/math&gt;</pre>
+        </div>
+        <div class="result-example">
+            <p>E = mc<sup>2</sup> (rendered with LaTeX in the actual wiki)</p>
+        </div>
+        
+        <h3>Code Blocks</h3>
+        <div class="code-example">
+            <pre>&lt;code&gt;
+function example() {
+    return "This is code formatting";
+}
+&lt;/code&gt;</pre>
+        </div>
+        <div class="result-example">
+            <code>
+function example() {
+    return "This is code formatting";
+}
+            </code>
+        </div>
+        
+        <h3>Table of Contents Control</h3>
+        <div class="code-example">
+            <pre>__TOC__ <!-- Force TOC placement here -->
+__NOTOC__ <!-- Disable TOC -->
+__FORCETOC__ <!-- Force TOC even with few headings --></pre>
+        </div>
+        
+        <h3>Categories</h3>
+        <p>Categories are now added through the category field in the editor interface. Historically, they could be added with:</p>
+        <div class="code-example">
+            <pre>[[Category:Category Name]]</pre>
+        </div>
+        
+        <div class="format-tip">
+            <h3>Advanced Formatting Tips:</h3>
+            <ul>
+                <li>Use advanced formatting sparingly and only when it enhances the content</li>
+                <li>Test advanced features in the preview mode to ensure they render correctly</li>
+                <li>Consider whether simpler formatting could achieve the same purpose</li>
+                <li>Check the help documentation for details on specialized formatting options</li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="formatting-footer">
+        <p>For further assistance with formatting, visit our <a href="/help">Help Center</a> or ask in the <a href="/community/forum">Community Forum</a>.</p>
+        <p>You can also view the source of existing well-formatted articles to see examples of effective wiki markup.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .formatting-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .formatting-intro {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-left: 4px solid #0645ad;
+    }
+    
+    .formatting-toc {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+    }
+    
+    .formatting-toc ul {
+        columns: 2;
+        list-style-type: none;
+        padding-left: 0;
+    }
+    
+    @media (max-width: 600px) {
+        .formatting-toc ul {
+            columns: 1;
+        }
+    }
+    
+    .formatting-toc li {
+        margin-bottom: 8px;
+    }
+    
+    .formatting-toc a {
+        text-decoration: none;
+        color: #0645ad;
+    }
+    
+    .formatting-toc a:hover {
+        text-decoration: underline;
+    }
+    
+    .formatting-section {
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .formatting-section h2 {
+        color: #0645ad;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+        margin-top: 30px;
+    }
+    
+    .formatting-section h3

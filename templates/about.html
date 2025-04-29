@@ -1,11 +1,56 @@
-<h2>What is Kryptopedia?</h2>
+{% extends "base.html" %}
 
-<p>Kryptopedia is a wiki-style platform where users can:</p>
+{% block title %}About Kryptopedia{% endblock %}
 
-<ul>
+{% set active_page = 'about' %}
+
+{% block content %}
+<div class="page-header">
+    <h1>About Kryptopedia</h1>
+</div>
+
+<div class="about-section">
+    <h2>What is Kryptopedia?</h2>
+    <p>Kryptopedia is a decentralized knowledge base focused on cryptocurrency, blockchain technology, digital privacy, and economic freedom. Our platform combines the collaborative power of a wiki with blockchain-based incentives to create a trustworthy, community-driven information resource.</p>
+    
+    <p>Unlike traditional encyclopedias that rely on centralized authority, Kryptopedia empowers individuals to contribute, verify, and be rewarded for their knowledge in a transparent ecosystem that values accuracy, relevance, and individual sovereignty.</p>
+</div>
+
+<div class="about-section">
+    <h2>How We're Different</h2>
+    <ul>
     <li>Create and edit articles on various topics</li>
     <li>Organize content with categories and tags</li>
     <li>Collaborate through proposals and edits</li>
     <li>Reward valuable contributions</li>
     <li>Upload and share media files</li>
-</ul>
+    </ul>
+</div>
+
+<div class="about-section">
+    <h2>What we do</h2>
+    <ul>
+        <li><strong>Blockchain-Based Incentives:</strong> Contributors are rewarded with tokens for valuable additions and corrections, creating an ecosystem that naturally promotes quality content.</li>
+        <li><strong>Decentralized Governance:</strong> Community members have a say in content policies and platform development, preventing any single entity from controlling the narrative.</li>
+        <li><strong>Transparency By Design:</strong> All edits, revisions, and rewards are recorded on a public ledger, ensuring complete visibility into how content evolves.</li>
+        <li><strong>Privacy-Focused:</strong> Users can contribute under pseudonyms while still building reputation, emphasizing ideas over identities.</li>
+        <li><strong>Resistant to Censorship:</strong> Content is distributed across multiple nodes, making it resilient against attempts to suppress information.</li>
+    </ul>
+</div>
+
+<div class="about-section">
+    <h2>Our Community</h2>
+    <p>Kryptopedia thrives thanks to its diverse community of contributors, including:</p>
+    <ul>
+        <li>Blockchain developers and engineers</li>
+        <li>Cryptocurrency investors and traders</li>
+        <li>Economic theorists and free-market advocates</li>
+        <li>Privacy and security specialists</li>
+        <li>Legal and regulatory experts</li>
+        <li>Educators and academic researchers</li>
+        <li>Curious individuals committed to understanding the crypto revolution</li>
+    </ul>
+    <p>We welcome anyone who shares our commitment to knowledge, technological innovation, and individual liberty.</p>
+</div>
+
+{% endblock %}

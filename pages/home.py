@@ -280,3 +280,59 @@ async def contribute_page(request: Request):
         "contribute.html",
         {"request": request}
     )
+
+@router.get("/mission", response_class=HTMLResponse)
+async def mission_page(request: Request):
+    """
+    Render the mission page.
+    """
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "mission.html",
+        {"request": request}
+    )
+
+@router.get("/values", response_class=HTMLResponse)
+async def values_page(request: Request):
+    """
+    Render the values page.
+    """
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "values.html",
+        {"request": request}
+    )
+
+@router.get("/team", response_class=HTMLResponse)
+async def team_page(request: Request):
+    """
+    Render the team page.
+    """
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "team.html",
+        {"request": request}
+    )
+
+@router.get("/rules", response_class=HTMLResponse)
+async def team_page(request: Request):
+    """
+    Render the team page.
+    """
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "community_rules.html",
+        {"request": request}
+    )
+
+@router.get("/guides", response_class=HTMLResponse)
+async def team_page(request: Request):
+    """
+    Render the team page.
+    """
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "editor_guide.html",
+        {"request": request}
+    )
+
