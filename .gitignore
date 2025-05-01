@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.py[cod]
+.DS_Store
 *$py.class
 *.so
 .Python
