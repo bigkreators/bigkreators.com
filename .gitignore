@@ -76,3 +76,15 @@ dist-ssr
 .amplify
 amplify_outputs*
 amplifyconfiguration*
+venv_krypto/bin/activate
+venv_krypto/bin/activate.csh
+venv_krypto/bin/activate.fish
+venv_krypto/bin/Activate.ps1
+venv_krypto/bin/dotenv
+venv_krypto/bin/pip
+venv_krypto/bin/pip3
+venv_krypto/bin/pip3.12
+venv_krypto/bin/python
+venv_krypto/bin/python3
+venv_krypto/bin/python3.12
+venv_krypto/pyvenv.cfg

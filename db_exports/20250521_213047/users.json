@@ -1,0 +1,45 @@
+[
+  {
+    "_id": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "username": "admin",
+    "email": "admin@kryptopedia.local",
+    "role": "admin",
+    "joinDate": {
+      "$date": "2025-04-11T12:54:47.360Z"
+    },
+    "reputation": 100,
+    "contributions": {
+      "articlesCreated": 1,
+      "editsPerformed": 0,
+      "rewardsReceived": 0
+    },
+    "passwordHash": "$2b$12$k5pynkKSrHhNafH61j1BvuM9Dh.lwenya7J1bgkxwoItk0uY1GNbS",
+    "lastLogin": {
+      "$date": "2025-04-13T19:43:14.456Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "67f9efc75f35951c53cfc8d8"
+    },
+    "username": "tom",
+    "email": "tom@timna.org",
+    "passwordHash": "$2b$12$5Q7jqF57MPo95ZtXFGyFt.erOExB1qdXIFjZVg33ATHbEAOYTsUVG",
+    "role": "admin",
+    "joinDate": {
+      "$date": "2025-04-11T21:44:55.092Z"
+    },
+    "reputation": 0,
+    "contributions": {
+      "articlesCreated": 7,
+      "editsPerformed": 17,
+      "rewardsReceived": 0,
+      "upvotesReceived": 2
+    },
+    "lastLogin": {
+      "$date": "2025-05-02T11:42:38.897Z"
+    }
+  }
+]

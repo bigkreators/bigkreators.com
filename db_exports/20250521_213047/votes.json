@@ -1,0 +1,38 @@
+[
+  {
+    "_id": {
+      "$oid": "6803b7ab677e5c31b03512bf"
+    },
+    "articleId": {
+      "$oid": "6801cfbddf73c0c422295c8d"
+    },
+    "userId": {
+      "$oid": "67f9efc75f35951c53cfc8d8"
+    },
+    "voteType": "upvote"
+  },
+  {
+    "_id": {
+      "$oid": "6803ba9fbd34f315776f1bdb"
+    },
+    "articleId": {
+      "$oid": "67fb0c490cc9c8e686f34f07"
+    },
+    "userId": {
+      "$oid": "67f9efc75f35951c53cfc8d8"
+    },
+    "voteType": "upvote"
+  },
+  {
+    "_id": {
+      "$oid": "680ec2b736e67da0e9b11cfe"
+    },
+    "articleId": {
+      "$oid": "67ff27ff5ba5d2b0d2c783f8"
+    },
+    "userId": {
+      "$oid": "67f9efc75f35951c53cfc8d8"
+    },
+    "voteType": "upvote"
+  }
+]

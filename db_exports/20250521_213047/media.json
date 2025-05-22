@@ -1,0 +1,470 @@
+[
+  {
+    "_id": {
+      "$oid": "67fd77ef31b8c9386474bc42"
+    },
+    "filename": "b82aa207-5928-41a6-af5e-84fd275eabb4.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/b82aa207-5928-41a6-af5e-84fd275eabb4.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd77f231b8c9386474bc43"
+    },
+    "filename": "b871491d-834a-415d-8ee4-723f7cd6c102.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/b871491d-834a-415d-8ee4-723f7cd6c102.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd77f231b8c9386474bc44"
+    },
+    "filename": "e9e99468-40c7-4b3c-8b75-c6fc90851521.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/e9e99468-40c7-4b3c-8b75-c6fc90851521.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd77f331b8c9386474bc45"
+    },
+    "filename": "30c7a59b-ed66-41ab-a402-6f9e7b7a156f.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/30c7a59b-ed66-41ab-a402-6f9e7b7a156f.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd77f331b8c9386474bc46"
+    },
+    "filename": "b863b20a-4780-46c6-84c4-6e852942a9d8.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/b863b20a-4780-46c6-84c4-6e852942a9d8.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd77f331b8c9386474bc47"
+    },
+    "filename": "d74001cb-f668-4f11-b937-e29bef472561.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/d74001cb-f668-4f11-b937-e29bef472561.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd781831b8c9386474bc48"
+    },
+    "filename": "7fc9b493-7e4a-4d75-ad17-1c6dcac49da2.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/7fc9b493-7e4a-4d75-ad17-1c6dcac49da2.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd781e31b8c9386474bc49"
+    },
+    "filename": "89bee242-8483-4e14-b124-681dbd507f1f.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/89bee242-8483-4e14-b124-681dbd507f1f.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782631b8c9386474bc4a"
+    },
+    "filename": "a38d72d0-61cf-43a7-a01e-2d35bc7bde91.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/a38d72d0-61cf-43a7-a01e-2d35bc7bde91.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782731b8c9386474bc4b"
+    },
+    "filename": "276338dc-69da-491c-9ce2-cd645984dff5.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/276338dc-69da-491c-9ce2-cd645984dff5.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782731b8c9386474bc4c"
+    },
+    "filename": "20986609-b530-45a9-87b2-9092e62b0089.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/20986609-b530-45a9-87b2-9092e62b0089.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782731b8c9386474bc4d"
+    },
+    "filename": "5d23f686-f523-49a5-a045-bd10f1156985.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/5d23f686-f523-49a5-a045-bd10f1156985.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782831b8c9386474bc4e"
+    },
+    "filename": "c4bec35a-7844-4485-a7f8-25ec62750011.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/c4bec35a-7844-4485-a7f8-25ec62750011.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782831b8c9386474bc4f"
+    },
+    "filename": "447a9878-4325-43ae-83ec-02d0fb00ae1a.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/447a9878-4325-43ae-83ec-02d0fb00ae1a.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782831b8c9386474bc50"
+    },
+    "filename": "a8766d7f-e490-4511-9fcb-a803be69b448.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/a8766d7f-e490-4511-9fcb-a803be69b448.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782831b8c9386474bc51"
+    },
+    "filename": "4f671462-a5d7-4e29-8068-a7366d32962c.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/4f671462-a5d7-4e29-8068-a7366d32962c.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782831b8c9386474bc52"
+    },
+    "filename": "01e154fe-0df1-4d77-945f-4c954d6f16cb.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/01e154fe-0df1-4d77-945f-4c954d6f16cb.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782831b8c9386474bc53"
+    },
+    "filename": "41ef291c-410f-4476-8c8e-332e396952b2.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/41ef291c-410f-4476-8c8e-332e396952b2.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782931b8c9386474bc54"
+    },
+    "filename": "642d196e-25b8-426e-8ae1-67fea98c6791.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/642d196e-25b8-426e-8ae1-67fea98c6791.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782d31b8c9386474bc55"
+    },
+    "filename": "4fad1ac2-b731-445f-8174-660dd17bd877.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/4fad1ac2-b731-445f-8174-660dd17bd877.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782e31b8c9386474bc56"
+    },
+    "filename": "11cf6eee-0d9d-4b99-a322-9950d6c6291f.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/11cf6eee-0d9d-4b99-a322-9950d6c6291f.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782e31b8c9386474bc57"
+    },
+    "filename": "9b273e68-5135-412c-9041-60d816edbfa6.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/9b273e68-5135-412c-9041-60d816edbfa6.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782f31b8c9386474bc58"
+    },
+    "filename": "6e048ead-3fba-4f45-9d4b-0225ca2b7935.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/6e048ead-3fba-4f45-9d4b-0225ca2b7935.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd782f31b8c9386474bc59"
+    },
+    "filename": "612bdbd3-0c5e-4767-818a-bf9576eb9a27.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/612bdbd3-0c5e-4767-818a-bf9576eb9a27.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd79d731b8c9386474bc5a"
+    },
+    "filename": "69e18bc9-82cd-4341-9000-566d512286f1.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/69e18bc9-82cd-4341-9000-566d512286f1.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  },
+  {
+    "_id": {
+      "$oid": "67fd79d831b8c9386474bc5b"
+    },
+    "filename": "25df7cdf-4c3c-4d94-8da1-2b02c2cd8437.ogg",
+    "originalName": "Voiceless_uvular_fricative_trill.ogg",
+    "mimeType": "audio/ogg",
+    "size": 43973,
+    "path": "/media/25df7cdf-4c3c-4d94-8da1-2b02c2cd8437.ogg",
+    "uploadedBy": {
+      "$oid": "67f97387c5fc6faa7485cadb"
+    },
+    "uploadedAt": null,
+    "metadata": {
+      "duration": 0
+    },
+    "usedInArticles": []
+  }
+]
