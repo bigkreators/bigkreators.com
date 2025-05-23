@@ -1,0 +1,20 @@
+[
+  {
+    "_id": {
+      "$oid": "680a62febd3bbf82c74b7556"
+    },
+    "username": "admin",
+    "email": "admin@kryptopedia.local",
+    "role": "admin",
+    "joinDate": {
+      "$date": "2025-04-24T09:12:46.649Z"
+    },
+    "reputation": 100,
+    "contributions": {
+      "articlesCreated": 1,
+      "editsPerformed": 0,
+      "rewardsReceived": 0
+    },
+    "passwordHash": "$2b$12$E2Tz5s6aqyD9UQY7S8XSp.ZAxgAyJhmB5XJSh12Ld9NRlsFEuIKU2"
+  }
+]

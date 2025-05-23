@@ -1,0 +1,14 @@
+{
+  "timestamp": "20250522_090233",
+  "database": "kryptopedia",
+  "collections": [
+    "users",
+    "revisions",
+    "rewards",
+    "articles",
+    "media",
+    "proposals"
+  ],
+  "exported_at": "2025-05-22T09:02:33.123974",
+  "mongo_uri": "mongodb://localhost:27017"
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "_id": {
+      "$oid": "680a62febd3bbf82c74b7557"
+    },
+    "title": "Welcome to Kryptopedia",
+    "slug": "welcome-to-kryptopedia",
+    "content": "\n<h1>Welcome to Kryptopedia!</h1>\n\n<p>Kryptopedia is a collaborative knowledge base dedicated to your favorite topics. Our goal is to create a comprehensive resource where enthusiasts and experts can share information, discoveries, and insights.</p>\n\n<h2>What is Kryptopedia?</h2>\n\n<p>Kryptopedia is a wiki-style platform where users can:</p>\n\n<ul>\n    <li>Create and edit articles on various topics</li>\n    <li>Organize content with categories and tags</li>\n    <li>Collaborate through proposals and edits</li>\n    <li>Reward valuable contributions</li>\n    <li>Upload and share media files</li>\n</ul>\n\n<h2>Getting Started</h2>\n\n<p>To get started with Cryptopedia, you can:</p>\n\n<ol>\n    <li>Browse existing articles to learn about different topics</li>\n    <li>Create an account to contribute your own knowledge</li>\n    <li>Edit or improve existing articles</li>\n    <li>Propose changes to articles you don't have permission to edit directly</li>\n    <li>Create new articles on topics not yet covered</li>\n</ol>\n\n<h2>Special Features</h2>\n\n<h3>The Voiceless Uvular Fricative Trill</h3>\n\n<p>As an example of the kind of specialized content Cryptopedia can host, let's talk about the <strong>voiceless uvular fricative trill</strong>.</p>\n\n<p>This is a rare type of consonantal sound used in some spoken languages. The IPA symbol for it is \u27e8\u0280\u031d\u030a\u27e9, but since this sound is actually a simultaneous [\u03c7] and [\u0280\u0325], it can also be transcribed as \u27e8\u03c7\u0361\u0280\u0325\u27e9.</p>\n\n<p>Most of the languages that are claimed to have a <strong>voiceless uvular fricative</strong> might actually have a <strong>voiceless uvular fricative trill</strong>, since a complication of uvular fricatives is that the shape of the vocal tract may be such that the uvula vibrates.</p>\n\n<h2>How to Contribute</h2>\n\n<p>Ready to contribute? Here's how:</p>\n\n<ol>\n    <li><a href=\"/create-article\">Create a new article</a> on a topic you're knowledgeable about</li>\n    <li>Find an existing article and click \"Edit\" to improve it</li>\n    <li>Upload media files like images or audio to enhance articles</li>\n    <li>Add categories and tags to help organize content</li>\n    <li>Reward other contributors for their valuable additions</li>\n</ol>\n\n<p>We're excited to see what knowledge you'll bring to Cryptopedia!</p>\n    ",
+    "summary": "Introduction to Cryptopedia, its features, and how to contribute",
+    "createdAt": {
+      "$date": "2025-04-24T09:12:46.649Z"
+    },
+    "status": "published",
+    "categories": [
+      "Introduction",
+      "Help"
+    ],
+    "tags": [
+      "welcome",
+      "getting started",
+      "tutorial"
+    ],
+    "views": 52,
+    "metadata": {
+      "hasAudio": false,
+      "hasSpecialSymbols": true,
+      "containsMadeUpContent": false
+    },
+    "featuredUntil": {
+      "$date": "2025-05-24T09:12:46.649Z"
+    },
+    "createdBy": {
+      "$oid": "680a62febd3bbf82c74b7556"
+    }
+  }
+]
