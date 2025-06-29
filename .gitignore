@@ -22,7 +22,6 @@ var/
 *.egg
 
 # Virtual Environment
-venv/
 ENV/
 
 # Media files

@@ -2,7 +2,7 @@
 Security utilities for the Kryptopedia application.
 """
 import bcrypt
-import jwt
+from jose import jwt
 from datetime import datetime, timedelta
 from typing import Dict, Tuple, Optional
 import logging
