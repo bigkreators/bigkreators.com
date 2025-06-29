@@ -2,6 +2,8 @@
 Main entry point for the Kryptopedia application.
 Uses a properly structured approach with separated modules.
 """
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import logging
 from fastapi import FastAPI, Request

@@ -1,7 +1,9 @@
 #!/bin/bash
+# File: start-local.sh
 
-# Kryptopedia - Local Startup Script v0.1
+# Kryptopedia - Local Startup Script v0.2
 # This script starts the Kryptopedia application locally (without Docker)
+# Fixed to properly load .env file
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -27,6 +29,18 @@ check_mongodb() {
         fi
     fi
     return 1
+}
+
+# Function to load environment variables from .env file
+load_env_file() {
+    if [ -f ".env" ]; then
+        echo -e "${YELLOW}Loading environment variables from .env file...${NC}"
+        # Export variables from .env file
+        export $(grep -v '^#' .env | xargs)
+        echo -e "${GREEN}Environment variables loaded.${NC}"
+    else
+        echo -e "${YELLOW}No .env file found. Using defaults.${NC}"
+    fi
 }
 
 # Start MongoDB if it's not running
@@ -93,11 +107,6 @@ check_required_files() {
         missing_files=true
     fi
     
-    if [ ! -f ".env" ]; then
-        echo -e "${RED}.env file not found. Please run setup-kryptopedia.sh first.${NC}"
-        missing_files=true
-    fi
-    
     if [ "$missing_files" = true ]; then
         exit 1
     fi
@@ -138,6 +147,9 @@ start_application() {
 
 # Main function
 main() {
+    # Load environment variables from .env file
+    load_env_file
+    
     # Check required files
     check_required_files
     
