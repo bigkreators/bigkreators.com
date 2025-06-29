@@ -31,9 +31,6 @@ media/
 # MongoDB
 mongodb_data/
 
-# Environment variables
-.env
-
 # IDE
 .idea/
 .vscode/
