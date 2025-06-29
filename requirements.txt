@@ -24,9 +24,6 @@ pydantic-settings==2.1.0
 jinja2==3.1.2
 aiofiles==23.2.1
 
-# CORS and Middleware
-python-cors==1.7.0
-
 # Optional dependencies for enhanced features
 redis==5.0.1
 elasticsearch==8.11.0
