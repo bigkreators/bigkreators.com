@@ -435,7 +435,7 @@ python create_token_modern.py
 #### 5. Configure Environment
 ```bash
 # Add generated variables to .env
-cat .env.wct.generated >> .env
+cat .env.kontrib.generated >> .env
 
 # Or manually add:
 echo "SOLANA_RPC_URL=https://api.devnet.solana.com" >> .env
@@ -743,7 +743,7 @@ A: Smart contracts automatically execute approved proposals. Parameter changes a
 ### Community
 - **Discord**: [BigKreators Community](https://discord.gg/bigkreators)
 - **Twitter**: [@BigKreators](https://twitter.com/BigKreators)
-- **Telegram**: [Kontrib Token Group](https://t.me/wcttoken)
+- **Telegram**: [Kontrib Token Group](https://t.me/kontrib)
 - **GitHub**: [Project Repository](https://github.com/bigkreators/bigkreators.com)
 
 ---

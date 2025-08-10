@@ -740,10 +740,10 @@ def create_token_simple():
         }
         
         # Save configuration
-        with open('wct_token_config.json', 'w') as f:
+        with open('kontrib_token_config.json', 'w') as f:
             json.dump(config, f, indent=2)
         
-        print_success("Configuration saved to wct_token_config.json")
+        print_success("Configuration saved to kontrib_token_config.json")
         
         # Generate .env variables
         env_vars = f"""SOLANA_RPC_URL=https://api.devnet.solana.com
@@ -752,10 +752,10 @@ TOKEN_MINT_ADDRESS={token_mint}
 WEEKLY_TOKEN_POOL=10000.0
 MIN_TOKENS_PER_USER=1.0"""
         
-        with open('.env.wct.generated', 'w') as f:
+        with open('.env.kontrib.generated', 'w') as f:
             f.write(env_vars)
         
-        print_success("Environment variables saved to .env.wct.generated")
+        print_success("Environment variables saved to .env.kontrib.generated")
         
         # Print summary
         print_section("Token Creation Summary")
@@ -776,7 +776,7 @@ if __name__ == "__main__":
     success = create_token_simple()
     if success:
         print_success("Token creation completed successfully!")
-        print_info("Next: Add the variables from .env.wct.generated to your .env file")
+        print_info("Next: Add the variables from .env.kontrib.generated to your .env file")
     else:
         print_error("Token creation failed")
         exit(1)
@@ -919,7 +919,7 @@ echo "3. Create your token:"
 echo "   python create_token_simple.py"
 echo
 echo "4. Add generated environment variables to your .env file:"
-echo "   cat .env.wct.generated >> .env"
+echo "   cat .env.kontrib.generated >> .env"
 echo
 echo "5. Test the integration:"
 echo "   python test_token_simple.py"

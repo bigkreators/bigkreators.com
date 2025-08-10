@@ -254,9 +254,9 @@ async def create_token_modern():
         }
         
         # Save configuration
-        with open('wct_token_config.json', 'w') as f:
+        with open('kontrib_token_config.json', 'w') as f:
             json.dump(config, f, indent=2)
-        print_success("Configuration saved to wct_token_config.json")
+        print_success("Configuration saved to kontrib_token_config.json")
         
         # Generate environment variables
         env_vars = f"""SOLANA_RPC_URL=https://api.devnet.solana.com
@@ -265,9 +265,9 @@ TOKEN_MINT_ADDRESS={token_mint}
 WEEKLY_TOKEN_POOL=10000.0
 MIN_TOKENS_PER_USER=1.0"""
         
-        with open('.env.wct.generated', 'w') as f:
+        with open('.env.kontrib.generated', 'w') as f:
             f.write(env_vars)
-        print_success("Environment variables saved to .env.wct.generated")
+        print_success("Environment variables saved to .env.kontrib.generated")
         
         # Print summary
         print_section("Token Creation Summary")
@@ -280,7 +280,7 @@ MIN_TOKENS_PER_USER=1.0"""
         
         print_section("Next Steps")
         print(f"{YELLOW}1. Add environment variables to your .env file:{NC}")
-        print(f"   cat .env.wct.generated >> .env")
+        print(f"   cat .env.kontrib.generated >> .env")
         print()
         print(f"{YELLOW}2. Test the modern integration:{NC}")
         print(f"   python test_token_modern.py")

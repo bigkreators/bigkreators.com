@@ -83,7 +83,7 @@ async def request_airdrop_if_needed(client, wallet_keypair, min_balance=1.0):
     
     return True
 
-async def create_wct_token():
+async def create_kontrib_token():
     """Create the KONTRIB token on Solana devnet"""
     
     print_section("BigKreators KONTRIB Token Creation")
@@ -187,10 +187,10 @@ async def create_wct_token():
         }
         
         # Save configuration to file
-        with open('wct_token_config.json', 'w') as f:
+        with open('kontrib_token_config.json', 'w') as f:
             json.dump(token_config, f, indent=2)
         
-        print_success("Token configuration saved to wct_token_config.json")
+        print_success("Token configuration saved to kontrib_token_config.json")
         
         # Generate .env variables
         env_vars = f"""
@@ -202,10 +202,10 @@ WEEKLY_TOKEN_POOL=10000.0
 MIN_TOKENS_PER_USER=1.0
 """
         
-        with open('.env.wct.generated', 'w') as f:
+        with open('.env.kontrib.generated', 'w') as f:
             f.write(env_vars.strip())
         
-        print_success("Environment variables saved to .env.wct.generated")
+        print_success("Environment variables saved to .env.kontrib.generated")
         
         # Print summary
         print_section("Token Creation Summary")
@@ -242,7 +242,7 @@ MIN_TOKENS_PER_USER=1.0
 async def main():
     """Main function"""
     try:
-        config = await create_wct_token()
+        config = await create_kontrib_token()
         if config:
             print_success("Token creation completed successfully!")
             return True
