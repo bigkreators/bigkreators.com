@@ -1,4 +1,4 @@
-# Contribution Token (Kontrib) - Complete Documentation
+# BigKreators Contribution Token (KONTRIB) - Complete Documentation
 
 ## Table of Contents
 
@@ -20,9 +20,11 @@
 
 ## Overview
 
-### What is Kontrib?
+### What is KONTRIB?
 
-The **Wiki Contribution Token (Kontrib)** is a Solana-based SPL token that incentivizes and rewards high-quality contributions to the BigKreators wiki platform. Kontrib creates a tokenized economy where contributors earn rewards for creating, editing, and reviewing wiki content.
+The **BigKreators Contribution Token (KONTRIB)** is a Solana-based SPL token that incentivizes and rewards high-quality contributions to the BigKreators wiki platform. KONTRIB creates a tokenized economy where contributors earn rewards for creating, editing, and reviewing wiki content.
+
+**Visual Identity:** The token uses creative Unicode styling (K̡̓ontrib, ᶄ̓ontrib) for branding while maintaining the professional ASCII symbol "KONTRIB" for technical compatibility.
 
 ### Key Features
 
@@ -37,13 +39,32 @@ The **Wiki Contribution Token (Kontrib)** is a Solana-based SPL token that incen
 
 | Property | Value |
 |----------|-------|
-| **Name** | Wiki Contribution Token |
-| **Symbol** | Kontrib |
+| **Name** | BigKreators Contribution Token |
+| **Symbol** | KONTRIB |
 | **Decimals** | 9 |
-| **Total Supply** | 100,000,000 Kontrib |
+| **Total Supply** | 100,000,000 KONTRIB |
 | **Blockchain** | Solana |
 | **Token Standard** | SPL Token |
 | **Network** | Devnet (MVP) → Mainnet |
+
+### Branding Strategy
+
+**Official Token Identity:**
+- **Symbol**: `KONTRIB` (SPL compliant, works everywhere)
+- **Name**: `BigKreators Contribution Token`
+- **Purpose**: Professional DeFi integration
+
+**Visual Branding Identity:**
+- **Stylized Logos**: K̡̓ontrib and ᶄ̓ontrib (Unicode styling)
+- **Community Name**: ᶄ̓ontrib Community
+- **Social Media**: #K̡̓ontrib #ᶄ̓ontrib hashtags
+- **Website Headers**: K̡̓ontrib Token branding
+
+**Why This Dual Strategy:**
+- ✅ **Maximum Compatibility**: ASCII symbol works in all wallets, exchanges, DeFi
+- ✅ **Unique Identity**: Unicode variants create distinctive visual brand
+- ✅ **Professional Standards**: Follows established DeFi token conventions
+- ✅ **Creative Freedom**: Unicode styling for marketing and community
 
 ---
 
@@ -53,11 +74,11 @@ The **Wiki Contribution Token (Kontrib)** is a Solana-based SPL token that incen
 
 | Allocation | Percentage | Amount | Purpose |
 |------------|------------|--------|---------|
-| **Community Rewards** | 60% | 60M Kontrib | Weekly contributor rewards |
-| **Development Fund** | 15% | 15M Kontrib | Platform development |
-| **Team Allocation** | 10% | 10M Kontrib | Core team incentives |
-| **Liquidity Pool** | 10% | 10M Kontrib | DEX liquidity |
-| **Treasury** | 5% | 5M Kontrib | Governance and operations |
+| **Community Rewards** | 60% | 60M KONTRIB | Weekly contributor rewards |
+| **Development Fund** | 15% | 15M KONTRIB | Platform development |
+| **Team Allocation** | 10% | 10M KONTRIB | Core team incentives |
+| **Liquidity Pool** | 10% | 10M KONTRIB | DEX liquidity |
+| **Treasury** | 5% | 5M KONTRIB | Governance and operations |
 
 ### Fee Structure
 
@@ -68,9 +89,9 @@ The **Wiki Contribution Token (Kontrib)** is a Solana-based SPL token that incen
 
 ### Weekly Reward Distribution
 
-- **Pool Size**: 10,000 Kontrib per week (adjustable via governance)
+- **Pool Size**: 10,000 KONTRIB per week (adjustable via governance)
 - **Distribution Method**: Proportional to points earned
-- **Minimum Reward**: 1 Kontrib per qualifying user
+- **Minimum Reward**: 1 KONTRIB per qualifying user
 - **Distribution Day**: Every Monday at 00:00 UTC
 
 ---
@@ -84,7 +105,7 @@ graph TB
     A[BigKreators Wiki] --> B[FastAPI Backend]
     B --> C[MongoDB Database]
     B --> D[Solana Service]
-    D --> E[Kontrib Token Contract]
+    D --> E[KONTRIB Token Contract]
     D --> F[Staking Contract]
     B --> G[Contribution Tracker]
     G --> H[Points Engine]
@@ -103,6 +124,26 @@ graph TB
 - **Database**: MongoDB with Motor (async)
 - **Blockchain**: Solana RPC via Python client
 - **Authentication**: JWT + Wallet signatures
+
+#### Database Schema
+The system extends your existing MongoDB collections and adds new ones:
+
+**Extended Collections:**
+- `users` - Added wallet_address, reputation_score, total_tokens_earned
+- `articles` - Added demand_score, quality_score, contribution_count
+
+**New Collections:**
+- `contributions` - Track all user contributions and points
+- `token_rewards` - Individual user reward records
+- `weekly_distributions` - Weekly reward distribution events
+- `staking_records` - Token staking activities
+- `governance_proposals` - Governance voting and proposals
+- `system_config` - Token system configuration
+
+**Migration Strategy:**
+- Non-destructive: All existing data preserved
+- Backwards compatible: Existing features continue working
+- Automated indices: Performance optimized for token queries
 
 #### Frontend
 - **Base**: Jinja2 templates (existing wiki)
@@ -235,7 +276,7 @@ GET /transactions/{wallet_address}?limit=10
 
 ## Smart Contracts
 
-### Kontrib Token Contract
+### WCT Token Contract
 
 **Program ID**: `9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM` (Devnet)
 
@@ -321,7 +362,7 @@ Total Points = Base Points × Quality Multiplier × Reputation Multiplier × Dem
 #### Process
 1. **Monday 00:00 UTC**: Distribution process begins
 2. **Calculate total points** earned across all users
-3. **Determine point-to-token ratio**: `10,000 Kontrib ÷ Total Points`
+3. **Determine point-to-token ratio**: `10,000 WCT ÷ Total Points`
 4. **Distribute tokens** proportionally to wallets
 5. **Update user records** with reward history
 
@@ -339,10 +380,10 @@ User Tokens = (User Points ÷ Total Points) × Weekly Pool × Staking Multiplier
 
 #### Reward Multipliers
 Staked tokens increase weekly reward multipliers:
-- **1,000+ Kontrib staked**: 1.1x multiplier
-- **5,000+ Kontrib staked**: 1.3x multiplier
-- **10,000+ Kontrib staked**: 1.6x multiplier
-- **25,000+ Kontrib staked**: 2.0x multiplier
+- **1,000+ WCT staked**: 1.1x multiplier
+- **5,000+ WCT staked**: 1.3x multiplier
+- **10,000+ WCT staked**: 1.6x multiplier
+- **25,000+ WCT staked**: 2.0x multiplier
 
 #### Staking Rewards
 Additional APY earned on staked tokens, paid weekly:
@@ -355,9 +396,9 @@ Weekly Staking Reward = (Staked Amount × APY) ÷ 52
 ## Governance
 
 ### Voting Power
-- **1 Kontrib = 1 Vote**
+- **1 KONTRIB = 1 Vote**
 - **Staked tokens = 2x voting power**
-- **Minimum to propose**: 1,000 Kontrib staked
+- **Minimum to propose**: 1,000 KONTRIB staked
 
 ### Proposal Types
 
@@ -378,7 +419,7 @@ Weekly Staking Reward = (Staked Amount × APY) ÷ 52
 - Development grants
 
 ### Voting Process
-1. **Proposal Creation** (requires 1,000 Kontrib staked)
+1. **Proposal Creation** (requires 1,000 WCT staked)
 2. **Discussion Period** (3 days)
 3. **Voting Period** (7 days)
 4. **Execution** (if >50% approval + quorum)
@@ -427,9 +468,28 @@ chmod +x modern_solana_setup.sh
 ./modern_solana_setup.sh
 ```
 
-#### 4. Create Kontrib Token
+#### 4. Run Database Migration
 ```bash
-python create_token_modern.py
+# Migrate your existing MongoDB database for token integration
+python migrate_database.py
+
+# This will:
+# ✅ Preserve all existing data
+# ✅ Add token fields to users and articles
+# ✅ Create new token-related collections
+# ✅ Set up optimized indices
+# ✅ Seed initial configuration data
+```
+
+#### 4. Run Database Migration
+```bash
+# Migrate your existing MongoDB database for token integration
+python migrate_database.py
+```
+
+#### 5. Create KONTRIB Token
+```bash
+python create_kontrib_token.py
 ```
 
 #### 5. Configure Environment
@@ -441,11 +501,12 @@ cat .env.kontrib.generated >> .env
 echo "SOLANA_RPC_URL=https://api.devnet.solana.com" >> .env
 echo "SOLANA_PRIVATE_KEY=your_base58_private_key" >> .env
 echo "TOKEN_MINT_ADDRESS=your_token_mint_address" >> .env
+echo "TOKEN_SYMBOL=KONTRIB" >> .env
 ```
 
 #### 6. Test Integration
 ```bash
-python test_token_modern.py
+python test_kontrib_integration.py
 ```
 
 #### 7. Start Server
@@ -643,14 +704,17 @@ solana transaction-history YOUR_WALLET_ADDRESS
 
 ### General Questions
 
-**Q: What makes Kontrib different from other tokens?**
-A: Kontrib is specifically designed for wiki contributions with automated point tracking, quality assessment, and reputation-based multipliers. It's not just a payment token - it's a comprehensive contribution incentive system.
+**Q: What makes KONTRIB different from other tokens?**
+A: KONTRIB is specifically designed for wiki contributions with automated point tracking, quality assessment, and reputation-based multipliers. It's not just a payment token - it's a comprehensive contribution incentive system.
+
+**Q: Why is the symbol KONTRIB instead of the stylized versions?**
+A: For technical compatibility. The official symbol "KONTRIB" works in all wallets, exchanges, and DeFi protocols. We use the stylized versions (K̡̓ontrib, ᶄ̓ontrib) for visual branding and community identity.
 
 **Q: How are points calculated?**
 A: Points use a multi-factor formula: Base Points × Quality × Reputation × Demand. This ensures high-quality content from experienced users on in-demand topics receives maximum rewards.
 
-**Q: Can I trade Kontrib tokens?**
-A: Yes, Kontrib is a standard SPL token that can be traded on Solana DEXs. However, there's a 2% transfer fee that supports the ecosystem through burns and treasury funding.
+**Q: Can I trade KONTRIB tokens?**
+A: Yes, KONTRIB is a standard SPL token that can be traded on Solana DEXs. However, there's a 2% transfer fee that supports the ecosystem through burns and treasury funding.
 
 ### Technical Questions
 
@@ -669,7 +733,7 @@ A: Unfortunately, blockchain transactions are irreversible. Always backup your s
 A: Every Monday at 00:00 UTC. The system calculates the previous week's contributions and distributes tokens proportionally.
 
 **Q: How do staking multipliers work?**
-A: Staking tokens gives you higher multipliers on weekly rewards. For example, staking 10,000 Kontrib gives you a 1.6x multiplier on all contribution rewards.
+A: Staking tokens gives you higher multipliers on weekly rewards. For example, staking 10,000 KONTRIB gives you a 1.6x multiplier on all contribution rewards.
 
 **Q: Can I unstake early?**
 A: No, staking periods are locked. Early unstaking would undermine the incentive structure. Choose your staking period carefully.
@@ -677,7 +741,7 @@ A: No, staking periods are locked. Early unstaking would undermine the incentive
 ### Governance
 
 **Q: How do I participate in governance?**
-A: Hold Kontrib tokens and participate in proposals. You need 1,000 staked Kontrib to create proposals. All token holders can vote, with staked tokens counting double.
+A: Hold KONTRIB tokens and participate in proposals. You need 1,000 staked KONTRIB to create proposals. All token holders can vote, with staked tokens counting double.
 
 **Q: What can governance change?**
 A: Weekly reward pools, staking rates, point multipliers, platform features, and treasury allocation. Major changes require community consensus.
@@ -743,11 +807,25 @@ A: Smart contracts automatically execute approved proposals. Parameter changes a
 ### Community
 - **Discord**: [BigKreators Community](https://discord.gg/bigkreators)
 - **Twitter**: [@BigKreators](https://twitter.com/BigKreators)
-- **Telegram**: [Kontrib Token Group](https://t.me/kontrib)
+- **Telegram**: [KONTRIB Token Group](https://t.me/kontribtoken)
 - **GitHub**: [Project Repository](https://github.com/bigkreators/bigkreators.com)
+
+### Brand Assets
+
+#### Official Token Identity
+- **Symbol**: KONTRIB
+- **Name**: BigKreators Contribution Token
+- **Logo**: Standard ASCII styling
+
+#### Community Branding
+- **Stylized**: K̡̓ontrib Token
+- **Community**: ᶄ̓ontrib Community
+- **Hashtags**: #KONTRIB #K̡̓ontrib #ᶄ̓ontrib #BigKreators
+- **Visual Identity**: Unicode styling for graphics and social media
 
 ---
 
 *Last Updated: December 2024*
 *Version: 1.0.0*
+*Token: KONTRIB (BigKreators Contribution Token)*
 *Network: Solana Devnet (MVP)*
