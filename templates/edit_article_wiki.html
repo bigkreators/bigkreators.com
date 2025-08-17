@@ -10,6 +10,7 @@
 <ul>
     <li><a href="/articles/{{ article.slug }}">View Article</a></li>
     <li><a href="/articles/{{ article._id }}/history">History</a></li>
+    <li><a href="/articles/{{ article._id }}/move" class="auth-required">Move/Rename Article</a></li>
     <li><a href="/articles">All Articles</a></li>
 </ul>
 
@@ -22,26 +23,52 @@
     <li>Use [https://example.com Text] for external links</li>
     <li>Use * for bullet lists, # for numbered lists</li>
 </ul>
+
+<h3>Anonymous Editing</h3>
+<div id="anonymous-info" style="display: none;">
+    <p><strong>📝 Editing anonymously</strong></p>
+    <p>Your IP address will be recorded with this edit. <a href="#" onclick="showLoginModal()">Log in</a> to edit with your username instead.</p>
+    
+    <h4>As an anonymous user, you can:</h4>
+    <ul>
+        <li>✅ Edit articles</li>
+        <li>✅ Improve content</li>
+        <li>✅ Fix errors</li>
+    </ul>
+    
+    <h4>To unlock more features:</h4>
+    <ul>
+        <li>🔐 Create new articles</li>
+        <li>🔐 Upload files</li>
+        <li>🔐 Earn rewards</li>
+        <li>🔐 Move articles</li>
+    </ul>
+    
+    <p><a href="#" onclick="showLoginModal()" class="primary-button">Create Account</a></p>
+</div>
 {% endblock %}
 
 {% block content %}
 <h1>Edit Article: {{ article.title }}</h1>
 
-<div id="login-message" class="login-required" style="display: none;">
-    <p>You need to be logged in to edit articles.</p>
-    <button id="login-to-edit" class="primary-button">Login</button>
+<!-- Anonymous user notice -->
+<div id="anonymous-notice" class="notice-box" style="display: none;">
+    <p><strong>📝 You're editing anonymously.</strong> Your IP address ({{ user_info.anonymized_ip if user_info and user_info.type == 'anonymous' else 'hidden' }}) will be recorded with this edit.</p>
+    <p><a href="#" onclick="showLoginModal()">Log in</a> or <a href="/register">create an account</a> to edit with your username and access more features.</p>
+</div>
+
+<!-- Authenticated user notice -->
+<div id="authenticated-notice" class="notice-box" style="display: none;">
+    <p><strong>👤 Editing as {{ user_info.display_name if user_info and user_info.type == 'authenticated' else 'user' }}.</strong></p>
 </div>
 
 <div class="status-message error-message" id="error-message"></div>
 <div class="status-message success-message" id="success-message"></div>
 
 <form id="edit-article-form">
+    <!-- Title field removed - title can only be changed via move/rename -->
+    
     <div class="form-section">
-        <div class="form-group">
-            <label for="article-title">Title:</label>
-            <input type="text" id="article-title" name="title" value="{{ article.title }}" required>
-        </div>
-        
         <div class="form-group">
             <label for="article-summary">Summary:</label>
             <textarea id="article-summary" name="summary" rows="3" required>{{ article.summary }}</textarea>
@@ -85,8 +112,15 @@
         <button type="submit" id="save-article" class="primary-button">Save Changes</button>
         <button type="button" id="preview-button" class="preview-button">Show Preview</button>
         <a href="/articles/{{ article.slug }}" class="cancel-button">Cancel</a>
+        <a href="/articles/{{ article._id }}/move" class="secondary-button auth-required">Move/Rename Article</a>
     </div>
 </form>
+
+<!-- Rate limit warning for anonymous users -->
+<div id="rate-limit-warning" class="warning-box" style="display: none;">
+    <p><strong>⚠️ Rate Limit Notice:</strong> Anonymous users are limited to 10 edits per hour to prevent abuse. <a href="#" onclick="showLoginModal()">Create an account</a> for unlimited editing.</p>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -125,122 +159,160 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Check if user is logged in
+    // Check authentication status
     const token = localStorage.getItem('token');
-    const loginMessage = document.getElementById('login-message');
-    const editForm = document.getElementById('edit-article-form');
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
+    const editForm = document.getElementById('edit-article-form');
     
-    // Handle auth state
-    if (!token) {
-        loginMessage.style.display = 'block';
-        editForm.style.display = 'none';
-        
-        // Setup login button
-        document.getElementById('login-to-edit').addEventListener('click', function() {
-            const loginModal = document.getElementById('login-modal');
-            if (loginModal) {
-                loginModal.style.display = 'block';
+    // Determine user type and show appropriate notices
+    let isAuthenticated = false;
+    
+    if (token) {
+        // Check if token is valid
+        fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
+        })
+        .then(response => {
+            if (response.ok) {
+                isAuthenticated = true;
+                document.getElementById('authenticated-notice').style.display = 'block';
+                document.getElementById('anonymous-info').style.display = 'none';
+                
+                // Show auth-required elements
+                document.querySelectorAll('.auth-required').forEach(el => {
+                    el.style.display = 'inline-block';
+                });
+            } else {
+                showAnonymousState();
+            }
+        })
+        .catch(() => {
+            showAnonymousState();
         });
     } else {
-        loginMessage.style.display = 'none';
-        editForm.style.display = 'block';
+        showAnonymousState();
+    }
+    
+    function showAnonymousState() {
+        document.getElementById('anonymous-notice').style.display = 'block';
+        document.getElementById('anonymous-info').style.display = 'block';
+        document.getElementById('rate-limit-warning').style.display = 'block';
         
-        // Preview button functionality is handled by the wiki editor
-        
-        // Handle form submission
-        editForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            let articleTitle = document.getElementById('article-title').value;
-            let articleSummary = document.getElementById('article-summary').value;
-            let articleContent = document.getElementById('article-content').value;
-            
-            const categoriesInput = document.getElementById('article-categories').value;
-            const tagsInput = document.getElementById('article-tags').value;
-            const editComment = document.getElementById('edit-comment').value;
-            
-            // Process categories and tags
-            const categories = categoriesInput.split(',')
-                .map(item => item.trim())
-                .filter(item => item.length > 0);
-                
-            const tags = tagsInput.split(',')
-                .map(item => item.trim())
-                .filter(item => item.length > 0);
-            
-            // Validate
-            if (!articleTitle || !articleSummary || !articleContent) {
-                showError('Please fill in all required fields.');
-                return;
-            }
-            
-            if (!editComment) {
-                showError('Please provide a summary of your changes.');
-                return;
-            }
-            
-            // Prepare data
-            const articleData = {
-                title: articleTitle,
-                summary: articleSummary,
-                content: articleContent,
-                categories: categories,
-                tags: tags,
-                editComment: editComment
-            };
-            
-            // Show loading state
-            const saveButton = document.getElementById('save-article');
-            const originalText = saveButton.textContent;
-            saveButton.innerHTML = '<span class="loading-indicator"></span>Saving...';
-            saveButton.disabled = true;
-            
-            // Send API request
-            fetch('/api/articles/{{ article._id }}', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(articleData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        localStorage.removeItem('token');
-                        throw new Error('Your session has expired. Please log in again.');
-                    }
-                    return response.json().then(data => {
-                        throw new Error(data.detail || 'Failed to update article');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                showSuccess('Article updated successfully!');
-                
-                // Redirect to article view after a delay
-                setTimeout(() => {
-                    window.location.href = `/articles/${data.slug}`;
-                }, 1500);
-            })
-            .catch(error => {
-                console.error('Error updating article:', error);
-                showError(error.message || 'Failed to update article. Please try again.');
-            })
-            .finally(() => {
-                // Reset button state
-                saveButton.innerHTML = originalText;
-                saveButton.disabled = false;
-            });
+        // Hide auth-required elements
+        document.querySelectorAll('.auth-required').forEach(el => {
+            el.style.display = 'none';
         });
     }
     
+    // Handle form submission for both authenticated and anonymous users
+    editForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        let articleSummary = document.getElementById('article-summary').value;
+        let articleContent = document.getElementById('article-content').value;
+        
+        const categoriesInput = document.getElementById('article-categories').value;
+        const tagsInput = document.getElementById('article-tags').value;
+        const editComment = document.getElementById('edit-comment').value;
+        
+        // Process categories and tags
+        const categories = categoriesInput.split(',')
+            .map(item => item.trim())
+            .filter(item => item.length > 0);
+            
+        const tags = tagsInput.split(',')
+            .map(item => item.trim())
+            .filter(item => item.length > 0);
+        
+        // Clear any previous error messages first
+        hideMessages();
+        
+        // Validate - trim whitespace and check for actual content
+        if (!articleSummary.trim() || !articleContent.trim()) {
+            showError('Please fill in all required fields.');
+            return;
+        }
+        
+        if (!editComment.trim()) {
+            showError('Please provide a summary of your changes.');
+            return;
+        }
+        
+        // Prepare data
+        const articleData = {
+            summary: articleSummary,
+            content: articleContent,
+            categories: categories,
+            tags: tags,
+            editComment: editComment
+        };
+        
+        // Show loading state
+        const saveButton = document.getElementById('save-article');
+        const originalText = saveButton.textContent;
+        saveButton.innerHTML = '<span class="loading-indicator"></span>Saving...';
+        saveButton.disabled = true;
+        
+        // Prepare headers - include token if available
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        // Send API request (works for both authenticated and anonymous)
+        fetch('/api/articles/{{ article._id }}', {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(articleData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.detail || 'Failed to update article');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (isAuthenticated) {
+                showSuccess('Article updated successfully!');
+            } else {
+                showSuccess('Article updated successfully! Your edit has been attributed to your IP address.');
+            }
+            
+            // Redirect to article view after a delay
+            setTimeout(() => {
+                window.location.href = `/articles/${data.slug}`;
+            }, 1500);
+        })
+        .catch(error => {
+            console.error('Error updating article:', error);
+            if (error.message.includes('rate limit')) {
+                showError('You have exceeded the rate limit for anonymous edits. Please wait before making more changes, or create an account for unlimited editing.');
+            } else {
+                showError(error.message || 'Failed to update article. Please try again.');
+            }
+        })
+        .finally(() => {
+            // Reset button state
+            saveButton.innerHTML = originalText;
+            saveButton.disabled = false;
+        });
+    });
+    
     // Helper functions
+    function hideMessages() {
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+    }
+    
     function showError(message) {
         errorMessage.textContent = message;
         errorMessage.style.display = 'block';
@@ -251,10 +323,83 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showSuccess(message) {
+        hideMessages();
         successMessage.textContent = message;
         successMessage.style.display = 'block';
-        errorMessage.style.display = 'none';
     }
 });
+
+// Global function to show login modal (called from links)
+function showLoginModal() {
+    const loginModal = document.getElementById('login-modal');
+    if (loginModal) {
+        loginModal.style.display = 'block';
+    } else {
+        // Fallback to redirect to login page
+        window.location.href = '/login';
+    }
+}
 </script>
+
+<style>
+.notice-box {
+    background-color: #f0f8ff;
+    border: 1px solid #0066cc;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+}
+
+.warning-box {
+    background-color: #fff8e1;
+    border: 1px solid #ff9800;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin-top: 20px;
+}
+
+.notice-box a, .warning-box a {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.notice-box a:hover, .warning-box a:hover {
+    text-decoration: underline;
+}
+
+#anonymous-info {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+#anonymous-info h4 {
+    margin: 15px 0 8px 0;
+    color: #333;
+}
+
+#anonymous-info ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+#anonymous-info .primary-button {
+    margin-top: 15px;
+    padding: 8px 16px;
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+}
+
+#anonymous-info .primary-button:hover {
+    background-color: #0052a3;
+}
+</style>
 {% endblock %}

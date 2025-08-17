@@ -71,3 +71,14 @@ async def categories_guide(request: Request):
         {"request": request}
     )
 
+@router.get("/help/deletion-policy", response_class=HTMLResponse)
+async def deletion_policy_page(request: Request):
+    """
+    Render the deletion policy help page.
+    """
+    templates = request.app.state.templates
+    
+    return templates.TemplateResponse(
+        "help/deletion-policy.html",
+        {"request": request}
+    )

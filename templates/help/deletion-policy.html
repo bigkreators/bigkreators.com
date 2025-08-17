@@ -1,0 +1,520 @@
+<!-- File: templates/help/deletion-policy.html (Enhanced with Navigation) -->
+{% extends "base.html" %}
+
+{% block title %}Article Deletion Policy - Kryptopedia{% endblock %}
+
+{% set active_page = 'help' %}
+
+{% block extra_head %}
+<meta name="description" content="Kryptopedia article deletion policy and guidelines for fair deletion requests">
+<meta name="keywords" content="deletion policy, article removal, wiki guidelines, content moderation">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.breadcrumb {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+}
+
+.breadcrumb a {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+
+.policy-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.policy-nav {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.policy-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.policy-nav a {
+    color: #0645ad;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.policy-nav a:hover {
+    text-decoration: underline;
+}
+
+.criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.criteria-card {
+    border-radius: 8px;
+    padding: 25px;
+    border: 2px solid;
+}
+
+.valid-card {
+    background-color: #fff5f5;
+    border-color: #fed7d7;
+}
+
+.invalid-card {
+    background-color: #f0fff4;
+    border-color: #c6f6d5;
+}
+
+.criteria-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.criteria-category {
+    margin-bottom: 25px;
+}
+
+.criteria-category h4 {
+    color: #2d3748;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.criteria-list {
+    list-style: none;
+    padding: 0;
+}
+
+.criteria-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f7fafc;
+    display: flex;
+    align-items: flex-start;
+}
+
+.criteria-list li:last-child {
+    border-bottom: none;
+}
+
+.criteria-icon {
+    margin-right: 10px;
+    margin-top: 2px;
+    font-weight: bold;
+}
+
+.level-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.level-card {
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    border: 2px solid;
+}
+
+.level-1 { background-color: #f0fff4; border-color: #68d391; }
+.level-2 { background-color: #fffbeb; border-color: #f6e05e; }
+.level-3 { background-color: #fed7d7; border-color: #fc8181; }
+.level-4 { background-color: #fed7e2; border-color: #f687b3; }
+
+.level-card h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+}
+
+.level-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.process-steps {
+    background-color: #f7fafc;
+    border-radius: 8px;
+    padding: 30px;
+    margin: 30px 0;
+}
+
+.step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.step:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.step-number {
+    background-color: #667eea;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.step-content h4 {
+    margin: 0 0 8px 0;
+    color: #2d3748;
+}
+
+.step-content p {
+    margin: 0;
+    color: #4a5568;
+}
+
+.example-box {
+    background-color: #edf2f7;
+    border-left: 4px solid #667eea;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.example-box h4 {
+    margin-top: 0;
+    color: #2d3748;
+}
+
+.template-box {
+    background-color: #1a202c;
+    color: #e2e8f0;
+    padding: 20px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    margin: 20px 0;
+    overflow-x: auto;
+}
+
+.highlight {
+    background-color: #fef5e7;
+    border: 1px solid #f6ad55;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+@media (max-width: 768px) {
+    .criteria-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .level-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+    
+    .policy-nav ul {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb Navigation -->
+<nav class="breadcrumb">
+    <a href="/">Home</a> &gt;
+    <a href="/help">Help</a> &gt;
+    <span>Deletion Policy</span>
+</nav>
+
+<div class="policy-header">
+    <h1>Article Deletion Policy</h1>
+    <p style="font-size: 18px; margin: 15px 0 0 0;">Guidelines for fair and consistent article deletion decisions</p>
+</div>
+
+<div class="policy-nav">
+    <h3>Quick Navigation</h3>
+    <ul>
+        <li><a href="#criteria">Deletion Criteria</a></li>
+        <li><a href="#levels">Severity Levels</a></li>
+        <li><a href="#process">Deletion Process</a></li>
+        <li><a href="#template">Request Template</a></li>
+        <li><a href="#examples">Examples</a></li>
+        <li><a href="#appeals">Appeals</a></li>
+    </ul>
+</div>
+
+<section id="criteria">
+    <h2>Deletion Criteria</h2>
+    <p>Articles should only be deleted for specific, objective reasons outlined below. Personal disagreement or opinion is never sufficient grounds for deletion.</p>
+    
+    <div class="criteria-grid">
+        <div class="criteria-card valid-card">
+            <h3>Valid Deletion Reasons</h3>
+            
+            <div class="criteria-category">
+                <h4>Policy Violations</h4>
+                <ul class="criteria-list">
+                    <li><span class="criteria-icon">©️</span> Copyright infringement or plagiarism</li>
+                    <li><span class="criteria-icon">📢</span> Spam, advertising, or promotional content</li>
+                    <li><span class="criteria-icon">⚠️</span> Personal attacks or harassment</li>
+                    <li><span class="criteria-icon">🚫</span> Illegal content or instructions</li>
+                    <li><span class="criteria-icon">🔞</span> Inappropriate content for the platform</li>
+                </ul>
+            </div>
+            
+            <div class="criteria-category">
+                <h4>Quality Issues</h4>
+                <ul class="criteria-list">
+                    <li><span class="criteria-icon">📝</span> No meaningful or substantial content</li>
+                    <li><span class="criteria-icon">🤔</span> Incoherent or nonsensical text</li>
+                    <li><span class="criteria-icon">🧪</span> Test pages or placeholder content</li>
+                    <li><span class="criteria-icon">📋</span> Exact duplicates of existing articles</li>
+                    <li><span class="criteria-icon">🤖</span> Machine-generated spam content</li>
+                </ul>
+            </div>
+            
+            <div class="criteria-category">
+                <h4>Scope Issues</h4>
+                <ul class="criteria-list">
+                    <li><span class="criteria-icon">🎯</span> Content outside wiki scope</li>
+                    <li><span class="criteria-icon">👤</span> Personal blogs or diary entries</li>
+                    <li><span class="criteria-icon">📚</span> Non-encyclopedic content</li>
+                    <li><span class="criteria-icon">🏢</span> Single-purpose promotional accounts</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="criteria-card invalid-card">
+            <h3>Invalid Deletion Reasons</h3>
+            
+            <div class="criteria-category">
+                <h4>Content Disputes</h4>
+                <ul class="criteria-list">
+                    <li><span class="criteria-icon">💭</span> Disagreement with viewpoint or opinion</li>
+                    <li><span class="criteria-icon">🗳️</span> Political bias or partisan disagreement</li>
+                    <li><span class="criteria-icon">🔥</span> Controversial but legitimate topics</li>
+                    <li><span class="criteria-icon">✏️</span> Different writing or formatting styles</li>
+                </ul>
+            </div>
+            
+            <div class="criteria-category">
+                <h4>Fixable Quality Issues</h4>
+                <ul class="criteria-list">
+                    <li><span class="criteria-icon">📝</span> Poor grammar or spelling errors</li>
+                    <li><span class="criteria-icon">📋</span> Incomplete information (can be expanded)</li>
+                    <li><span class="criteria-icon">📅</span> Outdated information (can be updated)</li>
+                    <li><span class="criteria-icon">❓</span> Minor factual errors (can be corrected)</li>
+                </ul>
+            </div>
+            
+            <div class="criteria-category">
+                <h4>Personal Reasons</h4>
+                <ul class="criteria-list">
+                    <li><span class="criteria-icon">😠</span> Dislike of the article author</li>
+                    <li><span class="criteria-icon">✏️</span> Wanting to write your own version</li>
+                    <li><span class="criteria-icon">😴</span> Topic doesn't interest you</li>
+                    <li><span class="criteria-icon">💥</span> Personal conflicts with contributors</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="levels">
+    <h2>Deletion Severity Levels</h2>
+    <p>Use these levels to determine the appropriate action for different types of issues:</p>
+    
+    <div class="level-grid">
+        <div class="level-card level-1">
+            <div class="level-icon">🟢</div>
+            <h4>Level 1: Minor Issues</h4>
+            <p><strong>Action:</strong> Edit and improve</p>
+            <p>Grammar errors, formatting problems, missing citations, incomplete information</p>
+        </div>
+        
+        <div class="level-card level-2">
+            <div class="level-icon">🟡</div>
+            <h4>Level 2: Moderate Issues</h4>
+            <p><strong>Action:</strong> Discuss first</p>
+            <p>Questionable notability, potential copyright issues, unclear scope relevance</p>
+        </div>
+        
+        <div class="level-card level-3">
+            <div class="level-icon">🟠</div>
+            <h4>Level 3: Serious Issues</h4>
+            <p><strong>Action:</strong> Likely deletion</p>
+            <p>Clear policy violations, spam content, duplicate articles, test pages</p>
+        </div>
+        
+        <div class="level-card level-4">
+            <div class="level-icon">🔴</div>
+            <h4>Level 4: Critical Issues</h4>
+            <p><strong>Action:</strong> Immediate deletion</p>
+            <p>Illegal content, harassment, copyright infringement, dangerous content</p>
+        </div>
+    </div>
+</section>
+
+<section id="process">
+    <h2>Deletion Process</h2>
+    
+    <div class="process-steps">
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h4>Consider Alternatives First</h4>
+                <p>Can the article be improved, edited, or merged instead of deleted? Try to fix minor issues before requesting deletion.</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h4>Review Deletion Criteria</h4>
+                <p>Ensure the article meets specific deletion criteria. Personal disagreement is not sufficient grounds for deletion.</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h4>Create Deletion Request</h4>
+                <p>Use the deletion request template below. Provide specific criteria, evidence, and consider alternatives.</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h4>Community Discussion</h4>
+                <p>The community discusses the request, votes, and provides input based on the deletion criteria.</p>
+            </div>
+        </div>
+        
+        <div class="step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                <h4>Resolution</h4>
+                <p>The article author or an administrator resolves the discussion based on community input and deletion criteria.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="template">
+    <h2>Deletion Request Template</h2>
+    <p>Use this template when requesting article deletion to ensure all necessary information is provided:</p>
+    
+    <div class="template-box">
+**Article:** [Article Title and Link]
+**Deletion Criterion:** [Specific reason from criteria above]
+**Severity Level:** [Level 1-4 based on guidelines above]
+**Evidence:** [Specific examples or policy violations]
+**Alternatives Considered:** [What else could be done instead?]
+**Additional Notes:** [Any other relevant information]
+    </div>
+    
+    <div class="highlight">
+        <strong>Tips for Good Deletion Requests:</strong>
+        <ul>
+            <li>Be specific about which criterion applies</li>
+            <li>Provide concrete examples of problems</li>
+            <li>Consider whether improvement is possible</li>
+            <li>Focus on content, not the contributor</li>
+            <li>Cite specific policies when applicable</li>
+        </ul>
+    </div>
+</section>
+
+<section id="examples">
+    <h2>Examples</h2>
+    
+    <div class="example-box">
+        <h4>Good Deletion Request Example</h4>
+        <strong>Article:</strong> "Buy My Awesome Crypto Coin Now!"<br>
+        <strong>Deletion Criterion:</strong> Spam/promotional content (Policy Violation)<br>
+        <strong>Severity Level:</strong> Level 3 (Serious Issues)<br>
+        <strong>Evidence:</strong> Article is purely promotional with no encyclopedic content, contains affiliate links, written in marketing language with phrases like "act now" and "limited time offer"<br>
+        <strong>Alternatives Considered:</strong> Could be rewritten as neutral encyclopedia entry if the cryptocurrency is notable, but no reliable sources found establishing notability<br>
+        <strong>Additional Notes:</strong> Author appears to be project creator based on username and contribution history
+    </div>
+    
+    <div class="example-box">
+        <h4>Poor Deletion Request Example</h4>
+        <strong>Article:</strong> "Climate Change Effects on Agriculture"<br>
+        <strong>Deletion Criterion:</strong> I disagree with the conclusions<br>
+        <strong>Evidence:</strong> The article presents views I don't agree with<br>
+        <strong>Why This Is Poor:</strong> Personal disagreement is not a valid deletion criterion. Controversial topics can remain if they're encyclopedic and well-sourced.
+    </div>
+</section>
+
+<section id="appeals">
+    <h2>Appeals Process</h2>
+    
+    <h3>If Your Article Was Deleted</h3>
+    <ol>
+        <li><strong>Review the deletion reason</strong> - Understand exactly why it was removed</li>
+        <li><strong>Address the issues</strong> - Fix the problems that led to deletion</li>
+        <li><strong>Request undeletion</strong> - Provide evidence that issues are resolved</li>
+        <li><strong>Community review</strong> - Allow the community to assess improvements</li>
+    </ol>
+    
+    <h3>If You Disagree with a Deletion Decision</h3>
+    <ol>
+        <li><strong>Review the deletion discussion</strong> - Understand the reasoning</li>
+        <li><strong>Present new evidence</strong> - Provide information not previously considered</li>
+        <li><strong>Request community review</strong> - Ask for a new discussion</li>
+        <li><strong>Appeal to administrators</strong> - If you believe the process wasn't followed</li>
+    </ol>
+    
+    <div class="highlight">
+        <strong>Remember:</strong> The goal is building a high-quality encyclopedia. Deletion criteria exist to maintain standards while protecting legitimate content from inappropriate removal.
+    </div>
+</section>
+
+<section style="margin-top: 50px; padding: 30px; background-color: #f7fafc; border-radius: 8px;">
+    <h2>Community Guidelines</h2>
+    <p><strong>When participating in deletion discussions:</strong></p>
+    <ul>
+        <li>Focus on the content, not the contributor</li>
+        <li>Cite specific policies and provide evidence</li>
+        <li>Consider alternatives to deletion when possible</li>
+        <li>Be respectful and constructive in discussions</li>
+        <li>Base decisions on criteria, not personal preferences</li>
+    </ul>
+    
+    <p style="text-align: center; margin-top: 30px;">
+        <a href="/help" class="btn btn-primary">Back to Help Center</a>
+        <a href="/special/recentchanges" class="btn btn-outline-primary">View Recent Changes</a>
+    </p>
+</section>
+
+{% endblock %}
