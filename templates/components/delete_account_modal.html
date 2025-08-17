@@ -1,0 +1,400 @@
+<!-- File: templates/components/delete_account_modal.html -->
+<!-- Enhanced account deletion modal with media choice options -->
+<!-- Include this in your user profile template or create as a separate component -->
+<div id="delete-account-modal" class="modal" style="display: none;">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h2>⚠️ Delete Your Account</h2>
+            <span class="close" onclick="closeDeleteAccountModal()">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <div class="warning-section">
+                <div class="warning-box">
+                    <p><strong>This action cannot be undone.</strong></p>
+                    <p>Your account will be permanently deleted, but your contributions will be preserved to maintain the integrity of Kryptopedia.</p>
+                </div>
+            </div>
+            
+            <div class="preservation-info">
+                <h3>📚 What Will Be Preserved (Anonymized)</h3>
+                <ul class="preservation-list">
+                    <li>✅ <strong>Articles you created</strong> - Will show "Deleted User" as author</li>
+                    <li>✅ <strong>Edit history</strong> - Your edits will show "Deleted User"</li>
+                    <li>✅ <strong>Edit proposals</strong> - Will be attributed to "Deleted User"</li>
+                    <li>✅ <strong>Comments/discussions</strong> - Will show "Deleted User"</li>
+                    <li>✅ <strong>Rewards</strong> - Given/received will be anonymized</li>
+                </ul>
+            </div>
+            
+            <div class="media-choice-section">
+                <h3>📁 Your Uploaded Media Files</h3>
+                <div id="media-info">
+                    <p>You have uploaded <span id="media-count">loading...</span> media files (images, audio, documents, etc.)</p>
+                </div>
+                
+                <div class="media-options">
+                    <div class="option-card recommended">
+                        <label class="radio-label">
+                            <input type="radio" name="mediaChoice" value="preserve" checked>
+                            <span class="radio-custom"></span>
+                            <div class="option-content">
+                                <h4>🔒 Preserve with Anonymous Attribution (Recommended)</h4>
+                                <p><strong>Your files stay, but your name is removed.</strong></p>
+                                <ul>
+                                    <li>Media files remain available for articles</li>
+                                    <li>Attribution changes to "Uploaded by Deleted User"</li>
+                                    <li>Protects your privacy while preserving valuable content</li>
+                                    <li>Articles won't break from missing images/audio</li>
+                                </ul>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="option-card">
+                        <label class="radio-label">
+                            <input type="radio" name="mediaChoice" value="delete">
+                            <span class="radio-custom"></span>
+                            <div class="option-content">
+                                <h4>🗑️ Delete All Media Files</h4>
+                                <p><strong>Completely remove all your uploaded files.</strong></p>
+                                <ul>
+                                    <li>All your media files will be permanently deleted</li>
+                                    <li>Articles using your files may show broken images/links</li>
+                                    <li>Maximum privacy protection</li>
+                                    <li><span class="warning-text">⚠️ May impact content quality</span></li>
+                                </ul>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="deletion-info">
+                <h3>🗑️ What Will Be Completely Deleted</h3>
+                <ul class="deletion-list">
+                    <li>❌ <strong>Your user account</strong> - Username, email, password</li>
+                    <li>❌ <strong>Personal preferences</strong> - Settings, bookmarks, favorites</li>
+                    <li>❌ <strong>Private data</strong> - Any personal information</li>
+                    <li>❌ <strong>Profile information</strong> - Bio, location, website</li>
+                </ul>
+            </div>
+            
+            <div class="confirmation-section">
+                <h3>⚡ Final Confirmation</h3>
+                <p>Type <code>DELETE</code> to confirm account deletion:</p>
+                <input type="text" id="delete-confirmation" placeholder="Type DELETE here" maxlength="6">
+            </div>
+            
+            <div class="modal-actions">
+                <button id="confirm-delete-account" class="danger-button" disabled>
+                    Delete My Account Forever
+                </button>
+                <button onclick="closeDeleteAccountModal()" class="cancel-button">
+                    Cancel
+                </button>
+            </div>
+            
+            <div id="deletion-status" class="status-message" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+.modal-content.large {
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.warning-section {
+    margin-bottom: 25px;
+}
+
+.warning-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid #ff9800;
+}
+
+.preservation-info, .media-choice-section, .deletion-info {
+    margin-bottom: 25px;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    background-color: #f8f9fa;
+}
+
+.preservation-list, .deletion-list {
+    margin: 10px 0;
+    padding-left: 0;
+}
+
+.preservation-list li, .deletion-list li {
+    list-style: none;
+    padding: 5px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.preservation-list li:last-child, .deletion-list li:last-child {
+    border-bottom: none;
+}
+
+.media-options {
+    margin: 15px 0;
+}
+
+.option-card {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    margin: 10px 0;
+    transition: all 0.2s ease;
+    background-color: white;
+}
+
+.option-card.recommended {
+    border-color: #28a745;
+    background-color: #f8fff9;
+}
+
+.option-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.15);
+}
+
+.radio-label {
+    display: flex;
+    align-items: flex-start;
+    padding: 15px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.radio-custom {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    margin-right: 15px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.radio-label input[type="radio"] {
+    display: none;
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom {
+    border-color: #007bff;
+    background-color: #007bff;
+}
+
+.radio-label input[type="radio"]:checked + .radio-custom::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+.option-content h4 {
+    margin: 0 0 8px 0;
+    color: #333;
+}
+
+.option-content p {
+    margin: 0 0 10px 0;
+    font-weight: 500;
+    color: #555;
+}
+
+.option-content ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.option-content li {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.warning-text {
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.confirmation-section {
+    background-color: #fff5f5;
+    border: 1px solid #fed7d7;
+    border-radius: 6px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.confirmation-section input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e53e3e;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #e9ecef;
+}
+
+.danger-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.danger-button:enabled:hover {
+    background-color: #c82333;
+}
+
+.danger-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.cancel-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cancel-button:hover {
+    background-color: #5a6268;
+}
+</style>
+
+<script>
+// Load user's media count when modal opens
+async function loadUserMediaInfo() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    
+    try {
+        const response = await fetch('/api/media/my-uploads', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            document.getElementById('media-count').textContent = `${data.count} files`;
+        } else {
+            document.getElementById('media-count').textContent = 'unknown number of';
+        }
+    } catch (error) {
+        console.error('Error loading media info:', error);
+        document.getElementById('media-count').textContent = 'unknown number of';
+    }
+}
+
+// Show delete account modal
+function showDeleteAccountModal() {
+    document.getElementById('delete-account-modal').style.display = 'block';
+    loadUserMediaInfo();
+}
+
+// Close delete account modal
+function closeDeleteAccountModal() {
+    document.getElementById('delete-account-modal').style.display = 'none';
+    document.getElementById('delete-confirmation').value = '';
+    document.getElementById('confirm-delete-account').disabled = true;
+}
+
+// Handle confirmation input
+document.getElementById('delete-confirmation').addEventListener('input', function() {
+    const confirmButton = document.getElementById('confirm-delete-account');
+    confirmButton.disabled = this.value !== 'DELETE';
+});
+
+// Handle account deletion
+document.getElementById('confirm-delete-account').addEventListener('click', async function() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        showStatus('You must be logged in to delete your account', 'error');
+        return;
+    }
+    
+    // Get user's choice about media
+    const mediaChoice = document.querySelector('input[name="mediaChoice"]:checked').value;
+    const deleteMedia = mediaChoice === 'delete';
+    
+    // Show loading state
+    const button = this;
+    const originalText = button.textContent;
+    button.textContent = 'Deleting Account...';
+    button.disabled = true;
+    
+    try {
+        const response = await fetch(`/api/auth/me?delete_media=${deleteMedia}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Clear token
+            localStorage.removeItem('token');
+            document.cookie = 'token=; path=/; max-age=0';
+            
+            // Show success message
+            showStatus(`Account deleted successfully. ${data.media_handling.action === 'deleted' ? 'All media files were deleted.' : 'Media files were preserved with anonymous attribution.'}`, 'success');
+            
+            // Redirect after delay
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 3000);
+            
+        } else {
+            const error = await response.json();
+            showStatus(error.detail || 'Failed to delete account', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        showStatus('Network error. Please try again.', 'error');
+    } finally {
+        button.textContent = originalText;
+        button.disabled = false;
+    }
+});
+
+function showStatus(message, type) {
+    const statusDiv = document.getElementById('deletion-status');
+    statusDiv.className = `status-message ${type}`;
+    statusDiv.textContent = message;
+    statusDiv.style.display = 'block';
+}
+</script>
