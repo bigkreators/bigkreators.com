@@ -146,10 +146,17 @@ The system extends your existing MongoDB collections and adds new ones:
 - Automated indices: Performance optimized for token queries
 
 #### Frontend
-- **Base**: Jinja2 templates (existing wiki)
-- **Token Features**: React components
-- **Wallet**: Solana wallet adapters
-- **Styling**: Tailwind CSS
+- **Base Templates**: Jinja2 templates (existing BigKreators wiki system)
+- **Token Features**: Integrated JavaScript components within existing templates
+- **Wallet Integration**: Solana wallet adapters via CDN scripts
+- **Styling**: CSS extensions to existing BigKreators stylesheets
+- **Architecture**: Server-side rendering with progressive enhancement
+
+#### Token Integration Approach
+- **Seamless Integration**: Token features added to existing wiki pages
+- **No Separate Frontend**: All functionality within current BigKreators.com
+- **Template Extensions**: Token components embedded in existing Jinja2 templates
+- **Progressive Enhancement**: Token features enhance existing wiki without disrupting core functionality
 
 #### Blockchain
 - **Network**: Solana
@@ -516,20 +523,247 @@ uvicorn main:app --reload
 
 ### Frontend Integration
 
-#### 1. Add Wallet Connection
-```javascript
-// In your existing templates
-<div id="wallet-component"></div>
-<script src="/static/wallet-integration.js"></script>
+The KONTRIB token system integrates seamlessly with your existing BigKreators.com Jinja2 template system.
+
+#### Integration Strategy
+
+**No Separate Frontend Required:**
+- ✅ Token features embedded in existing wiki pages
+- ✅ Uses your current Jinja2 template system
+- ✅ Extends existing CSS and JavaScript
+- ✅ Maintains current user experience
+
+**Template Extensions:**
+```html
+<!-- In your existing templates/base.html -->
+<head>
+    <!-- Your existing styles -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    <!-- Token system CSS extensions -->
+    <link rel="stylesheet" href="/static/token-styles.css">
+</head>
+
+<body>
+    <!-- Your existing navigation -->
+    {% include 'partials/navbar.html' %}
+    
+    <!-- Token wallet component (if user logged in) -->
+    {% if current_user %}
+        {% include 'partials/wallet-status.html' %}
+    {% endif %}
+    
+    <!-- Your existing content -->
+    {% block content %}{% endblock %}
+    
+    <!-- Token system JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/solana/web3.js/1.75.0/index.min.js"></script>
+    <script src="/static/token-integration.js"></script>
+</body>
 ```
 
-#### 2. Test Token Features
-```bash
-# Check system status
-curl http://localhost:8000/api/token/status
+**Enhanced User Dashboard:**
+```html
+<!-- In templates/user_profile.html -->
+{% extends "base.html" %}
 
-# Get wallet info
-curl http://localhost:8000/api/token/wallet/YOUR_WALLET_ADDRESS
+{% block content %}
+<div class="user-profile">
+    <!-- Existing profile info -->
+    <h1>{{ user.username }}</h1>
+    <p>Member since: {{ user.joinDate|strftime('%Y-%m-%d') }}</p>
+    
+    <!-- New token information section -->
+    <div class="token-stats">
+        <h2>Contribution Rewards</h2>
+        <div class="stats-grid">
+            <div class="stat">
+                <span class="label">Total Contributions:</span>
+                <span class="value">{{ user.total_contributions or 0 }}</span>
+            </div>
+            <div class="stat">
+                <span class="label">Points Earned:</span>
+                <span class="value">{{ user.total_points or 0 }}</span>
+            </div>
+            <div class="stat">
+                <span class="label">KONTRIB Earned:</span>
+                <span class="value">{{ user.total_tokens_earned or 0 }}</span>
+            </div>
+            <div class="stat">
+                <span class="label">Reputation Score:</span>
+                <span class="value">{{ user.reputation_score or 1.0 }}x</span>
+            </div>
+        </div>
+        
+        <!-- Wallet connection -->
+        {% if user.wallet_address %}
+            <div class="wallet-connected">
+                <span class="status">✅ Wallet Connected</span>
+                <span class="address">{{ user.wallet_address[:8] }}...{{ user.wallet_address[-6:] }}</span>
+                <button onclick="checkTokenBalance()">Check Balance</button>
+            </div>
+        {% else %}
+            <button id="connect-wallet" onclick="connectWallet()">Connect Solana Wallet</button>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+```
+
+**Article Page Enhancements:**
+```html
+<!-- In templates/article.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<article class="wiki-article">
+    <!-- Existing article content -->
+    <h1>{{ article.title }}</h1>
+    <div class="article-content">{{ article.content|safe }}</div>
+    
+    <!-- New contribution tracking -->
+    {% if current_user %}
+        <div class="contribution-tracker">
+            <p>Did you contribute to this article?</p>
+            <button onclick="trackContribution('{{ article.id }}', 'major_edit')">
+                I made major edits (+50 points)
+            </button>
+            <button onclick="trackContribution('{{ article.id }}', 'minor_edit')">
+                I made minor edits (+20 points)
+            </button>
+        </div>
+    {% endif %}
+    
+    <!-- Token earning potential display -->
+    <div class="earning-info">
+        <h3>💰 Earning Potential</h3>
+        <p>Demand Score: {{ article.demand_score or 1.0 }}x</p>
+        <p>This {{ "high-demand" if article.demand_score > 1.5 else "standard" }} topic</p>
+    </div>
+</article>
+{% endblock %}
+```
+
+#### JavaScript Integration
+
+**Token System JavaScript (token-integration.js):**
+```javascript
+// Wallet connection functionality
+async function connectWallet() {
+    if (typeof window.solana !== 'undefined') {
+        try {
+            const response = await window.solana.connect();
+            const walletAddress = response.publicKey.toString();
+            
+            // Update user's wallet address via API
+            const result = await fetch('/api/users/wallet', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({ wallet_address: walletAddress })
+            });
+            
+            if (result.ok) {
+                location.reload(); // Refresh to show connected state
+            }
+        } catch (error) {
+            alert('Failed to connect wallet: ' + error.message);
+        }
+    } else {
+        alert('Please install Phantom wallet or another Solana wallet');
+    }
+}
+
+// Track contributions
+async function trackContribution(articleId, type) {
+    try {
+        const response = await fetch('/api/token/contributions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({
+                article_id: articleId,
+                type: type,
+                description: `${type} contribution via web interface`
+            })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            alert(`Contribution tracked! You earned ${result.points_earned} points.`);
+        }
+    } catch (error) {
+        alert('Failed to track contribution: ' + error.message);
+    }
+}
+
+// Check token balance
+async function checkTokenBalance() {
+    // Implementation for checking balance
+    // Uses your existing authentication system
+}
+```
+
+#### CSS Extensions
+
+**Token Styles (token-styles.css):**
+```css
+/* Token system styling that extends your existing CSS */
+.token-stats {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.wallet-connected {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin: 1rem 0;
+}
+
+.contribution-tracker {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.earning-info {
+    background: #d1ecf1;
+    border: 1px solid #bee5eb;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+/* Responsive adjustments for your existing mobile styles */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
 ```
 
 ---
@@ -625,77 +859,171 @@ pip uninstall solana solders
 pip install solana==0.36.7 solders==0.23.1
 ```
 
-#### 2. Insufficient SOL for Transactions
-**Problem**: "Transaction failed: insufficient funds"
-**Solutions**:
-- **Devnet**: Request airdrop via API or faucet
-- **Mainnet**: Fund wallet with SOL
-
-#### 3. Token Account Not Found
-**Problem**: "Token account does not exist"
+#### 2. Database Migration Issues
+**Problem**: Migration fails or data corruption
 **Solution**:
 ```bash
-# Create associated token account
-spl-token create-account YOUR_TOKEN_MINT_ADDRESS
+# Check database connection
+python -c "from motor.motor_asyncio import AsyncIOMotorClient; import asyncio; asyncio.run(AsyncIOMotorClient('your-uri').admin.command('ping'))"
+
+# Re-run migration with verbose output
+python migrate_database.py --verbose
+
+# Check existing data integrity
+mongo your-connection-string --eval "db.users.countDocuments({})"
 ```
 
-#### 4. RPC Rate Limiting
-**Problem**: "429 Too Many Requests"
-**Solutions**:
-- Use premium RPC provider (QuickNode, Alchemy)
-- Implement request throttling
-- Add retry logic
+#### 3. Template Integration Errors
+**Problem**: Token components not displaying in existing templates
+**Solution**:
+```bash
+# Check template file paths
+ls templates/partials/wallet-status.html
+ls static/token-integration.js
+ls static/token-styles.css
 
-#### 5. MongoDB Connection Issues
-**Problem**: "Connection timeout"
+# Verify static file serving
+curl http://localhost:8000/static/token-styles.css
+
+# Check template context variables
+# Add {{ current_user|safe }} to templates for debugging
+```
+
+#### 4. Wallet Connection Issues
+**Problem**: "Wallet not detected" or connection failures
 **Solutions**:
-- Check MongoDB Atlas whitelist
-- Verify connection string
-- Test network connectivity
+```javascript
+// Check if wallet extension is installed
+if (typeof window.solana === 'undefined') {
+    console.error('No Solana wallet detected');
+    // Show installation instructions
+}
+
+// Handle different wallet types
+const getWallet = () => {
+    if (window.solana?.isPhantom) return window.solana;
+    if (window.solflare) return window.solflare;
+    if (window.backpack) return window.backpack;
+    return null;
+};
+```
+
+#### 5. Token Balance Display Issues
+**Problem**: Token balances showing as 0 or undefined
+**Solution**:
+```python
+# Check token account exists
+# In your Python service
+async def debug_token_account(wallet_address):
+    try:
+        # Check if associated token account exists
+        token_account = get_associated_token_address(
+            owner=Pubkey.from_string(wallet_address),
+            mint=self.token_mint
+        )
+        
+        account_info = await self.client.get_account_info(token_account)
+        if account_info.value is None:
+            print(f"Token account doesn't exist for {wallet_address}")
+            # Create account or handle gracefully
+        
+    except Exception as e:
+        print(f"Error checking token account: {e}")
+```
+
+#### 6. FastAPI Route Integration
+**Problem**: Token routes not found (404 errors)
+**Solution**:
+```python
+# Verify routes are properly included in main.py
+from routes import token
+app.include_router(token.router, prefix="/api/token", tags=["Token"])
+
+# Check route registration
+@app.on_event("startup")
+async def debug_routes():
+    for route in app.routes:
+        print(f"Route: {route.path}")
+
+# Test route directly
+curl -v http://localhost:8000/api/token/status
+```
 
 ### Debugging Commands
 
-#### Check Token Balance
+#### Check System Integration
 ```bash
-spl-token balance YOUR_TOKEN_MINT_ADDRESS
-```
+# Verify all components
+python test_kontrib_integration.py
 
-#### Verify Transaction
-```bash
-solana confirm TRANSACTION_SIGNATURE
-```
+# Check database collections
+mongo your-connection-string --eval "
+  db.users.findOne({wallet_address: {\$exists: true}});
+  db.contributions.countDocuments({});
+  db.token_rewards.countDocuments({});
+"
 
-#### Test API Endpoints
-```bash
-# Health check
-curl http://localhost:8000/health
-
-# Token status
+# Test API endpoints
 curl http://localhost:8000/api/token/status
-
-# User rewards
-curl -H "Authorization: Bearer YOUR_JWT" \
-     http://localhost:8000/api/token/rewards/user/USER_ID
+curl http://localhost:8000/api/users/profile  # Your existing endpoint
 ```
 
-### Log Analysis
-
-#### Backend Logs
-```bash
-# View FastAPI logs
-tail -f logs/api.log
-
-# Filter token-related logs
-grep "token" logs/api.log
+#### Template Debugging
+```html
+<!-- Add to your templates for debugging -->
+{% if current_user %}
+    <div style="background: yellow; padding: 10px;">
+        DEBUG: User {{ current_user.username }} 
+        {% if current_user.wallet_address %}
+            has wallet {{ current_user.wallet_address[:10] }}...
+        {% else %}
+            needs to connect wallet
+        {% endif %}
+    </div>
+{% endif %}
 ```
 
-#### Solana Logs
-```bash
-# View Solana CLI logs
-solana logs YOUR_PROGRAM_ID
+#### JavaScript Console Debugging
+```javascript
+// Add to your token-integration.js
+console.log('Token integration loaded');
+console.log('Wallet available:', typeof window.solana !== 'undefined');
+console.log('Current user:', document.body.dataset.userId); // If you set this
 
-# View transaction logs
-solana transaction-history YOUR_WALLET_ADDRESS
+// Test API connectivity
+fetch('/api/token/status')
+    .then(r => r.json())
+    .then(data => console.log('Token system status:', data))
+    .catch(e => console.error('Token system error:', e));
+```
+
+### Performance Monitoring
+
+#### Database Query Performance
+```javascript
+// Monitor slow queries in MongoDB
+db.setProfilingLevel(2, { slowms: 100 });
+
+// Check query performance
+db.system.profile.find().sort({ts: -1}).limit(5);
+
+// Optimize based on your usage patterns
+db.contributions.explain("executionStats").find({user_id: "your-user-id"});
+```
+
+#### API Response Times
+```python
+# Add timing middleware to FastAPI
+import time
+from fastapi import Request
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
 ```
 
 ---
@@ -783,10 +1111,10 @@ A: Smart contracts automatically execute approved proposals. Parameter changes a
 
 ### Future Considerations
 - 📋 Cross-chain bridges
-- 📋 NFT integration for achievements
-- 📋 DAO structure implementation
-- 📋 Machine learning quality assessment
-- 📋 Decentralized moderation
+- 📋 Achievement system integration with existing user profiles
+- 📋 DAO structure implementation within current governance
+- 📋 Enhanced quality assessment using existing content analytics
+- 📋 Integration with existing moderation workflows
 
 ---
 
