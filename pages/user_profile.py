@@ -1,3 +1,4 @@
+# File: pages/user_profile.py
 """
 User profile page routes for the Kryptopedia application.
 """
@@ -22,19 +23,19 @@ async def get_user_from_request(request, db):
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header.replace("Bearer ", "")
         try:
-            from dependencies.auth import get_current_user
-            return await get_current_user(token=token, db=db)
+            from dependencies.auth import validate_token_manually
+            return await validate_token_manually(token, db)
         except Exception as e:
-            print(f"Error getting user from Authorization header: {e}")
+            logger.debug(f"Error getting user from Authorization header: {e}")
     
     # Try to get token from cookie
     token = request.cookies.get("token")
     if token:
         try:
-            from dependencies.auth import get_current_user
-            return await get_current_user(token=token, db=db)
+            from dependencies.auth import validate_token_manually
+            return await validate_token_manually(token, db)
         except Exception as e:
-            print(f"Error getting user from cookie: {e}")
+            logger.debug(f"Error getting user from cookie: {e}")
     
     # No valid authentication found
     return None
@@ -124,34 +125,20 @@ async def profile_page(
     """
     templates = request.app.state.templates
     
-    # Try to get current user from multiple sources
+    # Try to get current authenticated user
     current_user = await get_user_from_request(request, db)
     
-    # Determine which user's profile to show
+    # Determine which user profile to show
     if username:
-        # Check if username is a special route we're trying to hit
-        if username in ["edit", "settings"]:
-            # These routes should be handled by their own handlers above
-            # If we get here, it means something went wrong
-            return templates.TemplateResponse(
-                "404.html",
-                {"request": request, "message": "Page not found"},
-                status_code=404
-            )
-            
-        # Show the profile of the requested user
-        user = await db["users"].find_one({"username": username})
-        if not user:
-            return templates.TemplateResponse(
-                "404.html",
-                {"request": request, "message": "User not found"},
-                status_code=404
-            )
-        is_own_profile = current_user and str(current_user["_id"]) == str(user["_id"])
+        # Showing another user's profile
+        profile_user = await db["users"].find_one({"username": username})
+        if not profile_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        is_self = current_user and str(current_user["_id"]) == str(profile_user["_id"])
     else:
-        # Show the current user's profile
+        # Showing current user's own profile
         if not current_user:
-            # Return login required template if not logged in
             return templates.TemplateResponse(
                 "login_required.html",
                 {
@@ -160,86 +147,75 @@ async def profile_page(
                     "active_page": "profile"
                 }
             )
-        user = current_user
-        is_own_profile = True
+        profile_user = current_user
+        is_self = True
     
-    # Get user's articles
-    articles_cursor = db["articles"].find({"createdBy": user["_id"]}).sort("createdAt", -1).skip(articles_skip).limit(articles_limit)
-    articles = await articles_cursor.to_list(length=articles_limit)
-    articles_total = await db["articles"].count_documents({"createdBy": user["_id"]})
+    # Get user's articles with pagination
+    articles_cursor = db["articles"].find({"authorId": profile_user["_id"]})
+    total_articles = await db["articles"].count_documents({"authorId": profile_user["_id"]})
+    articles = await articles_cursor.skip(articles_skip).limit(articles_limit).to_list(length=articles_limit)
     
-    # Get user's contributions (revisions)
-    contributions_cursor = db["revisions"].find({"createdBy": user["_id"]}).sort("createdAt", -1).skip(contributions_skip).limit(contributions_limit)
-    contributions = await contributions_cursor.to_list(length=contributions_limit)
-    contributions_total = await db["revisions"].count_documents({"createdBy": user["_id"]})
+    # Get user's contributions (edit history) with pagination  
+    contributions_cursor = db["revisions"].find({"editorId": profile_user["_id"]})
+    total_contributions = await db["revisions"].count_documents({"editorId": profile_user["_id"]})
+    contributions = await contributions_cursor.skip(contributions_skip).limit(contributions_limit).to_list(length=contributions_limit)
     
-    # Enhance contributions with article info
-    enhanced_contributions = []
+    # Get user's proposals with pagination (if they have any)
+    proposals_cursor = db["proposals"].find({"proposerId": profile_user["_id"]})
+    total_proposals = await db["proposals"].count_documents({"proposerId": profile_user["_id"]})
+    proposals = await proposals_cursor.skip(proposals_skip).limit(proposals_limit).to_list(length=proposals_limit)
+    
+    # Get user's rewards with pagination (if they have any)
+    rewards_cursor = db["rewards"].find({"userId": profile_user["_id"]})
+    total_rewards = await db["rewards"].count_documents({"userId": profile_user["_id"]})
+    rewards = await rewards_cursor.skip(rewards_skip).limit(rewards_limit).to_list(length=rewards_limit)
+    
+    # Convert ObjectIds to strings for template rendering
+    for article in articles:
+        article["_id"] = str(article["_id"])
+        article["authorId"] = str(article["authorId"])
+    
     for contribution in contributions:
-        article = await db["articles"].find_one({"_id": contribution["articleId"]})
-        if article:
-            enhanced_contributions.append({
-                **contribution,
-                "articleTitle": article.get("title", "Unknown Article"),
-                "articleSlug": article.get("slug")
-            })
+        contribution["_id"] = str(contribution["_id"])
+        contribution["articleId"] = str(contribution["articleId"])
+        contribution["editorId"] = str(contribution["editorId"])
     
-    # Get user's proposals
-    proposals_cursor = db["proposals"].find({"proposedBy": user["_id"]}).sort("proposedAt", -1).skip(proposals_skip).limit(proposals_limit)
-    proposals = await proposals_cursor.to_list(length=proposals_limit)
-    proposals_total = await db["proposals"].count_documents({"proposedBy": user["_id"]})
-    
-    # Enhance proposals with article info
-    enhanced_proposals = []
     for proposal in proposals:
-        article = await db["articles"].find_one({"_id": proposal["articleId"]})
-        if article:
-            enhanced_proposals.append({
-                **proposal,
-                "articleTitle": article.get("title", "Unknown Article"),
-                "articleSlug": article.get("slug")
-            })
+        proposal["_id"] = str(proposal["_id"])
+        proposal["articleId"] = str(proposal["articleId"])
+        proposal["proposerId"] = str(proposal["proposerId"])
     
-    # Get user's rewards
-    rewards_cursor = db["rewards"].find({"rewardedUser": user["_id"]}).sort("rewardedAt", -1).skip(rewards_skip).limit(rewards_limit)
-    rewards = await rewards_cursor.to_list(length=rewards_limit)
-    rewards_total = await db["rewards"].count_documents({"rewardedUser": user["_id"]})
-    
-    # Enhance rewards with article and user info
-    enhanced_rewards = []
     for reward in rewards:
-        article = await db["articles"].find_one({"_id": reward["articleId"]})
-        rewarder = await db["users"].find_one({"_id": reward["rewardedBy"]})
-        
-        if article and rewarder:
-            enhanced_rewards.append({
-                **reward,
-                "articleTitle": article.get("title", "Unknown Article"),
-                "articleSlug": article.get("slug"),
-                "rewarderUsername": rewarder.get("username", "Unknown User")
-            })
+        reward["_id"] = str(reward["_id"])
+        reward["userId"] = str(reward["userId"])
     
-    # Render the profile template
+    # Convert profile user ID to string
+    profile_user["_id"] = str(profile_user["_id"])
+    
     return templates.TemplateResponse(
         "user_profile.html",
         {
             "request": request,
-            "user": user,
-            "is_own_profile": is_own_profile,
+            "user": profile_user,
             "current_user": current_user,
+            "is_self": is_self,
+            "active_tab": tab or "overview",
             "articles": articles,
-            "articles_total": articles_total,
+            "contributions": contributions,
+            "proposals": proposals,
+            "rewards": rewards,
+            "total_articles": total_articles,
+            "total_contributions": total_contributions, 
+            "total_proposals": total_proposals,
+            "total_rewards": total_rewards,
             "articles_skip": articles_skip,
-            "contributions": enhanced_contributions,
-            "contributions_total": contributions_total,
+            "articles_limit": articles_limit,
             "contributions_skip": contributions_skip,
-            "proposals": enhanced_proposals,
-            "proposals_total": proposals_total,
+            "contributions_limit": contributions_limit,
             "proposals_skip": proposals_skip,
-            "rewards": enhanced_rewards,
-            "rewards_total": rewards_total,
+            "proposals_limit": proposals_limit,
             "rewards_skip": rewards_skip,
-            "badges": [],  # Future feature
-            "active_page": "profile"  # Set active page for navigation highlighting
+            "rewards_limit": rewards_limit,
+            "active_page": "profile"
         }
     )

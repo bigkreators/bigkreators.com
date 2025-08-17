@@ -5,26 +5,178 @@
 
 {% set active_page = 'articles' %}
 
+{% block extra_css %}
+<style>
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.history-table th,
+.history-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.history-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #333;
+}
+
+.history-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.compare-checkbox {
+    text-align: center;
+    width: 80px;
+}
+
+.revision-actions {
+    white-space: nowrap;
+}
+
+.action-link {
+    color: #0645ad;
+    text-decoration: none;
+    margin-right: 10px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.action-link:hover {
+    background-color: #e6f3ff;
+    text-decoration: underline;
+}
+
+.action-link.restore-link {
+    color: #e67e22;
+}
+
+.action-link.restore-link:hover {
+    background-color: #fef5e7;
+}
+
+.revision-controls {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.compare-button {
+    background-color: #0645ad;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.compare-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.compare-button:hover:not(:disabled) {
+    background-color: #053a7a;
+}
+
+.current-version {
+    background-color: #e8f5e8;
+    font-weight: bold;
+}
+
+.user-link {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+.user-link:hover {
+    text-decoration: underline;
+}
+
+.anonymous-user {
+    color: #666;
+    font-style: italic;
+}
+
+.pagination {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.pagination a {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 2px;
+    color: #0645ad;
+    text-decoration: none;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.pagination a:hover {
+    background-color: #f8f9fa;
+}
+
+.pagination .current {
+    background-color: #0645ad;
+    color: white;
+    border-color: #0645ad;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+</style>
+{% endblock %}
+
 {% block sidebar_extra %}
 <h3>Article Actions</h3>
 <ul>
     <li><a href="/articles/{{ article.slug }}">View Article</a></li>
-    <li><a href="/edit-article/{{ article._id }}" class="auth-required">Edit Article</a></li>
-    <li><a href="/articles/{{ article._id }}/propose" class="auth-required">Propose Edit</a></li>
+    <li><a href="/edit-article/{{ article._id }}">Edit Article</a></li>
+    <li><a href="/articles/{{ article._id }}/propose">Propose Edit</a></li>
 </ul>
+
+<h3>History Tools</h3>
+<ul>
+    <li><a href="#" onclick="selectAllRevisions()">Select All</a></li>
+    <li><a href="#" onclick="clearSelection()">Clear Selection</a></li>
+    <li><a href="/special/recentchanges">Recent Changes</a></li>
+</ul>
+
+<div class="wiki-etiquette-notice" style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; font-size: 13px;">
+    <h4 style="margin: 0 0 10px 0; color: #856404;">⚖️ Restoration Etiquette</h4>
+    <p style="margin: 0 0 8px 0; color: #856404;">Only restore revisions to revert vandalism or fix serious errors.</p>
+    <p style="margin: 0; color: #856404;">For content disagreements, discuss on the talk page first.</p>
+</div>
 {% endblock %}
 
 {% block content %}
 <div class="article-header">
     <h1>Revision History: {{ article.title }}</h1>
     <p class="article-info">
-        Showing the edit history for this article. Select any two revisions to compare them.
+        This page shows the edit history for this article. You can view individual revisions, compare changes between versions, and restore previous versions.
     </p>
 </div>
 
 <div class="revision-controls">
     <form id="compare-form">
-        <button type="submit" id="compare-button" disabled>Compare Selected Revisions</button>
+        <p><strong>Compare Revisions:</strong> Select exactly two revisions to compare their differences.</p>
+        <button type="submit" id="compare-button" class="compare-button" disabled>Compare Selected Revisions</button>
+        <span id="selection-count" style="margin-left: 15px; color: #666;"></span>
     </form>
 </div>
 
@@ -34,113 +186,182 @@
             <thead>
                 <tr>
                     <th>Compare</th>
-                    <th>Date</th>
+                    <th>Date & Time</th>
                     <th>User</th>
-                    <th>Comment</th>
+                    <th>Edit Summary</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for revision in revisions %}
-                <tr>
+                <tr {% if loop.first %}class="current-version"{% endif %}>
                     <td class="compare-checkbox">
                         <input type="checkbox" name="compare" value="{{ revision._id }}" class="revision-checkbox">
                     </td>
-                    <td>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>{{ revision.creatorUsername }}</td>
-                    <td>{{ revision.comment or "No comment" }}</td>
+                    <td>
+                        {{ revision.createdAt|strftime('%Y-%m-%d %H:%M:%S') }}
+                        {% if loop.first %}<br><small style="color: #27ae60;">(Current)</small>{% endif %}
+                    </td>
+                    <td>
+                        {% if revision.editorType == 'authenticated' %}
+                            <a href="/profile/{{ revision.creatorUsername }}" class="user-link">{{ revision.creatorUsername }}</a>
+                        {% else %}
+                            <span class="anonymous-user">{{ revision.creatorUsername or revision.editorName or 'Anonymous' }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ revision.comment or "No edit summary provided" }}</td>
                     <td class="revision-actions">
                         <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}" class="action-link">View</a>
-                        {% if is_editor %}
-                        <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="action-link auth-required">Restore</a>
+                        {% if not loop.first %}
+                            {% if is_editor %}
+                            <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="action-link restore-link auth-required">Restore</a>
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-        
+
         <!-- Pagination -->
         {% if total > limit %}
         <div class="pagination">
-            {% if skip > 0 %}
-            <a href="/articles/{{ article._id }}/history?skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
+            {% set total_pages = (total + limit - 1) // limit %}
+            {% set current_page = skip // limit + 1 %}
+            
+            {% if current_page > 1 %}
+                <a href="/articles/{{ article._id }}/history?skip={{ (current_page - 2) * limit }}&limit={{ limit }}">&laquo; Previous</a>
             {% endif %}
             
-            <span class="page-info">Showing {{ skip + 1 }}-{{ min(skip + limit, total) }} of {{ total }}</span>
+            {% for page in range(1, total_pages + 1) %}
+                {% if page == current_page %}
+                    <span class="current">{{ page }}</span>
+                {% elif page <= 3 or page >= total_pages - 2 or (page >= current_page - 1 and page <= current_page + 1) %}
+                    <a href="/articles/{{ article._id }}/history?skip={{ (page - 1) * limit }}&limit={{ limit }}">{{ page }}</a>
+                {% elif page == 4 and current_page > 6 %}
+                    <span>...</span>
+                {% elif page == total_pages - 3 and current_page < total_pages - 5 %}
+                    <span>...</span>
+                {% endif %}
+            {% endfor %}
             
-            {% if skip + limit < total %}
-            <a href="/articles/{{ article._id }}/history?skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
+            {% if current_page < total_pages %}
+                <a href="/articles/{{ article._id }}/history?skip={{ current_page * limit }}&limit={{ limit }}">Next &raquo;</a>
             {% endif %}
         </div>
         {% endif %}
+        
     {% else %}
-        <div class="no-revisions">
-            <p>No revision history found for this article.</p>
+        <div class="empty-history">
+            <h3>No Revision History</h3>
+            <p>This article doesn't have any revision history yet.</p>
+            <p>Revision history is created when the article is edited.</p>
         </div>
     {% endif %}
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Handle revision comparison checkboxes
-    const checkboxes = document.querySelectorAll('.revision-checkbox');
+    const form = document.getElementById('compare-form');
     const compareButton = document.getElementById('compare-button');
-    const compareForm = document.getElementById('compare-form');
+    const selectionCount = document.getElementById('selection-count');
+    const checkboxes = document.querySelectorAll('.revision-checkbox');
     
-    // Track selected revisions
-    let selectedRevisions = [];
-    
-    // Update button state based on selection
-    function updateCompareButton() {
-        compareButton.disabled = selectedRevisions.length !== 2;
-    }
-    
-    // Add event listeners to checkboxes
+    // Handle checkbox changes
     checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            if (this.checked) {
-                // Add to selected revisions
-                selectedRevisions.push(this.value);
-                
-                // Limit to two selections
-                if (selectedRevisions.length > 2) {
-                    // Uncheck the first one
-                    const firstId = selectedRevisions.shift();
-                    const firstCheckbox = document.querySelector(`.revision-checkbox[value="${firstId}"]`);
-                    if (firstCheckbox) firstCheckbox.checked = false;
-                }
-            } else {
-                // Remove from selected revisions
-                const index = selectedRevisions.indexOf(this.value);
-                if (index > -1) selectedRevisions.splice(index, 1);
-            }
-            
-            updateCompareButton();
-        });
+        checkbox.addEventListener('change', updateCompareButton);
     });
     
-    // Handle form submission for comparison
-    compareForm.addEventListener('submit', function(e) {
+    // Handle compare form submission
+    form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        if (selectedRevisions.length === 2) {
-            // Navigate to compare page
-            window.location.href = `/articles/{{ article._id }}/compare/${selectedRevisions[0]}/${selectedRevisions[1]}`;
+        const selectedRevisions = Array.from(checkboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        
+        if (selectedRevisions.length !== 2) {
+            alert('Please select exactly 2 revisions to compare.');
+            return;
         }
+        
+        // Navigate to compare page
+        const [rev1, rev2] = selectedRevisions;
+        window.location.href = `/articles/{{ article._id }}/compare/${rev1}/${rev2}`;
     });
+    
+    function updateCompareButton() {
+        const selectedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+        
+        compareButton.disabled = selectedCount !== 2;
+        
+        if (selectedCount === 0) {
+            selectionCount.textContent = 'No revisions selected';
+        } else if (selectedCount === 1) {
+            selectionCount.textContent = '1 revision selected (select 1 more)';
+        } else if (selectedCount === 2) {
+            selectionCount.textContent = '2 revisions selected - ready to compare';
+            selectionCount.style.color = '#27ae60';
+        } else {
+            selectionCount.textContent = `${selectedCount} revisions selected (select only 2)`;
+            selectionCount.style.color = '#e74c3c';
+        }
+    }
+    
+    // Initial update
+    updateCompareButton();
     
     // Handle auth-required elements visibility
     const token = localStorage.getItem('token');
     const authElements = document.querySelectorAll('.auth-required');
     
     if (token) {
+        // Check if user has permission
+        fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error('Not authenticated');
+        })
+        .then(user => {
+            if (user.role === 'admin' || user.role === 'editor') {
+                authElements.forEach(element => {
+                    element.style.display = 'inline';
+                });
+            }
+        })
+        .catch(() => {
+            // User not authenticated or no permissions
+            authElements.forEach(element => {
+                element.style.display = 'none';
+            });
+        });
+    } else {
         authElements.forEach(element => {
-            element.classList.remove('hidden');
+            element.style.display = 'none';
         });
     }
 });
+
+// Helper functions for sidebar links
+function selectAllRevisions() {
+    const checkboxes = document.querySelectorAll('.revision-checkbox');
+    checkboxes.forEach(cb => cb.checked = true);
+    document.querySelector('.revision-checkbox').dispatchEvent(new Event('change'));
+}
+
+function clearSelection() {
+    const checkboxes = document.querySelectorAll('.revision-checkbox');
+    checkboxes.forEach(cb => cb.checked = false);
+    document.querySelector('.revision-checkbox').dispatchEvent(new Event('change'));
+}
 </script>
 {% endblock %}

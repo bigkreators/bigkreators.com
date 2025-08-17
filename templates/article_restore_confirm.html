@@ -5,6 +5,202 @@
 
 {% set active_page = 'articles' %}
 
+{% block extra_css %}
+<style>
+.warning-banner {
+    background-color: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.warning-notice {
+    color: #856404;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.warning-notice .icon {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.restore-confirm {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 25px;
+    margin: 20px 0;
+}
+
+.restore-details {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 20px;
+    margin: 20px 0;
+}
+
+.restore-details dl {
+    margin: 0;
+}
+
+.restore-details dt {
+    font-weight: bold;
+    color: #333;
+    margin-top: 15px;
+}
+
+.restore-details dt:first-child {
+    margin-top: 0;
+}
+
+.restore-details dd {
+    margin: 5px 0 0 0;
+    color: #666;
+}
+
+.confirmation-preview {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 20px 0;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.confirmation-preview h3 {
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+    color: #333;
+}
+
+.preview-content {
+    padding: 20px;
+    line-height: 1.6;
+}
+
+.form-group {
+    margin: 20px 0;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+}
+
+.help-text {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.form-actions {
+    margin: 30px 0;
+    text-align: center;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.primary-button {
+    background-color: #e67e22;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 15px;
+    transition: background-color 0.3s;
+}
+
+.primary-button:hover {
+    background-color: #d35400;
+}
+
+.primary-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.cancel-button {
+    background-color: #6c757d;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.cancel-button:hover {
+    background-color: #5a6268;
+    color: white;
+}
+
+.user-link {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+.user-link:hover {
+    text-decoration: underline;
+}
+
+.anonymous-user {
+    color: #666;
+    font-style: italic;
+}
+
+.changes-summary {
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 20px 0;
+}
+
+.status-message {
+    padding: 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+    display: none;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.success-message {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+</style>
+{% endblock %}
+
 {% block sidebar_extra %}
 <h3>Article Actions</h3>
 <ul>
@@ -13,17 +209,28 @@
     <li><a href="/articles/{{ article._id }}/revisions/{{ revision._id }}">View This Revision</a></li>
 </ul>
 
-<div class="revision-info">
-    <h3>Revision Information</h3>
+<div class="restore-details">
+    <h3>Revision to Restore</h3>
     <dl>
         <dt>Date:</dt>
-        <dd>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</dd>
+        <dd>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M:%S') }}</dd>
         
         <dt>Author:</dt>
-        <dd>{{ revision.creatorUsername }}</dd>
+        <dd>
+            {% if revision.editorType == 'authenticated' %}
+                <a href="/profile/{{ revision.creatorUsername }}" class="user-link">{{ revision.creatorUsername }}</a>
+            {% else %}
+                <span class="anonymous-user">{{ revision.creatorUsername or revision.editorName or 'Anonymous User' }}</span>
+            {% endif %}
+        </dd>
         
-        <dt>Comment:</dt>
-        <dd>{{ revision.comment or "No comment" }}</dd>
+        <dt>Original Comment:</dt>
+        <dd>{{ revision.comment or "No edit summary provided" }}</dd>
+        
+        {% if revision.size %}
+        <dt>Size:</dt>
+        <dd>{{ revision.size }} bytes</dd>
+        {% endif %}
     </dl>
 </div>
 {% endblock %}
@@ -33,78 +240,192 @@
     <h1>Restore Revision: {{ article.title }}</h1>
     <div class="warning-banner">
         <div class="warning-notice">
-            <strong>Warning:</strong> You are about to restore this article to an earlier version.
-            This will overwrite the current content.
+            <span class="icon">⚠️</span>
+            You are about to restore this article to an earlier version. This will overwrite the current content and create a new revision.
         </div>
     </div>
 </div>
 
+<div class="status-message error-message" id="error-message"></div>
+<div class="status-message success-message" id="success-message"></div>
+
 <div class="restore-confirm">
-    <p>You are about to restore the article to the version from {{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }} 
-    by {{ revision.creatorUsername }}.</p>
+    <p style="font-size: 16px; margin-bottom: 20px;">
+        <strong>Action:</strong> Restore the article to the version from 
+        <strong>{{ revision.createdAt|strftime('%Y-%m-%d at %H:%M:%S') }}</strong> 
+        by <strong>
+        {% if revision.editorType == 'authenticated' %}
+            {{ revision.creatorUsername }}
+        {% else %}
+            {{ revision.creatorUsername or revision.editorName or 'Anonymous User' }}
+        {% endif %}</strong>.
+    </p>
+    
+    {% if current_revision_age %}
+    <div class="changes-summary">
+        <strong>⏰ Impact:</strong> This will undo {{ current_revision_age }} of changes made since this revision.
+    </div>
+    {% endif %}
     
     <div class="confirmation-preview">
-        <h3>Content Preview</h3>
+        <h3>📄 Content Preview (What will be restored)</h3>
         <div class="preview-content">
             {{ revision.content|safe }}
         </div>
     </div>
     
-    <form action="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" method="post">
+    <form id="restore-form">
         <div class="form-group">
             <label for="comment">Restoration Comment:</label>
-            <textarea id="comment" name="comment" rows="3">Restored to revision from {{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</textarea>
-            <p class="help-text">Describe why you're restoring this version.</p>
+            <textarea id="comment" name="comment" rows="3" required>Restored to revision from {{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }} by {{ revision.creatorUsername or revision.editorName or 'Anonymous User' }}</textarea>
+            <p class="help-text">Explain why you're restoring this version. This will appear in the article's edit history.</p>
         </div>
         
         <div class="form-actions">
-            <button type="submit" class="primary-button">Restore This Version</button>
+            <button type="submit" id="restore-button" class="primary-button">
+                🔄 Restore This Version
+            </button>
             <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}" class="cancel-button">Cancel</a>
         </div>
     </form>
 </div>
+
+<!-- Wiki etiquette notice -->
+<div style="margin: 30px 0; padding: 20px; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+    <h3>⚖️ When to Restore Revisions</h3>
+    <div style="background-color: #fff; padding: 15px; border-radius: 4px; margin: 10px 0;">
+        <p style="margin: 0 0 10px 0; font-weight: bold; color: #856404;">Only restore edits when necessary:</p>
+        <ul style="margin: 10px 0; padding-left: 20px; color: #856404;">
+            <li><strong>✅ Do restore:</strong> To revert vandalism, spam, or clearly harmful edits</li>
+            <li><strong>✅ Do restore:</strong> To fix serious factual errors or policy violations</li>
+            <li><strong>✅ Do restore:</strong> When accidentally damaged content needs to be recovered</li>
+        </ul>
+        <ul style="margin: 10px 0; padding-left: 20px; color: #856404;">
+            <li><strong>❌ Don't restore:</strong> Just because you disagree with someone's edit</li>
+            <li><strong>❌ Don't restore:</strong> To resolve content disputes or different opinions</li>
+            <li><strong>❌ Don't restore:</strong> Without discussing controversial changes first</li>
+        </ul>
+        <p style="margin: 10px 0 0 0; font-style: italic; color: #856404;">
+            <strong>Tip:</strong> If you disagree with an edit but it's not harmful, consider discussing it on the article's talk page or proposing improvements instead of reverting.
+        </p>
+    </div>
+</div>
+
+<!-- Technical details -->
+<div style="margin: 30px 0; padding: 20px; background-color: #f8f9fa; border-radius: 4px;">
+    <h3>ℹ️ What happens when you restore?</h3>
+    <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>The article content will be replaced with the selected revision</li>
+        <li>A new revision will be created in the history</li>
+        <li>All users will see the restored content immediately</li>
+        <li>The current version will still be available in the history</li>
+        <li>This action can be undone by restoring a different revision</li>
+    </ul>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('restore-form');
+    const restoreButton = document.getElementById('restore-button');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    
     // Handle form submission with fetch
-    const form = document.querySelector('form');
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
         // Get the token
         const token = localStorage.getItem('token');
         if (!token) {
-            alert('You must be logged in to restore an article version.');
+            showError('You must be logged in to restore an article version.');
             return;
         }
         
-        // Submit the form with fetch
-        const formData = new FormData(form);
+        // Get comment
+        const comment = document.getElementById('comment').value.trim();
+        if (!comment) {
+            showError('Please provide a restoration comment.');
+            return;
+        }
         
-        fetch(form.action, {
+        // Show loading state
+        const originalText = restoreButton.textContent;
+        restoreButton.textContent = '🔄 Restoring...';
+        restoreButton.disabled = true;
+        
+        // Send API request
+        fetch('/api/articles/{{ article._id }}/revisions/{{ revision._id }}/restore', {
             method: 'POST',
             headers: {
+                'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: formData
+            body: JSON.stringify({
+                comment: comment
+            })
         })
         .then(response => {
-            if (response.redirected) {
-                window.location.href = response.url;
-            } else if (!response.ok) {
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    throw new Error('Your session has expired. Please log in again.');
+                }
                 return response.json().then(data => {
                     throw new Error(data.detail || 'Failed to restore revision');
                 });
             }
             return response.json();
         })
+        .then(data => {
+            showSuccess('Article restored successfully! Redirecting to the article...');
+            
+            // Redirect to article after delay
+            setTimeout(() => {
+                window.location.href = `/articles/{{ article.slug }}`;
+            }, 2000);
+        })
         .catch(error => {
-            console.error('Error restoring revision:', error);
-            alert(error.message || 'Failed to restore revision. Please try again.');
+            console.error('Error restoring article:', error);
+            showError(error.message || 'Failed to restore article. Please try again.');
+        })
+        .finally(() => {
+            // Reset button state
+            restoreButton.textContent = originalText;
+            restoreButton.disabled = false;
         });
+    });
+    
+    // Helper functions
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+        
+        // Scroll to error
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+    }
+    
+    // Confirmation before leaving page
+    let formModified = false;
+    document.getElementById('comment').addEventListener('input', function() {
+        formModified = true;
+    });
+    
+    window.addEventListener('beforeunload', function(e) {
+        if (formModified && !successMessage.style.display) {
+            e.preventDefault();
+            e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+        }
     });
 });
 </script>
-{% endblock %}
+{% endblock %>

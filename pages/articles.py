@@ -211,3 +211,39 @@ async def edit_article_wiki_page(
         "edit_article_wiki.html",
         {"request": request, "article": article}
     )
+
+@router.get("/articles/{article_id}/move", response_class=HTMLResponse)
+async def move_article_page(
+    request: Request,
+    article_id: str = Path(..., description="Article ID"),
+    db=Depends(get_db)
+):
+    """
+    Render the article move/rename page.
+    """
+    templates = request.app.state.templates
+    
+    # Check if article exists
+    if not ObjectId.is_valid(article_id):
+        return templates.TemplateResponse(
+            "404.html",
+            {"request": request, "message": "Invalid article ID"},
+            status_code=404
+        )
+    
+    article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+    if not article:
+        return templates.TemplateResponse(
+            "404.html",
+            {"request": request, "message": "Article not found"},
+            status_code=404
+        )
+    
+    return templates.TemplateResponse(
+        "move_article.html",
+        {
+            "request": request,
+            "article": article,
+            "page_title": f"Move/Rename Article: {article['title']}"
+        }
+    )

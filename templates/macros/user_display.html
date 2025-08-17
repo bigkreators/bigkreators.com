@@ -1,0 +1,151 @@
+<!-- File: templates/macros/user_display.html -->
+<!-- Template macro for consistently displaying usernames, including deleted users -->
+
+{% macro user_link(user_id, username, css_class="") %}
+    {% if user_id == "deleted_user" or username == "Deleted User" %}
+        <span class="deleted-user {{ css_class }}">
+            <i class="icon-user-deleted"></i>
+            Deleted User
+        </span>
+    {% else %}
+        <a href="/users/{{ user_id }}" class="user-link {{ css_class }}">{{ username }}</a>
+    {% endif %}
+{% endmacro %}
+
+{% macro user_avatar(user_id, username, size="small") %}
+    {% if user_id == "deleted_user" or username == "Deleted User" %}
+        <div class="user-avatar deleted-user-avatar {{ size }}">
+            <i class="icon-user-deleted"></i>
+        </div>
+    {% else %}
+        <div class="user-avatar {{ size }}">
+            <img src="/api/users/{{ user_id }}/avatar" alt="{{ username }}" onerror="this.src='/static/images/default-avatar.png'">
+        </div>
+    {% endif %}
+{% endmacro %}
+
+<!-- Enhanced CSS for deleted user styling -->
+<style>
+.deleted-user {
+    color: #6c757d;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.deleted-user-avatar {
+    background-color: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+}
+
+.deleted-user-avatar.small {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+}
+
+.deleted-user-avatar.medium {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.deleted-user-avatar.large {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.icon-user-deleted::before {
+    content: "👤";
+    opacity: 0.5;
+}
+
+/* History table styling for deleted users */
+.history-table .deleted-user {
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #dee2e6;
+}
+
+/* Article byline styling */
+.article-byline .deleted-user {
+    font-size: 0.9em;
+}
+
+/* Comment author styling */
+.comment-author .deleted-user {
+    font-weight: normal;
+}
+</style>
+
+<!-- Updated article history template example -->
+<!-- File: templates/article_history_updated.html -->
+{% extends "base.html" %}
+{% from "macros/user_display.html" import user_link, user_avatar %}
+
+{% block content %}
+<div class="history-list">
+    {% if revisions %}
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Compare</th>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Comment</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for revision in revisions %}
+                <tr>
+                    <td class="compare-checkbox">
+                        <input type="checkbox" name="compare" value="{{ revision._id }}" class="revision-checkbox">
+                    </td>
+                    <td>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>
+                        {{ user_avatar(revision.createdBy, revision.creatorUsername, "small") }}
+                        {{ user_link(revision.createdBy, revision.creatorUsername) }}
+                    </td>
+                    <td>{{ revision.comment or "No comment" }}</td>
+                    <td class="revision-actions">
+                        <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}" class="action-link">View</a>
+                        {% if is_editor %}
+                        <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="action-link auth-required">Restore</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No revision history available for this article.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+<!-- Usage examples in other templates -->
+
+<!-- In article.html for showing article author -->
+<div class="article-byline">
+    Created by: {{ user_link(article.createdBy, article.createdByUsername) }}
+    on {{ article.createdAt|strftime('%Y-%m-%d') }}
+</div>
+
+<!-- In comments for showing comment authors -->
+<div class="comment-header">
+    {{ user_avatar(comment.authorId, comment.authorName, "small") }}
+    <span class="comment-author">{{ user_link(comment.authorId, comment.authorName) }}</span>
+    <span class="comment-date">{{ comment.createdAt|strftime('%Y-%m-%d %H:%M') }}</span>
+</div>
+
+<!-- In proposals list -->
+<div class="proposal-meta">
+    Proposed by: {{ user_link(proposal.proposedBy, proposal.proposedByUsername) }}
+    on {{ proposal.proposedAt|strftime('%Y-%m-%d') }}
+</div>
