@@ -171,3 +171,12 @@ def check_dependencies():
         pass
     
     return dependencies
+
+# Modern Solana and Token Configuration (v0.36.7)
+SOLANA_RPC_URL = os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com")
+SOLANA_PRIVATE_KEY = os.getenv("SOLANA_PRIVATE_KEY", "")
+TOKEN_MINT_ADDRESS = os.getenv("TOKEN_MINT_ADDRESS", "")
+
+# Token system configuration
+WEEKLY_TOKEN_POOL = float(os.getenv("WEEKLY_TOKEN_POOL", "10000.0"))
+MIN_TOKENS_PER_USER = float(os.getenv("MIN_TOKENS_PER_USER", "1.0"))

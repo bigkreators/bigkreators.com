@@ -18,6 +18,7 @@ from .help import router as help_router  # Add this
 from .community import router as community_router  # Add this
 from .donate import router as donate_router  # Add this
 from .upload import router as upload_router 
+from .crypto_admin import router as crypto_admin_router
 
 # Create a combined router for all pages
 router = APIRouter()
@@ -36,6 +37,7 @@ router.include_router(community_router)
 router.include_router(donate_router)
 router.include_router(upload_router)
 router.include_router(articles_html_router)
+router.include_router(crypto_admin_router)
 
 # Export modules
 __all__ = [
@@ -49,4 +51,10 @@ __all__ = [
     'search_router',
     'user_profile_router',
     'errors_router'
+    'help_router'
+    'community_router'
+    'donate_router'
+    'upload_router'
+    'article_html_router'
+    'crypto_admin_router'
 ]

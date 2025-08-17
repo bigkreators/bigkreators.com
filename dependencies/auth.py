@@ -170,3 +170,47 @@ async def get_current_editor(
         )
     
     return current_user
+
+async def get_user_or_anonymous(
+    request: Request,
+    db = Depends(get_db)
+) -> Dict[str, Any]:
+    """
+    Get the current user if authenticated, otherwise return anonymous user info.
+    This allows routes to work for both authenticated and anonymous users.
+    """
+    try:
+        # Try to get token from cookie first
+        token = request.cookies.get("token")
+        
+        # Try Authorization header if no cookie
+        if not token:
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header.replace("Bearer ", "")
+        
+        # If we have a token, try to validate it
+        if token:
+            payload = jwt.decode(
+                token,
+                config.JWT_SECRET,
+                algorithms=[config.JWT_ALGORITHM]
+            )
+            
+            user_id = payload.get("sub")
+            if user_id:
+                user = await db["users"].find_one({"_id": ObjectId(user_id)})
+                if user:
+                    return user
+    except:
+        # Any error means we treat as anonymous
+        pass
+    
+    # Return anonymous user
+    return {
+        "_id": None,
+        "username": "Anonymous",
+        "email": None,
+        "role": "anonymous",
+        "is_anonymous": True
+    }

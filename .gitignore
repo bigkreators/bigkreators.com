@@ -85,3 +85,5 @@ venv_krypto/bin/python3
 venv_krypto/bin/python3.12
 venv_krypto/pyvenv.cfg
 /venv
+/venv
+/venv/bin
