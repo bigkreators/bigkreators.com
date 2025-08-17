@@ -301,11 +301,11 @@ main() {
     # Setup Python environment
     print_section "Setting up Python Environment"
     setup_python_env
-    install_python_deps
-    install_solana_deps
+    #install_python_deps
+    #install_solana_deps
     
     # Optional MongoDB setup
-    setup_mongodb
+    #setup_mongodb
     
     # Configure blockchain tools
     print_section "Configuring Blockchain Tools"
