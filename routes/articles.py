@@ -91,51 +91,54 @@ async def create_article(
         # Check if slug already exists
         existing = await db["articles"].find_one({"slug": slug})
         if existing:
-            # If slug exists, add a timestamp to make it unique
-            timestamp = int(datetime.now().timestamp())
-            slug = generate_slug(article.title, timestamp)
+            # Add a number suffix to make it unique
+            counter = 1
+            while existing:
+                new_slug = f"{slug}-{counter}"
+                existing = await db["articles"].find_one({"slug": new_slug})
+                counter += 1
+            slug = new_slug
         
-        # Create article object
-        new_article = {
+        # Create article document
+        article_doc = {
             "title": article.title,
             "slug": slug,
             "content": article.content,
             "summary": article.summary,
-            "createdBy": current_user["_id"],
-            "createdAt": datetime.now(),
-            "lastUpdatedAt": datetime.now(),
-            "lastUpdatedBy": current_user["_id"],
-            "status": "published",
             "categories": article.categories,
             "tags": article.tags,
+            "status": "published",
+            "createdAt": datetime.now(),
+            "createdBy": current_user["_id"],
+            "lastUpdatedAt": datetime.now(),
+            "lastEditorId": current_user["_id"],
             "views": 0,
-            "metadata": article.metadata.dict() if hasattr(article.metadata, "dict") else article.metadata
+            "upvotes": 0,
+            "downvotes": 0,
+            "metadata": article.metadata if hasattr(article, 'metadata') else {}
         }
         
         # Insert into database
-        result = await db["articles"].insert_one(new_article)
-        logger.info(f"Article created with ID: {result.inserted_id}")
+        result = await db["articles"].insert_one(article_doc)
         
-        # Update user's contribution count
+        # Update user statistics
         await db["users"].update_one(
             {"_id": current_user["_id"]},
             {"$inc": {"contributions.articlesCreated": 1}}
         )
         
-        # Index in search
-        if search is not None:
+        # Index in search if available
+        if search:
             try:
                 await search.index(
                     index="articles",
                     id=str(result.inserted_id),
-                    document={
+                    body={
                         "title": article.title,
                         "content": article.content,
                         "summary": article.summary,
                         "categories": article.categories,
-                        "tags": article.tags,
-                        "author": current_user["username"],
-                        "created": datetime.now().isoformat()
+                        "tags": article.tags
                     }
                 )
             except Exception as e:
@@ -212,7 +215,7 @@ async def get_article(
 async def update_article(
     id: str,
     article_update: ArticleUpdate,
-    current_user: Dict[str, Any] = Depends(get_current_user),
+    request: Request,
     db=Depends(get_db),
     search=Depends(get_search),
     cache=Depends(get_cache)
@@ -231,260 +234,39 @@ async def update_article(
         if not article:
             raise HTTPException(status_code=404, detail="Article not found")
         
-        # Only allow updates by the creator or admin/editor
-        is_creator = str(article["createdBy"]) == str(current_user["_id"])
-        is_admin = current_user["role"] == "admin"
-        is_editor = current_user["role"] == "editor"
+        # Get user info (authenticated or anonymous)
+        from dependencies.auth import get_user_or_anonymous
+        user_info = await get_user_or_anonymous(request, db)
         
-        if not (is_creator or is_admin or is_editor):
-            logger.warning(f"User {current_user['username']} tried to update article {id} without permission")
-            raise HTTPException(
-                status_code=403,
-                detail="You don't have permission to update this article"
-            )
-        
-        # Prepare update data
-        update_data = {}
-        if article_update.title is not None:
-            update_data["title"] = article_update.title
-        
-        if article_update.content is not None:
-            update_data["content"] = article_update.content
-        
-        if article_update.summary is not None:
-            update_data["summary"] = article_update.summary
-        
-        if article_update.categories is not None:
-            update_data["categories"] = article_update.categories
-        
-        if article_update.tags is not None:
-            update_data["tags"] = article_update.tags
-        
-        if article_update.metadata is not None:
-            update_data["metadata"] = article_update.metadata.dict() if hasattr(article_update.metadata, "dict") else article_update.metadata
-        
-        # Don't update if no changes
-        if not update_data:
-            raise HTTPException(status_code=400, detail="No update data provided")
-        
-        # Update lastUpdatedAt and lastUpdatedBy
-        update_data["lastUpdatedAt"] = datetime.now()
-        update_data["lastUpdatedBy"] = current_user["_id"]
-        
-        # Create a revision entry
-        revision = {
-            "articleId": ObjectId(id),
-            "content": update_data.get("content", article["content"]),
-            "createdBy": current_user["_id"],
-            "createdAt": datetime.now(),
-            "comment": article_update.editComment or "Updated article"
-        }
-        
-        # Update the article and create the revision
-        # Start with article update
-        result = await db["articles"].update_one(
-            {"_id": ObjectId(id)},
-            {"$set": update_data}
-        )
-        
-        if result.modified_count == 0:
-            logger.warning(f"No changes made to article {id}")
-            raise HTTPException(status_code=400, detail="No changes made to the article")
-        
-        # Create revision
-        await db["revisions"].insert_one(revision)
-        logger.info(f"Created revision for article {id}")
-        
-        # Update user's edit count
-        await db["users"].update_one(
-            {"_id": current_user["_id"]},
-            {"$inc": {"contributions.editsPerformed": 1}}
-        )
-        
-        # Update search index
-        if search is not None:
-            try:
-                search_data = {
-                    "updated": datetime.now().isoformat()
-                }
-                
-                if "content" in update_data:
-                    search_data["content"] = update_data["content"]
-                
-                if "title" in update_data:
-                    search_data["title"] = update_data["title"]
-                
-                if "summary" in update_data:
-                    search_data["summary"] = update_data["summary"]
-                
-                await search.update(
-                    index="articles",
-                    id=id,
-                    document=search_data
-                )
-                logger.info(f"Updated search index for article {id}")
-            except Exception as e:
-                logger.error(f"Error updating search index: {e}")
-                # Continue even if search update fails
-        
-        # Invalidate cache
-        if cache is not None:
-            try:
-                await cache.delete(f"article:{id}")
-                if article.get("slug"):
-                    await cache.delete(f"article:{article['slug']}")
-                await cache.delete("featured_article")
-                await cache.delete("recent_articles")
-                logger.info(f"Cleared cache for article {id}")
-            except Exception as e:
-                logger.error(f"Error clearing cache: {e}")
-                # Continue even if cache clearing fails
-        
-        # Get updated article
-        updated_article = await db["articles"].find_one({"_id": ObjectId(id)})
-        logger.info(f"Successfully updated article {id}")
-        
-        return updated_article
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error updating article: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to update article: {str(e)}"
-        )
-
-# File: routes/articles.py
-
-@router.delete("/{id}")
-async def delete_article(
-    id: str,
-    permanent: bool = Query(False, description="Permanently delete the article instead of archiving"),
-    current_user: Dict[str, Any] = Depends(get_current_admin),
-    db=Depends(get_db),
-    search=Depends(get_search),
-    cache=Depends(get_cache)
-):
-    """
-    Delete an article (admin only). By default, marks it as archived.
-    If permanent=True, the article will be permanently deleted.
-    """
-    # Check if article exists
-    if not ObjectId.is_valid(id):
-        raise HTTPException(status_code=400, detail="Invalid article ID")
-    
-    article = await db["articles"].find_one({"_id": ObjectId(id)})
-    if not article:
-        raise HTTPException(status_code=404, detail="Article not found")
-    
-    try:
-        if permanent:
-            # Actually delete the article
-            result = await db["articles"].delete_one({"_id": ObjectId(id)})
-            
-            if result.deleted_count == 0:
-                raise HTTPException(status_code=500, detail="Failed to delete article")
-                
-            # Delete all related revisions, proposals, etc.
-            await db["revisions"].delete_many({"articleId": ObjectId(id)})
-            await db["proposals"].delete_many({"articleId": ObjectId(id)})
-            await db["rewards"].delete_many({"articleId": ObjectId(id)})
-            
-            message = "Article permanently deleted"
+        # Check permissions
+        if user_info["type"] == "anonymous":
+            # Anonymous users can edit but not change certain fields
+            restricted_fields = ["status", "title"]
+            for field in restricted_fields:
+                if hasattr(article_update, field) and getattr(article_update, field) is not None:
+                    if field == "title":
+                        raise HTTPException(
+                            status_code=403,
+                            detail="Anonymous users cannot change article titles"
+                        )
+                    if field == "status":
+                        raise HTTPException(
+                            status_code=403,
+                            detail="Anonymous users cannot change article status"
+                        )
         else:
-            # Mark as archived
-            await db["articles"].update_one(
-                {"_id": ObjectId(id)},
-                {"$set": {"status": "archived"}}
-            )
-            message = "Article archived successfully"
-        
-        # Remove from search
-        if search:
-            try:
-                await search.delete(
-                    index="articles",
-                    id=id
+            # Authenticated user - check specific permissions
+            user = user_info["user"]
+            is_creator = str(article["createdBy"]) == str(user["_id"])
+            is_admin = user["role"] == "admin"
+            is_editor = user["role"] == "editor"
+            
+            if not (is_creator or is_admin or is_editor):
+                logger.warning(f"User {user['username']} tried to update article {id} without permission")
+                raise HTTPException(
+                    status_code=403,
+                    detail="You don't have permission to update this article"
                 )
-            except Exception as e:
-                logger.error(f"Error removing article from search: {e}")
-        
-        # More aggressive cache invalidation
-        if cache:
-            try:
-                # Clear specific article caches
-                await cache.delete(f"article:{id}")
-                if article.get("slug"):
-                    await cache.delete(f"article:{article['slug']}")
-                
-                # Clear article list caches - all variations
-                await cache.delete("featured_article")
-                await cache.delete("recent_articles")
-                
-                # Clear all article list caches with pattern matching if supported
-                try:
-                    await cache.clear() # Try to clear entire cache
-                except:
-                    # Otherwise clear common patterns
-                    for i in range(0, 10):
-                        await cache.delete(f"articles:list:::{i}:10")
-                        await cache.delete(f"articles:list:newest:{i}:10")
-                        await cache.delete(f"articles:list:oldest:{i}:10")
-                        await cache.delete(f"articles:list:mostviewed:{i}:10")
-                        await cache.delete(f"articles:list:alphabetical:{i}:10")
-            except Exception as e:
-                logger.error(f"Error clearing cache: {e}")
-        
-        return {"message": message}
-    
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error handling article deletion: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to process article deletion: {str(e)}"
-        )
-# File: routes/articles.py (Article Update Route)
-
-# File: routes/articles.py (partial update)
-
-# Update the ArticleUpdate model to include status field
-@router.put("/{id}", response_model=Article)
-async def update_article(
-    id: str,
-    article_update: ArticleUpdate,
-    current_user: Dict[str, Any] = Depends(get_current_user),
-    db=Depends(get_db),
-    search=Depends(get_search),
-    cache=Depends(get_cache)
-):
-    """
-    Update an existing article.
-    """
-    try:
-        logger.info(f"Updating article with ID: {id}")
-        
-        # Check if article exists
-        if not ObjectId.is_valid(id):
-            raise HTTPException(status_code=400, detail="Invalid article ID")
-        
-        article = await db["articles"].find_one({"_id": ObjectId(id)})
-        if not article:
-            raise HTTPException(status_code=404, detail="Article not found")
-        
-        # Only allow updates by the creator or admin/editor
-        is_creator = str(article["createdBy"]) == str(current_user["_id"])
-        is_admin = current_user["role"] == "admin"
-        is_editor = current_user["role"] == "editor"
-        
-        if not (is_creator or is_admin or is_editor):
-            logger.warning(f"User {current_user['username']} tried to update article {id} without permission")
-            raise HTTPException(
-                status_code=403,
-                detail="You don't have permission to update this article"
-            )
         
         # Prepare update data
         update_data = {}
@@ -508,7 +290,7 @@ async def update_article(
             
         # Allow status updates but only for admin/editor
         if article_update.status is not None:
-            if not (is_admin or is_editor):
+            if user_info["type"] == "anonymous" or user_info["user"]["role"] not in ["admin", "editor"]:
                 raise HTTPException(
                     status_code=403, 
                     detail="Only admins and editors can change article status"
@@ -521,111 +303,78 @@ async def update_article(
                     status_code=400, 
                     detail=f"Invalid status. Must be one of: {', '.join(valid_statuses)}"
                 )
-                
             update_data["status"] = article_update.status
         
-        # Don't update if no changes
-        if not update_data:
-            raise HTTPException(status_code=400, detail="No update data provided")
-        
-        # Update lastUpdatedAt and lastUpdatedBy
+        # Set last updated info
         update_data["lastUpdatedAt"] = datetime.now()
-        update_data["lastUpdatedBy"] = current_user["_id"]
+        if user_info["type"] == "authenticated":
+            update_data["lastEditorId"] = user_info["user"]["_id"]
         
-        # Only create a revision for content updates
-        create_revision = "content" in update_data
+        # Create revision for history
+        revision_data = {
+            "articleId": ObjectId(id),
+            "content": article_update.content or article["content"],
+            "summary": article_update.summary or article["summary"],
+            "categories": article_update.categories or article.get("categories", []),
+            "tags": article_update.tags or article.get("tags", []),
+            "createdAt": datetime.now(),
+            "editorId": user_info["user"]["_id"] if user_info["type"] == "authenticated" else None,
+            "editorIP": user_info["anonymized_ip"],
+            "editorType": user_info["type"],
+            "editorName": user_info["display_name"],
+            "comment": getattr(article_update, 'editComment', '') or "No edit summary"
+        }
         
-        if create_revision:
-            # Create a revision entry
-            revision = {
-                "articleId": ObjectId(id),
-                "content": update_data.get("content", article["content"]),
-                "createdBy": current_user["_id"],
-                "createdAt": datetime.now(),
-                "comment": article_update.editComment or "Updated article"
-            }
+        # Insert revision
+        await db["revisions"].insert_one(revision_data)
         
         # Update the article
-        result = await db["articles"].update_one(
+        await db["articles"].update_one(
             {"_id": ObjectId(id)},
             {"$set": update_data}
         )
         
-        if result.modified_count == 0:
-            logger.warning(f"No changes made to article {id}")
-            raise HTTPException(status_code=400, detail="No changes made to the article")
-        
-        # Create revision if needed
-        if create_revision:
-            await db["revisions"].insert_one(revision)
-            logger.info(f"Created revision for article {id}")
-            
-            # Update user's edit count
+        # Update user statistics for authenticated users
+        if user_info["type"] == "authenticated":
             await db["users"].update_one(
-                {"_id": current_user["_id"]},
+                {"_id": user_info["user"]["_id"]},
                 {"$inc": {"contributions.editsPerformed": 1}}
             )
         
         # Update search index
-        if search is not None:
+        if search:
             try:
-                search_data = {
-                    "updated": datetime.now().isoformat()
-                }
-                
-                if "content" in update_data:
-                    search_data["content"] = update_data["content"]
-                
-                if "title" in update_data:
-                    search_data["title"] = update_data["title"]
-                
-                if "summary" in update_data:
-                    search_data["summary"] = update_data["summary"]
-                    
-                if "status" in update_data:
-                    # Remove from search index if not published
-                    if update_data["status"] != "published":
-                        await search.delete(
-                            index="articles",
-                            id=id
-                        )
-                    else:
-                        await search.update(
-                            index="articles",
-                            id=id,
-                            document=search_data
-                        )
-                else:
-                    await search.update(
-                        index="articles",
-                        id=id,
-                        document=search_data
-                    )
-                    
-                logger.info(f"Updated search index for article {id}")
+                await search.update(
+                    index="articles",
+                    id=id,
+                    body={
+                        "title": update_data.get("title", article["title"]),
+                        "content": update_data.get("content", article["content"]),
+                        "summary": update_data.get("summary", article["summary"]),
+                        "categories": update_data.get("categories", article.get("categories", [])),
+                        "tags": update_data.get("tags", article.get("tags", []))
+                    }
+                )
             except Exception as e:
                 logger.error(f"Error updating search index: {e}")
-                # Continue even if search update fails
         
-        # Invalidate cache
-        if cache is not None:
+        # Clear cache
+        if cache:
             try:
                 await cache.delete(f"article:{id}")
                 if article.get("slug"):
                     await cache.delete(f"article:{article['slug']}")
                 await cache.delete("featured_article")
                 await cache.delete("recent_articles")
-                logger.info(f"Cleared cache for article {id}")
             except Exception as e:
                 logger.error(f"Error clearing cache: {e}")
-                # Continue even if cache clearing fails
         
         # Get updated article
         updated_article = await db["articles"].find_one({"_id": ObjectId(id)})
-        logger.info(f"Successfully updated article {id}")
         
+        logger.info(f"Successfully updated article {id}")
         return updated_article
-    
+        
     except HTTPException:
         raise
     except Exception as e:
@@ -638,33 +387,31 @@ async def update_article(
 @router.delete("/{id}")
 async def delete_article(
     id: str,
-    permanent: bool = Query(False, description="Permanently delete the article instead of archiving"),
+    permanent: bool = Query(False, description="Permanently delete the article"),
     current_user: Dict[str, Any] = Depends(get_current_admin),
     db=Depends(get_db),
     search=Depends(get_search),
     cache=Depends(get_cache)
 ):
     """
-    Delete an article (admin only). By default, marks it as archived.
-    If permanent=True, the article will be permanently deleted.
+    Delete or archive an article. Only admins can delete articles.
     """
-    # Check if article exists
-    if not ObjectId.is_valid(id):
-        raise HTTPException(status_code=400, detail="Invalid article ID")
-    
-    article = await db["articles"].find_one({"_id": ObjectId(id)})
-    if not article:
-        raise HTTPException(status_code=404, detail="Article not found")
-    
     try:
+        logger.info(f"User {current_user['username']} attempting to delete article {id}")
+        
+        # Check if article exists
+        if not ObjectId.is_valid(id):
+            raise HTTPException(status_code=400, detail="Invalid article ID")
+        
+        article = await db["articles"].find_one({"_id": ObjectId(id)})
+        if not article:
+            raise HTTPException(status_code=404, detail="Article not found")
+        
         if permanent:
-            # Actually delete the article
-            result = await db["articles"].delete_one({"_id": ObjectId(id)})
+            # Permanently delete
+            await db["articles"].delete_one({"_id": ObjectId(id)})
             
-            if result.deleted_count == 0:
-                raise HTTPException(status_code=500, detail="Failed to delete article")
-                
-            # Delete all related revisions, proposals, etc.
+            # Also delete related data
             await db["revisions"].delete_many({"articleId": ObjectId(id)})
             await db["proposals"].delete_many({"articleId": ObjectId(id)})
             await db["rewards"].delete_many({"articleId": ObjectId(id)})
@@ -688,7 +435,7 @@ async def delete_article(
             except Exception as e:
                 logger.error(f"Error removing article from search: {e}")
         
-        # Invalidate cache
+        # Clear cache
         if cache:
             try:
                 await cache.delete(f"article:{id}")
@@ -710,5 +457,140 @@ async def delete_article(
             detail=f"Failed to process article deletion: {str(e)}"
         )
 
-# More routes related to articles...
-# (remaining routes omitted for brevity)
+@router.post("/{id}/revisions/{revision_id}/restore")
+async def restore_article_revision(
+    id: str,
+    revision_id: str,
+    request: Request,
+    restore_data: Dict[str, Any] = Body(...),
+    db=Depends(get_db),
+    cache=Depends(get_cache)
+):
+    """
+    Restore an article to a previous revision.
+    This creates a new revision with the content from the specified revision.
+    """
+    try:
+        # Get user info (authenticated or anonymous)
+        from dependencies.auth import get_user_or_anonymous
+        user_info = await get_user_or_anonymous(request, db)
+        
+        # Check permissions - only editors/admins can restore, not anonymous users
+        if user_info["type"] == "anonymous":
+            raise HTTPException(
+                status_code=401,
+                detail="You must be logged in to restore article revisions"
+            )
+        
+        user = user_info["user"]
+        if user["role"] not in ["admin", "editor"]:
+            raise HTTPException(
+                status_code=403,
+                detail="Only editors and administrators can restore article revisions"
+            )
+        
+        logger.info(f"User {user['username']} attempting to restore article {id} to revision {revision_id}")
+        
+        # Validate IDs
+        if not ObjectId.is_valid(id) or not ObjectId.is_valid(revision_id):
+            raise HTTPException(status_code=400, detail="Invalid ID format")
+        
+        # Get the article
+        article = await db["articles"].find_one({"_id": ObjectId(id)})
+        if not article:
+            raise HTTPException(status_code=404, detail="Article not found")
+        
+        # Get the revision to restore
+        revision_to_restore = await db["revisions"].find_one({
+            "_id": ObjectId(revision_id),
+            "articleId": ObjectId(id)
+        })
+        if not revision_to_restore:
+            raise HTTPException(status_code=404, detail="Revision not found")
+        
+        # Create new revision with restored content
+        new_revision = {
+            "articleId": ObjectId(id),
+            "content": revision_to_restore["content"],
+            "summary": revision_to_restore.get("summary", ""),
+            "categories": revision_to_restore.get("categories", []),
+            "tags": revision_to_restore.get("tags", []),
+            "createdAt": datetime.now(),
+            "editorId": user["_id"],
+            "editorIP": user_info["anonymized_ip"],
+            "editorType": "authenticated",
+            "editorName": user["username"],
+            "comment": restore_data.get("comment", f"Restored to revision from {revision_to_restore['createdAt']}"),
+            "isRestore": True,
+            "restoredFromRevision": ObjectId(revision_id)
+        }
+        
+        # Insert the new revision
+        revision_result = await db["revisions"].insert_one(new_revision)
+        
+        # Update the article with restored content
+        update_data = {
+            "content": revision_to_restore["content"],
+            "summary": revision_to_restore.get("summary", ""),
+            "categories": revision_to_restore.get("categories", []),
+            "tags": revision_to_restore.get("tags", []),
+            "lastUpdatedAt": datetime.now(),
+            "lastEditorId": user["_id"]
+        }
+        
+        await db["articles"].update_one(
+            {"_id": ObjectId(id)},
+            {"$set": update_data}
+        )
+        
+        # Update user statistics
+        await db["users"].update_one(
+            {"_id": user["_id"]},
+            {"$inc": {"contributions.editsPerformed": 1}}
+        )
+        
+        # Clear cache
+        if cache:
+            try:
+                await cache.delete(f"article:{id}")
+                if article.get("slug"):
+                    await cache.delete(f"article:{article['slug']}")
+                await cache.delete("recent_articles")
+                await cache.delete("featured_article")
+            except Exception as e:
+                logger.error(f"Error clearing cache: {e}")
+        
+        # Update search index
+        search = request.app.state.search
+        if search:
+            try:
+                await search.update(
+                    index="articles",
+                    id=id,
+                    body={
+                        "title": article["title"],
+                        "content": revision_to_restore["content"],
+                        "summary": revision_to_restore.get("summary", ""),
+                        "categories": revision_to_restore.get("categories", []),
+                        "tags": revision_to_restore.get("tags", [])
+                    }
+                )
+            except Exception as e:
+                logger.error(f"Error updating search index: {e}")
+        
+        logger.info(f"Article {id} restored to revision {revision_id} by {user['username']}")
+        
+        return {
+            "message": "Article restored successfully",
+            "revisionId": str(revision_result.inserted_id),
+            "restoredFromRevision": revision_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error restoring article revision: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to restore article revision: {str(e)}"
+        )
