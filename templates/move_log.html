@@ -1,0 +1,474 @@
+<!-- File: templates/move_log.html -->
+{% extends "base.html" %}
+
+{% block title %}Article Move Log - Kryptopedia{% endblock %}
+
+{% set active_page = 'special' %}
+
+{% block sidebar_extra %}
+<h3>Special Pages</h3>
+<ul>
+    <li><a href="/special/statistics">Wiki Statistics</a></li>
+    <li><a href="/special/recentchanges">Recent Changes</a></li>
+    <li><a href="/special/move-log" class="current">Move Log</a></li>
+</ul>
+
+<h3>Filters</h3>
+<ul>
+    <li><a href="/special/move-log">All Moves</a></li>
+    <li><a href="/special/move-log?period=today">Today</a></li>
+    <li><a href="/special/move-log?period=week">This Week</a></li>
+    <li><a href="/special/move-log?period=month">This Month</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Article Move Log</h1>
+    <p class="page-description">Track all article moves and renames on Kryptopedia</p>
+</div>
+
+<div class="log-stats">
+    <div class="stat-card">
+        <div class="stat-number">{{ total_moves }}</div>
+        <div class="stat-label">Total Moves</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ moves_this_month|default(0) }}</div>
+        <div class="stat-label">This Month</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">{{ active_editors|default(0) }}</div>
+        <div class="stat-label">Active Editors</div>
+    </div>
+</div>
+
+{% if move_entries %}
+<div class="log-container">
+    <div class="log-table-wrapper">
+        <table class="log-table">
+            <thead>
+                <tr>
+                    <th class="col-date">Date</th>
+                    <th class="col-move">Move Details</th>
+                    <th class="col-user">Moved By</th>
+                    <th class="col-reason">Reason</th>
+                    <th class="col-actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in move_entries %}
+                <tr class="log-entry">
+                    <td class="col-date">
+                        <time datetime="{{ entry.moved_at.isoformat() }}" class="move-time">
+                            {{ entry.moved_at.strftime('%m/%d/%Y') }}<br>
+                            <small>{{ entry.moved_at.strftime('%H:%M') }}</small>
+                        </time>
+                    </td>
+                    <td class="col-move">
+                        <div class="move-details">
+                            <div class="move-from">
+                                {% if entry.redirect_created %}
+                                    <a href="/articles/{{ entry.old_slug }}" class="redirect-link" title="Redirect page">
+                                        {{ entry.old_title }}
+                                    </a>
+                                {% else %}
+                                    <span class="deleted-title">{{ entry.old_title }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="move-arrow">→</div>
+                            <div class="move-to">
+                                <a href="/articles/{{ entry.new_slug }}" class="current-link">
+                                    {{ entry.new_title }}
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="move-meta">
+                            {% if entry.redirect_created %}
+                                <span class="meta-tag redirect-tag">Redirect Created</span>
+                            {% endif %}
+                            {% if entry.links_updated and entry.links_updated_count > 0 %}
+                                <span class="meta-tag links-tag">{{ entry.links_updated_count }} Links Updated</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="col-user">
+                        <div class="user-info">
+                            <a href="/users/{{ entry.moved_by_username }}" class="user-link">
+                                {{ entry.moved_by_username }}
+                            </a>
+                        </div>
+                    </td>
+                    <td class="col-reason">
+                        <div class="reason-text">{{ entry.reason }}</div>
+                    </td>
+                    <td class="col-actions">
+                        <div class="action-links">
+                            <a href="/articles/{{ entry.new_slug }}/history" class="action-link" title="View article history">
+                                History
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<nav class="pagination-nav" aria-label="Move log pagination">
+    <div class="pagination-info">
+        Showing {{ (current_page - 1) * 50 + 1 }} to {{ min(current_page * 50, total_moves) }} of {{ total_moves }} moves
+    </div>
+    <div class="pagination-controls">
+        {% if current_page > 1 %}
+            <a href="?page=1{% if request.args.get('period') %}&period={{ request.args.get('period') }}{% endif %}" class="page-btn">First</a>
+            <a href="?page={{ current_page - 1 }}{% if request.args.get('period') %}&period={{ request.args.get('period') }}{% endif %}" class="page-btn">Previous</a>
+        {% endif %}
+        
+        <span class="page-current">Page {{ current_page }} of {{ total_pages }}</span>
+        
+        {% if current_page < total_pages %}
+            <a href="?page={{ current_page + 1 }}{% if request.args.get('period') %}&period={{ request.args.get('period') }}{% endif %}" class="page-btn">Next</a>
+            <a href="?page={{ total_pages }}{% if request.args.get('period') %}&period={{ request.args.get('period') }}{% endif %}" class="page-btn">Last</a>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-icon">📝</div>
+    <h2>No Moves Yet</h2>
+    <p>No article moves have been recorded. When editors rename or move articles, they'll appear here.</p>
+    {% if request.args.get('period') %}
+        <a href="/special/move-log" class="btn btn-secondary">View All Moves</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.log-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #0645ad;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.log-container {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.log-table-wrapper {
+    overflow-x: auto;
+}
+
+.log-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.log-table th {
+    background: #f8f9fa;
+    padding: 1rem 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.log-table td {
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: top;
+}
+
+.log-entry:hover {
+    background: #f8f9fa;
+}
+
+.col-date {
+    width: 100px;
+}
+
+.col-move {
+    width: 40%;
+}
+
+.col-user {
+    width: 120px;
+}
+
+.col-reason {
+    width: 30%;
+}
+
+.col-actions {
+    width: 80px;
+}
+
+.move-time {
+    font-family: monospace;
+    color: #495057;
+    text-align: center;
+    display: block;
+}
+
+.move-time small {
+    color: #6c757d;
+}
+
+.move-details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.move-from, .move-to {
+    font-weight: 500;
+}
+
+.move-arrow {
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.redirect-link {
+    color: #6c757d;
+    font-style: italic;
+    text-decoration: none;
+}
+
+.redirect-link:hover {
+    text-decoration: underline;
+}
+
+.deleted-title {
+    color: #dc3545;
+    text-decoration: line-through;
+}
+
+.current-link {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+.current-link:hover {
+    text-decoration: underline;
+}
+
+.move-meta {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.meta-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+.redirect-tag {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.links-tag {
+    background: #d4edda;
+    color: #155724;
+}
+
+.user-info {
+    text-align: center;
+}
+
+.user-link {
+    color: #0645ad;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.user-link:hover {
+    text-decoration: underline;
+}
+
+.reason-text {
+    color: #495057;
+    line-height: 1.4;
+    max-width: 300px;
+}
+
+.action-links {
+    text-align: center;
+}
+
+.action-link {
+    color: #0645ad;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.action-link:hover {
+    text-decoration: underline;
+}
+
+.pagination-nav {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.pagination-info {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.page-btn {
+    padding: 0.5rem 0.75rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #0645ad;
+    text-decoration: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.page-btn:hover {
+    background: #e9ecef;
+}
+
+.page-current {
+    padding: 0.5rem 0.75rem;
+    background: #0645ad;
+    color: white;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state h2 {
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+.empty-state p {
+    margin-bottom: 2rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.btn:hover {
+    background: #545b62;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .log-table {
+        font-size: 0.8rem;
+    }
+    
+    .log-table th,
+    .log-table td {
+        padding: 0.5rem 0.25rem;
+    }
+    
+    .move-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+    
+    .move-arrow {
+        transform: rotate(90deg);
+    }
+    
+    .pagination-nav {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .reason-text {
+        max-width: none;
+    }
+}
+
+/* Sidebar current link styling */
+.sidebar a.current {
+    background: #0645ad;
+    color: white;
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+}
+</style>
+{% endblock %}
