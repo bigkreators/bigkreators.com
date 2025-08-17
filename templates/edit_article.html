@@ -136,8 +136,9 @@
 <h1>Edit Article: {{ article.title }}</h1>
 
 <div id="login-message" class="login-required" style="display: none;">
-    <p>You need to be logged in to edit articles.</p>
-    <button id="login-to-edit" class="primary-button">Login</button>
+    <p><strong>Authentication Required</strong></p>
+    <p>You need to be logged in to edit articles. This is the EDIT page, not the create page.</p>
+    <button id="login-to-edit" class="primary-button">Login to Edit</button>
 </div>
 
 <div class="status-message error-message" id="error-message"></div>
@@ -196,12 +197,20 @@
 <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Edit Article page loaded');
+    
     // Check if user is logged in
     const token = localStorage.getItem('token');
+    console.log('Token found:', token ? 'Yes' : 'No');
+    
     const loginMessage = document.getElementById('login-message');
     const editForm = document.getElementById('edit-article-form');
     const errorMessage = document.getElementById('error-message');
     const successMessage = document.getElementById('success-message');
+    
+    // Debug: Verify we're on the edit page
+    console.log('Current URL:', window.location.href);
+    console.log('Page type: EDIT ARTICLE');
     
     // Initialize WYSIWYG editor if jQuery and Summernote are available
     if (typeof $ !== 'undefined' && $.fn.summernote) {
@@ -223,6 +232,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Handle auth state
     if (!token) {
+        console.log('No token found - showing login message');
         loginMessage.style.display = 'block';
         editForm.style.display = 'none';
         
@@ -231,11 +241,45 @@ document.addEventListener('DOMContentLoaded', function() {
             const loginModal = document.getElementById('login-modal');
             if (loginModal) {
                 loginModal.style.display = 'block';
+            } else {
+                // Fallback: redirect to login page
+                window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
             }
         });
     } else {
-        loginMessage.style.display = 'none';
-        editForm.style.display = 'block';
+        console.log('Token found - showing edit form');
+        
+        // Verify token is valid by checking user info
+        fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 401) {
+                    console.log('Token expired - removing and showing login');
+                    localStorage.removeItem('token');
+                    loginMessage.style.display = 'block';
+                    editForm.style.display = 'none';
+                    showError('Your session has expired. Please log in again.');
+                    return null;
+                }
+                throw new Error('Failed to verify authentication');
+            }
+            return response.json();
+        })
+        .then(userData => {
+            if (userData) {
+                console.log('User authenticated:', userData.email);
+                loginMessage.style.display = 'none';
+                editForm.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            console.error('Auth verification error:', error);
+            showError('Failed to verify your login status. Please try refreshing the page.');
+        });
         
         // Handle form submission
         editForm.addEventListener('submit', function(e) {
@@ -267,13 +311,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 .filter(item => item.length > 0);
             
             // Validate
-            if (!articleTitle || !articleSummary || !articleContent) {
+            if (!articleContent) {
                 showError('Please fill in all required fields.');
-                return;
-            }
-            
-            if (!editComment) {
-                showError('Please provide a summary of your changes.');
                 return;
             }
             
@@ -287,22 +326,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 editComment: editComment
             };
             
+            console.log('Updating article with data:', articleData);
+            
             // Show loading state
             const saveButton = document.getElementById('save-article');
             const originalText = saveButton.textContent;
             saveButton.innerHTML = '<span class="loading-indicator"></span>Saving...';
             saveButton.disabled = true;
             
+            // Get current token again to ensure it's fresh
+            const currentToken = localStorage.getItem('token');
+            if (!currentToken) {
+                showError('Your session has expired. Please log in again.');
+                saveButton.innerHTML = originalText;
+                saveButton.disabled = false;
+                return;
+            }
+            
             // Send API request
             fetch('/api/articles/{{ article._id }}', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${currentToken}`
                 },
                 body: JSON.stringify(articleData)
             })
             .then(response => {
+                console.log('API response status:', response.status);
                 if (!response.ok) {
                     if (response.status === 401) {
                         localStorage.removeItem('token');
@@ -315,6 +366,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
+                console.log('Article updated successfully:', data);
                 showSuccess('Article updated successfully!');
                 
                 // Redirect to article view after a delay
@@ -336,6 +388,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Helper functions
     function showError(message) {
+        console.log('Showing error:', message);
         errorMessage.textContent = message;
         errorMessage.style.display = 'block';
         successMessage.style.display = 'none';
@@ -345,10 +398,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function showSuccess(message) {
+        console.log('Showing success:', message);
         successMessage.textContent = message;
         successMessage.style.display = 'block';
         errorMessage.style.display = 'none';
     }
 });
 </script>
-{% endblock %}
+{% endblock %>
