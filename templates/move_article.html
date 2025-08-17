@@ -1,0 +1,398 @@
+<!-- File: templates/move_article.html -->
+{% extends "base.html" %}
+
+{% block title %}Move Article: {{ article.title }} - Kryptopedia{% endblock %}
+
+{% set active_page = 'articles' %}
+
+{% block sidebar_extra %}
+<h3>Article Actions</h3>
+<ul>
+    <li><a href="/articles/{{ article.slug }}">View Article</a></li>
+    <li><a href="/articles/{{ article._id }}/edit">Edit Content</a></li>
+    <li><a href="/articles/{{ article._id }}/history">View History</a></li>
+</ul>
+
+<h3>Move Guidelines</h3>
+<ul>
+    <li>Choose a clear, descriptive title</li>
+    <li>Follow existing naming conventions</li>
+    <li>Avoid special characters</li>
+    <li>Consider SEO and readability</li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Move Article</h1>
+    <p class="page-description">Change the title and URL of this article</p>
+</div>
+
+<div class="move-info-box">
+    <h2>Current Article</h2>
+    <div class="current-article">
+        <strong>Title:</strong> {{ article.title }}<br>
+        <strong>URL:</strong> /articles/{{ article.slug }}<br>
+        <strong>Created:</strong> {{ article.created_at.strftime('%B %d, %Y') if article.created_at else 'Unknown' }}
+    </div>
+</div>
+
+<div class="move-form-container">
+    <form id="move-form" class="move-form">
+        <div class="form-group">
+            <label for="new-title">New Title:</label>
+            <input type="text" id="new-title" name="newTitle" value="{{ article.title }}" required maxlength="200">
+            <small class="help-text">Enter the new title for this article</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="new-url-preview">New URL (preview):</label>
+            <div class="url-preview">
+                <span class="url-base">/articles/</span><span id="url-slug">{{ article.slug }}</span>
+            </div>
+            <small class="help-text">URL will be automatically generated from the title</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="move-reason">Reason for move:</label>
+            <textarea id="move-reason" name="moveReason" rows="3" required placeholder="Explain why you are moving this article..."></textarea>
+            <small class="help-text">This will appear in the article's revision history</small>
+        </div>
+        
+        <div class="move-options">
+            <h3>Move Options</h3>
+            
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="create-redirect" name="createRedirect" checked>
+                    <span class="checkmark"></span>
+                    Leave a redirect at the old title
+                </label>
+                <small class="help-text">Recommended: Ensures existing links continue to work</small>
+            </div>
+            
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="update-links" name="updateLinks" checked>
+                    <span class="checkmark"></span>
+                    Update links in other articles
+                </label>
+                <small class="help-text">Automatically updates internal links to use the new title</small>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Move Article</button>
+            <a href="/articles/{{ article.slug }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<!-- Status Messages -->
+<div id="status-messages">
+    <div id="error-message" class="alert alert-error" style="display: none;"></div>
+    <div id="success-message" class="alert alert-success" style="display: none;"></div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.move-info-box {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.move-info-box h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+.current-article {
+    font-family: monospace;
+    background: white;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+.move-form-container {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #495057;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0645ad;
+    box-shadow: 0 0 0 2px rgba(6, 69, 173, 0.25);
+}
+
+.url-preview {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #495057;
+}
+
+.url-base {
+    color: #6c757d;
+}
+
+.help-text {
+    display: block;
+    margin-top: 0.5rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.move-options {
+    border-top: 1px solid #dee2e6;
+    padding-top: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.move-options h3 {
+    margin-bottom: 1rem;
+    color: #495057;
+}
+
+.checkbox-group {
+    margin-bottom: 1rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin-right: 0.75rem;
+    margin-top: 0.25rem;
+    transform: scale(1.2);
+}
+
+.form-actions {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #0645ad;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0530a0;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #545b62;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 4px;
+    margin: 1rem 0;
+}
+
+.alert-error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.alert-success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+@media (max-width: 768px) {
+    .move-form-container {
+        padding: 1rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newTitleInput = document.getElementById('new-title');
+    const urlSlugSpan = document.getElementById('url-slug');
+    const moveForm = document.getElementById('move-form');
+    const errorMessage = document.getElementById('error-message');
+    const successMessage = document.getElementById('success-message');
+    
+    // Generate URL slug from title
+    function generateSlug(title) {
+        return title
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '') // Remove special characters
+            .replace(/\s+/g, '-')     // Replace spaces with hyphens
+            .replace(/-+/g, '-')      // Replace multiple hyphens with single
+            .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+    }
+    
+    // Update URL preview when title changes
+    newTitleInput.addEventListener('input', function() {
+        const newSlug = generateSlug(this.value);
+        urlSlugSpan.textContent = newSlug || '{{ article.slug }}';
+    });
+    
+    // Show/hide messages
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+        successMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    // Handle form submission
+    moveForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(moveForm);
+        const newTitle = formData.get('newTitle').trim();
+        const moveReason = formData.get('moveReason').trim();
+        const createRedirect = formData.has('createRedirect');
+        const updateLinks = formData.has('updateLinks');
+        
+        // Validation
+        if (!newTitle) {
+            showError('Please enter a new title.');
+            return;
+        }
+        
+        if (newTitle === '{{ article.title }}') {
+            showError('The new title must be different from the current title.');
+            return;
+        }
+        
+        if (!moveReason) {
+            showError('Please provide a reason for the move.');
+            return;
+        }
+        
+        // Get auth token - with debugging
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            showError('You must be logged in to move articles.');
+            return;
+        }
+        
+        // Disable form during submission
+        const submitBtn = moveForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Moving...';
+        
+        // Submit move request
+        fetch('/api/articles/{{ article._id }}/move', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                new_title: newTitle,
+                move_reason: moveReason,
+                create_redirect: createRedirect,
+                update_links: updateLinks
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.detail || 'Failed to move article');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            showSuccess('Article moved successfully! Redirecting...');
+            setTimeout(() => {
+                window.location.href = '/articles/' + data.new_slug;
+            }, 2000);
+        })
+        .catch(error => {
+            // Handle error without console logging to avoid JSON parsing issues
+            showError(error.message || 'An error occurred while moving the article.');
+        })
+        .finally(() => {
+            // Re-enable form
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        });
+    });
+});
+</script>
+{% endblock %}
