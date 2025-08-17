@@ -1,0 +1,225 @@
+<!-- File: templates/crypto_contributions.html -->
+{% extends "base.html" %}
+{% block title %}Contribution Management - Kryptopedia{% endblock %}
+{% set active_page = 'admin' %}
+
+{% block extra_css %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .page-header {
+        margin-bottom: 30px;
+    }
+    
+    .filters {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .filters form {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    
+    .filters input, .filters select {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .filters button {
+        padding: 8px 20px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    
+    .data-table {
+        width: 100%;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .data-table th {
+        background: #f8f9fa;
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    .data-table td {
+        padding: 12px;
+        border-top: 1px solid #dee2e6;
+    }
+    
+    .data-table tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .pagination a {
+        padding: 8px 16px;
+        background: #667eea;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+    
+    .recalc-btn {
+        padding: 4px 12px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h1>📊 Contribution Management</h1>
+        <p>Review and manage user contributions and point calculations</p>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filters">
+        <form method="get">
+            <input type="text" name="user_id" placeholder="User ID" value="{{ filters.user_id or '' }}">
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="pending" {% if filters.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="approved" {% if filters.status == 'approved' %}selected{% endif %}>Approved</option>
+                <option value="rejected" {% if filters.status == 'rejected' %}selected{% endif %}>Rejected</option>
+            </select>
+            <button type="submit">Filter</button>
+            <a href="/admin/crypto/contributions" style="padding: 8px 16px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Clear</a>
+        </form>
+    </div>
+    
+    <!-- Contributions Table -->
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Article</th>
+                <th>Type</th>
+                <th>Base Points</th>
+                <th>Multipliers</th>
+                <th>Total Points</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contrib in contributions %}
+            <tr>
+                <td>{{ contrib.created_at.strftime('%Y-%m-%d %H:%M') if contrib.created_at else 'N/A' }}</td>
+                <td>
+                    {{ contrib.username|default('Unknown') }}
+                    {% if contrib.wallet_address %}
+                    <br><small style="color: #666;">{{ contrib.wallet_address[:8] }}...</small>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="/articles/{{ contrib.article_id }}" target="_blank">
+                        {{ contrib.article_id[:20] }}...
+                    </a>
+                </td>
+                <td><span style="background: #e9ecef; padding: 2px 6px; border-radius: 3px;">{{ contrib.type }}</span></td>
+                <td>{{ contrib.base_points|default(0) }}</td>
+                <td>
+                    <small>
+                        Q: {{ "%.1f"|format(contrib.quality_multiplier|default(1)) }}<br>
+                        R: {{ "%.1f"|format(contrib.reputation_multiplier|default(1)) }}<br>
+                        D: {{ "%.1f"|format(contrib.demand_multiplier|default(1)) }}
+                    </small>
+                </td>
+                <td><strong style="color: #667eea;">{{ contrib.total_points|default(0) }}</strong></td>
+                <td>
+                    <button class="recalc-btn" onclick="recalculatePoints('{{ contrib._id }}')">
+                        Recalculate
+                    </button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; padding: 40px;">
+                    No contributions found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <!-- Pagination -->
+    {% if total_count > limit %}
+    <div class="pagination">
+        {% if skip > 0 %}
+        <a href="?skip={{ skip - limit }}&limit={{ limit }}&user_id={{ filters.user_id or '' }}&status={{ filters.status or '' }}">← Previous</a>
+        {% endif %}
+        
+        <span>Page {{ (skip // limit) + 1 }} of {{ ((total_count - 1) // limit) + 1 }} ({{ total_count }} total)</span>
+        
+        {% if skip + limit < total_count %}
+        <a href="?skip={{ skip + limit }}&limit={{ limit }}&user_id={{ filters.user_id or '' }}&status={{ filters.status or '' }}">Next →</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+async function recalculatePoints(contributionId) {
+    const quality = prompt('Enter quality multiplier (0.5 - 3.0):', '1.0');
+    if (!quality) return;
+    
+    const qualityFloat = parseFloat(quality);
+    if (isNaN(qualityFloat) || qualityFloat < 0.5 || qualityFloat > 3.0) {
+        alert('Invalid quality multiplier. Must be between 0.5 and 3.0');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/admin/crypto/recalculate-points/${contributionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + (localStorage.getItem('token') || '')
+            },
+            body: JSON.stringify({ quality_multiplier: qualityFloat })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            alert(`✅ Points updated: ${data.old_points} → ${data.new_points}`);
+            location.reload();
+        } else {
+            alert('❌ Error updating points');
+        }
+    } catch (error) {
+        alert('❌ Error: ' + error.message);
+    }
+}
+</script>
+{% endblock %}
