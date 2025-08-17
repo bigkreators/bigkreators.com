@@ -1,0 +1,95 @@
+<!-- File: templates/crypto_rewards.html -->
+{% extends "base.html" %}
+{% block title %}Reward Distribution - Kryptopedia{% endblock %}
+{% set active_page = 'admin' %}
+
+{% block extra_css %}
+<style>
+    /* Similar styles to contributions page */
+    .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .week-stats { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+    .stats-row { display: flex; gap: 30px; margin-top: 15px; }
+    .stat { flex: 1; }
+    .stat label { color: #666; font-size: 0.9em; }
+    .stat span { font-size: 1.5em; font-weight: bold; color: #667eea; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>💰 Reward Distribution Management</h1>
+    
+    <div class="week-stats">
+        <h2>Week: {{ week_start.strftime('%Y-%m-%d') }} to {{ week_end.strftime('%Y-%m-%d') }}</h2>
+        
+        <div class="stats-row">
+            <div class="stat">
+                <label>Total Distributed:</label><br>
+                <span>{{ "{:,.0f}".format(stats.total_distributed) }} KONTRIB</span>
+            </div>
+            <div class="stat">
+                <label>Recipients:</label><br>
+                <span>{{ stats.total_recipients }}</span>
+            </div>
+            <div class="stat">
+                <label>Average Reward:</label><br>
+                <span>{{ "%.2f"|format(stats.avg_reward) }} KONTRIB</span>
+            </div>
+            <div class="stat">
+                <label>Weekly Pool:</label><br>
+                <span>{{ "{:,}".format(stats.weekly_pool) }} KONTRIB</span>
+            </div>
+        </div>
+    </div>
+    
+    <table class="data-table" style="background: white; width: 100%; border-radius: 8px; overflow: hidden;">
+        <thead>
+            <tr style="background: #f8f9fa;">
+                <th style="padding: 12px;">User</th>
+                <th style="padding: 12px;">Wallet</th>
+                <th style="padding: 12px;">Points</th>
+                <th style="padding: 12px;">Tokens</th>
+                <th style="padding: 12px;">Status</th>
+                <th style="padding: 12px;">Transaction</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reward in rewards %}
+            <tr>
+                <td style="padding: 12px;">{{ reward.username|default('Unknown') }}</td>
+                <td style="padding: 12px;">
+                    {% if reward.wallet_address %}
+                    <code>{{ reward.wallet_address[:8] }}...{{ reward.wallet_address[-6:] }}</code>
+                    {% else %}
+                    Not connected
+                    {% endif %}
+                </td>
+                <td style="padding: 12px;">{{ reward.total_points }}</td>
+                <td style="padding: 12px;"><strong>{{ reward.token_amount }} KONTRIB</strong></td>
+                <td style="padding: 12px;">
+                    <span class="badge badge-{{ 'success' if reward.status == 'completed' else 'warning' }}"
+                          style="background: {{ '#d4edda' if reward.status == 'completed' else '#fff3cd' }}; 
+                                 color: {{ '#155724' if reward.status == 'completed' else '#856404' }};
+                                 padding: 4px 8px; border-radius: 4px;">
+                        {{ reward.status }}
+                    </span>
+                </td>
+                <td style="padding: 12px;">
+                    {% if reward.transaction_signature %}
+                    <a href="https://explorer.solana.com/tx/{{ reward.transaction_signature }}?cluster=devnet" target="_blank">
+                        View →
+                    </a>
+                    {% else %}
+                    -
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px;">No rewards for this period</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
