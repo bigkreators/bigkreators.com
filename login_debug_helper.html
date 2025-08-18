@@ -1,0 +1,233 @@
+<!-- File: login_debug_helper.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Debug Helper</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        .code { background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; margin: 10px 0; white-space: pre-wrap; }
+        button { padding: 8px 16px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; }
+        .primary { background-color: #007bff; color: white; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Login Debug Helper</h1>
+    
+    <div class="debug-section">
+        <h3>Test Account Details</h3>
+        <div class="code">Username: Local
+Email: local@kryptopedia.com
+Password: ɭɳʈʐᶏᶐᶒᶓᶔᶕᶖᶗᶘᶙᶚꞎꭦ𝼝𝼜𝼙𝼛𝼚𝼅𝼉𝼈𝼊ꭧ</div>
+    </div>
+
+    <div class="debug-section">
+        <h3>1. Character Encoding Test</h3>
+        <button onclick="testPasswordEncoding()" class="primary">Test Password Encoding</button>
+        <div id="encoding-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>2. Basic API Test</h3>
+        <button onclick="testAPIConnection()" class="primary">Test API Connection</button>
+        <div id="api-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>3. Login Test with Debug</h3>
+        <form id="debug-login-form">
+            <div class="form-group">
+                <label for="username">Username/Email:</label>
+                <input type="text" id="username" value="local@kryptopedia.com">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="text" id="password" value="ɭɳʈʐᶏᶐᶒᶓᶔᶕᶖᶗᶘᶙᶚꞎꭦ𝼝𝼜𝼙𝼛𝼚𝼅𝼉𝼈𝼊ꭧ">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="remember-me"> Remember Me (30 days)
+                </label>
+            </div>
+            <button type="submit" class="primary">Debug Login</button>
+        </form>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="debug-section">
+        <h3>4. Alternative Login Methods</h3>
+        <button onclick="testUsernameLogin()" class="primary">Try Username: "Local"</button>
+        <button onclick="testEmailLogin()" class="primary">Try Email: "local@kryptopedia.com"</button>
+        <div id="alternative-result"></div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.innerHTML = message;
+        }
+
+        function testPasswordEncoding() {
+            const password = "ɭɳʈʐᶏᶐᶒᶓᶔᶕᶖᶗᶘᶙᶚꞎꭦ𝼝𝼜𝼙𝼛𝼚𝼅𝼉𝼈𝼊ꭧ";
+            
+            const results = `
+<strong>Password Analysis:</strong>
+Length: ${password.length} characters
+Encoded length: ${new TextEncoder().encode(password).length} bytes
+First 5 chars: ${password.substring(0, 5)}
+Last 5 chars: ${password.substring(password.length - 5)}
+
+<strong>URL Encoding Test:</strong>
+${encodeURIComponent(password)}
+
+<strong>Base64 Test:</strong>
+${btoa(unescape(encodeURIComponent(password)))}
+            `;
+            
+            showResult('encoding-result', results, 'info');
+        }
+
+        function testAPIConnection() {
+            fetch('/api/auth/me')
+                .then(response => {
+                    if (response.status === 401) {
+                        showResult('api-result', '✅ API is working (got expected 401 for unauthorized)', 'success');
+                    } else {
+                        showResult('api-result', `✅ API responded with status: ${response.status}`, 'success');
+                    }
+                })
+                .catch(error => {
+                    showResult('api-result', `❌ API connection failed: ${error.message}`, 'error');
+                });
+        }
+
+        document.getElementById('debug-login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const rememberMe = document.getElementById('remember-me').checked;
+            
+            showResult('login-result', '🔄 Attempting login...', 'info');
+            
+            const formData = new URLSearchParams();
+            formData.append('username', username);
+            formData.append('password', password);
+            if (rememberMe) {
+                formData.append('remember_me', 'true');
+            }
+            
+            console.log('Login attempt:', {
+                username: username,
+                passwordLength: password.length,
+                rememberMe: rememberMe,
+                formData: formData.toString()
+            });
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData
+            })
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                if (response.ok) {
+                    return response.json().then(data => {
+                        console.log('Login success:', data);
+                        showResult('login-result', `✅ Login successful! Session type: ${data.session_type}, Remember me: ${data.remember_me}`, 'success');
+                        
+                        // Store token for further testing
+                        localStorage.setItem('debug_token', data.access_token);
+                    });
+                } else {
+                    return response.text().then(text => {
+                        console.log('Login error response:', text);
+                        let errorData;
+                        try {
+                            errorData = JSON.parse(text);
+                        } catch (e) {
+                            errorData = { detail: text };
+                        }
+                        
+                        showResult('login-result', `❌ Login failed: ${errorData.detail || 'Unknown error'}`, 'error');
+                        
+                        // Additional debug info
+                        const debugInfo = `
+<strong>Debug Info:</strong>
+Status: ${response.status}
+Username tried: "${username}"
+Password length: ${password.length} chars
+Response: ${text}
+                        `;
+                        showResult('login-result', showResult('login-result').innerHTML + debugInfo, 'error');
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+                showResult('login-result', `❌ Network error: ${error.message}`, 'error');
+            });
+        });
+
+        function testUsernameLogin() {
+            testLogin('Local', 'alternative-result');
+        }
+
+        function testEmailLogin() {
+            testLogin('local@kryptopedia.com', 'alternative-result');
+        }
+
+        function testLogin(username, resultElementId) {
+            const password = "ɭɳʈʐᶏᶐᶒᶓᶔᶕᶖᶗᶘᶙᶚꞎꭦ𝼝𝼜𝼙𝼛𝼚𝼅𝼉𝼈𝼊ꭧ";
+            
+            showResult(resultElementId, `🔄 Testing login with: ${username}`, 'info');
+            
+            const formData = new URLSearchParams();
+            formData.append('username', username);
+            formData.append('password', password);
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json().then(data => {
+                        showResult(resultElementId, `✅ Success with "${username}"!`, 'success');
+                    });
+                } else {
+                    return response.json().then(data => {
+                        showResult(resultElementId, `❌ Failed with "${username}": ${data.detail}`, 'error');
+                    });
+                }
+            })
+            .catch(error => {
+                showResult(resultElementId, `❌ Network error with "${username}": ${error.message}`, 'error');
+            });
+        }
+
+        // Auto-run basic tests
+        window.addEventListener('load', function() {
+            testPasswordEncoding();
+            testAPIConnection();
+        });
+    </script>
+</body>
+</html>
