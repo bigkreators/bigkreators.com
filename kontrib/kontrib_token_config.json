@@ -1,0 +1,12 @@
+{
+  "token_name": "K̡̓ontrib",
+  "token_symbol": "KONTRIB",
+  "token_mint": "pDcf4inBQfDKu6aPh3hSJE98am5ckJ2pYBRTrABAEkG",  // ← NEW TOKEN
+  "authority_wallet": "YOUR_AUTHORITY_ADDRESS",
+  "authority_private_key": "YOUR_PRIVATE_KEY_BASE58",
+  "decimals": 9,
+  "initial_supply": 100000000,
+  "network": "devnet",
+  "metadata_enabled": true,  // ← NEW: We have metadata now!
+  "token_program": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"  // ← Token-2022
+}
