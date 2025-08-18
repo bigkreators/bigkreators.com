@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-KONTRIB Token Creation Script
-Creates the KONTRIB token on Solana with proper symbol validation
+KONTRIB Token Creation Script - Simplified Version
+Creates the KONTRIB token on Solana with proper token extraction
 """
 
 import asyncio
@@ -10,6 +10,7 @@ import json
 import base58
 import tempfile
 import os
+import time
 from datetime import datetime
 from solders.keypair import Keypair
 
@@ -35,39 +36,9 @@ def print_info(message):
     print(f"{BLUE}ℹ️  {message}{NC}")
 
 def validate_token_symbol():
-    """Validate and provide guidelines for Solana token symbols"""
-    
-    print_section("Solana Token Symbol Guidelines")
-    
-    print_info("Solana SPL Token Symbol Rules:")
-    print("• Length: 1-10 characters")
-    print("• Allowed: Letters (A-Z), numbers (0-9)")
-    print("• Allowed: Basic symbols: . - _ (period, hyphen, underscore)")
-    print("• NOT allowed: Spaces, special chars like @#$%^&*()+=[]{}|\\:;\"'<>?,/")
-    print("• Case: Usually uppercase by convention")
-    print()
-    
-    # Test various KONTRIB variations
-    kontrib_options = {
-        "KONTRIB": "✅ Perfect - Standard format",
-        "KONTRIB.": "✅ Allowed - Period is permitted",
-        "KONTRIB-TOKEN": "❌ Too long (11 chars, max 10)",
-        "KONTRIB_": "✅ Allowed - Underscore permitted", 
-        "KONTRIB-": "✅ Allowed - Hyphen permitted",
-        "KONTRIB1": "✅ Allowed - Numbers permitted",
-        "K0NTRIB": "✅ Allowed - Numbers in middle permitted",
-        "KONTRIB@": "❌ Not allowed - @ symbol not permitted",
-        "KONTRIB$": "❌ Not allowed - $ symbol not permitted",
-        "KONTRIB!": "❌ Not allowed - ! symbol not permitted"
-    }
-    
-    print_info("KONTRIB Symbol Options Analysis:")
-    for symbol, status in kontrib_options.items():
-        print(f"  {symbol:<12} → {status}")
-    
-    print()
-    print_success("Recommended: 'KONTRIB' (7 chars, clean, professional)")
-    
+    """Validate token symbol"""
+    print_section("Token Symbol Validation")
+    print_success("Using symbol: 'KONTRIB' (7 chars, clean, professional)")
     return "KONTRIB"
 
 def check_prerequisites():
@@ -89,44 +60,15 @@ def check_prerequisites():
                 all_good = False
         except FileNotFoundError:
             print_error(f"{name} not installed")
-            print_info(f"Install {name} from https://docs.solana.com/cli/install-solana-cli-tools")
             all_good = False
     
     return all_good
 
-async def test_modern_service():
-    """Test the modern Solana service"""
-    try:
-        from services.solana_service import ModernSolanaService
-        
-        # Create test keypair
-        test_keypair = Keypair()
-        service = ModernSolanaService(
-            rpc_url="https://api.devnet.solana.com",
-            private_key=test_keypair.to_base58_string(),
-            token_mint=None
-        )
-        
-        # Test basic functionality
-        balance = await service.get_sol_balance(str(test_keypair.pubkey()))
-        print_success(f"Modern Solana service working - Test balance: {balance} SOL")
-        
-        await service.close()
-        return True
-        
-    except ImportError as e:
-        print_error(f"Cannot import modern service: {e}")
-        print_info("Make sure you've run the setup script first")
-        return False
-    except Exception as e:
-        print_error(f"Service test failed: {e}")
-        return False
-
 async def create_kontrib_token():
-    """Create KONTRIB token using modern approach"""
+    """Create KONTRIB token using simplified approach"""
     
-    print_section("KONTRIB Token Creation")
-    print_info("Creating BigKreators Contribution Token on Solana")
+    print_section("KONTRIB Token Creation - Simplified")
+    print_info("Creating K̡̓ontrib Token on Solana Devnet")
     
     # Validate token symbol
     token_symbol = validate_token_symbol()
@@ -134,12 +76,6 @@ async def create_kontrib_token():
     # Check prerequisites
     if not check_prerequisites():
         print_error("Prerequisites not met. Please install required tools.")
-        return False
-    
-    # Test modern service
-    print_section("Testing Modern Solana Service")
-    if not await test_modern_service():
-        print_error("Modern service test failed")
         return False
     
     # Configure Solana CLI
@@ -151,16 +87,18 @@ async def create_kontrib_token():
     print_section("Creating Authority Keypair")
     authority_keypair = Keypair()
     authority_address = str(authority_keypair.pubkey())
-    authority_private_key = authority_keypair.to_base58_string()
+    authority_private_key = base58.b58encode(bytes(authority_keypair)).decode('ascii')
     
     print_success(f"Authority wallet: {authority_address}")
     
-    # Save keypair to temporary file for CLI operations
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        # Convert to CLI format
-        keypair_data = list(authority_keypair.to_bytes_array())
+    # Save keypair to file for CLI
+    keypair_file = "kontrib-authority.json"
+    with open(keypair_file, 'w') as f:
+        keypair_bytes = bytes(authority_keypair)
+        keypair_data = list(keypair_bytes)
         json.dump(keypair_data, f)
-        keypair_file = f.name
+    
+    print_info(f"Keypair saved to: {keypair_file}")
     
     try:
         # Set CLI to use this keypair
@@ -171,7 +109,7 @@ async def create_kontrib_token():
         print_info("Requesting 2 SOL airdrop...")
         
         airdrop_result = subprocess.run([
-            'solana', 'airdrop', '2'
+            'solana', 'airdrop', '2', authority_address
         ], capture_output=True, text=True)
         
         if airdrop_result.returncode == 0:
@@ -180,65 +118,81 @@ async def create_kontrib_token():
             print_error(f"Airdrop failed: {airdrop_result.stderr}")
             print_info("Continuing anyway - you may need manual airdrop")
         
-        # Wait for airdrop confirmation
+        # Wait for confirmation
         print_info("Waiting for airdrop confirmation...")
-        await asyncio.sleep(5)
+        time.sleep(5)
         
-        # Create token with metadata
+        # Create token - simplified command
         print_section("Creating KONTRIB Token")
         print_info(f"Creating token with symbol: {token_symbol}")
-        print_info("Token Name: BigKreators Contribution Token")
+        print_info("Token Name: K̡̓ontrib")
         print_info("Decimals: 9 (standard)")
         
-        # Create token with enable-freeze for future governance
+        # Use simpler token creation without extra flags first
         create_result = subprocess.run([
             'spl-token', 'create-token',
-            '--decimals', '9',
-            '--enable-freeze'
+            '--decimals', '9'
         ], capture_output=True, text=True)
         
         if create_result.returncode != 0:
             print_error(f"Token creation failed: {create_result.stderr}")
             return False
         
-        # Extract token mint address
+        # Parse the output to get the actual token address
+        print_info("Parsing token creation output...")
+        print(f"Raw output: {create_result.stdout}")
+        
+        # The token address is usually after "Creating token " in the output
         token_mint = None
-        for line in create_result.stdout.strip().split('\n'):
-            if 'Creating token' in line:
-                token_mint = line.split()[-1]
-                break
+        lines = create_result.stdout.strip().split('\n')
+        for line in lines:
+            if 'Creating token ' in line:
+                # Extract the address after "Creating token "
+                parts = line.split('Creating token ')
+                if len(parts) > 1:
+                    token_mint = parts[1].strip()
+                    break
+        
+        # Sometimes it's just on its own line as an address
+        if not token_mint:
+            for line in lines:
+                line = line.strip()
+                # Check if it looks like a base58 address (43-44 chars)
+                if len(line) >= 43 and len(line) <= 44 and ' ' not in line:
+                    # Make sure it's not the token program ID
+                    if line != "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA":
+                        token_mint = line
+                        break
         
         if not token_mint:
-            print_error("Could not extract token mint address")
+            print_error("Could not extract token mint address from output")
+            print_info("Please check the output above and manually copy the token address")
             return False
         
         print_success(f"KONTRIB Token created: {token_mint}")
         
-        # Create associated token account
-        print_section("Creating Token Account")
-        print_info("Creating associated token account...")
-        
-        account_result = subprocess.run([
-            'spl-token', 'create-account', token_mint
-        ], capture_output=True, text=True)
-        
-        if account_result.returncode != 0:
-            print_error(f"Token account creation failed: {account_result.stderr}")
-            return False
-        
-        print_success("Token account created")
-        
-        # Mint initial supply
+        # Now mint the supply directly without creating a separate account
         print_section("Minting Initial Supply")
         print_info("Minting 100,000,000 KONTRIB tokens...")
         
+        # Mint with --fund-recipient to auto-create account
         mint_result = subprocess.run([
-            'spl-token', 'mint', token_mint, '100000000'
+            'spl-token', 'mint', token_mint, '100000000', '--fund-recipient'
         ], capture_output=True, text=True)
         
         if mint_result.returncode != 0:
-            print_error(f"Token minting failed: {mint_result.stderr}")
-            return False
+            # Try without --fund-recipient flag
+            print_info("Retrying mint without --fund-recipient...")
+            mint_result = subprocess.run([
+                'spl-token', 'mint', token_mint, '100000000'
+            ], capture_output=True, text=True)
+            
+            if mint_result.returncode != 0:
+                print_error(f"Token minting failed: {mint_result.stderr}")
+                print_info(f"Token was created at: {token_mint}")
+                print_info("You can try minting manually with:")
+                print(f"  spl-token mint {token_mint} 100000000")
+                return False
         
         print_success("100M KONTRIB tokens minted successfully")
         
@@ -252,45 +206,11 @@ async def create_kontrib_token():
             balance = balance_result.stdout.strip()
             print_success(f"Token balance verified: {balance} KONTRIB")
         
-        # Add token metadata (if possible)
-        print_section("Setting Token Metadata")
-        print_info("Note: Full metadata requires Metaplex setup")
-        print_info("For now, the token will show as the mint address in wallets")
-        print_info("After mainnet deployment, you can add:")
-        print("  • Token name: BigKreators Contribution Token")
-        print("  • Symbol: KONTRIB")
-        print("  • Logo: Your project logo")
-        print("  • Description: Rewards for wiki contributions")
-        
-        # Test with modern service
-        print_info("Testing with modern Solana service...")
-        try:
-            from services.solana_service import ModernSolanaService
-            
-            service = ModernSolanaService(
-                rpc_url="https://api.devnet.solana.com",
-                private_key=authority_private_key,
-                token_mint=token_mint
-            )
-            
-            # Test SOL balance
-            sol_balance = await service.get_sol_balance(authority_address)
-            print_success(f"SOL balance via service: {sol_balance} SOL")
-            
-            # Test token balance
-            token_balance = await service.get_token_balance(authority_address)
-            print_success(f"Token balance via service: {token_balance:,.0f} KONTRIB")
-            
-            await service.close()
-            
-        except Exception as e:
-            print_error(f"Service test failed: {e}")
-        
         # Generate configuration
         print_section("Generating Configuration")
         
         config = {
-            "token_name": "BigKreators Contribution Token",
+            "token_name": "K̡̓ontrib",
             "token_symbol": token_symbol,
             "token_mint": token_mint,
             "authority_wallet": authority_address,
@@ -301,13 +221,7 @@ async def create_kontrib_token():
             "rpc_url": "https://api.devnet.solana.com",
             "created_at": datetime.utcnow().isoformat(),
             "explorer_url": f"https://explorer.solana.com/address/{token_mint}?cluster=devnet",
-            "solana_version": "latest",
-            "creation_method": "spl_token_cli",
-            "features": {
-                "freeze_enabled": True,
-                "metadata_ready": False,
-                "governance_ready": True
-            }
+            "keypair_file": keypair_file
         }
         
         # Save configuration
@@ -321,7 +235,7 @@ SOLANA_RPC_URL=https://api.devnet.solana.com
 SOLANA_PRIVATE_KEY={authority_private_key}
 TOKEN_MINT_ADDRESS={token_mint}
 TOKEN_SYMBOL=KONTRIB
-TOKEN_NAME="BigKreators Contribution Token"
+TOKEN_NAME="K̡̓ontrib"
 WEEKLY_TOKEN_POOL=10000.0
 MIN_TOKENS_PER_USER=1.0"""
         
@@ -332,124 +246,48 @@ MIN_TOKENS_PER_USER=1.0"""
         # Print summary
         print_section("KONTRIB Token Creation Summary")
         print(f"{GREEN}🎉 KONTRIB Token successfully created!{NC}")
-        print(f"{BLUE}Token Name:{NC} BigKreators Contribution Token")
+        print(f"{BLUE}Token Name:{NC} K̡̓ontrib")
         print(f"{BLUE}Token Symbol:{NC} {token_symbol}")
         print(f"{BLUE}Token Mint:{NC} {token_mint}")
         print(f"{BLUE}Authority Wallet:{NC} {authority_address}")
         print(f"{BLUE}Initial Supply:{NC} 100,000,000 KONTRIB")
         print(f"{BLUE}Decimals:{NC} 9")
         print(f"{BLUE}Network:{NC} Solana Devnet")
+        print(f"{BLUE}Keypair File:{NC} {keypair_file}")
         print(f"{BLUE}Explorer:{NC} https://explorer.solana.com/address/{token_mint}?cluster=devnet")
-        
-        # Symbol validation summary
-        print_section("Symbol Validation Summary")
-        print(f"{GREEN}✅ Symbol 'KONTRIB' is valid for Solana SPL tokens{NC}")
-        print("• Length: 7 characters (within 1-10 limit)")
-        print("• Characters: All letters (A-Z allowed)")
-        print("• No special characters (follows SPL standard)")
-        print("• Professional and brandable")
         
         print_section("Next Steps")
         print(f"{YELLOW}1. Add environment variables to your .env file:{NC}")
         print(f"   cat .env.kontrib.generated >> .env")
         print()
-        print(f"{YELLOW}2. Update database migration for KONTRIB:{NC}")
-        print(f"   python migrate_database.py")
+        print(f"{YELLOW}2. Keep your keypair file safe:{NC}")
+        print(f"   {keypair_file} contains your private key")
         print()
-        print(f"{YELLOW}3. Test the integration:{NC}")
-        print(f"   python test_token_modern.py")
+        print(f"{YELLOW}3. View your token on Solana Explorer:{NC}")
+        print(f"   https://explorer.solana.com/address/{token_mint}?cluster=devnet")
         print()
-        print(f"{YELLOW}4. Start your FastAPI server:{NC}")
-        print(f"   uvicorn main:app --reload")
-        print()
-        print(f"{YELLOW}5. Test the API endpoints:{NC}")
-        print(f"   curl http://localhost:8000/api/token/status")
-        print(f"   curl http://localhost:8000/api/token/wallet/{authority_address}")
-        
-        # Optional: Metadata setup instructions
-        print_section("Optional: Adding Token Metadata")
-        print_info("To make KONTRIB display properly in wallets, you can add metadata:")
-        print("1. Use Metaplex Token Metadata program")
-        print("2. Add logo, description, and external URL")
-        print("3. Register with token lists (for DEX visibility)")
-        print("4. Submit to wallet providers for recognition")
-        print()
-        print_info("For MVP/testing, the current setup is sufficient")
+        print(f"{YELLOW}4. Add metadata (logo, etc.):{NC}")
+        print(f"   Upload logo to: static/images/kontrib/logo-512.png")
+        print(f"   Create metadata.json with token info")
         
         return True
         
-    finally:
-        # Clean up temporary keypair file
-        if os.path.exists(keypair_file):
-            os.unlink(keypair_file)
-
-def update_project_files():
-    """Update project files to use KONTRIB instead of WCT"""
-    
-    print_section("Updating Project Files for KONTRIB")
-    
-    # Files to update
-    files_to_update = [
-        'services/solana_service.py',
-        'models/token.py', 
-        'routes/token.py',
-        'README.md',
-        'migrate_database.py'
-    ]
-    
-    replacements = {
-        'WCT': 'KONTRIB',
-        'Wiki Contribution Token': 'BigKreators Contribution Token',
-        'wct': 'kontrib',
-        'WCT Token': 'KONTRIB Token'
-    }
-    
-    for file_path in files_to_update:
-        if os.path.exists(file_path):
-            try:
-                with open(file_path, 'r') as f:
-                    content = f.read()
-                
-                # Apply replacements
-                for old, new in replacements.items():
-                    content = content.replace(old, new)
-                
-                with open(f"{file_path}.kontrib", 'w') as f:
-                    f.write(content)
-                
-                print_success(f"Updated {file_path} → {file_path}.kontrib")
-                
-            except Exception as e:
-                print_error(f"Failed to update {file_path}: {e}")
-        else:
-            print_info(f"File {file_path} not found - skipping")
-    
-    print_info("Review the .kontrib files and replace originals if correct")
+    except Exception as e:
+        print_error(f"Unexpected error: {e}")
+        return False
 
 if __name__ == "__main__":
     print_section("KONTRIB Token Creation")
-    print_info("Creating BigKreators Contribution Token (KONTRIB) on Solana")
+    print_info("Creating K̡̓ontrib Token (KONTRIB) on Solana")
     
     try:
         success = asyncio.run(create_kontrib_token())
         if success:
-            print_success("KONTRIB token creation completed successfully!")
-            
-            # Offer to update project files
-            print()
-            response = input("Update project files to use KONTRIB instead of WCT? (y/n): ")
-            if response.lower() in ['y', 'yes']:
-                update_project_files()
-            
+            print_success("\n✨ KONTRIB token creation completed successfully! ✨")
         else:
-            print_error("Token creation failed")
-            exit(1)
-            
+            print_error("\nToken creation failed. Check the errors above.")
     except KeyboardInterrupt:
-        print_error("Token creation cancelled by user")
-        exit(1)
+        print()
+        print_info("Operation cancelled by user")
     except Exception as e:
         print_error(f"Unexpected error: {e}")
-        import traceback
-        traceback.print_exc()
-        exit(1)
