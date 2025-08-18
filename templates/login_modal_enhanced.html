@@ -1,0 +1,327 @@
+<!-- File: templates/login_modal_enhanced.html -->
+<!-- Enhanced login modal with "Remember Me" option -->
+<div id="login-modal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Login to Kryptopedia</h2>
+            <span class="close" onclick="closeModal('login-modal')">&times;</span>
+        </div>
+        
+        <div class="modal-body">
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email or Username:</label>
+                    <input type="text" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me" name="rememberMe">
+                        <span class="checkmark"></span>
+                        Remember me for 30 days
+                    </label>
+                    <small class="help-text">
+                        Unchecked: Secure 24-hour session<br>
+                        Checked: Extended 30-day session
+                    </small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="primary-button">Login</button>
+                    <button type="button" onclick="showRegisterModal()" class="secondary-button">Register</button>
+                </div>
+            </form>
+            
+            <div id="login-error" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Enhanced checkbox styling */
+.checkbox-group {
+    margin: 15px 0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ddd;
+    border-radius: 3px;
+    margin-right: 10px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark {
+    background-color: #0645ad;
+    border-color: #0645ad;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkmark::after {
+    content: "✓";
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.help-text {
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+    margin-left: 28px;
+    line-height: 1.3;
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.primary-button, .secondary-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.primary-button {
+    background-color: #0645ad;
+    color: white;
+}
+
+.primary-button:hover {
+    background-color: #053a7a;
+}
+
+.secondary-button {
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.secondary-button:hover {
+    background-color: #e9ecef;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+</style>
+
+<script>
+// Enhanced login form with Remember Me functionality
+document.addEventListener('DOMContentLoaded', function() {
+    setupEnhancedLoginForm();
+});
+
+function setupEnhancedLoginForm() {
+    const loginForm = document.getElementById('login-form');
+    if (!loginForm) return;
+    
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const rememberMe = document.getElementById('remember-me').checked;
+        
+        // Show loading state
+        const loginButton = loginForm.querySelector('button[type="submit"]');
+        const originalButtonText = loginButton.textContent;
+        loginButton.disabled = true;
+        loginButton.textContent = 'Logging in...';
+        
+        // Clear previous errors
+        hideLoginError();
+        
+        // Create form data for OAuth2 format
+        const formData = new URLSearchParams();
+        formData.append('username', email);
+        formData.append('password', password);
+        
+        // Add remember me parameter if checked
+        if (rememberMe) {
+            formData.append('remember_me', 'true');
+        }
+        
+        // Send login request
+        fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.detail || 'Login failed');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Login successful');
+            console.log('Token expires at:', data.expires_at);
+            console.log('Remember me was:', rememberMe ? 'enabled' : 'disabled');
+            
+            // Store token in localStorage
+            localStorage.setItem('token', data.access_token);
+            
+            // Store session info for debugging
+            const sessionInfo = {
+                expiresAt: data.expires_at,
+                rememberMe: rememberMe,
+                loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('sessionInfo', JSON.stringify(sessionInfo));
+            
+            // Also store token in cookie
+            const maxAge = rememberMe ? 30 * 24 * 60 * 60 : 24 * 60 * 60; // 30 days or 24 hours
+            document.cookie = `token=${data.access_token}; path=/; max-age=${maxAge}`;
+            
+            // Close modal
+            closeModal('login-modal');
+            
+            // Show success message
+            const sessionDuration = rememberMe ? '30 days' : '24 hours';
+            showNotification(`Login successful! Session will last ${sessionDuration}.`, 'success');
+            
+            // Handle redirect or refresh
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            if (redirectUrl) {
+                sessionStorage.removeItem('redirectAfterLogin');
+                window.location.href = redirectUrl;
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Login error:', error);
+            showLoginError(error.message || 'Login failed. Please check your credentials and try again.');
+        })
+        .finally(() => {
+            // Reset button state
+            loginButton.innerHTML = originalButtonText;
+            loginButton.disabled = false;
+        });
+    });
+}
+
+function showLoginError(message) {
+    const errorDiv = document.getElementById('login-error');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+}
+
+function hideLoginError() {
+    const errorDiv = document.getElementById('login-error');
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 4px;
+        color: white;
+        z-index: 10000;
+        max-width: 300px;
+        font-size: 14px;
+        background-color: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Animate in
+    setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 300);
+    }, 5000);
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Utility function to check current session info
+function checkSessionInfo() {
+    const sessionInfo = localStorage.getItem('sessionInfo');
+    if (sessionInfo) {
+        const info = JSON.parse(sessionInfo);
+        console.log('Current session info:', info);
+        
+        const expiresAt = new Date(info.expiresAt);
+        const now = new Date();
+        const timeLeft = expiresAt - now;
+        
+        if (timeLeft > 0) {
+            const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            console.log(`Session expires in: ${daysLeft} days, ${hoursLeft} hours`);
+        } else {
+            console.log('Session has expired');
+        }
+    } else {
+        console.log('No session info found');
+    }
+}
+
+// Make function available globally for debugging
+window.checkSessionInfo = checkSessionInfo;
+</script>
