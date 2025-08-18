@@ -77,9 +77,11 @@
                     <li><a href="/admin/articles"><i class="fas fa-file-alt"></i> Manage Articles</a></li>
                     <li><a href="/admin/users"><i class="fas fa-users-cog"></i> Manage Users</a></li>
                     <li><a href="/proposals?status=pending"><i class="fas fa-tasks"></i> Pending Proposals</a></li>
+                    <li><a href="/admin/crypto" {% if active_page == 'crypto_admin' %}class="active"{% endif %}><i class="fas fa-wallet"></i> Crypto Management</a></li>
+
                 </ul>
             </div>
-            
+
             {% block sidebar_extra %}{% endblock %}
             
             <div class="sidebar-section sidebar-stats">

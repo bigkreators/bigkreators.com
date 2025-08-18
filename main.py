@@ -24,8 +24,8 @@ logging.basicConfig(
 logger = logging.getLogger("kryptopedia")
 
 # Import the routes
-from routes import auth, articles, media, proposals, rewards, special, profile, media_additional, preview, votes
-from pages import router as page_router, add_error_handlers, community, donate, help, admin, upload
+from routes import auth, articles, media, proposals, rewards, special, profile, media_additional, preview, votes, token
+from pages import router as page_router, add_error_handlers, community, donate, help, admin, upload, crypto_admin
 
 
 # Initialize FastAPI app

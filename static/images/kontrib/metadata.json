@@ -1,0 +1,21 @@
+{
+    "name": "K̡̓ontrib",
+    "symbol": "KONTRIB",
+    "description": "ᶄ̓ontrib - Information Contribution Token rewarding wiki contributors",
+    "image": "https://bigkreators-com.onrender.com/static/images/kontrib/logo-512.png",
+    "external_url": "https://bigkreators-com.onrender.com/",
+    "attributes": [],
+    "properties": {
+        "category": "utility",
+        "creators": [],
+        "files": [{
+            "uri": "https://bigkreators-com.onrender.com//static/images/kontrib/logo-512.png",
+            "type": "image/png"
+        }]
+    },
+    "extensions": {
+        "website": "https://bigkreators.com",
+        "twitter": "https://twitter.com/bigkreators",
+        "discord": "https://discord.gg/bigkreators"
+    }
+}

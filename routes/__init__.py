@@ -51,9 +51,9 @@ except ImportError as e:
     print(f"Warning: Could not import votes routes: {e}")
 
 try:
-    from . import page_routes
+    from . import token
 except ImportError as e:
-    print(f"Warning: Could not import page routes: {e}")
+    print(f"Warning: Could not import token routes: {e}")
 
 # Export modules
 __all__ = [
@@ -67,5 +67,5 @@ __all__ = [
     'media_additional',
     'preview',
     'votes',
-    'page_routes'
+    'token'
 ]

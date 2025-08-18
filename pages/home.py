@@ -336,3 +336,13 @@ async def team_page(request: Request):
         {"request": request}
     )
 
+@router.get("/careers", response_class=HTMLResponse)
+async def careers_page(request: Request):
+    """
+    Render the careers/open positions page.
+    """
+    templates = request.app.state.templates
+    return templates.TemplateResponse(
+        "careers.html",
+        {"request": request}
+    )
