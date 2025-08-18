@@ -33,6 +33,18 @@ AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY", "")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY", "")
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 
+# Solana and Token Configuration
+SOLANA_RPC_URL = os.getenv("SOLANA_RPC_URL", "https://api.devnet.solana.com")
+SOLANA_PRIVATE_KEY = os.getenv("SOLANA_PRIVATE_KEY", "")
+TOKEN_MINT_ADDRESS = os.getenv("TOKEN_MINT_ADDRESS", "pDcf4inBQfDKu6aPh3hSJE98am5ckJ2pYBRTrABAEkG")
+TOKEN_SYMBOL = os.getenv("TOKEN_SYMBOL", "KONTRIB")
+TOKEN_NAME = os.getenv("TOKEN_NAME", "K̡̓ontrib")
+TOKEN_PROGRAM_ID = os.getenv("TOKEN_PROGRAM_ID", "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb")
+
+# Token system configuration
+WEEKLY_TOKEN_POOL = float(os.getenv("WEEKLY_TOKEN_POOL", "10000.0"))
+MIN_TOKENS_PER_USER = float(os.getenv("MIN_TOKENS_PER_USER", "1.0"))
+
 # Elasticsearch settings
 USE_ELASTICSEARCH = os.getenv("USE_ELASTICSEARCH", "False").lower() == "true"
 ES_HOST = os.getenv("ES_HOST", "http://localhost:9200") if USE_ELASTICSEARCH else None
