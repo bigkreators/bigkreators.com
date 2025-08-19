@@ -5,165 +5,6 @@
 
 {% set active_page = 'articles' %}
 
-{% block extra_css %}
-<style>
-.revision-banner {
-    background-color: #fff3cd;
-    border: 1px solid #ffeaa7;
-    border-radius: 4px;
-    padding: 15px;
-    margin: 20px 0;
-}
-
-.revision-notice {
-    color: #856404;
-    font-size: 16px;
-}
-
-.revision-notice a {
-    color: #0645ad;
-    font-weight: bold;
-}
-
-.revision-info {
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.revision-info dl {
-    margin: 0;
-}
-
-.revision-info dt {
-    font-weight: bold;
-    color: #333;
-    margin-top: 10px;
-}
-
-.revision-info dt:first-child {
-    margin-top: 0;
-}
-
-.revision-info dd {
-    margin: 5px 0 0 0;
-    color: #666;
-}
-
-.user-link {
-    color: #0645ad;
-    text-decoration: none;
-}
-
-.user-link:hover {
-    text-decoration: underline;
-}
-
-.anonymous-user {
-    color: #666;
-    font-style: italic;
-}
-
-.revision-actions {
-    margin: 30px 0;
-    padding: 20px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    text-align: center;
-}
-
-.action-button {
-    display: inline-block;
-    padding: 10px 16px;
-    margin: 0 5px;
-    color: #fff;
-    background-color: #0645ad;
-    border: none;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 14px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.action-button:hover {
-    background-color: #053a7a;
-    color: #fff;
-}
-
-.action-button.restore-button {
-    background-color: #e67e22;
-}
-
-.action-button.restore-button:hover {
-    background-color: #d35400;
-}
-
-.action-button.secondary {
-    background-color: #6c757d;
-}
-
-.action-button.secondary:hover {
-    background-color: #5a6268;
-}
-
-.article-content {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 20px;
-    margin: 20px 0;
-    min-height: 300px;
-    line-height: 1.6;
-}
-
-.article-metadata {
-    margin: 20px 0;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 4px;
-}
-
-.category-tag,
-.tag {
-    display: inline-block;
-    padding: 4px 8px;
-    margin: 2px 4px 2px 0;
-    background-color: #e9ecef;
-    color: #495057;
-    text-decoration: none;
-    border-radius: 3px;
-    font-size: 12px;
-}
-
-.category-tag:hover,
-.tag:hover {
-    background-color: #dee2e6;
-}
-
-.diff-navigation {
-    margin: 20px 0;
-    padding: 15px;
-    background-color: #e3f2fd;
-    border: 1px solid #bbdefb;
-    border-radius: 4px;
-}
-
-.diff-navigation a {
-    color: #0645ad;
-    text-decoration: none;
-    margin-right: 15px;
-}
-
-.diff-navigation a:hover {
-    text-decoration: underline;
-}
-</style>
-{% endblock %}
-
 {% block sidebar_extra %}
 <h3>Article Actions</h3>
 <ul>
@@ -175,112 +16,60 @@
 </ul>
 
 <div class="revision-info">
-    <h3>Revision Details</h3>
+    <h3>Revision Information</h3>
     <dl>
         <dt>Date:</dt>
-        <dd>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M:%S') }}</dd>
+        <dd>{{ revision.createdAt|strftime('%Y-%m-%d %H:%M') }}</dd>
         
         <dt>Author:</dt>
-        <dd>
-            {% if revision.editorType == 'authenticated' %}
-                <a href="/profile/{{ revision.creatorUsername }}" class="user-link">{{ revision.creatorUsername }}</a>
-            {% else %}
-                <span class="anonymous-user">{{ revision.creatorUsername or revision.editorName or 'Anonymous User' }}</span>
-            {% endif %}
-        </dd>
+        <dd>{{ revision.creatorUsername }}</dd>
         
-        <dt>Edit Summary:</dt>
-        <dd>{{ revision.comment or "No edit summary provided" }}</dd>
-        
-        {% if revision.size %}
-        <dt>Size:</dt>
-        <dd>{{ revision.size }} bytes</dd>
-        {% endif %}
+        <dt>Comment:</dt>
+        <dd>{{ revision.comment or "No comment" }}</dd>
     </dl>
-    
-    {% if previous_revision %}
-    <div class="diff-navigation">
-        <strong>Navigation:</strong>
-        <a href="/articles/{{ article._id }}/revisions/{{ previous_revision._id }}">← Previous revision</a>
-        {% if next_revision %}
-        <a href="/articles/{{ article._id }}/revisions/{{ next_revision._id }}">Next revision →</a>
-        {% endif %}
-        <a href="/articles/{{ article._id }}/compare/{{ previous_revision._id }}/{{ revision._id }}">Compare with previous</a>
-    </div>
-    {% endif %}
 </div>
 {% endblock %}
 
 {% block content %}
 <div class="article-header">
-    <h1>{{ article.title }} <small style="color: #666;">(Historical Revision)</small></h1>
+    <h1>{{ article.title }} <small>(Revision)</small></h1>
     <div class="revision-banner">
         <div class="revision-notice">
-            <strong>⚠️ You are viewing an old version of this article.</strong>
-            <a href="/articles/{{ article.slug }}">View current version</a> | 
-            <a href="/articles/{{ article._id }}/history">View full history</a>
+            <strong>Note:</strong> You are viewing an old version of this article.
+            <a href="/articles/{{ article.slug }}">View current version</a>
         </div>
     </div>
 </div>
+
+{% if article.categories %}
+<div class="article-categories">
+    Categories:
+    {% for category in article.categories %}
+    <a href="/articles?category={{ category }}" class="category-tag">{{ category }}</a>
+    {% endfor %}
+</div>
+{% endif %}
 
 <div class="article-content">
     {{ revision.content|safe }}
 </div>
 
-{% if article.categories or article.tags %}
-<div class="article-metadata">
-    {% if article.categories %}
-    <div class="article-categories">
-        <strong>Categories:</strong>
-        {% for category in article.categories %}
-        <a href="/articles?category={{ category }}" class="category-tag">{{ category }}</a>
-        {% endfor %}
-    </div>
-    {% endif %}
-    
-    {% if article.tags %}
-    <div class="article-tags">
-        <strong>Tags:</strong>
-        {% for tag in article.tags %}
-        <a href="/articles?tag={{ tag }}" class="tag">{{ tag }}</a>
-        {% endfor %}
-    </div>
-    {% endif %}
+{% if article.tags %}
+<div class="article-tags">
+    Tags:
+    {% for tag in article.tags %}
+    <a href="/articles?tag={{ tag }}" class="tag">{{ tag }}</a>
+    {% endfor %}
 </div>
 {% endif %}
 
 <div class="revision-actions">
-    <h3>What would you like to do?</h3>
-    
     <a href="/articles/{{ article.slug }}" class="action-button">View Current Version</a>
-    <a href="/articles/{{ article._id }}/history" class="action-button secondary">View History</a>
-    
-    {% if previous_revision %}
-    <a href="/articles/{{ article._id }}/compare/{{ previous_revision._id }}/{{ revision._id }}" class="action-button secondary">Compare with Previous</a>
-    {% endif %}
-    
+    <a href="/articles/{{ article._id }}/history" class="action-button">View History</a>
     {% if is_editor %}
-    <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="action-button restore-button auth-required">Restore This Version</a>
+    <a href="/articles/{{ article._id }}/revisions/{{ revision._id }}/restore" class="action-button auth-required">Restore This Version</a>
     {% endif %}
 </div>
-
-<!-- Quick navigation -->
-{% if previous_revision or next_revision %}
-<div class="revision-navigation" style="margin: 20px 0; text-align: center; padding: 15px; background-color: #f8f9fa; border-radius: 4px;">
-    {% if previous_revision %}
-    <a href="/articles/{{ article._id }}/revisions/{{ previous_revision._id }}" class="action-button secondary">← Older</a>
-    {% endif %}
-    
-    <span style="margin: 0 20px; color: #666;">
-        Revision {{ revision_index or '?' }} of {{ total_revisions or '?' }}
-    </span>
-    
-    {% if next_revision %}
-    <a href="/articles/{{ article._id }}/revisions/{{ next_revision._id }}" class="action-button secondary">Newer →</a>
-    {% endif %}
-</div>
-{% endif %}
-
 {% endblock %}
 
 {% block extra_js %}
@@ -291,64 +80,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const authElements = document.querySelectorAll('.auth-required');
     
     if (token) {
-        // Check if user has permission
-        fetch('/api/auth/me', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            throw new Error('Not authenticated');
-        })
-        .then(user => {
-            if (user.role === 'admin' || user.role === 'editor') {
-                authElements.forEach(element => {
-                    element.style.display = 'inline-block';
-                });
-            }
-        })
-        .catch(() => {
-            authElements.forEach(element => {
-                element.style.display = 'none';
-            });
-        });
-    } else {
         authElements.forEach(element => {
-            element.style.display = 'none';
+            element.classList.remove('hidden');
         });
     }
-    
-    // Keyboard navigation
-    document.addEventListener('keydown', function(e) {
-        // Left arrow for previous revision
-        if (e.key === 'ArrowLeft' && e.altKey) {
-            const prevLink = document.querySelector('a[href*="/revisions/"][href*="←"]');
-            if (prevLink) {
-                window.location.href = prevLink.href;
-            }
-        }
-        
-        // Right arrow for next revision
-        if (e.key === 'ArrowRight' && e.altKey) {
-            const nextLink = document.querySelector('a[href*="/revisions/"][href*="→"]');
-            if (nextLink) {
-                window.location.href = nextLink.href;
-            }
-        }
-        
-        // H for history
-        if (e.key === 'h' && e.altKey) {
-            window.location.href = '/articles/{{ article._id }}/history';
-        }
-        
-        // C for current version
-        if (e.key === 'c' && e.altKey) {
-            window.location.href = '/articles/{{ article.slug }}';
-        }
-    });
 });
 </script>
-{% endblock %>
+{% endblock %}

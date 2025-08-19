@@ -1,124 +1,65 @@
-// File: static/script.js
-
-/**
- * Main JavaScript for Kryptopedia site functionality
- * Handles authentication, modals, search, and general site interactions
- * 
- * NOTE: This file should NOT handle article creation - that's handled by
- * templates/create_article.html for Summernote forms
- */
-
-// Global state
-let isLoggedIn = false;
-let currentUser = null;
-
-// Initialize the app when DOM loads
+// File: static/script.js (Updated)
+// Authentication functionality
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Kryptopedia script.js loaded');
-    
-    // Check authentication status
-    checkAuthStatus();
-    
-    // Set up all event listeners
+    initializeAuth();
     setupLoginForm();
     setupRegisterForm();
     setupModalClosers();
     setupSearch();
-    setupUserMenu();
-    setupLogout();
-    
-    // Update UI based on auth status
-    updateUIBasedOnAuth();
 });
 
-// Check if user is authenticated
-function checkAuthStatus() {
+// Initialize authentication state
+function initializeAuth() {
+    // Check if user is logged in
     const token = localStorage.getItem('token');
-    if (token) {
-        // Verify token with server
-        fetch('/api/auth/me', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                // Token is invalid
-                localStorage.removeItem('token');
-                throw new Error('Invalid token');
-            }
-        })
-        .then(userData => {
-            isLoggedIn = true;
-            currentUser = userData;
-            updateUIBasedOnAuth();
-        })
-        .catch(error => {
-            console.log('Token verification failed:', error);
-            isLoggedIn = false;
-            currentUser = null;
-            updateUIBasedOnAuth();
-        });
-    } else {
-        isLoggedIn = false;
-        currentUser = null;
-        updateUIBasedOnAuth();
-    }
-}
-
-// Update UI elements based on authentication status
-function updateUIBasedOnAuth() {
-    const loginBtn = document.getElementById('login-btn');
-    const registerBtn = document.getElementById('register-btn');
-    const userMenu = document.getElementById('user-menu');
-    const usernameSpan = document.getElementById('username');
-    const adminLinks = document.querySelectorAll('.admin-only');
+    const loginLink = document.getElementById('login-link');
+    const profileLinkContainer = document.getElementById('profile-link-container');
     
-    if (isLoggedIn && currentUser) {
-        // User is logged in
-        if (loginBtn) loginBtn.style.display = 'none';
-        if (registerBtn) registerBtn.style.display = 'none';
+    if (token && loginLink) {
+        // User is logged in, change login link to logout
+        loginLink.textContent = 'Logout';
+        loginLink.href = '#';
+        loginLink.removeEventListener('click', showLoginModal);
+        loginLink.addEventListener('click', logout);
         
-        if (userMenu) {
-            userMenu.style.display = 'block';
-            if (usernameSpan) usernameSpan.textContent = currentUser.username;
+        // Show profile link
+        if (profileLinkContainer) {
+            profileLinkContainer.style.display = 'inline-block';
         }
         
-        // Show admin links for admins/editors
-        if (currentUser.role === 'admin' || currentUser.role === 'editor') {
-            adminLinks.forEach(link => link.style.display = 'block');
-        }
-    } else {
-        // User is not logged in
-        if (loginBtn) loginBtn.style.display = 'inline-block';
-        if (registerBtn) registerBtn.style.display = 'inline-block';
-        if (userMenu) userMenu.style.display = 'none';
+        // Show restricted elements
+        showAuthenticatedElements();
         
-        // Hide admin links
-        adminLinks.forEach(link => link.style.display = 'none');
+        // Fetch user data to check role
+        fetchCurrentUser()
+            .then(userData => {
+                if (userData) {
+                    // Show admin elements if user is admin
+                    if (userData.role === 'admin' || userData.role === 'editor') {
+                        showAdminElements();
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching user data:', error);
+            });
+    } else if (loginLink) {
+        // User is not logged in, ensure login modal shows on click
+        loginLink.addEventListener('click', showLoginModal);
+        
+        // Hide profile link
+        if (profileLinkContainer) {
+            profileLinkContainer.style.display = 'none';
+        }
     }
 }
 
-// Set up login form
+// Set up the login form submission
 function setupLoginForm() {
     const loginForm = document.getElementById('login-form');
-    const loginBtn = document.getElementById('login-btn');
-    
-    // Open login modal
-    if (loginBtn) {
-        loginBtn.addEventListener('click', function() {
-            const loginModal = document.getElementById('login-modal');
-            if (loginModal) loginModal.style.display = 'block';
-        });
-    }
-    
-    // Handle login form submission
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
@@ -130,7 +71,7 @@ function setupLoginForm() {
             
             // Create form data for OAuth2 format
             const formData = new URLSearchParams();
-            formData.append('username', email); // API expects 'username' field
+            formData.append('username', email); // API expects username field
             formData.append('password', password);
             
             fetch('/api/auth/login', {
@@ -142,41 +83,44 @@ function setupLoginForm() {
             })
             .then(response => {
                 if (!response.ok) {
-                    return response.json().then(data => {
-                        throw new Error(data.detail || 'Login failed');
-                    });
+                    throw new Error('Login failed');
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Login successful:', data);
+                console.log('Login successful');
                 
-                // Store token
+                // Store token in localStorage
                 localStorage.setItem('token', data.access_token);
                 
-                // Close login modal
+                // Also store token in cookie for server-side access
+                document.cookie = `token=${data.access_token}; path=/; max-age=86400`;
+                console.log("Token stored in localStorage and cookie");
+                
+                // Close modal
                 const loginModal = document.getElementById('login-modal');
                 if (loginModal) loginModal.style.display = 'none';
                 
-                // Clear form
-                loginForm.reset();
+                // Show success message
+                alert('Login successful! Welcome back.');
                 
-                // Update auth status
-                checkAuthStatus();
-                
-                // Check if there's a redirect URL
+                // Check if there's a redirect URL stored
                 const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
                 if (redirectUrl) {
+                    // Clear the stored redirect URL
                     sessionStorage.removeItem('redirectAfterLogin');
+                    console.log("Redirecting to:", redirectUrl);
+                    // Redirect to the stored URL
                     window.location.href = redirectUrl;
                 } else {
-                    // Reload page to update UI
+                    console.log("No redirect URL, reloading page");
+                    // Refresh page to update UI
                     window.location.reload();
                 }
             })
             .catch(error => {
-                console.error('Login error:', error);
-                alert(error.message || 'Login failed. Please check your credentials and try again.');
+                console.error('Error logging in:', error);
+                alert('Login failed. Please check your credentials and try again.');
             })
             .finally(() => {
                 // Reset button state
@@ -187,20 +131,9 @@ function setupLoginForm() {
     }
 }
 
-// Set up register form
+// Set up the register form submission
 function setupRegisterForm() {
     const registerForm = document.getElementById('register-form');
-    const registerBtn = document.getElementById('register-btn');
-    
-    // Open register modal
-    if (registerBtn) {
-        registerBtn.addEventListener('click', function() {
-            const registerModal = document.getElementById('register-modal');
-            if (registerModal) registerModal.style.display = 'block';
-        });
-    }
-    
-    // Handle register form submission
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -269,7 +202,7 @@ function setupRegisterForm() {
     }
 }
 
-// Set up modal functionality
+// Set up modal closers
 function setupModalClosers() {
     // Close buttons for modals
     const closeButtons = document.querySelectorAll('.close');
@@ -322,139 +255,98 @@ function setupModalClosers() {
 function setupSearch() {
     const searchInput = document.getElementById('search-input');
     const searchButton = document.getElementById('search-button');
-    const searchForm = document.getElementById('search-form');
     
-    // Handle search form submission
-    if (searchForm) {
-        searchForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            performSearch();
-        });
-    }
-    
-    // Handle search button click
-    if (searchButton) {
-        searchButton.addEventListener('click', function() {
-            performSearch();
-        });
-    }
-    
-    // Handle enter key in search input
-    if (searchInput) {
-        searchInput.addEventListener('keypress', function(e) {
+    if (searchInput && searchButton) {
+        // Search when Enter key is pressed
+        searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
-                e.preventDefault();
                 performSearch();
             }
         });
+        
+        // Search when button is clicked
+        searchButton.addEventListener('click', performSearch);
     }
     
     function performSearch() {
-        const query = searchInput ? searchInput.value.trim() : '';
+        const query = searchInput.value.trim();
         if (query) {
             window.location.href = `/search?q=${encodeURIComponent(query)}`;
         }
     }
 }
 
-// Set up user menu functionality
-function setupUserMenu() {
-    const userMenuToggle = document.getElementById('user-menu-toggle');
-    const userMenuDropdown = document.getElementById('user-menu-dropdown');
-    
-    if (userMenuToggle && userMenuDropdown) {
-        userMenuToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            userMenuDropdown.style.display = 
-                userMenuDropdown.style.display === 'block' ? 'none' : 'block';
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!userMenuToggle.contains(e.target) && !userMenuDropdown.contains(e.target)) {
-                userMenuDropdown.style.display = 'none';
-            }
-        });
+// Show login modal
+function showLoginModal() {
+    const loginModal = document.getElementById('login-modal');
+    if (loginModal) {
+        loginModal.style.display = 'block';
     }
 }
 
-// Set up logout functionality
-function setupLogout() {
-    const logoutBtn = document.getElementById('logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            logout();
-        });
-    }
-}
-
-// Logout function
+// Logout functionality
 function logout() {
-    // Remove token from storage
+    // Remove token from localStorage
     localStorage.removeItem('token');
     
-    // Update state
-    isLoggedIn = false;
-    currentUser = null;
-    
-    // Update UI
-    updateUIBasedOnAuth();
+    // Also clear the token cookie
+    document.cookie = 'token=; path=/; max-age=0';
+    console.log("Token removed from localStorage and cookie");
     
     // Show success message
     alert('You have been logged out successfully.');
     
-    // Redirect to home page if on a protected page
-    if (window.location.pathname.includes('/admin') || 
-        window.location.pathname.includes('/create-') ||
-        window.location.pathname.includes('/edit-')) {
-        window.location.href = '/';
-    } else {
-        // Just reload the current page
-        window.location.reload();
+    // Refresh page
+    window.location.reload();
+}
+
+// Show elements that require authentication
+function showAuthenticatedElements() {
+    // Show elements that should only be visible to logged-in users
+    const authElements = document.querySelectorAll('.auth-required');
+    authElements.forEach(element => {
+        element.classList.remove('hidden');
+    });
+    
+    // Hide elements that should only be visible to non-logged-in users
+    const nonAuthElements = document.querySelectorAll('.non-auth-only');
+    nonAuthElements.forEach(element => {
+        element.classList.add('hidden');
+    });
+}
+
+// Show elements that require admin or editor privileges
+function showAdminElements() {
+    const adminElements = document.querySelectorAll('.admin-required');
+    adminElements.forEach(element => {
+        element.style.display = 'inline-block';
+    });
+}
+
+// Fetch current user data
+async function fetchCurrentUser() {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    
+    try {
+        const response = await fetch('/api/auth/me', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            if (response.status === 401) {
+                // Token expired or invalid, log out
+                localStorage.removeItem('token');
+                return null;
+            }
+            throw new Error('Failed to fetch user data');
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        return null;
     }
 }
-
-// Utility function to check if user has permission
-function hasPermission(requiredRole) {
-    if (!isLoggedIn || !currentUser) return false;
-    
-    const roles = ['user', 'editor', 'admin'];
-    const userRoleIndex = roles.indexOf(currentUser.role);
-    const requiredRoleIndex = roles.indexOf(requiredRole);
-    
-    return userRoleIndex >= requiredRoleIndex;
-}
-
-// Utility function to redirect to login with return URL
-function redirectToLogin(returnUrl) {
-    sessionStorage.setItem('redirectAfterLogin', returnUrl || window.location.href);
-    const loginModal = document.getElementById('login-modal');
-    if (loginModal) {
-        loginModal.style.display = 'block';
-    } else {
-        // Fallback - redirect to a login page if modal doesn't exist
-        window.location.href = '/login';
-    }
-}
-
-// Utility function to show notification
-function showNotification(message, type = 'info') {
-    // You can implement a notification system here
-    // For now, just use alert
-    alert(message);
-}
-
-// Export some functions for use by other scripts
-window.Kryptopedia = window.Kryptopedia || {};
-window.Kryptopedia.auth = {
-    isLoggedIn: () => isLoggedIn,
-    getCurrentUser: () => currentUser,
-    hasPermission: hasPermission,
-    redirectToLogin: redirectToLogin,
-    logout: logout
-};
-
-window.Kryptopedia.ui = {
-    showNotification: showNotification
-};
