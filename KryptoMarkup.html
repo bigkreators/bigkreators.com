@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KryptoMarkup Language Showcase</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .demo-section h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+
+        .markup-example {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #dee2e6;
+        }
+
+        .rendered-result {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border: 2px solid #28a745;
+            position: relative;
+        }
+
+        .rendered-result::before {
+            content: "Rendered Output:";
+            position: absolute;
+            top: -12px;
+            left: 10px;
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Custom markup styles */
+        .bold-text { font-weight: bold; }
+        .italic-text { font-style: italic; }
+        .underline-text { text-decoration: underline; }
+        .superscript-text { vertical-align: super; font-size: 0.8em; }
+        .subscript-text { vertical-align: sub; font-size: 0.8em; }
+        .link-text { 
+            color: #007bff; 
+            text-decoration: underline; 
+            cursor: pointer; 
+        }
+        .link-text:hover { 
+            color: #0056b3; 
+            background-color: #f0f8ff;
+        }
+        .redirect-link { 
+            color: #007bff; 
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .redirect-link:hover { 
+            color: #0056b3; 
+            background-color: #f0f8ff;
+        }
+        .template-text { 
+            background-color: #fff3cd; 
+            padding: 8px 12px; 
+            border-radius: 5px;
+            border: 1px solid #ffeaa7;
+            display: block;
+            margin: 5px 0;
+        }
+        .category-text { 
+            background-color: #d1ecf1; 
+            padding: 2px 4px; 
+            border-radius: 3px;
+            border: 1px solid #bee5eb;
+        }
+        .barred-text { 
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        .code-text { 
+            font-family: 'Courier New', monospace; 
+            background-color: #f8f9fa; 
+            padding: 2px 6px; 
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+            font-size: 0.9em;
+        }
+        .comment-text { 
+            color: #6c757d; 
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .interactive-demo {
+            margin-top: 40px;
+            padding: 20px;
+            background: #e3f2fd;
+            border-radius: 10px;
+        }
+
+        .interactive-demo h2 {
+            color: #1976d2;
+        }
+
+        #markup-input {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        #live-output {
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #1976d2;
+            border-radius: 5px;
+            min-height: 50px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5a6fd8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 KryptoMarkup Language Showcase</h1>
+        
+        <div class="demo-section">
+            <h2>Text Formatting</h2>
+            
+            <div class="markup-example">[bold]Bold text[bold]</div>
+            <div class="rendered-result">
+                <span class="bold-text">Bold text</span>
+            </div>
+
+            <div class="markup-example">[italic]Italic text[italic]</div>
+            <div class="rendered-result">
+                <span class="italic-text">Italic text</span>
+            </div>
+
+            <div class="markup-example">[underline]Underlined text[underline]</div>
+            <div class="rendered-result">
+                <span class="underline-text">Underlined text</span>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Script Formatting</h2>
+            
+            <div class="markup-example">[superscript]Superscript text[superscript] [subscript]Subscript text[subscript]</div>
+            <div class="rendered-result">
+                <span class="superscript-text">Superscript text</span> <span class="subscript-text">Subscript text</span>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Links and References</h2>
+            
+            <div class="markup-example">[link url="https://example.com" text="Text with link"]</div>
+            <div class="rendered-result">
+                <span class="link-text" onclick="window.open('https://example.com', '_blank')">Text with link</span>
+            </div>
+
+            <div class="markup-example">R̤Link to redirect to</div>
+            <div class="rendered-result">
+                Redirect: <span class="redirect-link" onclick="alert('Redirect link clicked!')">Link to redirect to</span>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Content Warnings</h2>
+            
+            <div class="markup-example">[delete reason="copyright infringement"]</div>
+            <div class="rendered-result">
+                <table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    <tr>
+                        <td style="font-size: 50px;">!</td>
+                        <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because of copyright<br>infringement. If this article is not copyright<br>infringement, remove the deletion tag.</p></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="markup-example">[non-encyclopedic content]</div>
+            <div class="rendered-result">
+                <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    <tr>
+                        <td style="color: orange; font-size: 50px;">!</td>
+                        <td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Templates & Special Elements</h2>
+            
+            <div class="markup-example">[T name="IPA infobox"|above=Voiced alveolar lateral approximant|ipa symbol=l|ipa symbol2=ɮ˕]</div>
+            <div class="rendered-result">
+                <table style="max-width: 300px; height: 170px; float: right;">
+                    <tr>
+                        <td style="background: yellow; font-weight: bold;">Voiced alveolar lateral approximant</td>
+                    </tr>
+                    <tr>
+                        <td style="background: orange; font-size: 50px; text-align: center;" title="IPA symbol">l</td>
+                    </tr>
+                    <tr>
+                        <td style="background: orange; font-size: 50px; text-align: center;" title="IPA symbol">ɮ˕</td>
+                    </tr>
+                </table>
+                <div style="clear: both;"></div>
+            </div>
+
+            <div class="markup-example">C̤Phonetics, Linguistics, Consonants. This is regular text that follows.</div>
+            <div class="rendered-result">
+                <span class="category-text">Phonetics</span>, <span class="category-text">Linguistics</span>, <span class="category-text">Consonants</span>. This is regular text that follows.
+            </div>
+
+            <div class="markup-example">[bar]Barred text[bar]</div>
+            <div class="rendered-result">
+                <span class="barred-text">Barred text</span>
+            </div>
+
+            <div class="markup-example">[code]Code such as html or python[code]</div>
+            <div class="rendered-result">
+                <span class="code-text">Code such as html or python</span>
+            </div>
+
+            <div class="markup-example">&lt;Comments&gt;</div>
+            <div class="rendered-result">
+                <em style="color: #666;">Comments are hidden when rendered (like HTML comments)</em>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>⚠️ Invalid Syntax</h2>
+            <p><strong>Note:</strong> The following are invalid and should not be used:</p>
+            
+            <div class="markup-example" style="background: #ffe6e6; border-left-color: #dc3545;">
+                <strong>❌ Invalid:</strong> &lt;This is a comment &lt;nested comment&gt; inside&gt;
+            </div>
+            <div style="background: #fff3cd; padding: 10px; border-radius: 5px; font-style: italic;">
+                Nesting comments inside comments is not allowed
+            </div>
+
+            <div class="markup-example" style="background: #ffe6e6; border-left-color: #dc3545;">
+                <strong>❌ Invalid:</strong> [code]function test() { [code]inner[code] }[code]
+            </div>
+            <div style="background: #fff3cd; padding: 10px; border-radius: 5px; font-style: italic;">
+                Nesting code blocks inside code blocks is not allowed
+            </div>
+
+            <div class="markup-example" style="background: #ffe6e6; border-left-color: #dc3545;">
+                <strong>❌ Invalid:</strong> R̤NonexistentPage or [link url="nonexistent.html" text="Broken Link"]
+            </div>
+            <div style="background: #fff3cd; padding: 10px; border-radius: 5px; font-style: italic;">
+                Links and redirects to pages that don't exist render as: <span style="color: #dc3545; text-decoration: underline;">Error: Page doesn't exist (L1)</span>
+            </div>
+        </div>
+
+        <div class="interactive-demo">
+            <h2>🚀 Interactive Demo</h2>
+            <p>Try your KryptoMarkup language live! Enter markup text below:</p>
+            <textarea id="markup-input" placeholder="Enter your KryptoMarkup here, e.g., [bold]Hello[bold] [code]world[code]">[bold]Welcome[bold] to my [italic]KryptoMarkup[italic] language!
+
+[T name="IPA infobox"|above=Voiced bilabial nasal|ipa symbol=m]</textarea>
+            <button onclick="parseMarkup()">Parse Markup</button>
+            <div id="live-output"></div>
+        </div>
+    </div>
+
+    <script>
+        function parseMarkup() {
+            const input = document.getElementById('markup-input').value;
+            const output = document.getElementById('live-output');
+            
+            let parsed = input
+                // Content warnings (parse FIRST)
+                .replace(/\[delete reason="([^"]+)"\]/g, function(match, reason) {
+                    return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                        <tr>
+                            <td style="font-size: 50px;">!</td>
+                            <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because of ${reason}.<br>If this article is not ${reason},<br>remove the deletion tag.</p></td>
+                        </tr>
+                    </table>`;
+                })
+                .replace(/\[non-encyclopedic content\]/g, `<table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    <tr>
+                        <td style="color: orange; font-size: 50px;">!</td>
+                        <td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
+                    </tr>
+                </table>`)
+                // Templates (parse these FIRST before other formatting)
+                .replace(/\[T name="IPA infobox"\|above=([^|]+)\|ipa symbol=([^|]+)(\|ipa symbol2=([^\]]+))?\]/g, function(match, phonName, symbol1, fullSymbol2, symbol2) {
+                    let tableRows = `<table style="max-width: 300px; height: 170px; float: right;">
+                        <tr>
+                            <td style="background: yellow; font-weight: bold;">${phonName}</td>
+                        </tr>
+                        <tr>
+                            <td style="background: orange; font-size: 50px; text-align: center;" title="IPA symbol">${symbol1}</td>
+                        </tr>`;
+                    
+                    if (symbol2) {
+                        tableRows += `<tr>
+                            <td style="background: orange; font-size: 50px; text-align: center;" title="IPA symbol">${symbol2}</td>
+                        </tr>`;
+                    }
+                    
+                    tableRows += `</table><div style="clear: both;"></div>`;
+                    return tableRows;
+                })
+                .replace(/\[T name="([^"]+)"(\|([^\]]*))?\]/g, function(match, templateName, fullParams, params) {
+                    let content = `<strong>${templateName} Template</strong>`;
+                    if (params) {
+                        content += '<br>' + params.replace(/\|/g, ' | ');
+                    }
+                    return `<div class="template-text">${content}</div>`;
+                })
+                // Bold
+                .replace(/\[bold\](.*?)\[bold\]/g, '<span class="bold-text">$1</span>')
+                // Italic
+                .replace(/\[italic\](.*?)\[italic\]/g, '<span class="italic-text">$1</span>')
+                // Underline
+                .replace(/\[underline\](.*?)\[underline\]/g, '<span class="underline-text">$1</span>')
+                // Superscript
+                .replace(/\[superscript\](.*?)\[superscript\]/g, '<span class="superscript-text">$1</span>')
+                // Subscript
+                .replace(/\[subscript\](.*?)\[subscript\]/g, '<span class="subscript-text">$1</span>')
+                // Link (new format)
+                .replace(/\[link url="([^"]*)" text="([^"]*)"\]/g, '<span class="link-text" onclick="window.open(\'$1\', \'_blank\')">$2</span>')
+                // Redirect link (R̤)
+                .replace(/R̤(.*?)(?=\s|$)/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
+                // Category (C̤) - handles multiple categories separated by commas, terminated by period
+                .replace(/C̤([^.]+)\./g, function(match, categories) {
+                    return categories.split(',').map(cat => 
+                        `<span class="category-text">${cat.trim()}</span>`
+                    ).join(', ') + '.';
+                })
+                // Bar
+                .replace(/\[bar\](.*?)\[bar\]/g, '<span class="barred-text">$1</span>')
+                // Code
+                .replace(/\[code\](.*?)\[code\]/g, '<span class="code-text">$1</span>')
+                // Comments (remove them, don't render)
+                .replace(/<([^>]*)>/g, '');
+            
+            output.innerHTML = parsed;
+        }
+
+        // Parse initial content
+        parseMarkup();
+    </script>
+</body>
+</html>
+<!-- <table style="background: white; border-collapse: collapse;  margin: auto; border: 1px solid #ddd;">
+<tr>
+<td style="color: orange; font-size: 50px;">!</td>
+<td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
+</tr>
+</table>
+<table style="background: red; border-collapse: collapse;  margin: auto; border: 1px solid #ddd;">
+<tr>
+<td style="font-size: 50px;">!</td>
+<td><p style="font-size: 20px;">This article might meet Krytopedia's<br>deletion policy because of copyright<br>infringment. If this article is not copyright<br>infringment, remove the deletion tag.</p></td>
+</tr>
+</table>
+ -->
