@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KryptoMarkup Language Showcase</title>
     <style>
+ @font-face {
+    font-family: 'AncientSans';
+    src: url('Ancientsans.ttf') format('ttf');
+    }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
@@ -48,7 +52,7 @@
             padding: 15px;
             border-radius: 8px;
             margin: 10px 0;
-            font-family: 'Courier New', monospace;
+            font-family: 'AncientSans';
             border: 1px solid #dee2e6;
         }
 
@@ -147,7 +151,7 @@
             padding: 10px;
             border: 2px solid #ddd;
             border-radius: 5px;
-            font-family: 'Courier New', monospace;
+            font-family: 'AncientSans';
             resize: vertical;
         }
 
@@ -267,7 +271,7 @@
 
             <div class="markup-example">C̤Phonetics, Linguistics, Consonants. This is regular text that follows.</div>
             <div class="rendered-result">
-                <span class="category-text">Phonetics</span>, <span class="category-text">Linguistics</span>, <span class="category-text">Consonants</span>. This is regular text that follows.
+                Categories: <span class="category-text">Phonetics</span>, <span class="category-text">Linguistics</span>, <span class="category-text">Consonants</span>. This is regular text that follows.
             </div>
 
             <div class="markup-example">[bar]Barred text[bar]</div>
@@ -386,7 +390,7 @@
                 .replace(/R̤(.*?)(?=\s|$)/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
                 // Category (C̤) - handles multiple categories separated by commas, terminated by period
                 .replace(/C̤([^.]+)\./g, function(match, categories) {
-                    return categories.split(',').map(cat => 
+                    return 'Categories: ' + categories.split(',').map(cat => 
                         `<span class="category-text">${cat.trim()}</span>`
                     ).join(', ') + '.';
                 })
@@ -405,16 +409,3 @@
     </script>
 </body>
 </html>
-<!-- <table style="background: white; border-collapse: collapse;  margin: auto; border: 1px solid #ddd;">
-<tr>
-<td style="color: orange; font-size: 50px;">!</td>
-<td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
-</tr>
-</table>
-<table style="background: red; border-collapse: collapse;  margin: auto; border: 1px solid #ddd;">
-<tr>
-<td style="font-size: 50px;">!</td>
-<td><p style="font-size: 20px;">This article might meet Krytopedia's<br>deletion policy because of copyright<br>infringment. If this article is not copyright<br>infringment, remove the deletion tag.</p></td>
-</tr>
-</table>
- -->
