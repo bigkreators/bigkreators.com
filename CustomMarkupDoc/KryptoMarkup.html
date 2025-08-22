@@ -147,6 +147,18 @@
             font-style: italic;
             color: #666;
         }
+        .signature {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+        .user-link, .talk-link {
+            color: #0645ad;
+            text-decoration: none;
+        }
+        .user-link:hover, .talk-link:hover {
+            text-decoration: underline;
+        }
 
         .interactive-demo {
             margin-top: 40px;
@@ -382,6 +394,11 @@
                 <blockquote class="block-quote">This is a blockquote that stands out from the main text.</blockquote>
             </div>
 
+            <div class="markup-example">Great point! ꬸ̰̃</div>
+            <div class="rendered-result">
+                Great point! <span class="signature">— <a href="#" class="user-link">Username</a> (<a href="#" class="talk-link">talk</a>) 15:42, August 22, 2025 (UTC)</span>
+            </div>
+
             <div class="markup-example">&lt;Comments&gt;</div>
             <div class="rendered-result">
                 <em style="color: #666;">Comments are hidden when rendered (like HTML comments)</em>
@@ -589,6 +606,13 @@ Table of alveolar laterals:
                     
                     html += '</table>';
                     return html;
+                })
+                // Signatures (ꬸ̰̃)
+                .replace(/ꬸ̰̃/g, function() {
+                    let now = new Date();
+                    let time = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+                    let date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                    return `<span class="signature">— <a href="#" class="user-link">Username</a> (<a href="#" class="talk-link">talk</a>) ${time}, ${date} (UTC)</span>`;
                 })
                 // Blockquotes (double quotes)
                 .replace(/""([^"]+)""/g, '<blockquote class="block-quote">$1</blockquote>')
