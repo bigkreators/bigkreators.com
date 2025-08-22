@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KryptoMarkup Language Showcase</title>
     <style>
- @font-face {
-    font-family: 'AncientSans';
-    src: url('Ancientsans.ttf') format('ttf');
-    }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
@@ -284,9 +280,36 @@
                 <span class="code-text">Code such as html or python</span>
             </div>
 
+            <div class="markup-example">. Example<br>. EXample<br>. EXAmple<br>. EXAMple<br>. EXAMPle<br>. EXAMPLe<br>. EXAMPLE</div>
+            <div class="rendered-result">
+                <ul>
+                    <li>Example</li>
+                    <li>EXample</li>
+                    <li>EXAmple</li>
+                    <li>EXAMple</li>
+                    <li>EXAMPle</li>
+                    <li>EXAMPLe</li>
+                    <li>EXAMPLE</li>
+                </ul>
+            </div>
+
             <div class="markup-example">&lt;Comments&gt;</div>
             <div class="rendered-result">
                 <em style="color: #666;">Comments are hidden when rendered (like HTML comments)</em>
+            </div>
+
+            <div class="markup-example">[table]<br>[table row]<br>[table header]First header[table header]<br>[table header]Second header[table header]<br>[table row]<br>----------<br>[table row]<br>[table cell]First cell[table cell]<br>[table cell]Second cell[table cell]<br>[table row]<br>[table]</div>
+            <div class="rendered-result">
+                <table style="border-collapse: collapse; border: 1px solid #ddd;">
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">First header</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Second header</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">First cell</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Second cell</td>
+                    </tr>
+                </table>
             </div>
         </div>
 
@@ -321,7 +344,28 @@
             <p>Try your KryptoMarkup language live! Enter markup text below:</p>
             <textarea id="markup-input" placeholder="Enter your KryptoMarkup here, e.g., [bold]Hello[bold] [code]world[code]">[bold]Welcome[bold] to my [italic]KryptoMarkup[italic] language!
 
-[T name="IPA infobox"|above=Voiced bilabial nasal|ipa symbol=m]</textarea>
+Table of alveolar laterals:
+[table]
+[table row]
+[table header]Affricate[table header]
+[table cell]tɬ dɮ[table cell]
+[table row]
+----------
+[table row]
+[table header]Fricative[table header]
+[table cell]ɬ ɮ[table cell]
+[table row]
+----------
+[table row]
+[table header]Approximant[table header]
+[table cell]l̥ l[table cell]
+[table row]
+----------
+[table row]
+[table header]Lateral flap[table header]
+[table cell]ɺ̥ ɺ[table cell]
+[table row]
+[table]</textarea>
             <button onclick="parseMarkup()">Parse Markup</button>
             <div id="live-output"></div>
         </div>
@@ -398,6 +442,58 @@
                 .replace(/\[bar\](.*?)\[bar\]/g, '<span class="barred-text">$1</span>')
                 // Code
                 .replace(/\[code\](.*?)\[code\]/g, '<span class="code-text">$1</span>')
+                // Lists (convert lines starting with ". " to list items)
+                .replace(/(^|\n)((?:\. .+(?:\n|$))+)/gm, function(match, prefix, listContent) {
+                    let items = listContent.trim().split('\n').map(line => {
+                        return line.replace(/^\. /, '').trim();
+                    }).filter(item => item.length > 0);
+                    
+                    let listHtml = '<ul>';
+                    items.forEach(item => {
+                        listHtml += `<li>${item}</li>`;
+                    });
+                    listHtml += '</ul>';
+                    
+                    return prefix + listHtml;
+                })
+                // Tables
+                .replace(/\[table\]([\s\S]*?)\[table\]/g, function(match, tableContent) {
+                    // Split by row separators
+                    let rows = tableContent.split('----------').map(row => row.trim());
+                    let html = '<table style="border-collapse: collapse; border: 1px solid #ddd;">';
+                    
+                    rows.forEach(rowContent => {
+                        if (rowContent.includes('[table row]')) {
+                            // Extract content between [table row] tags
+                            let rowMatch = rowContent.match(/\[table row\]([\s\S]*?)\[table row\]/);
+                            if (rowMatch) {
+                                let cellsContent = rowMatch[1].trim();
+                                html += '<tr>';
+                                
+                                // Handle headers
+                                if (cellsContent.includes('[table header]')) {
+                                    let headers = cellsContent.split(/\[table header\]/g).filter(h => h.trim());
+                                    headers.forEach(header => {
+                                        html += `<th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">${header.trim()}</th>`;
+                                    });
+                                }
+                                
+                                // Handle cells
+                                if (cellsContent.includes('[table cell]')) {
+                                    let cells = cellsContent.split(/\[table cell\]/g).filter(c => c.trim());
+                                    cells.forEach(cell => {
+                                        html += `<td style="border: 1px solid #ddd; padding: 8px;">${cell.trim()}</td>`;
+                                    });
+                                }
+                                
+                                html += '</tr>';
+                            }
+                        }
+                    });
+                    
+                    html += '</table>';
+                    return html;
+                })
                 // Comments (remove them, don't render)
                 .replace(/<([^>]*)>/g, '');
             
