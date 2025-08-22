@@ -139,6 +139,14 @@
             font-style: italic;
             opacity: 0.8;
         }
+        .block-quote {
+            margin: 15px 0;
+            padding: 10px 20px;
+            border-left: 4px solid #ddd;
+            background-color: #f9f9f9;
+            font-style: italic;
+            color: #666;
+        }
 
         .interactive-demo {
             margin-top: 40px;
@@ -369,6 +377,11 @@
                 <span class="citation-text">Smith, J. (2023). Example Study. Journal of Examples, 15(3), 123-145.</span>
             </div>
 
+            <div class="markup-example">""This is a blockquote that stands out from the main text.""</div>
+            <div class="rendered-result">
+                <blockquote class="block-quote">This is a blockquote that stands out from the main text.</blockquote>
+            </div>
+
             <div class="markup-example">&lt;Comments&gt;</div>
             <div class="rendered-result">
                 <em style="color: #666;">Comments are hidden when rendered (like HTML comments)</em>
@@ -577,6 +590,8 @@ Table of alveolar laterals:
                     html += '</table>';
                     return html;
                 })
+                // Blockquotes (double quotes)
+                .replace(/""([^"]+)""/g, '<blockquote class="block-quote">$1</blockquote>')
                 // Line breaks
                 .replace(/\[break\]/g, '<br>')
                 // Citations
