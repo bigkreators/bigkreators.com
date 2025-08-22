@@ -124,6 +124,16 @@
             border: 1px solid #e9ecef;
             font-size: 0.9em;
         }
+        .citation-text { 
+            font-size: 0.9em;
+            color: #555;
+            font-style: italic;
+            background-color: #f9f9f9;
+            padding: 2px 4px;
+            border-left: 3px solid #ccc;
+            margin: 2px 0;
+            display: inline-block;
+        }
         .comment-text { 
             color: #6c757d; 
             font-style: italic;
@@ -247,6 +257,61 @@
         </div>
 
         <div class="demo-section">
+            <h2>Structure & Organization</h2>
+            
+            <div class="markup-example">[header="1"|Main Heading]</div>
+            <div class="rendered-result">
+                <h1>Main Heading</h1>
+            </div>
+
+            <div class="markup-example">[header="2"|Section Heading]</div>
+            <div class="rendered-result">
+                <h2>Section Heading</h2>
+            </div>
+
+            <div class="markup-example">[header="3"|Subsection Heading]</div>
+            <div class="rendered-result">
+                <h3>Subsection Heading</h3>
+            </div>
+
+            <div class="markup-example">. Example<br>. EXample<br>. EXAmple<br>. EXAMple<br>. EXAMPle<br>. EXAMPLe<br>. EXAMPLE</div>
+            <div class="rendered-result">
+                <ul>
+                    <li>Example</li>
+                    <li>EXample</li>
+                    <li>EXAmple</li>
+                    <li>EXAMple</li>
+                    <li>EXAMPle</li>
+                    <li>EXAMPLe</li>
+                    <li>EXAMPLE</li>
+                </ul>
+            </div>
+
+            <div class="markup-example">123 First<br>123 Second<br>123 Third</div>
+            <div class="rendered-result">
+                <ol>
+                    <li>First</li>
+                    <li>Second</li>
+                    <li>Third</li>
+                </ol>
+            </div>
+
+            <div class="markup-example">[table]<br>[table row]<br>[table header]First header[table header]<br>[table header]Second header[table header]<br>[table row]<br>----------<br>[table row]<br>[table cell]First cell[table cell]<br>[table cell]Second cell[table cell]<br>[table row]<br>[table]</div>
+            <div class="rendered-result">
+                <table style="border-collapse: collapse; border: 1px solid #ddd;">
+                    <tr>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">First header</th>
+                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Second header</th>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #ddd; padding: 8px;">First cell</td>
+                        <td style="border: 1px solid #ddd; padding: 8px;">Second cell</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="demo-section">
             <h2>Templates & Special Elements</h2>
             
             <div class="markup-example">[T name="IPA infobox"|above=Voiced alveolar lateral approximant|ipa symbol=l|ipa symbol2=ɮ˕]</div>
@@ -280,36 +345,33 @@
                 <span class="code-text">Code such as html or python</span>
             </div>
 
-            <div class="markup-example">. Example<br>. EXample<br>. EXAmple<br>. EXAMple<br>. EXAMPle<br>. EXAMPLe<br>. EXAMPLE</div>
+            <div class="markup-example">[file|example-image.jpg|alt=Sample image]</div>
             <div class="rendered-result">
-                <ul>
-                    <li>Example</li>
-                    <li>EXample</li>
-                    <li>EXAmple</li>
-                    <li>EXAMple</li>
-                    <li>EXAMPle</li>
-                    <li>EXAMPLe</li>
-                    <li>EXAMPLE</li>
-                </ul>
+                <img src="files/example-image.jpg" alt="Sample image" style="max-width: 300px; border: 1px solid #ddd;">
+            </div>
+
+            <div class="markup-example">[file|Voiceless palatal tap.ogg|alt=Audio pronunciation]</div>
+            <div class="rendered-result">
+                <audio controls style="margin: 5px 0;">
+                    <source src="files/Voiceless palatal tap.ogg" type="audio/ogg">
+                    Your browser does not support the audio element.
+                </audio>
+                <br><em>Audio: Audio pronunciation</em>
+            </div>
+
+            <div class="markup-example">First line[break]Second line[break]Third line</div>
+            <div class="rendered-result">
+                First line<br>Second line<br>Third line
+            </div>
+
+            <div class="markup-example">[citation]Smith, J. (2023). Example Study. Journal of Examples, 15(3), 123-145.[citation]</div>
+            <div class="rendered-result">
+                <span class="citation-text">Smith, J. (2023). Example Study. Journal of Examples, 15(3), 123-145.</span>
             </div>
 
             <div class="markup-example">&lt;Comments&gt;</div>
             <div class="rendered-result">
                 <em style="color: #666;">Comments are hidden when rendered (like HTML comments)</em>
-            </div>
-
-            <div class="markup-example">[table]<br>[table row]<br>[table header]First header[table header]<br>[table header]Second header[table header]<br>[table row]<br>----------<br>[table row]<br>[table cell]First cell[table cell]<br>[table cell]Second cell[table cell]<br>[table row]<br>[table]</div>
-            <div class="rendered-result">
-                <table style="border-collapse: collapse; border: 1px solid #ddd;">
-                    <tr>
-                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">First header</th>
-                        <th style="border: 1px solid #ddd; padding: 8px; background-color: #f2f2f2;">Second header</th>
-                    </tr>
-                    <tr>
-                        <td style="border: 1px solid #ddd; padding: 8px;">First cell</td>
-                        <td style="border: 1px solid #ddd; padding: 8px;">Second cell</td>
-                    </tr>
-                </table>
             </div>
         </div>
 
@@ -392,7 +454,7 @@ Table of alveolar laterals:
                         <td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
                     </tr>
                 </table>`)
-                // Templates (parse these FIRST before other formatting)
+                // Templates (parse these before other formatting)
                 .replace(/\[T name="IPA infobox"\|above=([^|]+)\|ipa symbol=([^|]+)(\|ipa symbol2=([^\]]+))?\]/g, function(match, phonName, symbol1, fullSymbol2, symbol2) {
                     let tableRows = `<table style="max-width: 300px; height: 170px; float: right;">
                         <tr>
@@ -418,30 +480,51 @@ Table of alveolar laterals:
                     }
                     return `<div class="template-text">${content}</div>`;
                 })
-                // Bold
-                .replace(/\[bold\](.*?)\[bold\]/g, '<span class="bold-text">$1</span>')
-                // Italic
-                .replace(/\[italic\](.*?)\[italic\]/g, '<span class="italic-text">$1</span>')
-                // Underline
-                .replace(/\[underline\](.*?)\[underline\]/g, '<span class="underline-text">$1</span>')
-                // Superscript
-                .replace(/\[superscript\](.*?)\[superscript\]/g, '<span class="superscript-text">$1</span>')
-                // Subscript
-                .replace(/\[subscript\](.*?)\[subscript\]/g, '<span class="subscript-text">$1</span>')
-                // Link (new format)
-                .replace(/\[link url="([^"]*)" text="([^"]*)"\]/g, '<span class="link-text" onclick="window.open(\'$1\', \'_blank\')">$2</span>')
-                // Redirect link (R̤)
-                .replace(/R̤(.*?)(?=\s|$)/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
-                // Category (C̤) - handles multiple categories separated by commas, terminated by period
-                .replace(/C̤([^.]+)\./g, function(match, categories) {
-                    return 'Categories: ' + categories.split(',').map(cat => 
-                        `<span class="category-text">${cat.trim()}</span>`
-                    ).join(', ') + '.';
+                // Headers
+                .replace(/\[header="([1-6])"\|([^\]]+)\]/g, '<h$1>$2</h$1>')
+                // Files (images, audio, video, etc.)
+                .replace(/\[file\|([^|]+)(\|alt=([^\]]*))?\]/g, function(match, filename, fullAlt, altText) {
+                    let extension = filename.split('.').pop().toLowerCase();
+                    let filePath = `files/${filename}`;
+                    let alt = altText || filename;
+                    
+                    // Image files
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(extension)) {
+                        return `<img src="${filePath}" alt="${alt}" style="max-width: 300px; border: 1px solid #ddd;">`;
+                    }
+                    // Audio files
+                    else if (['mp3', 'wav', 'ogg', 'flac', 'm4a'].includes(extension)) {
+                        return `<audio controls style="margin: 5px 0;">
+                            <source src="${filePath}" type="audio/${extension === 'mp3' ? 'mpeg' : extension}">
+                            Your browser does not support the audio element.
+                        </audio><br><em>Audio: ${alt}</em>`;
+                    }
+                    // Video files
+                    else if (['mp4', 'webm', 'ogv', 'avi', 'mov'].includes(extension)) {
+                        return `<video controls style="max-width: 400px; margin: 5px 0;">
+                            <source src="${filePath}" type="video/${extension}">
+                            Your browser does not support the video element.
+                        </video><br><em>Video: ${alt}</em>`;
+                    }
+                    // Other files (downloadable link)
+                    else {
+                        return `<a href="${filePath}" download style="color: #007bff; text-decoration: underline;">📎 ${alt}</a>`;
+                    }
                 })
-                // Bar
-                .replace(/\[bar\](.*?)\[bar\]/g, '<span class="barred-text">$1</span>')
-                // Code
-                .replace(/\[code\](.*?)\[code\]/g, '<span class="code-text">$1</span>')
+                // Numbered Lists (convert lines starting with "123 " to numbered list items)
+                .replace(/(^|\n)((?:123 .+(?:\n|$))+)/gm, function(match, prefix, listContent) {
+                    let items = listContent.trim().split('\n').map(line => {
+                        return line.replace(/^123 /, '').trim();
+                    }).filter(item => item.length > 0);
+                    
+                    let listHtml = '<ol>';
+                    items.forEach(item => {
+                        listHtml += `<li>${item}</li>`;
+                    });
+                    listHtml += '</ol>';
+                    
+                    return prefix + listHtml;
+                })
                 // Lists (convert lines starting with ". " to list items)
                 .replace(/(^|\n)((?:\. .+(?:\n|$))+)/gm, function(match, prefix, listContent) {
                     let items = listContent.trim().split('\n').map(line => {
@@ -494,6 +577,34 @@ Table of alveolar laterals:
                     html += '</table>';
                     return html;
                 })
+                // Line breaks
+                .replace(/\[break\]/g, '<br>')
+                // Citations
+                .replace(/\[citation\](.*?)\[citation\]/g, '<span class="citation-text">$1</span>')
+                // Bold
+                .replace(/\[bold\](.*?)\[bold\]/g, '<span class="bold-text">$1</span>')
+                // Italic
+                .replace(/\[italic\](.*?)\[italic\]/g, '<span class="italic-text">$1</span>')
+                // Underline
+                .replace(/\[underline\](.*?)\[underline\]/g, '<span class="underline-text">$1</span>')
+                // Superscript
+                .replace(/\[superscript\](.*?)\[superscript\]/g, '<span class="superscript-text">$1</span>')
+                // Subscript
+                .replace(/\[subscript\](.*?)\[subscript\]/g, '<span class="subscript-text">$1</span>')
+                // Link (new format)
+                .replace(/\[link url="([^"]*)" text="([^"]*)"\]/g, '<span class="link-text" onclick="window.open(\'$1\', \'_blank\')">$2</span>')
+                // Redirect link (R̤)
+                .replace(/R̤(.*?)(?=\s|$)/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
+                // Category (C̤) - handles multiple categories separated by commas, terminated by period
+                .replace(/C̤([^.]+)\./g, function(match, categories) {
+                    return 'Categories: ' + categories.split(',').map(cat => 
+                        `<span class="category-text">${cat.trim()}</span>`
+                    ).join(', ') + '.';
+                })
+                // Bar
+                .replace(/\[bar\](.*?)\[bar\]/g, '<span class="barred-text">$1</span>')
+                // Code
+                .replace(/\[code\](.*?)\[code\]/g, '<span class="code-text">$1</span>')
                 // Comments (remove them, don't render)
                 .replace(/<([^>]*)>/g, '');
             
