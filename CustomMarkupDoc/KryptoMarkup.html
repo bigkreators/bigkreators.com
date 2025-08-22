@@ -159,6 +159,19 @@
         .user-link:hover, .talk-link:hover {
             text-decoration: underline;
         }
+        .math-table {
+            font-family: 'Courier New', monospace;
+            border-collapse: collapse;
+            margin: 10px 0;
+            text-align: right;
+            display: inline-table;
+        }
+        .math-table td {
+            padding: 2px 5px;
+        }
+        .math-table .result-row {
+            border-top: 1px solid #000;
+        }
 
         .interactive-demo {
             margin-top: 40px;
@@ -399,6 +412,23 @@
                 Great point! <span class="signature">— <a href="#" class="user-link">Username</a> (<a href="#" class="talk-link">talk</a>) 15:42, August 22, 2025 (UTC)</span>
             </div>
 
+            <div class="markup-example">[ʀ̟]6 + 6 = 12[ʀ̠]</div>
+            <div class="rendered-result">
+                <table class="math-table">
+                    <tr>
+                        <td></td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td>+</td>
+                        <td>6</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="result-row">12</td>
+                    </tr>
+                </table>
+            </div>
+
             <div class="markup-example">&lt;Comments&gt;</div>
             <div class="rendered-result">
                 <em style="color: #666;">Comments are hidden when rendered (like HTML comments)</em>
@@ -606,6 +636,22 @@ Table of alveolar laterals:
                     
                     html += '</table>';
                     return html;
+                })
+                // Math tables [ʀ̟]...[ʀ̠] - converts simple equations to table format
+                .replace(/\[ʀ̟\](\d+)\s*([+\-×÷])\s*(\d+)\s*=\s*(\d+)\[ʀ̠\]/g, function(match, num1, operator, num2, result) {
+                    return `<table class="math-table">
+                        <tr>
+                            <td></td>
+                            <td>${num1}</td>
+                        </tr>
+                        <tr>
+                            <td>${operator}</td>
+                            <td>${num2}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="result-row">${result}</td>
+                        </tr>
+                    </table>`;
                 })
                 // Signatures (ꬸ̰̃)
                 .replace(/ꬸ̰̃/g, function() {
