@@ -268,7 +268,7 @@
         <div class="demo-section">
             <h2>Content Warnings</h2>
             
-            <div class="markup-example">[delete reason="copyright infringement"]</div>
+            <div class="markup-example">[delete|reason="copyright infringement"]</div>
             <div class="rendered-result">
                 <table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                     <tr>
@@ -412,7 +412,7 @@
                 Great point! <span class="signature">— <a href="#" class="user-link">Username</a> (<a href="#" class="talk-link">talk</a>) 15:42, August 22, 2025 (UTC)</span>
             </div>
 
-            <div class="markup-example">[ʀ̟]6 + 6 = 12[ʀ̠]</div>
+            <div class="markup-example">[m̠᫈]6 + 6 = 12[m̠᫈]</div>
             <div class="rendered-result">
                 <table class="math-table">
                     <tr>
@@ -500,7 +500,7 @@ Table of alveolar laterals:
             
             let parsed = input
                 // Content warnings (parse FIRST)
-                .replace(/\[delete reason="([^"]+)"\]/g, function(match, reason) {
+                .replace(/\[delete\|reason="([^"]+)"\]/g, function(match, reason) {
                     return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                         <tr>
                             <td style="font-size: 50px;">!</td>
@@ -637,8 +637,8 @@ Table of alveolar laterals:
                     html += '</table>';
                     return html;
                 })
-                // Math tables [ʀ̟]...[ʀ̠] - converts simple equations to table format
-                .replace(/\[ʀ̟\](\d+)\s*([+\-×÷])\s*(\d+)\s*=\s*(\d+)\[ʀ̠\]/g, function(match, num1, operator, num2, result) {
+                // Math tables [m̠᫈]...[m̠᫈] - converts simple equations to table format
+                .replace(/\[m̠᫈\](\d+)\s*([+\-×÷])\s*(\d+)\s*=\s*(\d+)\[m̠᫈\]/g, function(match, num1, operator, num2, result) {
                     return `<table class="math-table">
                         <tr>
                             <td></td>
