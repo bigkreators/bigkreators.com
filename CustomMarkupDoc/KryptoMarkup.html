@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KryptoMarkup Language Showcase</title>
     <style>
+        @font-face {
+            font-family: 'Gentium';
+            src: url('Gentium-Regular.ttf') format('truetype');
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             max-width: 800px;
@@ -48,7 +53,7 @@
             padding: 15px;
             border-radius: 8px;
             margin: 10px 0;
-            font-family: 'AncientSans';
+            font-family: 'Gentium';
             border: 1px solid #dee2e6;
         }
 
@@ -159,6 +164,19 @@
         .user-link:hover, .talk-link:hover {
             text-decoration: underline;
         }
+        .reply-button {
+            background: #0645ad;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        .reply-button:hover {
+            background: #0b5394;
+        }
         .math-table {
             font-family: 'Courier New', monospace;
             border-collapse: collapse;
@@ -190,7 +208,7 @@
             padding: 10px;
             border: 2px solid #ddd;
             border-radius: 5px;
-            font-family: 'AncientSans';
+            font-family: 'Gentium';
             resize: vertical;
         }
 
@@ -278,12 +296,31 @@
                 </table>
             </div>
 
+            <div class="markup-example">[delete|reason="duplicate to: Close-mid back unrounded vowel"]</div>
+            <div class="rendered-result">
+                <table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    <tr>
+                        <td style="font-size: 50px;">!</td>
+                        <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because it is<br>a duplicate to the following article:<br><a href="#" style="text-decoration: underline;">Close-mid back unrounded vowel</a><br>and additionally has the same title.</p></td>
+                    </tr>
+                </table>
+            </div>
+
             <div class="markup-example">[non-encyclopedic content]</div>
             <div class="rendered-result">
                 <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                     <tr>
                         <td style="color: orange; font-size: 50px;">!</td>
                         <td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="markup-example">[short article]</div>
+            <div class="rendered-result">
+                <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    <tr>
+                        <td><p style="font-size: 20px;">This article is short.<br>You can help expand it.</p></td>
                     </tr>
                 </table>
             </div>
@@ -351,13 +388,13 @@
             <div class="rendered-result">
                 <table style="max-width: 300px; height: 170px; float: right;">
                     <tr>
-                        <td style="background: yellow; font-weight: bold;">Voiced alveolar lateral approximant</td>
+                        <td style="background: #f2f2ce; font-weight: bold;">Voiced alveolar lateral approximant</td>
                     </tr>
                     <tr>
-                        <td style="background: orange; font-size: 50px; text-align: center;" title="IPA symbol">l</td>
+                        <td style="background: #ffffe6; font-size: 50px; text-align: center;" title="IPA symbol">l</td>
                     </tr>
                     <tr>
-                        <td style="background: orange; font-size: 50px; text-align: center;" title="IPA symbol">ɮ˕</td>
+                        <td style="background: #ffffe6; font-size: 50px; text-align: center;" title="IPA symbol">ɮ˕</td>
                     </tr>
                 </table>
                 <div style="clear: both;"></div>
@@ -409,7 +446,7 @@
 
             <div class="markup-example">Great point! ꬸ̰̃</div>
             <div class="rendered-result">
-                Great point! <span class="signature">— <a href="#" class="user-link">Username</a> (<a href="#" class="talk-link">talk</a>) 15:42, August 22, 2025 (UTC)</span>
+                Great point! <span class="signature">— <a href="#" class="user-link">Username</a> (<a href="#" class="talk-link">talk</a>) 15:42, August 22, 2025 (UTC) <button class="reply-button" onclick="alert('Reply to this comment')">Reply</button></span>
             </div>
 
             <div class="markup-example">[m̠᫈]6 + 6 = 12[m̠᫈]</div>
@@ -500,6 +537,14 @@ Table of alveolar laterals:
             
             let parsed = input
                 // Content warnings (parse FIRST)
+                .replace(/\[delete\|reason="duplicate to: ([^"]+)"\]/g, function(match, articleTitle) {
+                    return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                        <tr>
+                            <td style="font-size: 50px;">!</td>
+                            <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because it is<br>a duplicate to the following article:<br><a href="#" style="text-decoration: underline;">${articleTitle}</a><br>and additionally has the same title.</p></td>
+                        </tr>
+                    </table>`;
+                })
                 .replace(/\[delete\|reason="([^"]+)"\]/g, function(match, reason) {
                     return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                         <tr>
@@ -514,19 +559,24 @@ Table of alveolar laterals:
                         <td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
                     </tr>
                 </table>`)
+                .replace(/\[short article\]/g, `<table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    <tr>
+                        <td><p style="font-size: 20px;">This article is short.<br>You can help expand it.</p></td>
+                    </tr>
+                </table>`)
                 // Templates (parse these before other formatting)
                 .replace(/\[T name="IPA infobox"\|above=([^|]+)\|ipa symbol=([^|]+)(\|ipa symbol2=([^\]]+))?\]/g, function(match, phonName, symbol1, fullSymbol2, symbol2) {
                     let tableRows = `<table style="max-width: 300px; height: 170px; float: right;">
                         <tr>
-                            <td style="background: yellow; font-weight: bold;">${phonName}</td>
+                            <td style="background: #f2f2ce; font-weight: bold;">${phonName}</td>
                         </tr>
                         <tr>
-                            <td style="background: orange; font-size: 50px; text-align: center;" title="IPA symbol">${symbol1}</td>
+                            <td style="background: #ffffe6; font-size: 50px; text-align: center;" title="IPA symbol">${symbol1}</td>
                         </tr>`;
                     
                     if (symbol2) {
                         tableRows += `<tr>
-                            <td style="background: orange; font-size: 50px; text-align: center;" title="IPA symbol">${symbol2}</td>
+                            <td style="background: #ffffe6; font-size: 50px; text-align: center;" title="IPA symbol">${symbol2}</td>
                         </tr>`;
                     }
                     
@@ -658,7 +708,7 @@ Table of alveolar laterals:
                     let now = new Date();
                     let time = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
                     let date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                    return `<span class="signature">— <a href="#" class="user-link">Username</a> (<a href="#" class="talk-link">talk</a>) ${time}, ${date} (UTC)</span>`;
+                    return `<span class="signature">— <a href="#" class="user-link">Username</a> (<a href="#" class="talk-link">talk</a>) ${time}, ${date} (UTC) <button class="reply-button" onclick="alert('Reply to this comment')">Reply</button></span>`;
                 })
                 // Blockquotes (double quotes)
                 .replace(/""([^"]+)""/g, '<blockquote class="block-quote">$1</blockquote>')
