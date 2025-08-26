@@ -1,0 +1,849 @@
+<!-- File: KryptoMarkup_Converter.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KryptoMarkup ⇄ HTML Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .converter-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .input-section h3 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .format-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .badge-html {
+            background: #e34c26;
+        }
+        
+        .badge-krypto {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .options {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .options h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .option-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .option label {
+            color: #4a5568;
+            cursor: pointer;
+        }
+        
+        .status {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #86efac;
+            display: block;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+            display: block;
+        }
+        
+        .examples {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .examples h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        .example-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .example-btn {
+            padding: 8px 16px;
+            font-size: 14px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .example-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .converter-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .arrow-indicator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: #667eea;
+            margin: 20px 0;
+        }
+        
+        @media (min-width: 769px) {
+            .arrow-indicator {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>KryptoMarkup ⇄ HTML Converter</h1>
+        <p class="subtitle">Bidirectional conversion between KryptoMarkup and HTML formats</p>
+        
+        <div class="options">
+            <h3>Conversion Options</h3>
+            <div class="option-group">
+                <div class="option">
+                    <input type="checkbox" id="preserveWhitespace" checked>
+                    <label for="preserveWhitespace">Preserve Whitespace</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="formatOutput" checked>
+                    <label for="formatOutput">Format Output</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="includeComments">
+                    <label for="includeComments">Include Comments</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="useShortTags" checked>
+                    <label for="useShortTags">Use Short Tags (b, i, u)</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="handleCustomTags" checked>
+                    <label for="handleCustomTags">Handle Custom Tags</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="convertHTMLtoKrypto()">HTML → KryptoMarkup</button>
+            <button onclick="convertKryptoToHTML()">KryptoMarkup → HTML</button>
+            <button onclick="clearAll()">Clear All</button>
+            <button onclick="copyToClipboard('output')">Copy Output</button>
+        </div>
+        
+        <div class="converter-grid">
+            <div class="input-section">
+                <h3>
+                    Input
+                    <span class="format-badge badge-html" id="inputBadge">HTML</span>
+                </h3>
+                <textarea id="input" placeholder="Paste your HTML or KryptoMarkup here..."></textarea>
+            </div>
+            <div class="input-section">
+                <h3>
+                    Output
+                    <span class="format-badge badge-krypto" id="outputBadge">KRYPTOMARKUP</span>
+                </h3>
+                <textarea id="output" readonly placeholder="Converted output will appear here..."></textarea>
+            </div>
+        </div>
+        
+        <div class="arrow-indicator">↓</div>
+        
+        <div class="examples">
+            <h3>Load Example</h3>
+            <div class="example-buttons">
+                <button class="example-btn" onclick="loadExample('basic')">Basic Formatting</button>
+                <button class="example-btn" onclick="loadExample('lists')">Lists & Items</button>
+                <button class="example-btn" onclick="loadExample('table')">Table Structure</button>
+                <button class="example-btn" onclick="loadExample('media')">Media Elements</button>
+                <button class="example-btn" onclick="loadExample('complex')">Complex Document</button>
+                <button class="example-btn" onclick="loadExample('security')">Security Tags (Krypto)</button>
+            </div>
+        </div>
+        
+        <div id="status" class="status"></div>
+    </div>
+    
+    <script>
+        // Conversion mappings
+        const tagMappings = {
+            // Text formatting
+            'strong': 'bold',
+            'b': 'b',
+            'em': 'italic',
+            'i': 'i',
+            'u': 'u',
+            'underline': 'u',
+            's': 's',
+            'del': 'strike',
+            'strike': 's',
+            'code': 'code',
+            'mark': 'highlight',
+            'small': 'small',
+            'sub': 'sub',
+            'sup': 'sup',
+            
+            // Headings
+            'h1': 'h1',
+            'h2': 'h2',
+            'h3': 'h3',
+            'h4': 'h4',
+            'h5': 'h5',
+            'h6': 'h6',
+            
+            // Structural
+            'div': 'div',
+            'span': 'span',
+            'p': 'p',
+            'section': 'section',
+            'article': 'article',
+            'header': 'header',
+            'footer': 'footer',
+            'nav': 'nav',
+            'aside': 'aside',
+            'main': 'main',
+            
+            // Lists
+            'ul': 'ul',
+            'ol': 'ol',
+            'li': 'li',
+            'dl': 'dl',
+            'dt': 'dt',
+            'dd': 'dd',
+            
+            // Tables
+            'table': 'table',
+            'thead': 'thead',
+            'tbody': 'tbody',
+            'tfoot': 'tfoot',
+            'tr': 'tr',
+            'th': 'th',
+            'td': 'td',
+            'caption': 'caption',
+            
+            // Media and links
+            'a': 'link',
+            'img': 'img',
+            'video': 'video',
+            'audio': 'audio',
+            'source': 'source',
+            'picture': 'picture',
+            'iframe': 'iframe',
+            
+            // Forms
+            'form': 'form',
+            'input': 'input',
+            'textarea': 'textarea',
+            'button': 'button',
+            'select': 'select',
+            'option': 'option',
+            'label': 'label',
+            'fieldset': 'fieldset',
+            'legend': 'legend',
+            
+            // Quotes and citations
+            'blockquote': 'blockquote',
+            'q': 'quote',
+            'cite': 'cite',
+            
+            // Other
+            'pre': 'pre',
+            'hr': 'hr',
+            'br': 'br',
+            'abbr': 'abbr',
+            'address': 'address',
+            'time': 'time',
+            'figure': 'figure',
+            'figcaption': 'figcaption'
+        };
+        
+        // Reverse mapping for Krypto to HTML
+        const reverseTagMappings = {};
+        for (let [html, krypto] of Object.entries(tagMappings)) {
+            if (!reverseTagMappings[krypto]) {
+                reverseTagMappings[krypto] = html;
+            }
+        }
+        
+        // Self-closing tags
+        const selfClosingTags = ['img', 'br', 'hr', 'input', 'meta', 'link', 'area', 'base', 'col', 'embed', 'source', 'track', 'wbr'];
+        
+        function convertHTMLtoKrypto() {
+            const input = document.getElementById('input').value;
+            const options = getOptions();
+            
+            try {
+                let output = input;
+                
+                // Convert HTML comments
+                if (options.includeComments) {
+                    output = output.replace(/<!--(.*?)-->/gs, '{comment}$1{/comment}');
+                } else {
+                    output = output.replace(/<!--.*?-->/gs, '');
+                }
+                
+                // Convert self-closing tags
+                selfClosingTags.forEach(tag => {
+                    const regex = new RegExp(`<${tag}([^>]*)(?:/>|>)`, 'gi');
+                    output = output.replace(regex, (match, attrs) => {
+                        const kryptoTag = tagMappings[tag] || tag;
+                        const convertedAttrs = convertAttributes(attrs, tag);
+                        return `{${kryptoTag}${convertedAttrs}/}`;
+                    });
+                });
+                
+                // Convert paired tags
+                for (let [htmlTag, kryptoTag] of Object.entries(tagMappings)) {
+                    if (!selfClosingTags.includes(htmlTag)) {
+                        // Opening tags with attributes
+                        const openRegex = new RegExp(`<${htmlTag}([^>]*)>`, 'gi');
+                        output = output.replace(openRegex, (match, attrs) => {
+                            const convertedAttrs = convertAttributes(attrs, htmlTag);
+                            return `{${kryptoTag}${convertedAttrs}>`;
+                        });
+                        
+                        // Closing tags
+                        const closeRegex = new RegExp(`</${htmlTag}>`, 'gi');
+                        output = output.replace(closeRegex, `{/${kryptoTag}}`);
+                    }
+                }
+                
+                // Clean up the > that was left from attribute conversion
+                output = output.replace(/\{([^}]+)>\}/g, '{$1}');
+                output = output.replace(/\{([^}]+)>([^{]*)\{/g, '{$1}$2{');
+                
+                // Handle custom/unknown tags if enabled
+                if (options.handleCustomTags) {
+                    // Convert any remaining HTML tags to KryptoMarkup format
+                    output = output.replace(/<([^/>][^>]*)>/g, '{$1}');
+                    output = output.replace(/<\/([^>]+)>/g, '{/$1}');
+                    output = output.replace(/<([^>]+)\/>/g, '{$1/}');
+                }
+                
+                // Format output if requested
+                if (options.formatOutput) {
+                    output = formatKryptoMarkup(output);
+                }
+                
+                document.getElementById('output').value = output;
+                showStatus('Conversion successful!', 'success');
+                updateBadges('html', 'krypto');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        function convertKryptoToHTML() {
+            const input = document.getElementById('input').value;
+            const options = getOptions();
+            
+            try {
+                let output = input;
+                
+                // Convert KryptoMarkup comments
+                output = output.replace(/\{comment\}(.*?)\{\/comment\}/gs, 
+                    options.includeComments ? '<!--$1-->' : '');
+                
+                // Convert self-closing tags
+                const selfClosingRegex = /\{([^}\/]+)\/\}/g;
+                output = output.replace(selfClosingRegex, (match, content) => {
+                    const parts = content.trim().split(/\s+/);
+                    const tag = parts[0];
+                    const htmlTag = reverseTagMappings[tag] || tag;
+                    const attrs = content.substring(tag.length).trim();
+                    const convertedAttrs = convertKryptoAttributes(attrs, htmlTag);
+                    return `<${htmlTag}${convertedAttrs}>`;
+                });
+                
+                // Convert paired tags
+                for (let [kryptoTag, htmlTag] of Object.entries(reverseTagMappings)) {
+                    // Opening tags with possible attributes
+                    const openRegex = new RegExp(`\\{${kryptoTag}(\\s[^}]*)?\\}`, 'gi');
+                    output = output.replace(openRegex, (match, attrs) => {
+                        const convertedAttrs = convertKryptoAttributes(attrs || '', htmlTag);
+                        return `<${htmlTag}${convertedAttrs}>`;
+                    });
+                    
+                    // Closing tags
+                    const closeRegex = new RegExp(`\\{/${kryptoTag}\\}`, 'gi');
+                    output = output.replace(closeRegex, `</${htmlTag}>`);
+                }
+                
+                // Handle custom tags
+                if (options.handleCustomTags) {
+                    // Convert any remaining KryptoMarkup tags to HTML
+                    output = output.replace(/\{([^}\/]+)\}/g, '<$1>');
+                    output = output.replace(/\{\/([^}]+)\}/g, '</$1>');
+                }
+                
+                // Handle KryptoMarkup security tags (convert to data attributes)
+                output = handleSecurityTags(output);
+                
+                // Format output if requested
+                if (options.formatOutput) {
+                    output = formatHTML(output);
+                }
+                
+                document.getElementById('output').value = output;
+                showStatus('Conversion successful!', 'success');
+                updateBadges('krypto', 'html');
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+            }
+        }
+        
+        function convertAttributes(attrs, tagName) {
+            if (!attrs || attrs.trim() === '') return '';
+            
+            const attrMap = {
+                'href': 'url',
+                'src': 'src',
+                'alt': 'alt',
+                'title': 'title',
+                'class': 'class',
+                'id': 'id',
+                'style': 'style',
+                'width': 'width',
+                'height': 'height',
+                'target': 'target',
+                'rel': 'rel',
+                'type': 'type',
+                'name': 'name',
+                'value': 'value',
+                'placeholder': 'placeholder',
+                'disabled': 'disabled',
+                'checked': 'checked',
+                'required': 'required',
+                'readonly': 'readonly',
+                'colspan': 'colspan',
+                'rowspan': 'rowspan'
+            };
+            
+            let result = '';
+            const attrRegex = /(\w+)(?:="([^"]*)")?/g;
+            let match;
+            
+            while ((match = attrRegex.exec(attrs)) !== null) {
+                const [, name, value] = match;
+                const kryptoName = (tagName === 'a' && name === 'href') ? 'url' : (attrMap[name] || name);
+                
+                if (value !== undefined) {
+                    result += ` ${kryptoName}="${value}"`;
+                } else {
+                    result += ` ${kryptoName}="true"`;
+                }
+            }
+            
+            return result;
+        }
+        
+        function convertKryptoAttributes(attrs, tagName) {
+            if (!attrs || attrs.trim() === '') return '';
+            
+            const attrMap = {
+                'url': 'href',
+                'src': 'src',
+                'alt': 'alt',
+                'title': 'title',
+                'class': 'class',
+                'id': 'id',
+                'style': 'style',
+                'width': 'width',
+                'height': 'height',
+                'target': 'target',
+                'rel': 'rel',
+                'type': 'type',
+                'name': 'name',
+                'value': 'value',
+                'placeholder': 'placeholder'
+            };
+            
+            let result = '';
+            const attrRegex = /(\w+)="([^"]*)"/g;
+            let match;
+            
+            while ((match = attrRegex.exec(attrs)) !== null) {
+                const [, name, value] = match;
+                const htmlName = (tagName === 'a' && name === 'url') ? 'href' : (attrMap[name] || name);
+                
+                if (value === 'true' && ['disabled', 'checked', 'required', 'readonly'].includes(htmlName)) {
+                    result += ` ${htmlName}`;
+                } else {
+                    result += ` ${htmlName}="${value}"`;
+                }
+            }
+            
+            return result;
+        }
+        
+        function handleSecurityTags(html) {
+            // Convert KryptoMarkup security tags to data attributes
+            html = html.replace(/<encrypt([^>]*)>(.*?)<\/encrypt>/g, 
+                '<div data-krypto="encrypt"$1>$2</div>');
+            html = html.replace(/<signature([^>]*)>(.*?)<\/signature>/g, 
+                '<div data-krypto="signature"$1>$2</div>');
+            html = html.replace(/<secure([^>]*)>(.*?)<\/secure>/g, 
+                '<div data-krypto="secure"$1>$2</div>');
+            html = html.replace(/<contract([^>]*)>/g, 
+                '<div data-krypto="contract"$1></div>');
+            html = html.replace(/<wallet([^>]*)>/g, 
+                '<div data-krypto="wallet"$1></div>');
+            
+            return html;
+        }
+        
+        function formatKryptoMarkup(text) {
+            // Basic formatting for readability
+            let formatted = text;
+            let indent = 0;
+            const lines = formatted.split(/(\{[^}]+\})/);
+            let result = [];
+            
+            lines.forEach(part => {
+                if (part.match(/^\{\/[^}]+\}$/)) {
+                    indent = Math.max(0, indent - 1);
+                    result.push('  '.repeat(indent) + part);
+                } else if (part.match(/^\{[^}\/]+\}$/)) {
+                    result.push('  '.repeat(indent) + part);
+                    if (!part.match(/\{[^}]+\/\}$/)) {
+                        indent++;
+                    }
+                } else if (part.trim()) {
+                    result.push('  '.repeat(indent) + part.trim());
+                }
+            });
+            
+            return result.filter(line => line.trim()).join('\n');
+        }
+        
+        function formatHTML(text) {
+            // Basic HTML formatting
+            let formatted = text;
+            let indent = 0;
+            const lines = formatted.split(/(<[^>]+>)/);
+            let result = [];
+            
+            lines.forEach(part => {
+                if (part.match(/^<\/[^>]+>$/)) {
+                    indent = Math.max(0, indent - 1);
+                    result.push('  '.repeat(indent) + part);
+                } else if (part.match(/^<[^/>][^>]*>$/)) {
+                    result.push('  '.repeat(indent) + part);
+                    if (!selfClosingTags.some(tag => part.startsWith(`<${tag}`))) {
+                        indent++;
+                    }
+                } else if (part.trim()) {
+                    result.push('  '.repeat(indent) + part.trim());
+                }
+            });
+            
+            return result.filter(line => line.trim()).join('\n');
+        }
+        
+        function getOptions() {
+            return {
+                preserveWhitespace: document.getElementById('preserveWhitespace').checked,
+                formatOutput: document.getElementById('formatOutput').checked,
+                includeComments: document.getElementById('includeComments').checked,
+                useShortTags: document.getElementById('useShortTags').checked,
+                handleCustomTags: document.getElementById('handleCustomTags').checked
+            };
+        }
+        
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').value = '';
+            document.getElementById('status').style.display = 'none';
+        }
+        
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            showStatus('Copied to clipboard!', 'success');
+        }
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = 'status ' + type;
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+        
+        function updateBadges(inputType, outputType) {
+            const inputBadge = document.getElementById('inputBadge');
+            const outputBadge = document.getElementById('outputBadge');
+            
+            inputBadge.textContent = inputType.toUpperCase();
+            inputBadge.className = 'format-badge badge-' + inputType;
+            
+            outputBadge.textContent = outputType === 'krypto' ? 'KRYPTOMARKUP' : outputType.toUpperCase();
+            outputBadge.className = 'format-badge badge-' + outputType;
+        }
+        
+        function loadExample(type) {
+            const examples = {
+                basic: `<h1>Welcome to KryptoMarkup</h1>
+<p>This is a <strong>bold</strong> and <em>italic</em> text example.</p>
+<p>Here's some <u>underlined</u> and <s>strikethrough</s> text.</p>
+<code>const example = "Hello World";</code>`,
+                
+                lists: `<ul>
+  <li>First item</li>
+  <li>Second item
+    <ul>
+      <li>Nested item 1</li>
+      <li>Nested item 2</li>
+    </ul>
+  </li>
+  <li>Third item</li>
+</ul>
+<ol>
+  <li>Ordered first</li>
+  <li>Ordered second</li>
+</ol>`,
+                
+                table: `<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Age</th>
+      <th>City</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>John</td>
+      <td>30</td>
+      <td>New York</td>
+    </tr>
+    <tr>
+      <td>Jane</td>
+      <td>25</td>
+      <td>London</td>
+    </tr>
+  </tbody>
+</table>`,
+                
+                media: `<img src="image.jpg" alt="Sample Image" width="300" height="200">
+<video src="video.mp4" controls width="640" height="360"></video>
+<a href="https://example.com" target="_blank" rel="noopener">Visit Example</a>`,
+                
+                complex: `<article>
+  <header>
+    <h1>Article Title</h1>
+    <time datetime="2025-01-27">January 27, 2025</time>
+  </header>
+  <section>
+    <h2>Introduction</h2>
+    <p>This is the <strong>introduction</strong> paragraph with <a href="#more">a link</a>.</p>
+    <blockquote>
+      <p>A famous quote goes here.</p>
+      <cite>Author Name</cite>
+    </blockquote>
+  </section>
+  <section id="more">
+    <h2>Main Content</h2>
+    <figure>
+      <img src="diagram.png" alt="Diagram">
+      <figcaption>Figure 1: Important Diagram</figcaption>
+    </figure>
+    <ul>
+      <li>Point one with <code>code</code></li>
+      <li>Point two with <mark>highlighted text</mark></li>
+    </ul>
+  </section>
+  <footer>
+    <p>Copyright © 2025</p>
+  </footer>
+</article>`,
+                
+                security: `{encrypt key="mySecretKey"}
+  {h1}Encrypted Content{/h1}
+  {p}This content is encrypted with AES-256{/p}
+{/encrypt}
+
+{signature wallet="0x123...abc"}
+  {p}This content is digitally signed{/p}
+{/signature}
+
+{secure level="high"}
+  {div class="protected"}
+    {h2}Protected Information{/h2}
+    {p}Access restricted to authorized users{/p}
+  {/div}
+{/secure}
+
+{contract address="0x456...def"/}
+{wallet provider="metamask"/}
+{nft contract="0x789...ghi" tokenId="12345"/}`
+            };
+            
+            document.getElementById('input').value = examples[type] || '';
+            
+            // Auto-detect format and update badges
+            if (type === 'security') {
+                updateBadges('krypto', 'html');
+            } else {
+                updateBadges('html', 'krypto');
+            }
+        }
+        
+        // Auto-detect input format
+        document.getElementById('input').addEventListener('input', function() {
+            const value = this.value;
+            if (value.includes('{') && value.includes('}')) {
+                updateBadges('krypto', 'html');
+            } else if (value.includes('<') && value.includes('>')) {
+                updateBadges('html', 'krypto');
+            }
+        });
+    </script>
+</body>
+</html>
