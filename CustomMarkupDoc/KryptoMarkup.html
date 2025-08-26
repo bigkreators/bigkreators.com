@@ -87,23 +87,20 @@
         .subscript-text { vertical-align: sub; font-size: 0.8em; }
         .link-text { 
             color: #007bff; 
-            text-decoration: underline; 
-            cursor: pointer; 
-        }
-        .link-text:hover { 
-            color: #0056b3; 
-            background-color: #f0f8ff;
+            text-decoration: underline;
+            cursor: pointer;
         }
         .redirect-link { 
             color: #007bff; 
             text-decoration: underline;
             cursor: pointer;
         }
-        .redirect-link:hover { 
-            color: #0056b3; 
-            background-color: #f0f8ff;
+        .broken-redirect-link {
+            color: red;
+            text-decoration: underline;
+            cursor: pointer;
         }
-        .template-text { 
+        .template-text {
             background-color: #fff3cd; 
             padding: 8px 12px; 
             border-radius: 5px;
@@ -466,7 +463,7 @@
                 </table>
             </div>
 
-            <div class="markup-example">&lt;Comments&gt;</div>
+            <div class="markup-example">[!This is a comment that won't appear]</div>
             <div class="rendered-result">
                 <em style="color: #666;">Comments are hidden when rendered (like HTML comments)</em>
             </div>
@@ -476,25 +473,29 @@
             <h2>⚠️ Invalid Syntax</h2>
             <p><strong>Note:</strong> The following are invalid and should not be used:</p>
             
-            <div class="markup-example" style="background: #ffe6e6; border-left-color: #dc3545;">
-                <strong>❌ Invalid:</strong> &lt;This is a comment &lt;nested comment&gt; inside&gt;
+            <div style="background: #ffe6e6; border-left-color: #dc3545;">
+                <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">[!This is a comment [!nested comment] inside]</span>
             </div>
-            <div style="background: #fff3cd; padding: 10px; border-radius: 5px; font-style: italic;">
-                Nesting comments inside comments is not allowed
-            </div>
-
-            <div class="markup-example" style="background: #ffe6e6; border-left-color: #dc3545;">
-                <strong>❌ Invalid:</strong> [code]function test() { [code]inner[code] }[code]
-            </div>
-            <div style="background: #fff3cd; padding: 10px; border-radius: 5px; font-style: italic;">
-                Nesting code blocks inside code blocks is not allowed
+            <div style="background: #fff3cd; padding: 10px; border-radius: 5px;">
+                Nesting comments inside comments is not allowed and this example will render as: inside]
             </div>
 
-            <div class="markup-example" style="background: #ffe6e6; border-left-color: #dc3545;">
-                <strong>❌ Invalid:</strong> R̤NonexistentPage or [link url="nonexistent.html" text="Broken Link"]
+            <div style="background: #ffe6e6; border-left-color: #dc3545;">
+                <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">[code]function test() { [code]inner[code]
+                }[code]</span>
             </div>
-            <div style="background: #fff3cd; padding: 10px; border-radius: 5px; font-style: italic;">
-                Links and redirects to pages that don't exist render as: <span style="color: #dc3545; text-decoration: underline;">Error: Page doesn't exist (L1)</span>
+            <div style="background: #fff3cd; padding: 10px; border-radius: 5px;">
+                Nesting code blocks inside code blocks is not allowed and this example will render as: <span class="code-text">function test() { </span>inner<span class="code-text"> }</span>
+            </div>
+
+            <div style="background: #ffe6e6; border-left-color: #dc3545;">
+                <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">R̤NonexistentPage</span> or <span style="font-family: 'Gentium';">[link url="nonexistent.html" text="Broken Link"]</span>
+            </div>
+            <div style="background: #fff3cd; padding: 10px; border-radius: 5px;">
+               Renders as:<br>
+               <span style="color: #dc3545;">Error: Page doesn't exist (L1)</span><br>Redirect: <span class="broken-redirect-link" onclick="alert('Redirect link clicked!')">NonexistentPage</span><br>
+               or<br>
+               <span style="color: #dc3545;">Error: Page doesn't exist (L1)</span><br><span style="color: red;" class="link-text" onclick="window.open('nonexistent.html', '_blank')">Broken Link</span>
             </div>
         </div>
 
@@ -741,7 +742,7 @@ Table of alveolar laterals:
                 // Code
                 .replace(/\[code\](.*?)\[code\]/g, '<span class="code-text">$1</span>')
                 // Comments (remove them, don't render)
-                .replace(/<([^>]*)>/g, '');
+                .replace(/\[!([^\]]*)\]/g, '');
             
             output.innerHTML = parsed;
         }
