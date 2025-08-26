@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- File: KryptoMarkup.html -->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -274,7 +275,7 @@
                 <span class="link-text" onclick="window.open('https://example.com', '_blank')">Text with link</span>
             </div>
 
-            <div class="markup-example">R̤Link to redirect to</div>
+            <div class="markup-example">[R̤Link to redirect to]</div>
             <div class="rendered-result">
                 Redirect: <span class="redirect-link" onclick="alert('Redirect link clicked!')">Link to redirect to</span>
             </div>
@@ -489,7 +490,7 @@
             </div>
 
             <div style="background: #ffe6e6; border-left-color: #dc3545;">
-                <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">R̤NonexistentPage</span> or <span style="font-family: 'Gentium';">[link url="nonexistent.html" text="Broken Link"]</span>
+                <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">[R̤NonexistentPage]</span> or <span style="font-family: 'Gentium';">[link url="nonexistent.html" text="Broken Link"]</span>
             </div>
             <div style="background: #fff3cd; padding: 10px; border-radius: 5px;">
                Renders as:<br>
@@ -729,8 +730,8 @@ Table of alveolar laterals:
                 .replace(/\[subscript\](.*?)\[subscript\]/g, '<span class="subscript-text">$1</span>')
                 // Link (new format)
                 .replace(/\[link url="([^"]*)" text="([^"]*)"\]/g, '<span class="link-text" onclick="window.open(\'$1\', \'_blank\')">$2</span>')
-                // Redirect link (R̤)
-                .replace(/R̤(.*?)(?=\s|$)/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
+                // Redirect link with bracket format [R̤Link to redirect to]
+                .replace(/\[R̤([^\]]+)\]/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
                 // Category (C̤) - handles multiple categories separated by commas, terminated by period
                 .replace(/C̤([^.]+)\./g, function(match, categories) {
                     return 'Categories: ' + categories.split(',').map(cat => 
