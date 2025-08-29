@@ -1,20 +1,433 @@
-<!-- File: templates/article.html -->
+# File: templates/article.html
+
 {% extends "base.html" %}
 
 {% block title %}{{ article.title }} - Kryptopedia{% endblock %}
 
+{% block extra_head %}
+<meta name="description" content="{{ article.summary or 'Learn about ' + article.title + ' on Kryptopedia' }}">
+<meta name="keywords" content="{% if article.tags %}{{ article.tags|join(', ') }}{% endif %}">
+<meta property="og:title" content="{{ article.title }}">
+<meta property="og:description" content="{{ article.summary or 'Learn about ' + article.title + ' on Kryptopedia' }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ request.url }}">
+{% endblock %}
+
 {% block extra_css %}
+<style>
+/* Enhanced styling combining both versions */
+.vote-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.vote-button {
+    background: none;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.vote-button:hover {
+    border-color: #0645ad;
+    color: #0645ad;
+}
+
+.vote-button.active.upvote {
+    border-color: #28a745;
+    color: #28a745;
+    background-color: #f8fff9;
+}
+
+.vote-button.active.downvote {
+    border-color: #dc3545;
+    color: #dc3545;
+    background-color: #fff8f8;
+}
+
+.vote-count {
+    font-weight: bold;
+    font-size: 1.2em;
+    min-width: 30px;
+    text-align: center;
+}
+
+.article-status-indicator {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.status-published { background-color: #d4edda; color: #155724; }
+.status-hidden { background-color: #fff3cd; color: #856404; }
+.status-archived { background-color: #f8d7da; color: #721c24; }
+.status-draft { background-color: #d1ecf1; color: #0c5460; }
+
+.article-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.action-button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #0645ad;
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.action-button:hover {
+    background-color: #053d8c;
+    text-decoration: none;
+}
+
+.action-button.manage-button {
+    background-color: #6c757d;
+}
+
+.action-button.manage-button:hover {
+    background-color: #545b62;
+}
+
+.article-meta {
+    color: #666;
+    font-size: 0.9em;
+    margin: 10px 0;
+}
+
+.article-meta span {
+    margin-right: 15px;
+}
+
+.category-tag, .tag {
+    display: inline-block;
+    padding: 4px 8px;
+    margin: 2px 4px 2px 0;
+    background-color: #e9ecef;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+
+.category-tag:hover, .tag:hover {
+    background-color: #dee2e6;
+    text-decoration: none;
+}
+
+.tag {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.article-content {
+    line-height: 1.6;
+    margin: 20px 0;
+    font-size: 16px;
+}
+
+/* Enhanced content formatting */
+.article-content h1, .article-content h2, .article-content h3,
+.article-content h4, .article-content h5, .article-content h6 {
+    margin-top: 25px;
+    margin-bottom: 15px;
+}
+
+.article-content p {
+    margin-bottom: 15px;
+}
+
+.article-content ul, .article-content ol {
+    margin-bottom: 15px;
+    padding-left: 30px;
+}
+
+.article-content blockquote {
+    border-left: 4px solid #ddd;
+    padding-left: 20px;
+    margin: 20px 0;
+    color: #666;
+    font-style: italic;
+}
+
+.article-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.article-content th, .article-content td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.article-content th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+/* Modal styling improvements */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 20px;
+    border: none;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close:hover {
+    color: #000;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.danger-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.danger-button:hover {
+    background-color: #c82333;
+}
+
+.danger-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.status-button {
+    padding: 8px 16px;
+    margin: 5px;
+    border: 2px solid #ddd;
+    background-color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.status-button.active {
+    border-color: #0645ad;
+    background-color: #e3f2fd;
+    color: #0645ad;
+}
+
+.warning-box {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    padding: 15px;
+    border-radius: 4px;
+    margin: 15px 0;
+    color: #856404;
+}
+
+/* Content warning styles */
+.content-warning {
+    background-color: #fff3cd;
+    border: 2px solid #ffeaa7;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: #856404;
+}
+
+.raw-content-display {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.raw-content-display pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+    font-size: 0.9em;
+    line-height: 1.4;
+    color: #333;
+}
+
+.content-help {
+    background-color: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+    color: #0c5460;
+}
+
+.no-content {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    color: #666;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .vote-container {
+        justify-content: center;
+    }
+    
+    .article-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .action-button {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .modal-content {
+        margin: 10% auto;
+        width: 95%;
+    }
+}
+</style>
 {% endblock %}
 
 {% block sidebar_extra %}
-<h3>Article Tools</h3>
-<ul>
-    <li><a href="/edit-article/{{ article._id }}" id="edit-article" class="auth-required">Edit Article</a></li>
-    <li><a href="/articles/{{ article._id }}/propose" id="propose-edit">Propose Edit</a></li>
-    <li><a href="/articles/{{ article._id }}/history" id="article-history">History</a></li>
-    <li><a href="/articles/{{ article._id }}/proposals" id="article-proposals">View Proposals</a></li>
-    <li><a href="/articles/{{ article._id }}/reward" id="reward-article" class="auth-required">Reward Contributor</a></li>
-</ul>
+<!-- Enhanced sidebar combining both versions -->
+<div class="article-sidebar">
+    <div class="article-actions">
+        <h3>Article Tools</h3>
+        <ul class="list-unstyled">
+            <li><a href="/edit-article/{{ article._id }}" id="edit-article" class="auth-required btn btn-outline-primary btn-sm mb-2">✏️ Edit Article</a></li>
+            <li><a href="/articles/{{ article._id }}/propose" id="propose-edit" class="btn btn-outline-secondary btn-sm mb-2">📝 Propose Edit</a></li>
+            <li><a href="/articles/{{ article._id }}/history" id="article-history" class="btn btn-outline-secondary btn-sm mb-2">📜 History</a></li>
+            <li><a href="/articles/{{ article._id }}/proposals" id="article-proposals" class="btn btn-outline-info btn-sm mb-2">📋 View Proposals</a></li>
+            <li><a href="/articles/{{ article._id }}/talk" class="btn btn-outline-info btn-sm mb-2">💬 Discussion</a></li>
+            <li><a href="/articles/{{ article._id }}/reward" id="reward-article" class="auth-required btn btn-outline-success btn-sm mb-2">🏆 Reward Contributor</a></li>
+            {% if current_user and current_user.role in ['admin', 'editor'] %}
+                {% if current_user._id == article.createdBy or current_user.role in ['admin', 'editor'] %}
+                    <li><button onclick="showDeleteModal('{{ article._id }}')" class="btn btn-outline-danger btn-sm mb-2">
+                        🗑️ Request Deletion
+                    </button></li>
+                {% endif %}
+            {% endif %}
+            <li><a href="/help/deletion-policy" class="btn btn-outline-info btn-sm mb-2">📋 Deletion Policy</a></li>
+        </ul>
+    </div>
+
+    <div class="article-info mt-4">
+        <h3>Article Information</h3>
+        <dl>
+            <dt>Created:</dt>
+            <dd>{{ article.createdAt|strftime('%Y-%m-%d') if article.createdAt else 'Unknown' }}</dd>
+            
+            <dt>Last Updated:</dt>
+            <dd>{{ (article.lastUpdatedAt or article.updatedAt)|strftime('%Y-%m-%d') if (article.lastUpdatedAt or article.updatedAt) else 'Unknown' }}</dd>
+            
+            {% if article.views %}
+            <dt>Views:</dt>
+            <dd>{{ article.views }}</dd>
+            {% endif %}
+            
+            {% if article.categories %}
+            <dt>Categories:</dt>
+            <dd>
+                {% for category in article.categories %}
+                    <a href="/articles?category={{ category }}" class="badge bg-secondary text-decoration-none me-1">{{ category }}</a>
+                {% endfor %}
+            </dd>
+            {% endif %}
+            
+            {% if article.tags %}
+            <dt>Tags:</dt>
+            <dd>
+                {% for tag in article.tags %}
+                    <a href="/articles?tag={{ tag }}" class="badge bg-light text-dark text-decoration-none me-1">{{ tag }}</a>
+                {% endfor %}
+            </dd>
+            {% endif %}
+        </dl>
+    </div>
+
+    {% if article.status and article.status != 'published' %}
+    <div class="article-status mt-4">
+        <h3>Status</h3>
+        <span class="badge bg-warning">{{ article.status|title }}</span>
+        {% if current_user and current_user.role in ['admin', 'editor'] %}
+            <p class="small text-muted mt-2">This article is not publicly visible.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if article.featured %}
+    <div class="featured-status mt-4">
+        <h3>Featured Article</h3>
+        <span class="badge bg-success">⭐ Featured</span>
+        {% if article.featured_until %}
+            <p class="small text-muted mt-2">Featured until {{ article.featured_until|strftime('%Y-%m-%d') }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
 {% endblock %}
 
 {% block content %}
@@ -34,7 +447,7 @@
         {% endif %}
     </h1>
     
-    <!-- Add vote buttons here -->
+    <!-- Enhanced vote buttons with better styling -->
     <div class="vote-container">
         <button class="vote-button upvote" id="upvote-button" title="Upvote">
             <i class="fas fa-arrow-up"></i>
@@ -51,6 +464,38 @@
     </div>
 </div>
 
+<!-- Enhanced status warnings -->
+{% if article.status and article.status != 'published' %}
+    <div class="alert alert-warning" role="alert">
+        <strong>Status:</strong> {{ article.status|title }}
+        {% if article.status == 'draft' %}
+            - This article is still being written
+        {% elif article.status == 'review' %}
+            - This article is under review
+        {% elif article.status == 'hidden' %}
+            - This article is temporarily hidden
+        {% elif article.status == 'archived' %}
+            - This article has been archived
+        {% endif %}
+    </div>
+{% endif %}
+
+{% if article.featured %}
+    <div class="alert alert-success" role="alert">
+        ⭐ <strong>Featured Article</strong>
+        {% if article.featured_until %}
+            (featured until {{ article.featured_until|strftime('%b %d, %Y') }})
+        {% endif %}
+    </div>
+{% endif %}
+
+<!-- Short description -->
+{% if article.summary %}
+    <div class="alert alert-info" role="alert">
+        <em>{{ article.summary }}</em>
+    </div>
+{% endif %}
+
 {% if article.categories %}
 <div class="article-categories">
     Categories:
@@ -60,8 +505,31 @@
 </div>
 {% endif %}
 
+<!-- Enhanced content display with error handling -->
 <div class="article-content">
-    {{ article.content|safe }}
+    {% if article.content %}
+        {% set content = article.content %}
+        {% if content.startswith('```') or '```html' in content or '```markdown' in content %}
+            <!-- Handle raw markdown/code blocks -->
+            <div class="content-warning">
+                <strong>⚠️ Content Format Issue:</strong> This article contains unprocessed code blocks or markdown.
+            </div>
+            <div class="raw-content-display">
+                <pre><code>{{ content }}</code></pre>
+            </div>
+            <div class="content-help">
+                <strong>For editors:</strong> This content needs to be converted to proper HTML. 
+                <a href="/articles/{{ article._id }}/edit?mode=html" class="alert-link">Edit this article</a> to fix the formatting.
+            </div>
+        {% else %}
+            {{ content|safe }}
+        {% endif %}
+    {% else %}
+        <div class="no-content">
+            <p><em>This article has no content yet.</em></p>
+            <p>You can help by <a href="/articles/{{ article._id }}/edit?mode=html">adding content</a> to this article.</p>
+        </div>
+    {% endif %}
 </div>
 
 {% if article.tags %}
@@ -73,25 +541,26 @@
 </div>
 {% endif %}
 
-
-<!-- Update the article footer section with the manage button -->
+<!-- Enhanced article footer with better button styling -->
 <div class="article-footer">
     <div class="article-actions">
-        <button id="propose-edit-button" class="action-button">Propose Edit</button>
-        <button id="edit-button" class="action-button auth-required">Edit Article</button>
-        <button id="reward-button" class="action-button auth-required">Reward Author</button>
-        <button id="share-button" class="action-button">Share</button>
-        <button id="manage-button" class="action-button manage-button admin-required">Manage Article</button>
+        <button id="propose-edit-button" class="action-button">📝 Propose Edit</button>
+        <button id="edit-button" class="action-button auth-required">✏️ Edit Article</button>
+        <button id="reward-button" class="action-button auth-required">🏆 Reward Author</button>
+        <button id="share-button" class="action-button">📤 Share</button>
+        <button id="manage-button" class="action-button manage-button admin-required">⚙️ Manage Article</button>
+        <a href="/articles/{{ article._id }}?mode=wiki" class="action-button">📝 Wiki Mode</a>
     </div>
 </div>
 {% endblock %}
 
 {% block modals %}
+<!-- All modals from the working version with enhanced styling -->
 <!-- Reward Modal -->
 <div id="reward-modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Reward Contributor</h2>
+        <h2>🏆 Reward Contributor</h2>
         <p>Show appreciation for this content by rewarding the contributor.</p>
         <form id="reward-form">
             <input type="hidden" id="article-id" value="{{ article._id }}">
@@ -107,7 +576,7 @@
                 <label for="points">Points:</label>
                 <input type="number" id="points" name="points" min="1" max="10" value="5">
             </div>
-            <button type="submit">Give Reward</button>
+            <button type="submit" class="action-button">Give Reward</button>
         </form>
     </div>
 </div>
@@ -116,13 +585,39 @@
 <div id="share-modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Share Article</h2>
+        <h2>📤 Share Article</h2>
         <p>Share this article with others:</p>
         <div class="form-group">
             <label for="share-url">Article URL:</label>
             <input type="text" id="share-url" value="{{ request.url }}" readonly>
-            <button id="copy-url">Copy</button>
+            <button id="copy-url" class="action-button" style="margin-top: 10px;">📋 Copy URL</button>
         </div>
+    </div>
+</div>
+
+<!-- Enhanced Delete Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>🗑️ Request Article Deletion</h2>
+        <p>Please review the <a href="/help/deletion-policy" target="_blank">deletion policy</a> before proceeding.</p>
+        <form id="deletionForm">
+            <div class="form-group">
+                <label for="deleteReason">Reason for deletion:</label>
+                <textarea id="deleteReason" name="reason" required rows="4"
+                    placeholder="Cite specific deletion criteria from the policy (e.g., Policy Violation - Spam content, Quality Issue - No meaningful content, etc.)..."></textarea>
+            </div>
+            {% if current_user and current_user.role in ['admin', 'editor'] %}
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="permanentDelete">
+                    Permanent deletion (admin only)
+                </label>
+            </div>
+            {% endif %}
+            <button type="button" class="action-button" onclick="requestDeletion('{{ article._id }}')">Submit Request</button>
+            <button type="button" class="action-button" style="background-color: #6c757d;" onclick="document.getElementById('deleteModal').style.display='none'">Cancel</button>
+        </form>
     </div>
 </div>
 
@@ -130,7 +625,7 @@
 <div id="article-management-modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Article Management</h2>
+        <h2>⚙️ Article Management</h2>
         
         <div class="status-section">
             <h3>Change Article Status</h3>
@@ -166,11 +661,11 @@
 <div id="delete-confirmation-modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Confirm Permanent Deletion</h2>
+        <h2>⚠️ Confirm Permanent Deletion</h2>
         
         <div class="confirmation-content">
             <p>You are about to <strong>permanently delete</strong> this article:</p>
-            <p class="article-title-confirm">{{ article.title }}</p>
+            <p style="font-weight: bold; font-size: 1.1em; color: #dc3545;">{{ article.title }}</p>
             
             <div class="warning-box">
                 <p>⚠️ This action cannot be undone. All revisions, proposals, and rewards associated with this article will also be deleted.</p>
@@ -183,7 +678,7 @@
             
             <div class="form-actions">
                 <button id="confirm-delete" class="danger-button" disabled>Permanently Delete</button>
-                <button id="cancel-delete" class="cancel-button">Cancel</button>
+                <button id="cancel-delete" class="action-button" style="background-color: #6c757d;">Cancel</button>
             </div>
         </div>
     </div>
@@ -192,6 +687,7 @@
 
 {% block extra_js %}
 <script>
+// Enhanced JavaScript combining both versions with improvements
 document.addEventListener('DOMContentLoaded', function() {
     // Check if user is logged in
     const token = localStorage.getItem('token');
@@ -238,7 +734,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Add voting functionality
+    // Enhanced voting functionality
     const upvoteButton = document.getElementById('upvote-button');
     const downvoteButton = document.getElementById('downvote-button');
     const voteCount = document.getElementById('vote-count');
@@ -308,10 +804,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update button states
             if (upvoteButton.classList.contains('active')) {
-                // Was active, now inactive
                 upvoteButton.classList.remove('active');
             } else {
-                // Was inactive, now active
                 upvoteButton.classList.add('active');
                 downvoteButton.classList.remove('active');
             }
@@ -323,7 +817,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle downvote button
     downvoteButton.addEventListener('click', async function() {
         if (!token) {
-            // Show login modal if user is not logged in
             const loginModal = document.getElementById('login-modal');
             if (loginModal) loginModal.style.display = 'block';
             return;
@@ -350,10 +843,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Update button states
             if (downvoteButton.classList.contains('active')) {
-                // Was active, now inactive
                 downvoteButton.classList.remove('active');
             } else {
-                // Was inactive, now active
                 downvoteButton.classList.add('active');
                 upvoteButton.classList.remove('active');
             }
@@ -362,7 +853,81 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Set up propose edit button
+    // Set up all button event listeners
+    setupButtonListeners();
+    
+    // Set up modal functionality
+    setupModals();
+    
+    // Set up article management
+    setupArticleManagement();
+    
+    // Track page view
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'page_view', {
+            page_title: '{{ article.title }}',
+            page_location: window.location.href
+        });
+    }
+});
+
+// Enhanced delete modal function
+function showDeleteModal(articleId) {
+    const modal = document.getElementById('deleteModal');
+    if (modal) {
+        modal.style.display = 'block';
+    }
+}
+
+function requestDeletion(articleId) {
+    const reason = document.getElementById('deleteReason').value.trim();
+    const permanentCheckbox = document.getElementById('permanentDelete');
+    const permanent = permanentCheckbox ? permanentCheckbox.checked : false;
+    
+    if (!reason) {
+        alert('Please provide a reason for deletion.');
+        return;
+    }
+    
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert('You must be logged in to request deletion.');
+        return;
+    }
+    
+    // Send deletion request
+    fetch(`/api/articles/${articleId}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            reason: reason,
+            permanent: permanent
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.deletedImmediately) {
+            alert(data.message);
+            window.location.href = '/';
+        } else {
+            alert(data.message);
+            if (data.discussionUrl) {
+                window.location.href = data.discussionUrl;
+            }
+        }
+        document.getElementById('deleteModal').style.display = 'none';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to submit deletion request. Please try again.');
+    });
+}
+
+// Function to set up button listeners
+function setupButtonListeners() {
     const proposeEditButton = document.getElementById('propose-edit-button');
     if (proposeEditButton) {
         proposeEditButton.addEventListener('click', function() {
@@ -370,39 +935,68 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Set up edit button
     const editButton = document.getElementById('edit-button');
     if (editButton) {
         editButton.addEventListener('click', function() {
-            // Check if user is logged in
+            const token = localStorage.getItem('token');
             if (!token) {
-                // Not logged in, show login modal
                 const loginModal = document.getElementById('login-modal');
                 if (loginModal) loginModal.style.display = 'block';
                 return;
             }
-            
             window.location.href = '/edit-article/{{ article._id }}';
         });
     }
     
-    // Set up reward button
     const rewardButton = document.getElementById('reward-button');
     if (rewardButton) {
         rewardButton.addEventListener('click', function() {
-            // Check if user is logged in
+            const token = localStorage.getItem('token');
             if (!token) {
-                // Not logged in, show login modal
                 const loginModal = document.getElementById('login-modal');
                 if (loginModal) loginModal.style.display = 'block';
                 return;
             }
-            
-            // Show reward modal
             const rewardModal = document.getElementById('reward-modal');
             if (rewardModal) rewardModal.style.display = 'block';
         });
     }
+    
+    const shareButton = document.getElementById('share-button');
+    if (shareButton) {
+        shareButton.addEventListener('click', function() {
+            const shareModal = document.getElementById('share-modal');
+            if (shareModal) shareModal.style.display = 'block';
+        });
+    }
+    
+    const copyUrlButton = document.getElementById('copy-url');
+    if (copyUrlButton) {
+        copyUrlButton.addEventListener('click', function() {
+            const shareUrl = document.getElementById('share-url');
+            shareUrl.select();
+            navigator.clipboard.writeText(shareUrl.value).then(function() {
+                alert('URL copied to clipboard!');
+            });
+        });
+    }
+}
+
+// Function to set up modal functionality
+function setupModals() {
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.modal');
+            if (modal) modal.style.display = 'none';
+        });
+    });
+    
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    });
     
     // Set up reward form submission
     const rewardForm = document.getElementById('reward-form');
@@ -410,25 +1004,21 @@ document.addEventListener('DOMContentLoaded', function() {
         rewardForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form values
             const articleId = document.getElementById('article-id').value;
             const rewardType = document.getElementById('reward-type').value;
             const points = parseInt(document.getElementById('points').value);
             
-            // Get token
             const token = localStorage.getItem('token');
             if (!token) {
                 alert('You must be logged in to give rewards.');
                 return;
             }
             
-            // Create reward data
             const rewardData = {
                 rewardType: rewardType,
                 points: points
             };
             
-            // Submit reward
             fetch(`/api/rewards/articles/${articleId}/rewards`, {
                 method: 'POST',
                 headers: {
@@ -456,141 +1046,92 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-    
-    // Set up share button
-    const shareButton = document.getElementById('share-button');
-    if (shareButton) {
-        shareButton.addEventListener('click', function() {
-            const shareModal = document.getElementById('share-modal');
-            if (shareModal) shareModal.style.display = 'block';
-        });
-    }
-    
-    // Set up copy URL button
-    const copyUrlButton = document.getElementById('copy-url');
-    if (copyUrlButton) {
-        copyUrlButton.addEventListener('click', function() {
-            const shareUrl = document.getElementById('share-url');
-            shareUrl.select();
-            document.execCommand('copy');
-            alert('URL copied to clipboard!');
-        });
-    }
-    
-    // Modal closing
-    const closeButtons = document.querySelectorAll('.close');
-    closeButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const modal = this.closest('.modal');
-            if (modal) modal.style.display = 'none';
-        });
-    });
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = 'none';
-        }
-    });
-    
-    // Article management functionality
+}
+
+// Function to set up article management
+function setupArticleManagement() {
+    const manageButton = document.getElementById('manage-button');
     const articleManagementModal = document.getElementById('article-management-modal');
     const deleteConfirmationModal = document.getElementById('delete-confirmation-modal');
-    const manageButton = document.getElementById('manage-button');
-    const statusButtons = document.querySelectorAll('.status-button');
-    const deleteArticleButton = document.getElementById('delete-article');
-    const confirmDeleteButton = document.getElementById('confirm-delete');
-    const cancelDeleteButton = document.getElementById('cancel-delete');
-    const deleteConfirmationInput = document.getElementById('delete-confirmation');
-
-    // Show management modal when manage button is clicked
+    
     if (manageButton) {
         manageButton.addEventListener('click', function() {
-            // Check if user is logged in and is admin/editor
+            const token = localStorage.getItem('token');
             if (!token) {
-                showLoginRequiredMessage();
+                alert('You must be logged in as an administrator to manage articles');
+                const loginModal = document.getElementById('login-modal');
+                if (loginModal) loginModal.style.display = 'block';
                 return;
             }
             
-            // Show management modal
             if (articleManagementModal) {
                 articleManagementModal.style.display = 'block';
             }
         });
     }
-
-    // Handle status button clicks
-    if (statusButtons) {
-        statusButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const newStatus = this.dataset.status;
-                
-                // Don't do anything if already active
-                if (this.classList.contains('active')) {
-                    return;
-                }
-                
-                // Confirm status change
-                if (!confirm(`Are you sure you want to change the article status to "${newStatus}"?`)) {
-                    return;
-                }
-                
-                // Show loading state
-                this.disabled = true;
-                const originalText = this.textContent;
-                this.textContent = `Updating...`;
-                
-                // Update article status via API
-                updateArticleStatus(newStatus)
-                    .then(success => {
-                        if (success) {
-                            // Update UI
-                            statusButtons.forEach(btn => btn.classList.remove('active'));
-                            this.classList.add('active');
-                            
-                            // Update status display
-                            const statusDisplay = document.querySelector('.article-status');
-                            if (statusDisplay) {
-                                statusDisplay.textContent = newStatus;
-                            }
-                            
-                            // Show success message
-                            alert(`Article status updated to "${newStatus}"`);
-                            
-                            // Refresh page after a brief delay
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 1000);
+    
+    // Set up status buttons
+    const statusButtons = document.querySelectorAll('.status-button');
+    statusButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const newStatus = this.dataset.status;
+            
+            if (this.classList.contains('active')) {
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to change the article status to "${newStatus}"?`)) {
+                return;
+            }
+            
+            this.disabled = true;
+            const originalText = this.textContent;
+            this.textContent = `Updating...`;
+            
+            updateArticleStatus(newStatus)
+                .then(success => {
+                    if (success) {
+                        statusButtons.forEach(btn => btn.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        const statusDisplay = document.querySelector('.article-status');
+                        if (statusDisplay) {
+                            statusDisplay.textContent = newStatus;
                         }
-                    })
-                    .finally(() => {
-                        // Reset button state
-                        this.disabled = false;
-                        this.textContent = originalText;
-                    });
-            });
+                        
+                        alert(`Article status updated to "${newStatus}"`);
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    }
+                })
+                .finally(() => {
+                    this.disabled = false;
+                    this.textContent = originalText;
+                });
         });
-    }
-
-    // Handle delete button click
+    });
+    
+    // Set up delete functionality
+    const deleteArticleButton = document.getElementById('delete-article');
+    const confirmDeleteButton = document.getElementById('confirm-delete');
+    const cancelDeleteButton = document.getElementById('cancel-delete');
+    const deleteConfirmationInput = document.getElementById('delete-confirmation');
+    
     if (deleteArticleButton) {
         deleteArticleButton.addEventListener('click', function() {
-            // Close management modal
             if (articleManagementModal) {
                 articleManagementModal.style.display = 'none';
             }
-            
-            // Show delete confirmation modal
             if (deleteConfirmationModal) {
                 deleteConfirmationModal.style.display = 'block';
             }
         });
     }
-
-    // Handle delete confirmation input
+    
     if (deleteConfirmationInput) {
         deleteConfirmationInput.addEventListener('input', function() {
-            // Enable confirmation button only if correct text is entered
             if (this.value === 'DELETE') {
                 confirmDeleteButton.disabled = false;
             } else {
@@ -598,136 +1139,131 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Handle confirm delete button
+    
     if (confirmDeleteButton) {
         confirmDeleteButton.addEventListener('click', function() {
-            // Check if confirmation is valid
             if (deleteConfirmationInput.value !== 'DELETE') {
                 return;
             }
             
-            // Show loading state
             this.disabled = true;
             this.textContent = 'Deleting...';
             
-            // Send delete request
-            deleteArticle()
-                .then(success => {
-                    if (success) {
-                        // Show success message
-                        alert('Article has been permanently deleted');
-                        
-                        // Redirect to homepage
-                        window.location.href = '/';
-                    }
-                })
-                .catch(error => {
-                    // Reset button state
-                    this.disabled = false;
-                    this.textContent = 'Permanently Delete';
-                    
-                    // Show error message
-                    alert('Error deleting article: ' + error.message);
-                });
-        });
-    }
-
-    // Handle cancel delete button
-    if (cancelDeleteButton) {
-        cancelDeleteButton.addEventListener('click', function() {
-            // Close delete confirmation modal
-            if (deleteConfirmationModal) {
-                deleteConfirmationModal.style.display = 'none';
-            }
-            
-            // Show management modal again
-            if (articleManagementModal) {
-                articleManagementModal.style.display = 'block';
-            }
-            
-            // Reset confirmation input
-            if (deleteConfirmationInput) {
-                deleteConfirmationInput.value = '';
-            }
-            
-            // Disable confirm button
-            if (confirmDeleteButton) {
-                confirmDeleteButton.disabled = true;
-            }
-        });
-    }
-
-    // Function to update article status
-    async function updateArticleStatus(newStatus) {
-        try {
+            // Use the requestDeletion function instead of deleteArticle
+            // This bypasses the broken backend logic
             const token = localStorage.getItem('token');
             if (!token) {
-                throw new Error('You must be logged in to perform this action');
+                alert('You must be logged in to perform this action');
+                return;
             }
             
-            const response = await fetch(`/api/articles/{{ article._id }}`, {
-                method: 'PUT',
+            fetch(`/api/articles/{{ article._id }}`, {
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    status: newStatus
+                    reason: 'Permanent deletion requested by admin',
+                    permanent: true
                 })
-            });
-            
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Failed to update article status');
-            }
-            
-            return true;
-        } catch (error) {
-            console.error('Error updating article status:', error);
-            alert('Error updating article status: ' + error.message);
-            return false;
-        }
-    }
-
-    // Function to delete article
-    async function deleteArticle() {
-        try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error('You must be logged in to perform this action');
-            }
-            
-            const response = await fetch(`/api/articles/{{ article._id }}?permanent=true`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.deletedImmediately) {
+                    alert(data.message);
+                    window.location.href = '/';
+                } else {
+                    alert(data.message);
+                    if (data.discussionUrl) {
+                        window.location.href = data.discussionUrl;
+                    }
                 }
+                document.getElementById('delete-confirmation-modal').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                this.disabled = false;
+                this.textContent = 'Permanently Delete';
+                alert('Error deleting article: ' + error.message);
             });
-            
-            if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.detail || 'Failed to delete article');
+        });
+    }
+    
+    if (cancelDeleteButton) {
+        cancelDeleteButton.addEventListener('click', function() {
+            if (deleteConfirmationModal) {
+                deleteConfirmationModal.style.display = 'none';
             }
-            
-            return true;
-        } catch (error) {
-            console.error('Error deleting article:', error);
-            alert('Error deleting article: ' + error.message);
-            throw error;
-        }
+            if (articleManagementModal) {
+                articleManagementModal.style.display = 'block';
+            }
+            if (deleteConfirmationInput) {
+                deleteConfirmationInput.value = '';
+            }
+            if (confirmDeleteButton) {
+                confirmDeleteButton.disabled = true;
+            }
+        });
     }
+}
 
-    // Function to show login required message
-    function showLoginRequiredMessage() {
-        alert('You must be logged in as an administrator to manage articles');
-        
-        // Show login modal
-        const loginModal = document.getElementById('login-modal');
-        if (loginModal) {
-            loginModal.style.display = 'block';
+// Helper functions
+async function updateArticleStatus(newStatus) {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('You must be logged in to perform this action');
         }
+        
+        const response = await fetch(`/api/articles/{{ article._id }}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                status: newStatus
+            })
+        });
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.detail || 'Failed to update article status');
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error updating article status:', error);
+        alert('Error updating article status: ' + error.message);
+        return false;
     }
-});
+}
+
+async function deleteArticle() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            throw new Error('You must be logged in to perform this action');
+        }
+        
+        const response = await fetch(`/api/articles/{{ article._id }}?permanent=true`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.detail || 'Failed to delete article');
+        }
+        
+        return true;
+    } catch (error) {
+        console.error('Error deleting article:', error);
+        throw error;
+    }
+}
 </script>
 {% endblock %}
