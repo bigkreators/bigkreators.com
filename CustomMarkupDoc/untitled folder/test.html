@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <textarea id="markup-input">[bold]test[bold]</textarea>
+    <button onclick="parseMarkup()">Parse</button>
+    <div id="live-output"></div>
+    
+    <style>
+        .bold-text { font-weight: bold; }
+    </style>
+    
+    <script>
+    function parseMarkup() {
+        var input = document.getElementById('markup-input').value;
+        var output = document.getElementById('live-output');
+        var text = input.replace(/\[bold\](.*?)\[bold\]/g, '<span class="bold-text">$1</span>');
+        output.innerHTML = text;
+    }
+    </script>
+</body>
+</html>

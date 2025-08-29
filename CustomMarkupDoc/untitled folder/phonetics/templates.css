@@ -1,0 +1,21 @@
+        bi-labial::before {
+        content: "Bilabials are consonants articulated with the upper lip and lower lip.";
+        }
+        tr-ill::before {
+        content: "Trills are consonants where the active articulator vibrates against the passive articulator.";
+        }
+        voice-less::before {
+        content: "The vocal cords aren't vibrating, which is termed voiceless, unvoiced, or devoiced.";
+        }
+        or-al::before {
+        content: "The consonant is oral meaning the air escapes through the mouth rather than the nasal cavity.";
+        }
+        not-central-or-lateral::before {
+        content: "Since the consonant does not use the tongue during articulation, it is not a central consonant or lateral consonant.";
+        }
+        pul-monic::before {
+        content: "The consonant is pulmonic, which means it is produced via air from the lungs.";
+        }
+        voice-d::before {
+        content: "The consonant is voiced, which means the vocal cords are vibrating.";
+        }
