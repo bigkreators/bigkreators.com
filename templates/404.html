@@ -44,14 +44,15 @@
 {% block sidebar %}{% endblock %}
 
 {% block content %}
+<div class="error-actions">
+        <span style="background: gray; padding: 10px 20px; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Article</span>
+        <a href="/articles/67fb0c490cc9c8e686f34f07/talk">Discussion</a>
+        <a href="/create-article" style="float: right;">Create Article</a>
+    </div>
 <div class="error-container">
     <div class="error-code">404</div>
     <div class="error-message">{{ message or 'Page Not Found' }}</div>
     <p>The page you are looking for doesn't exist or has been moved.</p>
-    
-    <div class="error-actions">
-        <a href="/">Go to Homepage</a>
-        <a href="/create-article">Create Article</a>
-    </div>
+    <a href="/">Go to Homepage</a>
 </div>
 {% endblock %}
