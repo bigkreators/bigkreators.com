@@ -86,6 +86,7 @@
         .underline-text { text-decoration: underline; }
         .superscript-text { vertical-align: super; font-size: 0.8em; }
         .subscript-text { vertical-align: sub; font-size: 0.8em; }
+        .small-caps-text { font-variant: small-caps; }
         .link-text { 
             color: #007bff; 
             text-decoration: underline;
@@ -256,6 +257,11 @@
             <div class="rendered-result">
                 <span class="underline-text">Underlined text</span>
             </div>
+
+            <div class="markup-example">[smallcapital]Small Caps Text[smallcapital]</div>
+            <div class="rendered-result">
+                <span class="small-caps-text">Small Caps Text</span>
+            </div>
         </div>
 
         <div class="demo-section">
@@ -264,6 +270,20 @@
             <div class="markup-example">[superscript]Superscript text[superscript] [subscript]Subscript text[subscript]</div>
             <div class="rendered-result">
                 <span class="superscript-text">Superscript text</span> <span class="subscript-text">Subscript text</span>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Structural Elements</h2>
+            
+            <div class="markup-example">[anchor|section-top]</div>
+            <div class="rendered-result">
+                <em style="color: #666;">Invisible anchor point created - you can link to #section-top (like Wiki Markup anchors)</em>
+            </div>
+
+            <div class="markup-example">[div]This is content inside a div container[div]</div>
+            <div class="rendered-result">
+                <div>This is content inside a div container</div>
             </div>
         </div>
 
@@ -724,6 +744,8 @@ Table of alveolar laterals:
                 .replace(/\[italic\](.*?)\[italic\]/g, '<span class="italic-text">$1</span>')
                 // Underline
                 .replace(/\[underline\](.*?)\[underline\]/g, '<span class="underline-text">$1</span>')
+                // Small caps (NEW)
+                .replace(/\[smallcapital\](.*?)\[smallcapital\]/g, '<span class="small-caps-text">$1</span>')
                 // Superscript
                 .replace(/\[superscript\](.*?)\[superscript\]/g, '<span class="superscript-text">$1</span>')
                 // Subscript
@@ -732,6 +754,10 @@ Table of alveolar laterals:
                 .replace(/\[link url="([^"]*)" text="([^"]*)"\]/g, '<span class="link-text" onclick="window.open(\'$1\', \'_blank\')">$2</span>')
                 // Redirect link with bracket format [R̤Link to redirect to]
                 .replace(/\[R̤([^\]]+)\]/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
+                // Anchor (NEW) - invisible anchor points
+                .replace(/\[anchor\|([^\]]+)\]/g, '<span id="$1"></span>')
+                // Div (NEW) - plain HTML div with no styling
+                .replace(/\[div\](.*?)\[div\]/gs, '<div>$1</div>')
                 // Category (C̤) - handles multiple categories separated by commas, terminated by period
                 .replace(/C̤([^.]+)\./g, function(match, categories) {
                     return 'Categories: ' + categories.split(',').map(cat => 
