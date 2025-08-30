@@ -350,6 +350,17 @@
                     </tr>
                 </table>
             </div>
+            
+            <div class="markup-example">[delete|reason="created by a banned user"]</div>
+            <div class="rendered-result">
+                <table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    <tr>
+                        <td style="font-size: 50px;">!</td>
+                        <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because of being created<br>by a banned user. If this article is not<br>created by a banned user, remove the<br>deletion tag.</p></td>
+                    </tr>
+                </table>
+            </div>
+
 
             <div class="markup-example">[non-encyclopedic content]</div>
             <div class="rendered-result">
@@ -366,6 +377,15 @@
                 <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                     <tr>
                         <td><p style="font-size: 20px;">This article is short.<br>You can help expand it.</p></td>
+                    </tr>
+                </table>
+            </div>
+        <div class="markup-example">[merge|Close-mid back unrounded vowel]</div>
+            <div class="rendered-result">
+                <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    <tr>
+                        <td style="color: red; font-size: 50px; font-family: 'Times New Roman';">MERGE</td>
+                        <td><p style="font-size: 20px;">A Kryptopedian thinks<br>this article should be<br>merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">Close-mid back unrounded vowel</a></p></td>
                     </tr>
                 </table>
             </div>
@@ -535,6 +555,14 @@
             <div style="background: #fff3cd; padding: 10px; border-radius: 5px;">
                 Nesting code blocks inside code blocks is not allowed and this example will render as: <span class="code-text">function test() { </span>inner<span class="code-text"> }</span>
             </div>
+            
+            <div style="background: #ffe6e6; border-left-color: #dc3545;">
+                <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">[bold]bold text [bold]nested bold text[bold] [bold]</span>
+            </div>
+            <div style="background: #fff3cd; padding: 10px; border-radius: 5px;">
+                Nesting bold text inside bold text is not allowed and this example will render as: <b>bold text </b>nested bold text<b></b>
+            </div>
+
 
             <div style="background: #ffe6e6; border-left-color: #dc3545;">
                 <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">[R̤NonexistentPage]</span> or <span style="font-family: 'Gentium';">[link url="nonexistent.html" text="Broken Link"]</span>
@@ -656,7 +684,7 @@ Table of alveolar laterals:
     })
     // ===== END OF ESCAPE PROCESSING BLOCK =====
             
-                // Content warnings
+                // Content warnings (parse FIRST)
                 .replace(/\[delete\|reason="duplicate to: ([^"]+)"\]/g, function(match, articleTitle) {
                     return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                         <tr>
@@ -684,6 +712,15 @@ Table of alveolar laterals:
                         <td><p style="font-size: 20px;">This article is short.<br>You can help expand it.</p></td>
                     </tr>
                 </table>`)
+                // Merge notices
+                .replace(/\[merge\|([^\]]+)\]/g, function(match, articleTitle) {
+                    return `<table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                        <tr>
+                            <td style="color: red; font-size: 50px; font-family: 'Times New Roman';">MERGE</td>
+                            <td><p style="font-size: 20px;">A Kryptopedian thinks<br>this article should be<br>merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">${articleTitle}</a></p></td>
+                        </tr>
+                    </table>`;
+                    })
                 // Templates (parse these before other formatting)
                 .replace(/\[T name="IPA infobox"\|above=([^|]+)\|ipa symbol=([^|]+)(\|ipa symbol2=([^\]]+))?\]/g, function(match, phonName, symbol1, fullSymbol2, symbol2) {
                     let tableRows = `<table style="max-width: 300px; height: 170px; float: right;">
