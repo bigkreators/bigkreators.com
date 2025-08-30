@@ -234,11 +234,38 @@
         button:hover {
             background: #5a6fd8;
         }
+
+        .escape-highlight {
+            background-color: #fff3cd;
+            border-left-color: #f0ad4e;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🎨 KryptoMarkup Language Showcase</h1>
+        
+         <div class="demo-section escape-highlight">
+            <h2>Escaping Characters</h2>
+            <p><strong>Escape markup characters using backslash (\)</strong> to display them literally instead of rendering them as markup. Examples:</p>
+            
+            <div class="markup-example">\[bold]This won't be bold\[bold]</div>
+            <div class="rendered-result">
+                [bold]This won't be bold[bold]
+            </div>
+
+            <div class="markup-example">This is \[italic]not italic\\italic] but this [italic]is italic[italic]</div>
+            <div class="rendered-result">
+                This is [italic]not italic[italic] but this <span class="italic-text">is italic</span>
+            </div>
+
+            
+
+            <div class="markup-example">\""This won't be a blockquote\""</div>
+            <div class="rendered-result">
+                ""This won't be a blockquote""
+            </div>
+        </div>
         
         <div class="demo-section">
             <h2>Text Formatting</h2>
@@ -557,8 +584,79 @@ Table of alveolar laterals:
             const input = document.getElementById('markup-input').value;
             const output = document.getElementById('live-output');
             
-            let parsed = input
-                // Content warnings (parse FIRST)
+            let parsed = input;
+            
+                // ===== ADD THIS ESCAPE PROCESSING BLOCK =====
+    // ESCAPE PROCESSING - MUST BE FIRST!
+    // Step 1: Replace literal backslashes (\\) with a temporary placeholder
+    const literalBackslashPlaceholder = '___LITERAL_BACKSLASH___';
+    parsed = parsed.replace(/\\\\/g, literalBackslashPlaceholder);
+    
+    // Step 2: Handle escaped markup characters
+    // Store escaped content in placeholders to prevent processing
+    const escapedContent = {};
+    let placeholderCounter = 0;
+    
+    // Escape basic formatting tags (only opening tag needs escaping)
+    const formatTags = ['bold', 'italic', 'underline', 'smallcapital', 'superscript', 'subscript', 'bar', 'code', 'citation'];
+    formatTags.forEach(tag => {
+        const regex = new RegExp(`\\\\\\[${tag}\\]`, 'g');
+        parsed = parsed.replace(regex, function(match) {
+            const placeholder = `___ESCAPED_${placeholderCounter++}___`;
+            escapedContent[placeholder] = `[${tag}]`;
+            return placeholder;
+        });
+    });
+    
+    // Escape special characters
+    parsed = parsed.replace(/\\C̤/g, function() {
+        const placeholder = `___ESCAPED_${placeholderCounter++}___`;
+        escapedContent[placeholder] = 'C̤';
+        return placeholder;
+    });
+    
+    parsed = parsed.replace(/\\R̤/g, function() {
+        const placeholder = `___ESCAPED_${placeholderCounter++}___`;
+        escapedContent[placeholder] = 'R̤';
+        return placeholder;
+    });
+    
+    parsed = parsed.replace(/\\⌘°̃/g, function() {
+        const placeholder = `___ESCAPED_${placeholderCounter++}___`;
+        escapedContent[placeholder] = '⌘°̃';
+        return placeholder;
+    });
+    
+    // Escape blockquotes (only outer quotes)
+    parsed = parsed.replace(/\\""([^"]*?)\\""/g, function(match, content) {
+        const placeholder = `___ESCAPED_${placeholderCounter++}___`;
+        escapedContent[placeholder] = `"${content}"`;
+        return placeholder;
+    });
+    
+    // Escape complex tags (only opening tag)
+    parsed = parsed.replace(/\\(\[(?:link|T|header|file|delete|anchor|div|break)[^\]]*\])/g, function(match, tag) {
+        const placeholder = `___ESCAPED_${placeholderCounter++}___`;
+        escapedContent[placeholder] = tag;
+        return placeholder;
+    });
+    
+    // Escape list markers
+    parsed = parsed.replace(/^\\(\. |123 )/gm, function(match, marker) {
+        const placeholder = `___ESCAPED_${placeholderCounter++}___`;
+        escapedContent[placeholder] = marker.trimEnd();
+        return placeholder;
+    });
+    
+    // Escape comments (only opening)
+    parsed = parsed.replace(/\\\[!/g, function() {
+        const placeholder = `___ESCAPED_${placeholderCounter++}___`;
+        escapedContent[placeholder] = '[!';
+        return placeholder;
+    })
+    // ===== END OF ESCAPE PROCESSING BLOCK =====
+            
+                // Content warnings
                 .replace(/\[delete\|reason="duplicate to: ([^"]+)"\]/g, function(match, articleTitle) {
                     return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                         <tr>
@@ -770,6 +868,17 @@ Table of alveolar laterals:
                 .replace(/\[code\](.*?)\[code\]/g, '<span class="code-text">$1</span>')
                 // Comments (remove them, don't render)
                 .replace(/\[!([^\]]*)\]/g, '');
+            
+                // ===== ADD THIS RESTORATION BLOCK AT THE END =====
+    // FINAL STEP: Restore escaped content and literal backslashes
+    // Replace escaped content placeholders with their original escaped values
+    for (let [placeholder, originalContent] of Object.entries(escapedContent)) {
+        parsed = parsed.replace(new RegExp(placeholder, 'g'), originalContent);
+    }
+    
+    // Replace literal backslash placeholder with single backslash
+    parsed = parsed.replace(new RegExp(literalBackslashPlaceholder, 'g'), '\\');
+    // ===== END OF RESTORATION BLOCK =====
             
             output.innerHTML = parsed;
         }
