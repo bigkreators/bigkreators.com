@@ -1,183 +1,244 @@
+<!-- File: templates/user_management.html -->
 {% extends "base.html" %}
 
-{% block title %}User Management - Kryptopedia Admin{% endblock %}
+{% block title %}User Management - Kryptopedia{% endblock %}
 
 {% set active_page = 'admin' %}
+
+{% block extra_head %}
+<meta name="description" content="User management dashboard for administrators">
+<meta name="keywords" content="admin, user management, moderation">
+{% endblock %}
 
 {% block extra_css %}
 <style>
     .admin-container {
         max-width: 1200px;
         margin: 0 auto;
+        padding: 20px;
     }
     
     .admin-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .admin-header h1 {
+        margin: 0;
+        color: #2c3e50;
     }
     
     .admin-section {
-        background-color: #fff;
+        background: white;
         border-radius: 8px;
         padding: 25px;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-bottom: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     .admin-section h2 {
-        color: #333;
         margin-top: 0;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #eee;
+        color: #34495e;
+        border-bottom: 2px solid #3498db;
         padding-bottom: 10px;
     }
     
-    .admin-form {
-        margin-bottom: 20px;
-        padding: 15px 20px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-    }
-    
-    .admin-form-row {
-        display: flex;
-        flex-wrap: wrap;
+    .filter-form {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 15px;
-        margin-bottom: 15px;
+        align-items: end;
+        margin-bottom: 20px;
     }
     
-    .admin-form-group {
-        flex: 1;
-        min-width: 200px;
+    .form-group {
+        display: flex;
+        flex-direction: column;
     }
     
-    .admin-form-group label {
-        display: block;
+    .form-group label {
         margin-bottom: 5px;
-        font-weight: 500;
+        font-weight: 600;
+        color: #555;
     }
     
-    .admin-form-group input,
-    .admin-form-group select {
-        width: 100%;
+    .form-control {
         padding: 8px 12px;
-        border: 1px solid #ced4da;
+        border: 1px solid #ddd;
         border-radius: 4px;
+        font-size: 14px;
     }
     
-    .admin-table {
+    .action-button {
+        background-color: #3498db;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 600;
+        display: inline-block;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .action-button:hover {
+        background-color: #2980b9;
+    }
+    
+    .action-button.danger {
+        background-color: #e74c3c;
+    }
+    
+    .action-button.danger:hover {
+        background-color: #c0392b;
+    }
+    
+    .action-button.warning {
+        background-color: #f39c12;
+    }
+    
+    .action-button.warning:hover {
+        background-color: #d68910;
+    }
+    
+    .action-button.success {
+        background-color: #27ae60;
+    }
+    
+    .action-button.success:hover {
+        background-color: #229954;
+    }
+    
+    .users-table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 20px;
+        margin-top: 20px;
     }
     
-    .admin-table th,
-    .admin-table td {
-        padding: 12px 15px;
-        border: 1px solid #dee2e6;
+    .users-table th,
+    .users-table td {
+        padding: 12px;
         text-align: left;
+        border-bottom: 1px solid #ddd;
     }
     
-    .admin-table th {
+    .users-table th {
         background-color: #f8f9fa;
         font-weight: 600;
+        color: #495057;
+        position: sticky;
+        top: 0;
     }
     
-    .admin-table tr:hover {
+    .users-table tr:hover {
         background-color: #f8f9fa;
     }
     
     .role-badge {
-        display: inline-block;
         padding: 4px 8px;
-        border-radius: 4px;
+        border-radius: 12px;
         font-size: 12px;
-        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
     }
     
     .role-admin {
-        background-color: #dc3545;
+        background-color: #e74c3c;
+        color: white;
     }
     
     .role-editor {
-        background-color: #fd7e14;
+        background-color: #3498db;
+        color: white;
     }
     
     .role-user {
-        background-color: #0d6efd;
+        background-color: #95a5a6;
+        color: white;
     }
     
-    .table-actions {
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .status-active {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .status-inactive {
+        background-color: #95a5a6;
+        color: white;
+    }
+    
+    .status-blocked {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .action-buttons {
         display: flex;
         gap: 5px;
+        flex-wrap: wrap;
     }
     
-    .table-actions button,
-    .table-actions a {
+    .action-buttons button {
         padding: 4px 8px;
+        border: none;
+        border-radius: 3px;
         font-size: 12px;
-        border-radius: 4px;
         cursor: pointer;
         text-decoration: none;
         display: inline-block;
-        text-align: center;
     }
     
-    .edit-btn, .edit-user-btn {
-        background-color: #0d6efd;
+    .btn-edit {
+        background-color: #3498db;
         color: white;
-        border: none;
     }
     
-    .view-btn {
+    .btn-block {
+        background-color: #f39c12;
+        color: white;
+    }
+    
+    .btn-unblock {
+        background-color: #27ae60;
+        color: white;
+    }
+    
+    .btn-delete {
+        background-color: #e74c3c;
+        color: white;
+    }
+    
+    .btn-view {
         background-color: #6c757d;
         color: white;
-        border: none;
-    }
-    
-    .delete-btn, .delete-user-btn {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-    }
-    
-    .change-role-btn {
-        background-color: #198754;
-        color: white;
-        border: none;
-    }
-    
-    .action-button {
-        display: inline-block;
-        padding: 8px 16px;
-        background-color: #0645ad;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        text-decoration: none;
-    }
-    
-    .action-button:hover {
-        background-color: #053a7a;
     }
     
     .pagination {
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-top: 20px;
+        margin-top: 30px;
+        gap: 10px;
     }
     
     .page-link {
-        display: inline-block;
-        padding: 5px 15px;
-        margin: 0 5px;
-        background-color: #f0f0f0;
-        color: #333;
+        padding: 8px 12px;
         text-decoration: none;
+        color: #3498db;
+        border: 1px solid #dee2e6;
         border-radius: 4px;
     }
     
@@ -203,11 +264,13 @@
     
     .modal-content {
         background-color: #fff;
-        margin: 10% auto;
+        margin: 5% auto;
         padding: 25px;
         border-radius: 8px;
         max-width: 600px;
         position: relative;
+        max-height: 80vh;
+        overflow-y: auto;
     }
     
     .close-modal-btn {
@@ -216,6 +279,125 @@
         font-size: 28px;
         font-weight: bold;
         cursor: pointer;
+        position: absolute;
+        top: 15px;
+        right: 20px;
+    }
+    
+    .close-modal-btn:hover {
+        color: #000;
+    }
+    
+    .block-form {
+        display: grid;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .block-types {
+        display: grid;
+        gap: 10px;
+        margin: 10px 0;
+    }
+    
+    .block-type-option {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    
+    .block-type-option:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .block-type-option.selected {
+        border-color: #3498db;
+        background-color: #e3f2fd;
+    }
+    
+    .block-type-details {
+        flex: 1;
+    }
+    
+    .block-type-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .block-type-description {
+        font-size: 14px;
+        color: #666;
+    }
+    
+    .duration-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+        margin: 10px 0;
+    }
+    
+    .duration-option {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .duration-option:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .duration-option.selected {
+        border-color: #3498db;
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+    
+    .block-history {
+        max-height: 300px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 15px;
+    }
+    
+    .block-entry {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 10px;
+    }
+    
+    .block-entry:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+    
+    .block-entry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    
+    .block-entry-type {
+        font-weight: 600;
+    }
+    
+    .block-entry-date {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    .block-entry-reason {
+        color: #555;
+        font-size: 14px;
     }
     
     .loading-spinner {
@@ -232,6 +414,55 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+    
+    .alert {
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin: 10px 0;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+    
+    .alert-warning {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        color: #856404;
+    }
+    
+    @media (max-width: 768px) {
+        .filter-form {
+            grid-template-columns: 1fr;
+        }
+        
+        .admin-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+        }
+        
+        .users-table {
+            font-size: 14px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .modal-content {
+            margin: 10% 5%;
+            max-width: none;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -241,6 +472,7 @@
     <li><a href="/admin">Dashboard</a></li>
     <li><a href="/admin/users" class="active">User Management</a></li>
     <li><a href="/admin/articles">Article Management</a></li>
+    <li><a href="/admin/blocks">Active Blocks</a></li>
     <li><a href="/proposals?status=pending">Pending Proposals</a></li>
     <li><a href="/special/statistics">Statistics</a></li>
 </ul>
@@ -255,93 +487,219 @@
     
     <div class="admin-section">
         <h2>Filter Users</h2>
-        <form id="user-search-form" class="admin-form">
-            <div class="admin-form-row">
-                <div class="admin-form-group">
-                    <label for="user-search">Search Users:</label>
-                    <input type="text" id="user-search" name="search" placeholder="Username or email" value="{{ search or '' }}">
-                </div>
-                <div class="admin-form-group">
-                    <label for="role-filter">Filter by Role:</label>
-                    <select id="role-filter" name="role">
-                        <option value="">All Roles</option>
-                        <option value="user" {% if role == 'user' %}selected{% endif %}>Regular Users</option>
-                        <option value="editor" {% if role == 'editor' %}selected{% endif %}>Editors</option>
-                        <option value="admin" {% if role == 'admin' %}selected{% endif %}>Admins</option>
-                    </select>
-                </div>
-                <div class="admin-form-group" style="flex: 0 0 auto; align-self: flex-end;">
-                    <button type="submit" class="action-button">Search</button>
-                </div>
+        <form id="user-search-form" class="filter-form" method="GET">
+            <div class="form-group">
+                <label for="search-username">Username</label>
+                <input type="text" id="search-username" name="search" class="form-control" placeholder="Enter username" value="{{ search or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="search-role">Role</label>
+                <select id="search-role" name="role" class="form-control">
+                    <option value="">All Roles</option>
+                    <option value="admin" {% if role == 'admin' %}selected{% endif %}>Admin</option>
+                    <option value="editor" {% if role == 'editor' %}selected{% endif %}>Editor</option>
+                    <option value="user" {% if role == 'user' %}selected{% endif %}>User</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="action-button">Search</button>
             </div>
         </form>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Users ({{ total }} total)</h2>
         
-        <div id="users-table-container">
-            {% if users %}
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Join Date</th>
-                            <th>Articles</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr id="user-row-{{ user._id }}">
-                            <td>{{ user.username }}</td>
-                            <td>{{ user.email }}</td>
-                            <td>
-                                {% if user.role == 'admin' %}
-                                    <span class="role-badge role-admin">Admin</span>
-                                {% elif user.role == 'editor' %}
-                                    <span class="role-badge role-editor">Editor</span>
+        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+        <div id="success-message" class="alert alert-success" style="display: none;"></div>
+        
+        <table class="users-table" id="users-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Join Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="users-table-body">
+                {% if users %}
+                    {% for user in users %}
+                    <tr>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td>{{ user.email or 'N/A' }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="role-badge role-admin">Admin</span>
+                            {% elif user.role == 'editor' %}
+                                <span class="role-badge role-editor">Editor</span>
+                            {% else %}
+                                <span class="role-badge role-user">User</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.get('isBlocked') %}
+                                <span class="status-badge status-blocked">Blocked</span>
+                            {% elif user.get('isActive') == false %}
+                                <span class="status-badge status-inactive">Inactive</span>
+                            {% else %}
+                                <span class="status-badge status-active">Active</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.joinDate|strftime if user.joinDate else 'N/A' }}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="/users/{{ user._id }}" class="btn-view">View</a>
+                                <a href="/users/{{ user._id }}/edit" class="btn-edit">Edit</a>
+                                {% if user.get('isBlocked') %}
+                                    <button class="btn-unblock" onclick="showUnblockModal('{{ user._id }}', '{{ user.username }}')">Unblock</button>
+                                    <button class="btn-view" onclick="showBlockHistory('{{ user._id }}', '{{ user.username }}')">History</button>
                                 {% else %}
-                                    <span class="role-badge role-user">User</span>
+                                    <button class="btn-block" onclick="showBlockModal('{{ user._id }}', '{{ user.username }}')">Block</button>
                                 {% endif %}
-                            </td>
-                            <td>{{ user.joinDate|strftime }}</td>
-                            <td>{{ user.contributions.articlesCreated if user.contributions and user.contributions.articlesCreated else 0 }}</td>
-                            <td class="table-actions">
-                                <a href="/profile/{{ user.username }}" class="view-btn">View</a>
-                                {% if user._id != current_user._id %}
-                                <button class="change-role-btn" data-userid="{{ user._id }}" data-username="{{ user.username }}" data-role="{{ user.role }}">Change Role</button>
-                                <button class="delete-user-btn" data-userid="{{ user._id }}" data-username="{{ user.username }}">Delete</button>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                
-                <!-- Pagination -->
-                {% if total > limit %}
-                <div class="pagination">
-                    {% if skip > 0 %}
-                    <a href="/admin/users?{% if search %}search={{ search }}&{% endif %}{% if role %}role={{ role }}&{% endif %}skip={{ max(0, skip - limit) }}&limit={{ limit }}" class="page-link">Previous</a>
-                    {% endif %}
-                    
-                    <span class="page-info">Showing {{ skip + 1 }}-{{ min(skip + limit, total) }} of {{ total }}</span>
-                    
-                    {% if skip + limit < total %}
-                    <a href="/admin/users?{% if search %}search={{ search }}&{% endif %}{% if role %}role={{ role }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
-                    {% endif %}
-                </div>
+                                <button class="btn-delete" onclick="confirmDeleteUser('{{ user._id }}', '{{ user.username }}')">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">No users found</td>
+                    </tr>
                 {% endif %}
-            {% else %}
-                <p>No users found matching your criteria.</p>
+            </tbody>
+        </table>
+        
+        <!-- Simple pagination -->
+        {% if total > limit %}
+        <div class="pagination">
+            {% if skip > 0 %}
+                <a href="?{% if search %}search={{ search }}&{% endif %}{% if role %}role={{ role }}&{% endif %}skip={{ (skip - limit) if (skip - limit) >= 0 else 0 }}&limit={{ limit }}" class="page-link">Previous</a>
+            {% endif %}
+            
+            <span class="page-info">Showing {{ skip + 1 }}-{{ skip + users|length }} of {{ total }}</span>
+            
+            {% if skip + limit < total %}
+                <a href="?{% if search %}search={{ search }}&{% endif %}{% if role %}role={{ role }}&{% endif %}skip={{ skip + limit }}&limit={{ limit }}" class="page-link">Next</a>
             {% endif %}
         </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- User Edit Modal -->
-<div id="user-edit-modal" class="modal">
+<!-- Block User Modal -->
+<div id="block-user-modal" class="modal">
     <div class="modal-content">
-        <!-- Content will be filled dynamically -->
+        <span class="close-modal-btn" id="close-block-modal">&times;</span>
+        <h2>Block User</h2>
+        <p>Block user: <strong id="block-username"></strong></p>
+        
+        <form id="block-user-form" class="block-form">
+            <div class="form-group">
+                <label>Block Type</label>
+                <div class="block-types">
+                    <div class="block-type-option" data-type="full">
+                        <input type="radio" name="blockType" value="full" id="block-full" checked>
+                        <div class="block-type-details">
+                            <div class="block-type-title">Full Block</div>
+                            <div class="block-type-description">Complete account suspension - cannot login</div>
+                        </div>
+                    </div>
+                    
+                    <div class="block-type-option" data-type="edit_only">
+                        <input type="radio" name="blockType" value="edit_only" id="block-edit">
+                        <div class="block-type-details">
+                            <div class="block-type-title">Edit Block</div>
+                            <div class="block-type-description">Cannot edit articles or propose changes</div>
+                        </div>
+                    </div>
+                    
+                    <div class="block-type-option" data-type="comment_only">
+                        <input type="radio" name="blockType" value="comment_only" id="block-comment">
+                        <div class="block-type-details">
+                            <div class="block-type-title">Comment Block</div>
+                            <div class="block-type-description">Cannot post comments or participate in discussions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Duration</label>
+                <div class="duration-options">
+                    <div class="duration-option" data-hours="1">1 Hour</div>
+                    <div class="duration-option" data-hours="6">6 Hours</div>
+                    <div class="duration-option" data-hours="24">1 Day</div>
+                    <div class="duration-option" data-hours="72">3 Days</div>
+                    <div class="duration-option" data-hours="168">1 Week</div>
+                    <div class="duration-option" data-hours="720">1 Month</div>
+                    <div class="duration-option selected" data-hours="">Indefinite</div>
+                </div>
+                <input type="hidden" id="block-duration" name="duration">
+            </div>
+            
+            <div class="form-group">
+                <label for="block-reason">Reason (Required)</label>
+                <textarea id="block-reason" name="reason" class="form-control" rows="3" 
+                         placeholder="Explain why this user is being blocked..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="block-admin-note">Admin Note (Optional)</label>
+                <textarea id="block-admin-note" name="adminNote" class="form-control" rows="2" 
+                         placeholder="Internal notes for other administrators..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="action-button danger">Block User</button>
+                <button type="button" class="action-button" id="cancel-block">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Unblock User Modal -->
+<div id="unblock-user-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal-btn" id="close-unblock-modal">&times;</span>
+        <h2>Unblock User</h2>
+        <p>Unblock user: <strong id="unblock-username"></strong></p>
+        
+        <form id="unblock-user-form" class="block-form">
+            <div class="form-group">
+                <label for="unblock-reason">Reason (Required)</label>
+                <textarea id="unblock-reason" name="reason" class="form-control" rows="3" 
+                         placeholder="Explain why this user is being unblocked..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="unblock-admin-note">Admin Note (Optional)</label>
+                <textarea id="unblock-admin-note" name="adminNote" class="form-control" rows="2" 
+                         placeholder="Internal notes for other administrators..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="action-button success">Unblock User</button>
+                <button type="button" class="action-button" id="cancel-unblock">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- User Block History Modal -->
+<div id="block-history-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal-btn" id="close-history-modal">&times;</span>
+        <h2>Block History</h2>
+        <p>Block history for: <strong id="history-username"></strong></p>
+        
+        <div id="block-history-content" class="block-history">
+            <div class="loading-spinner"></div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -349,192 +707,204 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Setup change role buttons
-    const changeRoleButtons = document.querySelectorAll('.change-role-btn');
-    changeRoleButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const userId = this.getAttribute('data-userid');
-            const username = this.getAttribute('data-username');
-            const currentRole = this.getAttribute('data-role');
-            
-            showChangeRoleDialog(userId, username, currentRole);
-        });
-    });
+    const token = localStorage.getItem('token');
+    let currentUserId = null;
     
-    // Setup delete user buttons
-    const deleteUserButtons = document.querySelectorAll('.delete-user-btn');
-    deleteUserButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const userId = this.getAttribute('data-userid');
-            const username = this.getAttribute('data-username');
-            
-            confirmDeleteUser(userId, username);
-        });
-    });
+    // Remove the automatic loading since we're using server-side rendering
+    // loadUsers();
     
-    // Show change role dialog
-    function showChangeRoleDialog(userId, username, currentRole) {
-        // Create modal content
-        const modal = document.getElementById('user-edit-modal');
-        const modalContent = modal.querySelector('.modal-content');
-        
-        modalContent.innerHTML = `
-            <span class="close-modal-btn">&times;</span>
-            <h2>Change Role for ${username}</h2>
-            
-            <div class="form-group">
-                <label>Select Role:</label>
-                <select id="new-role">
-                    <option value="user" ${currentRole === 'user' ? 'selected' : ''}>Regular User</option>
-                    <option value="editor" ${currentRole === 'editor' ? 'selected' : ''}>Editor</option>
-                    <option value="admin" ${currentRole === 'admin' ? 'selected' : ''}>Administrator</option>
-                </select>
-            </div>
-            
-            <div class="modal-actions">
-                <button id="save-role-btn" class="primary-button">Save Changes</button>
-                <button id="cancel-role-btn" class="cancel-button">Cancel</button>
-            </div>
-        `;
-        
-        // Show modal
-        modal.style.display = 'block';
-        
-        // Setup close button
-        const closeBtn = modalContent.querySelector('.close-modal-btn');
-        closeBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-        
-        // Setup cancel button
-        const cancelBtn = document.getElementById('cancel-role-btn');
-        cancelBtn.addEventListener('click', function() {
-            modal.style.display = 'none';
-        });
-        
-        // Setup save button
-        const saveBtn = document.getElementById('save-role-btn');
-        saveBtn.addEventListener('click', function() {
-            const newRole = document.getElementById('new-role').value;
-            
-            if (newRole === currentRole) {
-                alert('No change in role');
-                return;
-            }
-            
-            changeUserRole(userId, newRole);
-        });
-        
-        // Close when clicking outside
-        window.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
+    // Search form submission - just submit the form normally
+    document.getElementById('user-search-form').addEventListener('submit', function(e) {
+        // Let the form submit normally to reload the page with new filters
+        // Don't prevent default
+    });
+    // Remove all the API loading functions since we're using server-side rendering
+    // Keep only the blocking/unblocking functions that actually work
+    
+    function showBlockModal(userId, username) {
+        currentUserId = userId;
+        document.getElementById('block-username').textContent = username;
+        document.getElementById('block-user-modal').style.display = 'block';
     }
     
-    // Change user role
-    function changeUserRole(userId, newRole) {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+    function showUnblockModal(userId, username) {
+        currentUserId = userId;
+        document.getElementById('unblock-username').textContent = username;
+        document.getElementById('unblock-user-modal').style.display = 'block';
+    }
+    
+    function showBlockHistory(userId, username) {
+        currentUserId = userId;
+        document.getElementById('history-username').textContent = username;
+        document.getElementById('block-history-modal').style.display = 'block';
         
-        // Show loading state
-        const saveButton = document.getElementById('save-role-btn');
-        const originalText = saveButton.textContent;
-        saveButton.disabled = true;
-        saveButton.textContent = 'Saving...';
+        // Load block history
+        loadBlockHistory(userId);
+    }
+    
+    function loadBlockHistory(userId) {
+        const historyContent = document.getElementById('block-history-content');
+        historyContent.innerHTML = '<div class="loading-spinner"></div>';
         
-        // Call API to change role
-        fetch(`/api/admin/users/${userId}/role?role=${newRole}`, {
-            method: 'PUT',
+        fetch(`/api/admin/users/${userId}/blocks`, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         })
         .then(response => {
             if (!response.ok) {
-                if (response.status === 401) {
-                    localStorage.removeItem('token');
-                    window.location.href = '/';
-                    throw new Error('Unauthorized');
-                }
+                throw new Error('Failed to load block history');
+            }
+            return response.json();
+        })
+        .then(data => {
+            displayBlockHistory(data.blocks || []);
+        })
+        .catch(error => {
+            console.error('Error loading block history:', error);
+            historyContent.innerHTML = '<p>Failed to load block history</p>';
+        });
+    }
+    
+    function displayBlockHistory(blocks) {
+        const historyContent = document.getElementById('block-history-content');
+        historyContent.innerHTML = '';
+        
+        if (blocks.length === 0) {
+            historyContent.innerHTML = '<p>No block history found for this user.</p>';
+            return;
+        }
+        
+        blocks.forEach(block => {
+            const blockEntry = document.createElement('div');
+            blockEntry.className = 'block-entry';
+            
+            const isActive = block.is_active;
+            const statusText = isActive ? 'Active' : 'Ended';
+            
+            blockEntry.innerHTML = `
+                <div class="block-entry-header">
+                    <span class="block-entry-type">${block.block_type.replace('_', ' ').toUpperCase()} BLOCK</span>
+                    <span class="block-entry-date">${formatDate(block.created_at)} - ${statusText}</span>
+                </div>
+                <div class="block-entry-reason">
+                    <strong>Reason:</strong> ${escapeHtml(block.reason)}
+                </div>
+                ${block.admin_note ? `<div class="block-entry-reason"><strong>Admin Note:</strong> ${escapeHtml(block.admin_note)}</div>` : ''}
+                <div class="block-entry-reason">
+                    <strong>By:</strong> ${escapeHtml(block.blocked_by_username)}
+                    ${block.expires_at ? ` | <strong>Expires:</strong> ${formatDate(block.expires_at)}` : ' | <strong>Duration:</strong> Indefinite'}
+                </div>
+                ${block.unblocked_at ? `
+                    <div class="block-entry-reason">
+                        <strong>Unblocked:</strong> ${formatDate(block.unblocked_at)} by ${escapeHtml(block.unblocked_by_username || 'System')}
+                        ${block.unblock_reason ? ` | <strong>Reason:</strong> ${escapeHtml(block.unblock_reason)}` : ''}
+                    </div>
+                ` : ''}
+            `;
+            
+            historyContent.appendChild(blockEntry);
+        });
+    }
+    
+    function blockUser() {
+        const form = document.getElementById('block-user-form');
+        const formData = new FormData(form);
+        
+        const blockData = {
+            reason: formData.get('reason'),
+            duration_hours: document.getElementById('block-duration').value ? parseInt(document.getElementById('block-duration').value) : null,
+            block_type: formData.get('blockType'),
+            admin_note: formData.get('adminNote')
+        };
+        
+        fetch(`/api/admin/users/${currentUserId}/block`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(blockData)
+        })
+        .then(response => {
+            if (!response.ok) {
                 return response.json().then(data => {
-                    throw new Error(data.detail || 'Failed to change user role');
+                    throw new Error(data.detail || 'Failed to block user');
                 });
             }
             return response.json();
         })
         .then(data => {
-            // Close modal
-            document.getElementById('user-edit-modal').style.display = 'none';
+            showSuccess('User blocked successfully');
+            document.getElementById('block-user-modal').style.display = 'none';
+            loadUsers(currentPage);
             
-            // Show success alert
-            alert(data.message || 'User role updated successfully');
-            
-            // Update user row in the table
-            const userRow = document.getElementById(`user-row-${userId}`);
-            if (userRow) {
-                const roleCell = userRow.querySelector('td:nth-child(3)');
-                const actionCell = userRow.querySelector('td:nth-child(6)');
-                
-                // Update role badge
-                let roleBadgeHtml = '';
-                if (newRole === 'admin') {
-                    roleBadgeHtml = '<span class="role-badge role-admin">Admin</span>';
-                } else if (newRole === 'editor') {
-                    roleBadgeHtml = '<span class="role-badge role-editor">Editor</span>';
-                } else {
-                    roleBadgeHtml = '<span class="role-badge role-user">User</span>';
-                }
-                
-                if (roleCell) {
-                    roleCell.innerHTML = roleBadgeHtml;
-                }
-                
-                // Update change role button data attribute
-                if (actionCell) {
-                    const changeRoleBtn = actionCell.querySelector('.change-role-btn');
-                    if (changeRoleBtn) {
-                        changeRoleBtn.setAttribute('data-role', newRole);
-                    }
-                }
-            }
+            // Reset form
+            form.reset();
+            document.querySelector('.duration-option[data-hours=""]').classList.add('selected');
         })
         .catch(error => {
-            console.error('Error changing user role:', error);
-            alert(error.message || 'Failed to change user role');
-            
-            // Reset button state
-            saveButton.disabled = false;
-            saveButton.textContent = originalText;
+            console.error('Error blocking user:', error);
+            showError('Failed to block user: ' + error.message);
         });
     }
     
-    // Confirm delete user
+    function unblockUser() {
+        const form = document.getElementById('unblock-user-form');
+        const formData = new FormData(form);
+        
+        const unblockData = {
+            reason: formData.get('reason'),
+            admin_note: formData.get('adminNote')
+        };
+        
+        fetch(`/api/admin/users/${currentUserId}/unblock`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(unblockData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.detail || 'Failed to unblock user');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            showSuccess('User unblocked successfully');
+            document.getElementById('unblock-user-modal').style.display = 'none';
+            loadUsers(currentPage);
+            
+            // Reset form
+            form.reset();
+        })
+        .catch(error => {
+            console.error('Error unblocking user:', error);
+            showError('Failed to unblock user: ' + error.message);
+        });
+    }
+    
     function confirmDeleteUser(userId, username) {
         if (confirm(`Are you sure you want to delete user "${username}"? This action cannot be undone.`)) {
-            deleteUser(userId, username);
+            deleteUser(userId);
         }
     }
     
-    // Delete user
-    function deleteUser(userId, username) {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-        
+    function deleteUser(userId) {
         fetch(`/api/admin/users/${userId}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             }
         })
         .then(response => {
             if (!response.ok) {
-                if (response.status === 401) {
-                    localStorage.removeItem('token');
-                    window.location.href = '/';
-                    throw new Error('Unauthorized');
-                }
                 return response.json().then(data => {
                     throw new Error(data.detail || 'Failed to delete user');
                 });
@@ -542,20 +912,60 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            // Show success alert
-            alert(data.message || 'User deleted successfully');
-            
-            // Remove user row from the table
-            const userRow = document.getElementById(`user-row-${userId}`);
-            if (userRow) {
-                userRow.remove();
-            }
+            showSuccess('User deleted successfully');
+            loadUsers(currentPage);
         })
         .catch(error => {
             console.error('Error deleting user:', error);
-            alert(error.message || 'Failed to delete user');
+            showError('Failed to delete user: ' + error.message);
         });
     }
+    
+    function showLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+    }
+    
+    function showError(message) {
+        const errorDiv = document.getElementById('error-message');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
+    
+    function showSuccess(message) {
+        const successDiv = document.getElementById('success-message');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+        
+        setTimeout(() => {
+            successDiv.style.display = 'none';
+        }, 3000);
+    }
+    
+    function hideMessages() {
+        document.getElementById('error-message').style.display = 'none';
+        document.getElementById('success-message').style.display = 'none';
+    }
+    
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleString();
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Make functions global for onclick handlers
+    window.showBlockModal = showBlockModal;
+    window.showUnblockModal = showUnblockModal;
+    window.showBlockHistory = showBlockHistory;
+    window.confirmDeleteUser = confirmDeleteUser;
 });
 </script>
 {% endblock %}

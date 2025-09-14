@@ -25,6 +25,7 @@ logger = logging.getLogger("kryptopedia")
 
 # Import the routes
 from routes import auth, articles, media, proposals, rewards, special, profile, media_additional, preview, votes, token
+from routes import user_management  # ADD THIS LINE HERE
 from pages import router as page_router, add_error_handlers, community, donate, help, admin, upload, crypto_admin
 
 
@@ -99,6 +100,7 @@ app.include_router(profile.router, prefix=f"{config.API_PREFIX}/users", tags=["U
 app.include_router(community.router, prefix=f"{config.API_PREFIX}/community", tags=["Community"])
 app.include_router(donate.router, prefix=f"{config.API_PREFIX}/donate", tags=["Donations"])
 app.include_router(admin.router, prefix=f"{config.API_PREFIX}/admin", tags=["Admin"])
+app.include_router(user_management.router, prefix=f"{config.API_PREFIX}/admin", tags=["User Management"])  # ADD THIS LINE HERE
 app.include_router(upload.router, prefix=f"{config.API_PREFIX}/upload", tags=["Upload"])
 app.include_router(preview.router, prefix=f"{config.API_PREFIX}", tags=["Preview"])
 app.include_router(votes.router, prefix=f"{config.API_PREFIX}", tags=["Votes"])
