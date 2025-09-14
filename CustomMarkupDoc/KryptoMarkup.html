@@ -254,7 +254,7 @@
                 [bold]This won't be bold[bold]
             </div>
 
-            <div class="markup-example">This is \[italic]not italic\\italic] but this [italic]is italic[italic]</div>
+            <div class="markup-example">This is \[italic]not italic\[italic] but this [italic]is italic[italic]</div>
             <div class="rendered-result">
                 This is [italic]not italic[italic] but this <span class="italic-text">is italic</span>
             </div>
@@ -292,6 +292,46 @@
         </div>
 
         <div class="demo-section">
+            <h2>Include/Exclude Content</h2>
+            
+            <div class="markup-example">[includeonly]This content only appears when transcluded[includeonly]</div>
+            <div class="rendered-result">
+                This content only appears when transcluded
+            </div>
+
+            <div class="markup-example">[noinclude]This content only appears when viewing directly[noinclude]</div>
+            <div class="rendered-result">
+                This content only appears when viewing directly
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>Color and Background Formatting</h2>
+            
+            <p>You can set the the color and background using the elements [color] and [background], using colors such as red and html color codes. Examples:</p>
+            
+            <div class="markup-example">[color|red]This is red text, usually indicating an error.[color]</div>
+            <div class="rendered-result">
+                <span style="color: red;">This is red text, usually indicating an error.</span>
+            </div>
+            
+            <div class="markup-example">[color|purple]This is purple text.[color]</div>
+            <div class="rendered-result">
+                <span style="color: purple;">This is purple text.</span>
+            </div>
+
+            <div class="markup-example">[background|red]This is regular text with a red background.[background]</div>
+            <div class="rendered-result">
+                <span style="background-color: red;">This is regular text with a red background.</span>
+            </div>
+            
+            <div class="markup-example">[background|purple]This is regular text with a purple background.[background]</div>
+            <div class="rendered-result">
+                <span style="background-color: purple;">This is regular text with a purple background.</span>
+            </div>
+        </div>
+
+        <div class="demo-section">
             <h2>Script Formatting</h2>
             
             <div class="markup-example">[superscript]Superscript text[superscript] [subscript]Subscript text[subscript]</div>
@@ -317,12 +357,12 @@
         <div class="demo-section">
             <h2>Links and References</h2>
             
-            <div class="markup-example">[link url="https://example.com" text="Text with link"]</div>
+            <div class="markup-example">[link|url="https://example.com"|text="Text with link"]</div>
             <div class="rendered-result">
                 <span class="link-text" onclick="window.open('https://example.com', '_blank')">Text with link</span>
             </div>
 
-            <div class="markup-example">[R̤Link to redirect to]</div>
+            <div class="markup-example">[R̤|Link to redirect to]</div>
             <div class="rendered-result">
                 Redirect: <span class="redirect-link" onclick="alert('Redirect link clicked!')">Link to redirect to</span>
             </div>
@@ -341,7 +381,7 @@
                 </table>
             </div>
 
-            <div class="markup-example">[delete|reason="duplicate to: Close-mid back unrounded vowel"]</div>
+            <div class="markup-example">[t|name="Duplicate to:|article="Close-mid back unrounded vowel"]</div>
             <div class="rendered-result">
                 <table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                     <tr>
@@ -384,8 +424,10 @@
             <div class="rendered-result">
                 <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                     <tr>
-                        <td style="color: red; font-size: 50px; font-family: 'Times New Roman';">MERGE</td>
-                        <td><p style="font-size: 20px;">A Kryptopedian thinks<br>this article should be<br>merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">Close-mid back unrounded vowel</a></p></td>
+                        <td style="color: red; font-size: 50px; font-family: 'Times New Roman'; text-align: center;">MERGE</td>
+                        </tr>
+                        <tr>
+                        <td><p style="font-size: 20px;">A Kryptopedian thinks this article<br>should be merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">Close-mid back unrounded vowel</a></p></td>
                     </tr>
                 </table>
             </div>
@@ -449,7 +491,7 @@
         <div class="demo-section">
             <h2>Templates & Special Elements</h2>
             
-            <div class="markup-example">[T name="IPA infobox"|above=Voiced alveolar lateral approximant|ipa symbol=l|ipa symbol2=ɮ˕]</div>
+            <div class="markup-example">[t|name="IPA infobox"|above=Voiced alveolar lateral approximant|ipa symbol=l|ipa symbol2=ɮ˕]</div>
             <div class="rendered-result">
                 <table style="max-width: 300px; height: 170px; float: right;">
                     <tr>
@@ -565,7 +607,7 @@
 
 
             <div style="background: #ffe6e6; border-left-color: #dc3545;">
-                <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">[R̤NonexistentPage]</span> or <span style="font-family: 'Gentium';">[link url="nonexistent.html" text="Broken Link"]</span>
+                <strong>❌ Invalid:</strong> <span style="font-family: 'Gentium';">[R̤|NonexistentPage]</span> or <span style="font-family: 'Gentium';">[link url="nonexistent.html" text="Broken Link"]</span>
             </div>
             <div style="background: #fff3cd; padding: 10px; border-radius: 5px;">
                Renders as:<br>
@@ -685,7 +727,7 @@ Table of alveolar laterals:
     // ===== END OF ESCAPE PROCESSING BLOCK =====
             
                 // Content warnings (parse FIRST)
-                .replace(/\[delete\|reason="duplicate to: ([^"]+)"\]/g, function(match, articleTitle) {
+                .replace(/\[t|name="Duplicate to:|article=([^"]+)"\]/g, function(match, articleTitle) {
                     return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                         <tr>
                             <td style="font-size: 50px;">!</td>
@@ -716,13 +758,15 @@ Table of alveolar laterals:
                 .replace(/\[merge\|([^\]]+)\]/g, function(match, articleTitle) {
                     return `<table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                         <tr>
-                            <td style="color: red; font-size: 50px; font-family: 'Times New Roman';">MERGE</td>
-                            <td><p style="font-size: 20px;">A Kryptopedian thinks<br>this article should be<br>merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">${articleTitle}</a></p></td>
+                            <td style="color: red; font-size: 50px; font-family: 'Times New Roman'; text-align: center;">MERGE</td>
+                            </tr>
+                            <tr>
+                            <td><p style="font-size: 20px;">A Kryptopedian thinks this article<br>should be merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">${articleTitle}</a></p></td>
                         </tr>
                     </table>`;
                     })
                 // Templates (parse these before other formatting)
-                .replace(/\[T name="IPA infobox"\|above=([^|]+)\|ipa symbol=([^|]+)(\|ipa symbol2=([^\]]+))?\]/g, function(match, phonName, symbol1, fullSymbol2, symbol2) {
+                .replace(/\[t|name="IPA infobox"\|above=([^|]+)\|ipa symbol=([^|]+)(\|ipa symbol2=([^\]]+))?\]/g, function(match, phonName, symbol1, fullSymbol2, symbol2) {
                     let tableRows = `<table style="max-width: 300px; height: 170px; float: right;">
                         <tr>
                             <td style="background: #f2f2ce; font-weight: bold;">${phonName}</td>
@@ -740,7 +784,7 @@ Table of alveolar laterals:
                     tableRows += `</table><div style="clear: both;"></div>`;
                     return tableRows;
                 })
-                .replace(/\[T name="([^"]+)"(\|([^\]]*))?\]/g, function(match, templateName, fullParams, params) {
+                .replace(/\[t|name="([^"]+)"(\|([^\]]*))?\]/g, function(match, templateName, fullParams, params) {
                     let content = `<strong>${templateName} Template</strong>`;
                     if (params) {
                         content += '<br>' + params.replace(/\|/g, ' | ');
@@ -886,9 +930,9 @@ Table of alveolar laterals:
                 // Subscript
                 .replace(/\[subscript\](.*?)\[subscript\]/g, '<span class="subscript-text">$1</span>')
                 // Link (new format)
-                .replace(/\[link url="([^"]*)" text="([^"]*)"\]/g, '<span class="link-text" onclick="window.open(\'$1\', \'_blank\')">$2</span>')
-                // Redirect link with bracket format [R̤Link to redirect to]
-                .replace(/\[R̤([^\]]+)\]/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
+                .replace(/\[link|url="([^"]*)"|text="([^"]*)"\]/g, '<span class="link-text" onclick="window.open(\'$1\', \'_blank\')">$2</span>')
+                // Redirect link with bracket format [R̤|Link to redirect to]
+                .replace(/\[R̤|([^\]]+)\]/g, 'Redirect: <span class="redirect-link" onclick="alert(\'Redirect: $1\')">$1</span>')
                 // Anchor (NEW) - invisible anchor points
                 .replace(/\[anchor\|([^\]]+)\]/g, '<span id="$1"></span>')
                 // Div (NEW) - plain HTML div with no styling
@@ -903,6 +947,12 @@ Table of alveolar laterals:
                 .replace(/\[bar\](.*?)\[bar\]/g, '<span class="barred-text">$1</span>')
                 // Code
                 .replace(/\[code\](.*?)\[code\]/g, '<span class="code-text">$1</span>')
+                // Include/exclude content
+                .replace(/\[includeonly\](.*?)\[includeonly\]/g, '$1')
+                .replace(/\[noinclude\](.*?)\[noinclude\]/g, '$1')
+                // Color and background formatting
+                .replace(/\[color\|([^\]]+)\](.*?)\[color\]/g, '<span style="color: $1;">$2</span>')
+                .replace(/\[background\|([^\]]+)\](.*?)\[background\]/g, '<span style="background-color: $1;">$2</span>')
                 // Comments (remove them, don't render)
                 .replace(/\[!([^\]]*)\]/g, '');
             
