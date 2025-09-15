@@ -1,12 +1,13 @@
+# File: utils/wiki_parser.py
 """
-Wiki markup parser for Kryptopedia.
+Wiki markup parser for Kryptopedia with namespace support.
 """
 import re
 from typing import Tuple, Optional, Dict, Any, List
 
 def parse_wiki_markup(markup: str) -> Tuple[str, Optional[str]]:
     """
-    Parse wiki markup into HTML.
+    Parse wiki markup into HTML with namespace support.
     
     Args:
         markup: The wiki markup to parse
@@ -37,11 +38,43 @@ def parse_wiki_markup(markup: str) -> Tuple[str, Optional[str]]:
     markup = re.sub(r'==\s*(.*?)\s*==', r'<h2 class="wiki-heading-2">\1</h2>', markup)
     markup = re.sub(r'=\s*(.*?)\s*=', r'<h1 class="wiki-heading-1">\1</h1>', markup)
     
-    # Handle links
-    # Internal links [[Page name]]
-    markup = re.sub(r'\[\[(.*?)\]\]', lambda m: f'<a href="/articles/{m.group(1).replace(" ", "_")}">{m.group(1)}</a>', markup)
-    # Internal links with display text [[Page name|Display text]]
-    markup = re.sub(r'\[\[(.*?)\|(.*?)\]\]', r'<a href="/articles/\1">\2</a>', markup)
+    # Handle links with namespace support
+    # Internal links [[Page name]] or [[Namespace:Page name]]
+    def process_internal_link(match):
+        link_text = match.group(1)
+        
+        # Check if there's a display text
+        if "|" in link_text:
+            target, display = link_text.split("|", 1)
+        else:
+            target = link_text
+            display = link_text
+        
+        # Parse namespace from target
+        from models.article import parse_title_namespace
+        namespace, title = parse_title_namespace(target)
+        
+        # Generate appropriate URL based on namespace
+        if namespace == "Category":
+            url = f"/categories/{title.replace(' ', '_')}"
+        elif namespace == "File":
+            url = f"/media/{title}"
+        elif namespace == "Template":
+            url = f"/templates/{title.replace(' ', '_')}"
+        elif namespace == "Help":
+            url = f"/help/{title.replace(' ', '_')}"
+        elif namespace == "User":
+            url = f"/users/{title.replace(' ', '_')}"
+        elif namespace == "Kryptopedia":
+            url = f"/project/{title.replace(' ', '_')}"
+        else:
+            # Main namespace - regular article
+            url = f"/articles/{target.replace(' ', '_')}"
+        
+        return f'<a href="{url}">{display}</a>'
+    
+    markup = re.sub(r'\[\[([^\]]+)\]\]', process_internal_link, markup)
+    
     # External links [http://example.com Display text]
     markup = re.sub(r'\[(https?://[^\s\]]+)\s+(.*?)\]', r'<a href="\1" target="_blank" rel="noopener">\2</a>', markup)
     # External links without display text [http://example.com]
@@ -289,18 +322,21 @@ def process_table(match) -> str:
         html += '<tr>'
         
         # Process header cells (!), then regular cells (|)
-        header_cells = re.findall(r'!(.*?)(?:\!|$)', row)
-        for cell in header_cells:
-            if not cell.strip():
-                continue
-            html += f'<th>{cell.strip()}</th>'
+        header_cells = re.findall(r'!(.*?)(?=\||$)', row)
+        regular_cells = re.findall(r'\|([^!]*?)(?=\||!|$)', row)
         
-        data_cells = re.findall(r'\|(.*?)(?:\||$)', row)
-        for cell in data_cells:
-            if not cell.strip():
-                continue
-            html += f'<td>{cell.strip()}</td>'
-            
+        # Add header cells
+        for cell in header_cells:
+            cell_content = cell.strip()
+            if cell_content:
+                html += f'<th>{cell_content}</th>'
+        
+        # Add regular cells
+        for cell in regular_cells:
+            cell_content = cell.strip()
+            if cell_content:
+                html += f'<td>{cell_content}</td>'
+        
         html += '</tr>'
     
     html += '</table>'
@@ -308,39 +344,90 @@ def process_table(match) -> str:
 
 def process_image(match) -> str:
     """Process an image match and return HTML."""
-    filename = match.group(1).strip()
-    options_str = match.group(3) if match.group(2) else ""
+    filename = match.group(1)
+    options_and_caption = match.group(3) if match.group(3) else ""
+    
+    # Parse options and caption
+    parts = options_and_caption.split('|') if options_and_caption else []
+    
+    # Default values
+    width = None
+    height = None
+    alignment = None
+    caption = None
     
     # Parse options
-    options = options_str.split('|') if options_str else []
-    
-    # Set defaults
-    image_class = "wiki-image"
-    caption = ""
-    
-    # Process options
-    for opt in options:
-        opt = opt.strip()
-        if opt in ["thumb", "thumbnail"]:
-            image_class += " thumb"
-        elif opt == "center":
-            image_class += " center"
-        elif opt == "right":
-            image_class += " right"
-        elif opt == "left":
-            image_class += " left"
-        elif opt.startswith("width="):
-            width = opt.split('=')[1]
-            image_class += f" width-{width}"
+    for part in parts:
+        part = part.strip()
+        if part.endswith('px'):
+            # Width specification
+            width = part
+        elif part in ['left', 'right', 'center']:
+            alignment = part
+        elif part in ['thumb', 'thumbnail']:
+            # Thumbnail option (could add styling)
+            pass
         else:
             # Assume it's a caption
-            caption = opt
+            caption = part
     
-    # Generate HTML
-    html = f'<div class="{image_class}">'
-    html += f'<img src="/media/{filename}" alt="{caption}">'
+    # Build HTML
+    html = '<figure class="wiki-image'
+    if alignment:
+        html += f' align-{alignment}'
+    html += '">'
+    
+    html += f'<img src="/media/{filename}" alt="{caption or filename}"'
+    if width:
+        html += f' style="width: {width};"'
+    html += '>'
+    
     if caption:
-        html += f'<div class="wiki-image-caption">{caption}</div>'
-    html += '</div>'
+        html += f'<figcaption>{caption}</figcaption>'
     
+    html += '</figure>'
     return html
+
+def extract_categories_from_content(content: str) -> List[str]:
+    """
+    Extract category links from wiki content.
+    
+    Args:
+        content: Wiki markup content
+        
+    Returns:
+        List[str]: List of category names
+    """
+    categories = []
+    category_matches = re.findall(r'\[\[Category:([^\]]+)\]\]', content, re.IGNORECASE)
+    
+    for match in category_matches:
+        # Remove any pipe and display text
+        category_name = match.split('|')[0].strip()
+        if category_name and category_name not in categories:
+            categories.append(category_name)
+    
+    return categories
+
+def generate_namespace_aware_slug(namespace: str, title: str, timestamp: Optional[int] = None) -> str:
+    """
+    Generate a namespace-aware slug.
+    
+    Args:
+        namespace: The namespace (empty string for main)
+        title: The title
+        timestamp: Optional timestamp
+        
+    Returns:
+        str: Generated slug
+    """
+    from utils.slug import generate_slug
+    
+    if namespace:
+        # For non-main namespaces, include namespace in slug
+        full_slug = generate_slug(f"{namespace}_{title}", timestamp)
+    else:
+        # Main namespace, just use title
+        full_slug = generate_slug(title, timestamp)
+    
+    return full_slug

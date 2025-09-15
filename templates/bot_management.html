@@ -1,0 +1,224 @@
+<!-- File: templates/bot_management.html -->
+{% extends "base.html" %}
+
+{% block title %}Bot Management - Kryptopedia{% endblock %}
+
+{% set active_page = 'admin' %}
+
+{% block sidebar_extra %}
+<h3>Bot Tools</h3>
+<ul>
+    <li><a href="/bots">My Bots</a></li>
+    <li><a href="/bots/register">Register New Bot</a></li>
+    <li><a href="/bots/tasks">Available Tasks</a></li>
+    {% if current_user.is_admin %}
+    <li><a href="/admin/bots">Admin: All Bots</a></li>
+    <li><a href="/admin/bots/pending">Pending Approvals</a></li>
+    {% endif %}
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="bot-management">
+    <h1>Bot Management</h1>
+    
+    <div class="register-bot">
+        <h2>Register New Bot</h2>
+        <form id="bot-registration">
+            <div class="form-group">
+                <label for="bot_name">Bot Name:</label>
+                <input type="text" id="bot_name" name="bot_name" placeholder="RedirectCleanupBot" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" placeholder="Automatically fixes double redirects and problematic redirect chains" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="bot_type">Bot Type:</label>
+                <select id="bot_type" name="bot_type">
+                    <option value="cleanup">Cleanup Bot</option>
+                    <option value="maintenance">Maintenance Bot</option>
+                    <option value="content">Content Bot</option>
+                    <option value="analysis">Analysis Bot</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Requested Tasks:</label>
+                <div class="task-selection">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="tasks" value="fix_double_redirects"> 
+                        Fix Double Redirects (Low Risk)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="tasks" value="cleanup_main_to_user_redirects"> 
+                        Cleanup Main→User Redirects (Medium Risk)
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="tasks" value="create_disambiguation_pages"> 
+                        Create Disambiguation Pages (Medium Risk)
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Register Bot</button>
+        </form>
+    </div>
+    
+    <div class="active-bots">
+        <h2>Your Bots</h2>
+        <div class="bots-list">
+            {% for bot in user_bots %}
+            <div class="bot-card">
+                <h3>{{ bot.bot_name }}</h3>
+                <p class="bot-status status-{{ bot.status }}">{{ bot.status|title }}</p>
+                <p>{{ bot.description }}</p>
+                <div class="bot-stats">
+                    <span>Edits: {{ bot.edit_count }}</span>
+                    <span>Last Active: {{ bot.last_activity|strftime('%Y-%m-%d') if bot.last_activity else 'Never' }}</span>
+                </div>
+                <div class="bot-actions">
+                    {% if bot.status == 'approved' %}
+                    <button onclick="runBot('{{ bot._id }}')" class="btn btn-secondary">Run Tasks</button>
+                    {% endif %}
+                    <a href="/bots/{{ bot._id }}/edit" class="btn btn-secondary">Edit</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bot-management {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    
+    .register-bot {
+        background: #f9f9f9;
+        padding: 30px;
+        border-radius: 8px;
+        margin-bottom: 40px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .form-group input, .form-group textarea, .form-group select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    
+    .task-selection {
+        margin-top: 10px;
+    }
+    
+    .checkbox-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: normal;
+    }
+    
+    .checkbox-label input {
+        width: auto;
+        margin-right: 8px;
+    }
+    
+    .bots-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 20px;
+    }
+    
+    .bot-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        background: white;
+    }
+    
+    .bot-status {
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.9em;
+    }
+    
+    .status-pending { color: #ff9800; }
+    .status-approved { color: #4caf50; }
+    .status-suspended { color: #f44336; }
+    
+    .bot-stats {
+        margin: 15px 0;
+        font-size: 0.9em;
+        color: #666;
+    }
+    
+    .bot-stats span {
+        margin-right: 20px;
+    }
+    
+    .bot-actions {
+        display: flex;
+        gap: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Bot management JavaScript
+document.getElementById('bot-registration').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const tasks = Array.from(formData.getAll('tasks'));
+    
+    const botData = {
+        bot_name: formData.get('bot_name'),
+        description: formData.get('description'),
+        bot_type: formData.get('bot_type'),
+        approved_tasks: tasks
+    };
+    
+    try {
+        const response = await fetch('/api/bots/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(botData)
+        });
+        
+        if (response.ok) {
+            alert('Bot registered successfully! It will need admin approval before it can run.');
+            location.reload();
+        } else {
+            const error = await response.json();
+            alert('Registration failed: ' + error.detail);
+        }
+    } catch (error) {
+        alert('Registration failed: ' + error.message);
+    }
+});
+
+function runBot(botId) {
+    // Show task selection modal or navigate to bot task page
+    window.location.href = `/bots/${botId}/tasks`;
+}
+</script>
+{% endblock %}

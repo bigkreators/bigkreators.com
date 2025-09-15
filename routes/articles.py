@@ -1,473 +1,461 @@
 # File: routes/articles.py
-
-from fastapi import APIRouter, Depends, HTTPException, Path, Query, status, Request, Body
-from fastapi.responses import HTMLResponse
+"""
+Article API routes with namespace support.
+"""
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from bson import ObjectId
 from typing import List, Optional, Dict, Any
 from datetime import datetime
-import logging
 
-# Import necessary dependencies and models
-from dependencies.auth import get_user_or_anonymous
-from dependencies import get_db, get_search, get_cache
+from models.article import Article, ArticleCreate, ArticleUpdate, parse_title_namespace
+from models.base import PyObjectId
+from dependencies import get_db, get_current_user
+from utils.slug import generate_namespace_slug
+from utils.wiki_parser import parse_wiki_markup, extract_categories_from_content
+from utils.namespace import (
+    is_valid_namespace, 
+    get_namespace_info, 
+    namespace_allows_categories,
+    get_searchable_namespaces
+)
 
-router = APIRouter()
-logger = logging.getLogger(__name__)
+router = APIRouter(prefix="/api/articles", tags=["articles"])
 
-@router.delete("/{id}")
-async def delete_article(
-    id: str,
-    request: Request,
-    permanent: bool = Query(False, description="Permanently delete the article"),
-    reason: str = Query("No reason provided", description="Reason for deletion"),
+@router.post("/", response_model=Article)
+async def create_article(
+    article_data: ArticleCreate,
     db=Depends(get_db),
-    search=Depends(get_search),
-    cache=Depends(get_cache)
+    current_user=Depends(get_current_user)
 ):
     """
-    Handle article deletion with discussion system.
-    - Authors can delete immediately
-    - Others must create deletion request for discussion
-    - Admins can override with permanent deletion
+    Create a new article with namespace support and duplicate prevention.
     """
-    try:
-        # Get user info
-        user_info = await get_user_or_anonymous(request, db)
-        
-        if user_info["type"] == "anonymous":
-            raise HTTPException(
-                status_code=401,
-                detail="You must be logged in to request article deletion"
-            )
-        
-        user = user_info["user"]
-        
-        # Check if article exists
-        if not ObjectId.is_valid(id):
-            raise HTTPException(status_code=400, detail="Invalid article ID")
-        
-        article = await db["articles"].find_one({"_id": ObjectId(id)})
-        if not article:
-            raise HTTPException(status_code=404, detail="Article not found")
-        
-        # Get article author
-        author = await db["users"].find_one({"_id": article["createdBy"]})
-        is_author = str(article["createdBy"]) == str(user["_id"])
-        is_admin = user["role"] == "admin"
-        
-        logger.info(f"User {user['username']} requesting deletion of article {id} (is_author: {is_author}, is_admin: {is_admin})")
-        
-        # Case 1: Author deleting their own article
-        if is_author:
-            if permanent:
-                # Permanently delete
-                await db["articles"].delete_one({"_id": ObjectId(id)})
-                await db["revisions"].delete_many({"articleId": ObjectId(id)})
-                await db["proposals"].delete_many({"articleId": ObjectId(id)})
-                await db["rewards"].delete_many({"articleId": ObjectId(id)})
-                
-                # Remove any deletion requests for this article
-                await db["deletion_requests"].delete_many({"articleId": ObjectId(id)})
-                
-                message = "Article permanently deleted by author"
-            else:
-                # Mark as archived
-                await db["articles"].update_one(
-                    {"_id": ObjectId(id)},
-                    {"$set": {"status": "archived", "archivedAt": datetime.now(), "archivedBy": user["_id"]}}
-                )
-                message = "Article archived by author"
-            
-            # Clear from search and cache
-            await _clear_article_from_search_and_cache(search, cache, id, article)
-            
-            return {"message": message, "deletedImmediately": True}
-        
-        # Case 2: Admin override
-        elif is_admin and permanent:
-            # Admin can force delete but should record reason
-            await db["articles"].delete_one({"_id": ObjectId(id)})
-            await db["revisions"].delete_many({"articleId": ObjectId(id)})
-            await db["proposals"].delete_many({"articleId": ObjectId(id)})
-            await db["rewards"].delete_many({"articleId": ObjectId(id)})
-            
-            # Log admin deletion
-            await db["admin_actions"].insert_one({
-                "action": "force_delete_article",
-                "articleId": ObjectId(id),
-                "articleTitle": article["title"],
-                "adminId": user["_id"],
-                "adminUsername": user["username"],
-                "reason": reason,
-                "timestamp": datetime.now()
-            })
-            
-            await _clear_article_from_search_and_cache(search, cache, id, article)
-            
-            return {"message": "Article permanently deleted by admin", "deletedImmediately": True}
-        
-        # Case 3: Others requesting deletion - create deletion request
-        else:
-            # Check if deletion request already exists
-            existing_request = await db["deletion_requests"].find_one({
-                "articleId": ObjectId(id),
-                "status": "pending"
-            })
-            
-            if existing_request:
-                raise HTTPException(
-                    status_code=409,
-                    detail="A deletion request for this article is already pending discussion"
-                )
-            
-            # Create deletion request
-            deletion_request = {
-                "articleId": ObjectId(id),
-                "articleTitle": article["title"],
-                "requesterId": user["_id"],
-                "requesterUsername": user["username"],
-                "authorId": article["createdBy"],
-                "authorUsername": author["username"] if author else "Unknown",
-                "reason": reason,
-                "status": "pending",
-                "createdAt": datetime.now(),
-                "discussionComments": [],
-                "votes": {
-                    "delete": [str(user["_id"])],  # Requester votes delete
-                    "keep": []
-                }
-            }
-            
-            result = await db["deletion_requests"].insert_one(deletion_request)
-            
-            # Notify the author (could be expanded to email notification)
-            await db["notifications"].insert_one({
-                "userId": article["createdBy"],
-                "type": "deletion_request",
-                "title": f"Deletion requested for your article: {article['title']}",
-                "message": f"{user['username']} has requested deletion of your article. Reason: {reason}",
-                "articleId": ObjectId(id),
-                "deletionRequestId": result.inserted_id,
-                "createdAt": datetime.now(),
-                "read": False
-            })
-            
-            return {
-                "message": "Deletion request created and author has been notified",
-                "deletionRequestId": str(result.inserted_id),
-                "deletedImmediately": False,
-                "discussionUrl": f"/articles/{id}/deletion-discussion"
-            }
-            
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error handling article deletion: {e}")
+    # Parse namespace from title if not already set
+    if not hasattr(article_data, 'namespace') or article_data.namespace is None:
+        namespace, title = parse_title_namespace(article_data.title)
+        article_data.namespace = namespace
+        article_data.title = title
+    
+    # Validate namespace
+    if article_data.namespace and not is_valid_namespace(article_data.namespace):
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to process article deletion: {str(e)}"
+            status_code=400,
+            detail=f"Invalid namespace: {article_data.namespace}"
         )
-
-async def _clear_article_from_search_and_cache(search, cache, article_id, article):
-    """Helper function to clear article from search and cache"""
-    # Remove from search
-    if search:
-        try:
-            await search.delete(index="articles", id=article_id)
-        except Exception as e:
-            logger.error(f"Error removing article from search: {e}")
     
-    # Clear cache
-    if cache:
-        try:
-            await cache.delete(f"article:{article_id}")
-            if article.get("slug"):
-                await cache.delete(f"article:{article['slug']}")
-            await cache.delete("featured_article")
-            await cache.delete("recent_articles")
-        except Exception as e:
-            logger.error(f"Error clearing cache: {e}")
-
-# New routes for deletion discussion system
-
-@router.get("/{id}/deletion-discussion", response_class=HTMLResponse)
-async def article_deletion_discussion_page(
-    request: Request,
-    id: str,
-    db=Depends(get_db)
-):
-    """
-    Render the deletion discussion page.
-    """
-    templates = request.app.state.templates
+    # Check for duplicate titles within the same namespace
+    existing_title = await db["articles"].find_one({
+        "title": {"$regex": f"^{article_data.title}$", "$options": "i"},
+        "namespace": article_data.namespace,
+        "status": {"$ne": "deleted"}
+    })
+    if existing_title:
+        namespace_display = f"{article_data.namespace}:" if article_data.namespace else ""
+        raise HTTPException(
+            status_code=400,
+            detail=f"Article '{namespace_display}{article_data.title}' already exists"
+        )
     
-    try:
-        # Get article and deletion request
-        if not ObjectId.is_valid(id):
-            raise HTTPException(status_code=400, detail="Invalid article ID")
-        
-        article = await db["articles"].find_one({"_id": ObjectId(id)})
-        if not article:
-            raise HTTPException(status_code=404, detail="Article not found")
-        
-        deletion_request = await db["deletion_requests"].find_one({
-            "articleId": ObjectId(id),
-            "status": "pending"
-        })
-        
-        if not deletion_request:
-            return templates.TemplateResponse(
-                "error.html",
-                {"request": request, "message": "No active deletion discussion for this article"},
-                status_code=404
-            )
-        
-        # Get current user
-        user_info = await get_user_or_anonymous(request, db)
-        
-        return templates.TemplateResponse(
-            "article_deletion_discussion.html",
-            {
-                "request": request,
-                "article": article,
-                "deletion_request": deletion_request,
-                "user_info": user_info
-            }
-        )
-        
-    except Exception as e:
-        logger.error(f"Error loading deletion discussion: {e}")
-        return templates.TemplateResponse(
-            "error.html",
-            {"request": request, "message": f"Error loading deletion discussion: {str(e)}"},
-            status_code=500
-        )
+    # Check if namespace allows categories
+    if article_data.categories and not namespace_allows_categories(article_data.namespace):
+        article_data.categories = []
+    
+    # Extract categories from content if namespace allows
+    if namespace_allows_categories(article_data.namespace):
+        content_categories = extract_categories_from_content(article_data.content)
+        # Merge with explicitly set categories
+        all_categories = list(set(article_data.categories + content_categories))
+        article_data.categories = all_categories
+    
+    # Generate namespace-aware slug with title synchronization
+    timestamp = int(datetime.now().timestamp())
+    slug = generate_namespace_slug(article_data.namespace, article_data.title, timestamp)
+    
+    # Ensure slug uniqueness (backup check)
+    existing_slug = await db["articles"].find_one({"slug": slug})
+    slug_counter = 1
+    base_slug = slug
+    while existing_slug:
+        slug = f"{base_slug}-{slug_counter}"
+        existing_slug = await db["articles"].find_one({"slug": slug})
+        slug_counter += 1
+    
+    # Parse wiki markup
+    parsed_content, short_description = parse_wiki_markup(article_data.content)
+    
+    # Create article document
+    article_dict = article_data.model_dump(by_alias=True)
+    article_dict.update({
+        "slug": slug,
+        "content": parsed_content,  # Store parsed HTML
+        "summary": short_description or article_data.summary,
+        "createdBy": current_user["_id"],
+        "createdAt": datetime.now(),
+        "lastUpdatedAt": datetime.now(),
+        "lastUpdatedBy": current_user["_id"],
+        "status": "published",
+        "views": 0,
+        "upvotes": 0,
+        "downvotes": 0
+    })
+    
+    # Insert into database
+    result = await db["articles"].insert_one(article_dict)
+    
+    # Update category counts for any categories used
+    for category_name in article_data.categories:
+        await update_category_counts_for_article_change(db, category_name)
+    
+    # Retrieve and return created article
+    created_article = await db["articles"].find_one({"_id": result.inserted_id})
+    return created_article
 
-@router.post("/{id}/deletion-discussion/comment")
-async def add_deletion_discussion_comment(
-    id: str,
-    request: Request,
-    comment_data: Dict[str, str] = Body(...),
-    db=Depends(get_db)
-):
+async def update_category_counts_for_article_change(db, category_name: str):
     """
-    Add a comment to the deletion discussion.
+    Update category counts when articles are added/removed from categories.
+    This creates the category if it doesn't exist.
     """
-    try:
-        # Get user info
-        user_info = await get_user_or_anonymous(request, db)
+    # Check if category exists
+    category = await db["categories"].find_one({
+        "name": category_name,
+        "status": "active"
+    })
+    
+    if not category:
+        # Auto-create category with default description
+        from utils.slug import generate_slug
+        timestamp = int(datetime.now().timestamp())
+        slug = generate_slug(category_name, timestamp)
         
-        if user_info["type"] == "anonymous":
-            raise HTTPException(
-                status_code=401,
-                detail="You must be logged in to participate in discussions"
-            )
+        default_description = f"<p>Articles related to {category_name}.</p>"
         
-        user = user_info["user"]
-        comment_text = comment_data.get("comment", "").strip()
-        
-        if not comment_text:
-            raise HTTPException(status_code=400, detail="Comment cannot be empty")
-        
-        # Get deletion request
-        deletion_request = await db["deletion_requests"].find_one({
-            "articleId": ObjectId(id),
-            "status": "pending"
-        })
-        
-        if not deletion_request:
-            raise HTTPException(status_code=404, detail="No active deletion discussion found")
-        
-        # Add comment
-        comment = {
-            "userId": user["_id"],
-            "username": user["username"],
-            "comment": comment_text,
-            "timestamp": datetime.now()
+        category_doc = {
+            "name": category_name,
+            "slug": slug,
+            "description": default_description,
+            "parent_category": None,
+            "sort_key": None,
+            "createdBy": None,  # System-created
+            "createdAt": datetime.now(),
+            "lastUpdatedAt": datetime.now(),
+            "lastUpdatedBy": None,
+            "article_count": 0,
+            "subcategory_count": 0,
+            "status": "active"
         }
         
-        await db["deletion_requests"].update_one(
-            {"_id": deletion_request["_id"]},
-            {"$push": {"discussionComments": comment}}
-        )
-        
-        return {"message": "Comment added to discussion", "comment": comment}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error adding discussion comment: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to add comment: {str(e)}"
-        )
-
-@router.post("/{id}/deletion-discussion/vote")
-async def vote_on_deletion(
-    id: str,
-    request: Request,
-    vote_data: Dict[str, str] = Body(...),
-    db=Depends(get_db)
-):
-    """
-    Vote on whether to delete or keep the article.
-    """
-    try:
-        # Get user info
-        user_info = await get_user_or_anonymous(request, db)
-        
-        if user_info["type"] == "anonymous":
-            raise HTTPException(
-                status_code=401,
-                detail="You must be logged in to vote"
-            )
-        
-        user = user_info["user"]
-        vote = vote_data.get("vote")  # "delete" or "keep"
-        
-        if vote not in ["delete", "keep"]:
-            raise HTTPException(status_code=400, detail="Vote must be 'delete' or 'keep'")
-        
-        # Get deletion request
-        deletion_request = await db["deletion_requests"].find_one({
-            "articleId": ObjectId(id),
-            "status": "pending"
-        })
-        
-        if not deletion_request:
-            raise HTTPException(status_code=404, detail="No active deletion discussion found")
-        
-        user_id_str = str(user["_id"])
-        
-        # Remove user from both vote lists first
-        await db["deletion_requests"].update_one(
-            {"_id": deletion_request["_id"]},
-            {
-                "$pull": {
-                    "votes.delete": user_id_str,
-                    "votes.keep": user_id_str
-                }
+        await db["categories"].insert_one(category_doc)
+    
+    # Update article count
+    article_count = await db["articles"].count_documents({
+        "categories": category_name,
+        "status": "published"
+    })
+    
+    await db["categories"].update_one(
+        {"name": category_name, "status": "active"},
+        {
+            "$set": {
+                "article_count": article_count,
+                "lastUpdatedAt": datetime.now()
             }
-        )
-        
-        # Add user to the appropriate vote list
-        await db["deletion_requests"].update_one(
-            {"_id": deletion_request["_id"]},
-            {"$push": {f"votes.{vote}": user_id_str}}
-        )
-        
-        return {"message": f"Voted to {vote} the article"}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error voting on deletion: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to record vote: {str(e)}"
-        )
+        }
+    )
 
-@router.post("/{id}/deletion-discussion/resolve")
-async def resolve_deletion_discussion(
-    id: str,
-    request: Request,
-    resolution_data: Dict[str, str] = Body(...),
+@router.get("/", response_model=List[Article])
+async def list_articles(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    category: Optional[str] = Query(None),
+    tag: Optional[str] = Query(None),
+    namespace: Optional[str] = Query(None),
+    search: Optional[str] = Query(None),
+    sort: Optional[str] = Query("newest"),
     db=Depends(get_db)
 ):
     """
-    Resolve the deletion discussion (author or admin decision).
+    List articles with filtering by namespace, category, tag, etc.
     """
-    try:
-        # Get user info
-        user_info = await get_user_or_anonymous(request, db)
+    # Build query
+    query = {"status": "published"}
+    
+    # Filter by namespace
+    if namespace is not None:
+        if namespace == "main":
+            query["namespace"] = ""
+        else:
+            query["namespace"] = namespace
+    else:
+        # Only include searchable namespaces by default
+        searchable_ns = get_searchable_namespaces()
+        query["namespace"] = {"$in": searchable_ns}
+    
+    # Filter by category
+    if category:
+        query["categories"] = category
+    
+    # Filter by tag
+    if tag:
+        query["tags"] = tag
+    
+    # Search in title and content
+    if search:
+        query["$or"] = [
+            {"title": {"$regex": search, "$options": "i"}},
+            {"summary": {"$regex": search, "$options": "i"}},
+            {"content": {"$regex": search, "$options": "i"}}
+        ]
+    
+    # Build sort
+    sort_options = {
+        "newest": [("createdAt", -1)],
+        "oldest": [("createdAt", 1)],
+        "mostviewed": [("views", -1)],
+        "title": [("title", 1)],
+        "updated": [("lastUpdatedAt", -1)]
+    }
+    sort_query = sort_options.get(sort, [("createdAt", -1)])
+    
+    # Execute query
+    cursor = db["articles"].find(query).sort(sort_query).skip(skip).limit(limit)
+    articles = await cursor.to_list(length=limit)
+    
+    return articles
+
+@router.get("/{article_id}", response_model=Article)
+async def get_article(
+    article_id: str = Path(..., description="Article ID or slug"),
+    db=Depends(get_db)
+):
+    """
+    Get a single article by ID or slug.
+    """
+    # Try to find by slug first
+    article = await db["articles"].find_one({"slug": article_id, "status": "published"})
+    
+    # If not found by slug, try by ObjectId
+    if not article and ObjectId.is_valid(article_id):
+        article = await db["articles"].find_one({
+            "_id": ObjectId(article_id),
+            "status": "published"
+        })
+    
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    
+    # Increment view count
+    await db["articles"].update_one(
+        {"_id": article["_id"]},
+        {"$inc": {"views": 1}}
+    )
+    
+    return article
+
+@router.put("/{article_id}", response_model=Article)
+async def update_article(
+    article_id: str,
+    article_update: ArticleUpdate,
+    db=Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """
+    Update an existing article.
+    """
+    # Validate article ID
+    if not ObjectId.is_valid(article_id):
+        raise HTTPException(status_code=400, detail="Invalid article ID")
+    
+    # Find existing article
+    existing_article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+    if not existing_article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    
+    # Build update data
+    update_data = {}
+    
+    # Handle title and namespace changes with duplicate prevention
+    if article_update.title is not None:
+        namespace, title = parse_title_namespace(article_update.title)
         
-        if user_info["type"] == "anonymous":
-            raise HTTPException(
-                status_code=401,
-                detail="You must be logged in to resolve discussions"
-            )
-        
-        user = user_info["user"]
-        decision = resolution_data.get("decision")  # "approve_deletion" or "reject_deletion"
-        admin_comment = resolution_data.get("comment", "")
-        
-        if decision not in ["approve_deletion", "reject_deletion"]:
+        # Check for duplicate titles within the same namespace (excluding current article)
+        existing_title = await db["articles"].find_one({
+            "title": {"$regex": f"^{title}$", "$options": "i"},
+            "namespace": namespace,
+            "status": {"$ne": "deleted"},
+            "_id": {"$ne": ObjectId(article_id)}
+        })
+        if existing_title:
+            namespace_display = f"{namespace}:" if namespace else ""
             raise HTTPException(
                 status_code=400,
-                detail="Decision must be 'approve_deletion' or 'reject_deletion'"
+                detail=f"Article '{namespace_display}{title}' already exists"
             )
         
-        # Get article and deletion request
-        article = await db["articles"].find_one({"_id": ObjectId(id)})
-        if not article:
-            raise HTTPException(status_code=404, detail="Article not found")
+        update_data["title"] = title
+        update_data["namespace"] = namespace
         
-        deletion_request = await db["deletion_requests"].find_one({
-            "articleId": ObjectId(id),
-            "status": "pending"
+        # Generate new slug if title or namespace changed
+        if title != existing_article["title"] or namespace != existing_article.get("namespace", ""):
+            timestamp = int(datetime.now().timestamp())
+            new_slug = generate_namespace_slug(namespace, title, timestamp)
+            
+            # Ensure slug uniqueness
+            existing_slug = await db["articles"].find_one({
+                "slug": new_slug,
+                "_id": {"$ne": ObjectId(article_id)}
+            })
+            slug_counter = 1
+            base_slug = new_slug
+            while existing_slug:
+                new_slug = f"{base_slug}-{slug_counter}"
+                existing_slug = await db["articles"].find_one({
+                    "slug": new_slug,
+                    "_id": {"$ne": ObjectId(article_id)}
+                })
+                slug_counter += 1
+            
+            update_data["slug"] = new_slug
+    
+    # Handle namespace changes
+    if article_update.namespace is not None:
+        if not is_valid_namespace(article_update.namespace):
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid namespace: {article_update.namespace}"
+            )
+        update_data["namespace"] = article_update.namespace
+    
+    # Handle content changes
+    if article_update.content is not None:
+        parsed_content, short_description = parse_wiki_markup(article_update.content)
+        update_data["content"] = parsed_content
+        
+        # Update summary with short description if found
+        if short_description:
+            update_data["summary"] = short_description
+    
+    # Handle other fields
+    for field in ["summary", "categories", "tags", "metadata", "status"]:
+        value = getattr(article_update, field, None)
+        if value is not None:
+            update_data[field] = value
+    
+    # Extract categories from content if applicable
+    current_namespace = update_data.get("namespace", existing_article.get("namespace", ""))
+    old_categories = existing_article.get("categories", [])
+    new_categories = old_categories
+    
+    if namespace_allows_categories(current_namespace) and article_update.content:
+        content_categories = extract_categories_from_content(article_update.content)
+        existing_categories = update_data.get("categories", existing_article.get("categories", []))
+        all_categories = list(set(existing_categories + content_categories))
+        update_data["categories"] = all_categories
+        new_categories = all_categories
+    elif "categories" in update_data:
+        new_categories = update_data["categories"]
+    
+    # Add update metadata
+    update_data["lastUpdatedAt"] = datetime.now()
+    update_data["lastUpdatedBy"] = current_user["_id"]
+    
+    # Update article
+    await db["articles"].update_one(
+        {"_id": ObjectId(article_id)},
+        {"$set": update_data}
+    )
+    
+    # Update category counts for changed categories
+    affected_categories = set(old_categories + new_categories)
+    for category_name in affected_categories:
+        await update_category_counts_for_article_change(db, category_name)
+    
+    # Return updated article
+    updated_article = await db["articles"].find_one({"_id": ObjectId(article_id)})
+    return updated_article
+
+@router.delete("/{article_id}")
+async def delete_article(
+    article_id: str,
+    db=Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    """
+    Delete an article (soft delete by setting status to 'deleted').
+    """
+    if not ObjectId.is_valid(article_id):
+        raise HTTPException(status_code=400, detail="Invalid article ID")
+    
+    result = await db["articles"].update_one(
+        {"_id": ObjectId(article_id)},
+        {
+            "$set": {
+                "status": "deleted",
+                "lastUpdatedAt": datetime.now(),
+                "lastUpdatedBy": current_user["_id"]
+            }
+        }
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Article not found")
+    
+    return {"message": "Article deleted successfully"}
+
+@router.get("/namespace/{namespace}")
+async def list_articles_by_namespace(
+    namespace: str,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100),
+    db=Depends(get_db)
+):
+    """
+    List articles in a specific namespace.
+    """
+    # Handle "main" namespace
+    if namespace == "main":
+        namespace = ""
+    
+    # Validate namespace
+    if namespace and not is_valid_namespace(namespace):
+        raise HTTPException(status_code=400, detail="Invalid namespace")
+    
+    # Query articles
+    query = {"namespace": namespace, "status": "published"}
+    cursor = db["articles"].find(query).sort([("title", 1)]).skip(skip).limit(limit)
+    articles = await cursor.to_list(length=limit)
+    
+    # Get namespace info
+    namespace_info = get_namespace_info(namespace)
+    
+    return {
+        "namespace": namespace,
+        "namespace_info": namespace_info,
+        "articles": articles,
+        "total": await db["articles"].count_documents(query)
+    }
+
+@router.get("/namespaces/list")
+async def list_namespaces(db=Depends(get_db)):
+    """
+    List all namespaces with article counts.
+    """
+    from utils.namespace import NAMESPACE_CONFIG
+    
+    namespaces = []
+    for ns_key, ns_config in NAMESPACE_CONFIG.items():
+        count = await db["articles"].count_documents({
+            "namespace": ns_key,
+            "status": "published"
         })
         
-        if not deletion_request:
-            raise HTTPException(status_code=404, detail="No active deletion discussion found")
-        
-        # Check permissions
-        is_author = str(article["createdBy"]) == str(user["_id"])
-        is_admin = user["role"] == "admin"
-        
-        if not (is_author or is_admin):
-            raise HTTPException(
-                status_code=403,
-                detail="Only the article author or an admin can resolve deletion discussions"
-            )
-        
-        # Update deletion request
-        resolution = {
-            "resolvedBy": user["_id"],
-            "resolvedByUsername": user["username"],
-            "decision": decision,
-            "comment": admin_comment,
-            "resolvedAt": datetime.now()
-        }
-        
-        await db["deletion_requests"].update_one(
-            {"_id": deletion_request["_id"]},
-            {
-                "$set": {
-                    "status": "resolved",
-                    "resolution": resolution
-                }
-            }
-        )
-        
-        # If approved, mark article for admin deletion
-        if decision == "approve_deletion":
-            await db["articles"].update_one(
-                {"_id": ObjectId(id)},
-                {"$set": {"pendingDeletion": True, "deletionApprovedAt": datetime.now()}}
-            )
-            
-            # Create admin deletion task
-            await db["admin_tasks"].insert_one({
-                "type": "delete_article",
-                "articleId": ObjectId(id),
-                "articleTitle": article["title"],
-                "requestedBy": deletion_request["requesterId"],
-                "approvedBy": user["_id"],
-                "createdAt": datetime.now(),
-                "status": "pending"
-            })
-            
-            message = "Deletion approved. Article marked for admin deletion."
-        else:
-            message = "Deletion request rejected. Article will remain published."
-        
-        return {"message": message, "decision": decision}
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error resolving deletion discussion: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to resolve discussion: {str(e)}"
-        )
+        namespaces.append({
+            "key": ns_key,
+            "name": ns_config["name"],
+            "description": ns_config["description"],
+            "url_prefix": ns_config["url_prefix"],
+            "article_count": count,
+            "searchable": ns_config["searchable"],
+            "allow_categories": ns_config["allow_categories"]
+        })
+    
+    return namespaces

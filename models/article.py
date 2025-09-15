@@ -3,9 +3,39 @@
 Article-related models for the Kryptopedia application.
 """
 from datetime import datetime
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Dict, List, Optional, Any, Union
+from pydantic import BaseModel, Field, ConfigDict, computed_field
+from typing import Dict, List, Optional, Any, Union, Tuple
 from .base import DBModel, PyObjectId
+
+# Define supported namespaces
+VALID_NAMESPACES = {
+    "": "Main",  # Main namespace (articles)
+    "Category": "Category",
+    "Template": "Template", 
+    "Help": "Help",
+    "User": "User",
+    "File": "File",
+    "Talk": "Talk",
+    "Kryptopedia": "Kryptopedia",  # Project namespace
+}
+
+def parse_title_namespace(full_title: str) -> Tuple[str, str]:
+    """
+    Parse a title to extract namespace and title.
+    
+    Args:
+        full_title: The full title (e.g., "Category:Blockchain" or "Introduction to Crypto")
+        
+    Returns:
+        Tuple[str, str]: (namespace, title) - namespace is empty string for main namespace
+    """
+    if ":" in full_title:
+        potential_namespace, title = full_title.split(":", 1)
+        if potential_namespace in VALID_NAMESPACES:
+            return potential_namespace, title.strip()
+    
+    # No valid namespace found, treat as main namespace
+    return "", full_title.strip()
 
 class ArticleMetadata(BaseModel):
     """
@@ -29,6 +59,36 @@ class ArticleBase(BaseModel):
     categories: List[str] = []
     tags: List[str] = []
     metadata: Union[ArticleMetadata, Dict[str, Any]] = Field(default_factory=ArticleMetadata)
+    
+    # Namespace fields
+    namespace: str = Field(default="", description="Article namespace (empty for main)")
+    
+    @computed_field
+    @property
+    def full_title(self) -> str:
+        """Get the full title including namespace prefix."""
+        if self.namespace:
+            return f"{self.namespace}:{self.title}"
+        return self.title
+    
+    @computed_field
+    @property
+    def display_title(self) -> str:
+        """Get the display title without namespace prefix."""
+        return self.title
+    
+    @computed_field
+    @property
+    def namespace_name(self) -> str:
+        """Get the human-readable namespace name."""
+        return VALID_NAMESPACES.get(self.namespace, "Unknown")
+    
+    @computed_field
+    @property 
+    def canonical_url(self) -> str:
+        """Get the canonical URL path for this article."""
+        from utils.namespace import get_namespace_url
+        return get_namespace_url(self.namespace, self.title)
 
     model_config = ConfigDict(
         populate_by_name=True
@@ -38,7 +98,21 @@ class ArticleCreate(ArticleBase):
     """
     Model for creating a new article.
     """
-    pass
+    
+    def __init__(self, **data):
+        # Parse namespace from title if provided
+        if 'title' in data and 'namespace' not in data:
+            namespace, title = parse_title_namespace(data['title'])
+            data['namespace'] = namespace
+            data['title'] = title
+        super().__init__(**data)
+    
+    @computed_field
+    @property 
+    def canonical_url(self) -> str:
+        """Get the canonical URL path for this article."""
+        from utils.namespace import get_namespace_url
+        return get_namespace_url(self.namespace, self.title)
 
 class ArticleUpdate(BaseModel):
     """
@@ -52,6 +126,7 @@ class ArticleUpdate(BaseModel):
     metadata: Optional[Union[ArticleMetadata, Dict[str, Any]]] = None
     editComment: Optional[str] = None  # Comment describing the edit
     status: Optional[str] = None  # Status field: "published", "draft", "hidden", "archived"
+    namespace: Optional[str] = None  # Allow updating namespace
 
     model_config = ConfigDict(
         populate_by_name=True
@@ -78,25 +153,19 @@ class Article(ArticleBase, DBModel):
             "example": {
                 "_id": "60d21b4967d0d8992e610c85",
                 "title": "Introduction to Cryptography",
+                "namespace": "",
+                "full_title": "Introduction to Cryptography",
                 "slug": "introduction-to-cryptography-1624356169",
                 "content": "<h1>Introduction to Cryptography</h1><p>This is an introduction to cryptography...</p>",
                 "summary": "A beginner's guide to cryptography concepts and techniques.",
-                "categories": ["Cryptography", "Security"],
-                "tags": ["beginner", "encryption", "security"],
-                "metadata": {
-                    "hasAudio": False,
-                    "hasSpecialSymbols": True,
-                    "containsMadeUpContent": False
-                },
-                "createdBy": "60d21b4967d0d8992e610c85",
-                "createdAt": "2021-06-22T10:00:00",
-                "lastUpdatedAt": "2021-06-23T15:30:00",
-                "lastUpdatedBy": "60d21b4967d0d8992e610c86",
-                "featuredUntil": "2021-07-22T10:00:00",
+                "categories": ["Cryptography", "Technology"],
+                "tags": ["crypto", "security", "beginner"],
                 "status": "published",
-                "views": 150,
-                "upvotes": 10,
-                "downvotes": 2
+                "views": 42,
+                "upvotes": 5,
+                "downvotes": 1,
+                "createdBy": "60d21b4967d0d8992e610c85",
+                "createdAt": "2024-01-15T10:30:00Z"
             }
         }
     )
@@ -104,9 +173,10 @@ class Article(ArticleBase, DBModel):
 class ArticleWithCreator(Article):
     """
     Article model with creator information included.
+    Used for display purposes when creator details are needed.
     """
     creator_username: str = Field(..., alias="creatorUsername")
-    creator_reputation: int = Field(..., alias="creatorReputation")
+    creator_reputation: Optional[int] = Field(default=0, alias="creatorReputation")
 
     model_config = ConfigDict(
         populate_by_name=True
