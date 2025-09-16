@@ -21,6 +21,27 @@
             min-height: 100vh;
             color: #333;
         }
+        
+        .python::before {
+            content: "Python";
+            vertical-align: super;
+            font-size: 7px;
+            position: absolute;
+        }
+        
+        .html::before {
+            content: "HTML";
+            vertical-align: super;
+            font-size: 7px;
+            position: absolute;
+        }
+        
+        javascript::before {
+            content: "Javascript";
+            vertical-align: super;
+            font-size: 7px;
+            position: absolute;
+        }
 
         .container {
             background: white;
@@ -507,6 +528,28 @@
                 </table>
             </div>
         </div>
+        
+        <div class="dmeo-section">
+        <h2>Code</h2>
+        
+        <p>Code can be done by using the syntax "[code|lang="language such as html"]Code would go here.[code]". Examples:</p>
+         
+        <div class="markup-example">[code|lang="Python"]Python code would go here.[code]</div>
+            <div class="rendered-result">
+                <span class="python"><span class="code-text">Python code would go here.</span></span>
+            </div>
+            
+            <div class="markup-example">[code|lang="HTML"]HTML code would go here.[code]</div>
+            <div class="rendered-result">
+                <span class="html"><span class="code-text">HTML code would go here.</span></span>
+            </div>
+            
+            <div class="markup-example">[code|lang="Javascript"]Javascript code would go here.[code]</div> <!-- Fix later -->
+            <div class="rendered-result">
+                <span class="javascript"><span class="code-text">Javascript code would go here.</span></span>
+            </div>
+        
+        </div>
 
         <div class="demo-section">
             <h2>Templates & Special Elements</h2>
@@ -535,11 +578,6 @@
             <div class="markup-example">[bar]Barred text[bar]</div>
             <div class="rendered-result">
                 <span class="barred-text">Barred text</span>
-            </div>
-
-            <div class="markup-example">[code]Code such as html or python[code]</div>
-            <div class="rendered-result">
-                <span class="code-text">Code such as html or python</span>
             </div>
 
             <div class="markup-example">[file|example-image.jpg|alt=Sample image]</div>
@@ -670,6 +708,7 @@ Table of alveolar laterals:
     </div>
 
     <script>
+    // fix the [code] element later
         function parseMarkup() {
             const input = document.getElementById('markup-input').value;
             const output = document.getElementById('live-output');
