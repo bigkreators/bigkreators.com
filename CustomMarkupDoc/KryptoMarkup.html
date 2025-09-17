@@ -36,7 +36,7 @@
             position: absolute;
         }
         
-        javascript::before {
+        .javascript::before {
             content: "Javascript";
             vertical-align: super;
             font-size: 7px;
@@ -414,30 +414,30 @@
             
             <div class="markup-example">[delete|reason="copyright infringement"]</div>
             <div class="rendered-result">
-                <table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                <table style="border: solid black 1px; margin: auto;">
                     <tr>
-                        <td style="font-size: 50px;">!</td>
-                        <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because of copyright<br>infringement. If this article is not copyright<br>infringement, remove the deletion tag.</p></td>
+                        <td style="font-size: 35px; color: red;">⚠︎</td>
+                        <td><p>This article might meet Kryptopedia's<br>deletion policy because of copyright<br>infringement. If this article is not copyright<br>infringement, remove the deletion tag.</p></td>
                     </tr>
                 </table>
             </div>
 
             <div class="markup-example">[t|name="Duplicate to:|article="Close-mid back unrounded vowel"]</div>
             <div class="rendered-result">
-                <table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                <table style="border: solid black 1px; margin: auto;">
                     <tr>
-                        <td style="font-size: 50px;">!</td>
-                        <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because it is<br>a duplicate to the following article:<br><a href="#" style="text-decoration: underline;">Close-mid back unrounded vowel</a><br>and additionally has the same title.</p></td>
+                        <td style="font-size: 35px; color: red;">⚠︎</td>
+                        <td><p>This article might meet Kryptopedia's<br>deletion policy because it is<br>a duplicate to the following article:<br><a href="#" style="text-decoration: underline;">Close-mid back unrounded vowel</a><br>and additionally has the same title.</p></td>
                     </tr>
                 </table>
             </div>
             
             <div class="markup-example">[delete|reason="created by a banned user"]</div>
             <div class="rendered-result">
-                <table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                <table style="border: solid black 1px; margin: auto;">
                     <tr>
-                        <td style="font-size: 50px;">!</td>
-                        <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because of being created<br>by a banned user. If this article is not<br>created by a banned user, remove the<br>deletion tag.</p></td>
+                        <td style="font-size: 35px; color: red;">⚠︎</td>
+                        <td><p>This article might meet Kryptopedia's<br>deletion policy because of being created<br>by a banned user. If this article is not<br>created by a banned user, remove the<br>deletion tag.</p></td>
                     </tr>
                 </table>
             </div>
@@ -445,30 +445,30 @@
 
             <div class="markup-example">[non-encyclopedic content]</div>
             <div class="rendered-result">
-                <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                <table style="border: solid black 1px; margin: auto;">
                     <tr>
-                        <td style="color: orange; font-size: 50px;">!</td>
-                        <td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
+                        <td style="font-size: 35px; color: orange;">⚠︎</td>
+                        <td><p>This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
                     </tr>
                 </table>
             </div>
 
             <div class="markup-example">[short article]</div>
             <div class="rendered-result">
-                <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                <table style="border: solid black 1px; margin: auto;">
                     <tr>
-                        <td><p style="font-size: 20px;">This article is short.<br>You can help expand it.</p></td>
+                        <td><p>This article is short.<br>You can help expand it.</p></td>
                     </tr>
                 </table>
             </div>
         <div class="markup-example">[merge|Close-mid back unrounded vowel]</div>
             <div class="rendered-result">
-                <table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                <table style="border: solid black 1px; margin: auto;">
                     <tr>
-                        <td style="color: red; font-size: 50px; font-family: 'Times New Roman'; text-align: center;">MERGE</td>
+                        <td style="color: red; font-size: 45px; font-family: 'Times New Roman'; text-align: center;">MERGE</td>
                         </tr>
                         <tr>
-                        <td><p style="font-size: 20px;">A Kryptopedian thinks this article<br>should be merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">Close-mid back unrounded vowel</a></p></td>
+                        <td><p>A Kryptopedian thinks this article<br>should be merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">Close-mid back unrounded vowel</a></p></td>
                     </tr>
                 </table>
             </div>
@@ -787,40 +787,40 @@ Table of alveolar laterals:
             
                 // Content warnings (parse FIRST)
                 .replace(/\[t|name="Duplicate to:|article=([^"]+)"\]/g, function(match, articleTitle) {
-                    return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    return `<table style="border: solid black 1px; margin: auto;">
                         <tr>
-                            <td style="font-size: 50px;">!</td>
-                            <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because it is<br>a duplicate to the following article:<br><a href="#" style="text-decoration: underline;">${articleTitle}</a><br>and additionally has the same title.</p></td>
+                            <td style="font-size: 35px; color: red;">⚠︎</td>
+                            <td><p>This article might meet Kryptopedia's<br>deletion policy because it is<br>a duplicate to the following article:<br><a href="#" style="text-decoration: underline;">${articleTitle}</a><br>and additionally has the same title.</p></td>
                         </tr>
                     </table>`;
                 })
                 .replace(/\[delete\|reason="([^"]+)"\]/g, function(match, reason) {
-                    return `<table style="background: red; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    return `<table style="border: solid black 1px; margin: auto;">
                         <tr>
-                            <td style="font-size: 50px;">!</td>
-                            <td><p style="font-size: 20px;">This article might meet Kryptopedia's<br>deletion policy because of ${reason}.<br>If this article is not ${reason},<br>remove the deletion tag.</p></td>
+                            <td style="font-size: 35px; color: red;">⚠︎</td>
+                            <td><p>This article might meet Kryptopedia's<br>deletion policy because of ${reason}.<br>If this article is not ${reason},<br>remove the deletion tag.</p></td>
                         </tr>
                     </table>`;
                 })
                 .replace(/\[non-encyclopedic content\]/g, `<table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
                     <tr>
-                        <td style="color: orange; font-size: 50px;">!</td>
-                        <td><p style="font-size: 20px;">This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
+                        <td style="font-size: 35px; color: orange;">⚠︎</td>
+                        <td><p>This article is not a part of Kryptopedia's<br>encyclopedic content. It may contain stuff<br>like made up, test, or promotional<br>content, though it should not be deleted.</p></td>
                     </tr>
                 </table>`)
-                .replace(/\[short article\]/g, `<table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                .replace(/\[short article\]/g, `<table style="border: solid black 1px; margin: auto;">
                     <tr>
-                        <td><p style="font-size: 20px;">This article is short.<br>You can help expand it.</p></td>
+                        <td><p>This article is short.<br>You can help expand it.</p></td>
                     </tr>
                 </table>`)
                 // Merge notices
                 .replace(/\[merge\|([^\]]+)\]/g, function(match, articleTitle) {
-                    return `<table style="background: white; border-collapse: collapse; margin: auto; border: 1px solid #ddd;">
+                    return `<table style="border: solid black 1px; margin: auto;">
                         <tr>
-                            <td style="color: red; font-size: 50px; font-family: 'Times New Roman'; text-align: center;">MERGE</td>
+                            <td style="color: red; font-size: 45px; font-family: 'Times New Roman'; text-align: center;">MERGE</td>
                             </tr>
                             <tr>
-                            <td><p style="font-size: 20px;">A Kryptopedian thinks this article<br>should be merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">${articleTitle}</a></p></td>
+                            <td><p>A Kryptopedian thinks this article<br>should be merged with the<br>following article:<br><a href="#" style="text-decoration: underline;">${articleTitle}</a></p></td>
                         </tr>
                     </table>`;
                     })
