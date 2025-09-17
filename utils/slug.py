@@ -44,7 +44,7 @@ def generate_slug(title: str, timestamp: Optional[int] = None) -> str:
 
 def generate_namespace_slug(namespace: str, title: str, timestamp: Optional[int] = None) -> str:
     """
-    Generate a namespace-aware slug for articles.
+    Generate a namespace-aware slug for articles that preserves the namespace:title format.
     
     Args:
         namespace: The namespace (empty string for main namespace)
@@ -53,14 +53,30 @@ def generate_namespace_slug(namespace: str, title: str, timestamp: Optional[int]
         
     Returns:
         str: The generated namespace-aware slug
+        
+    Examples:
+        generate_namespace_slug("Kryptopedia", "Rules (being merged)", None)
+        → "Kryptopedia:Rules_(being_merged)"
+        
+        generate_namespace_slug("", "Bitcoin Basics", None)
+        → "Bitcoin_Basics"
     """
+    # Clean the title by replacing spaces with underscores and removing problematic chars
+    clean_title = title.strip()
+    
+    # Replace spaces with underscores, preserve parentheses and basic punctuation
+    clean_title = re.sub(r'\s+', '_', clean_title)
+    # Remove characters that are problematic in URLs but keep colons, parentheses, underscores
+    clean_title = re.sub(r'[^\w\(\):.-]', '', clean_title)
+    
     if namespace:
-        # For namespaced articles, include namespace prefix
-        combined_title = f"{namespace}_{title}"
-        return generate_slug(combined_title, timestamp)
+        # For namespaced articles, use the format "Namespace:Title"
+        slug = f"{namespace}:{clean_title}"
     else:
-        # Main namespace articles
-        return generate_slug(title, timestamp)
+        # Main namespace articles don't need prefix
+        slug = clean_title
+    
+    return slug
 
 def is_valid_slug(slug: str) -> bool:
     """

@@ -228,9 +228,9 @@ async def get_article(
     db=Depends(get_db)
 ):
     """
-    Get a single article by ID or slug.
+    Get a single article by ID or slug, with support for namespace:title format.
     """
-    # Try to find by slug first
+    # Try to find by slug first (handles namespace:title format)
     article = await db["articles"].find_one({"slug": article_id, "status": "published"})
     
     # If not found by slug, try by ObjectId
@@ -239,6 +239,36 @@ async def get_article(
             "_id": ObjectId(article_id),
             "status": "published"
         })
+    
+    # If still not found, try to parse as namespace:title and find by those fields
+    if not article and ":" in article_id:
+        namespace, title = article_id.split(":", 1)
+        # Convert underscores back to spaces in title
+        title = title.replace("_", " ")
+        
+        article = await db["articles"].find_one({
+            "namespace": namespace,
+            "title": title,
+            "status": "published"
+        })
+    
+    # Final fallback: try to find article by title pattern matching (for legacy URLs)
+    if not article:
+        # Convert slug back to potential title patterns
+        title_patterns = [
+            article_id.replace('-', ' ').title(),
+            article_id.replace('-', ' '),
+            article_id.replace('_', ' ').title(),
+            article_id.replace('_', ' ')
+        ]
+        
+        for pattern in title_patterns:
+            article = await db["articles"].find_one({
+                "title": {"$regex": f"^{pattern}$", "$options": "i"},
+                "status": "published"
+            })
+            if article:
+                break
     
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")

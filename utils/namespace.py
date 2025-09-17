@@ -105,6 +105,7 @@ def parse_title_with_namespace(full_title: str) -> Tuple[str, str]:
 def get_namespace_url(namespace: str, title: str) -> str:
     """
     Generate the appropriate URL for a page in a namespace.
+    All articles stay under /articles/ path regardless of namespace.
     
     Args:
         namespace: The namespace
@@ -112,15 +113,21 @@ def get_namespace_url(namespace: str, title: str) -> str:
         
     Returns:
         str: The URL path
+        
+    Examples:
+        get_namespace_url("Kryptopedia", "Rules (being merged)")
+        → "/articles/Kryptopedia:Rules_(being_merged)"
+        
+        get_namespace_url("", "Bitcoin Basics") 
+        → "/articles/Bitcoin_Basics"
     """
-    config = get_namespace_info(namespace)
-    if not config:
-        # Default to main namespace
-        config = NAMESPACE_CONFIG[""]
+    from .slug import generate_namespace_slug
     
-    # Clean title for URL
-    url_title = title.replace(" ", "_")
-    return f"{config['url_prefix']}/{url_title}"
+    # Generate the proper slug that includes namespace
+    slug = generate_namespace_slug(namespace, title)
+    
+    # All articles use the same /articles/ path
+    return f"/articles/{slug}"
 
 def format_full_title(namespace: str, title: str) -> str:
     """
