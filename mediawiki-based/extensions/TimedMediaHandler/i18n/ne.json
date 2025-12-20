@@ -1,0 +1,27 @@
+{
+	"@metadata": {
+		"authors": [
+			"Bada Kaji",
+			"NehalDaveND",
+			"पर्वत सुबेदी",
+			"बडा काजी",
+			"बिप्लब आनन्द",
+			"राम प्रसाद जोशी",
+			"सरोज कुमार ढकाल",
+			"हिमाल सुबेदी"
+		]
+	},
+	"timedmedia-ogg-short-audio": "Ogg $1 ध्वनि फाइल, $2",
+	"timedmedia-ogg-short-video": "Ogg $1 विडियो फाइल, $2",
+	"timedmedia-ogg-short-general": "Ogg $1 मीडिया फाइल, $2",
+	"timedmedia-more": "थप...",
+	"timedmedia-dismiss": "बन्ध गर्ने",
+	"timedmedia-download": "डाउनलोड गर्ने फाइल",
+	"timedmedia-status": "स्थिति",
+	"timedmedia-status-unknown": "अज्ञात स्थिति",
+	"timedmedia-actions": "कार्यहरु",
+	"timedmedia-direct-link": "डाउनलोड गरिएकाे",
+	"timedmedia-error-dismiss": "खारेज गर्नुहोस्",
+	"timedmedia-subtitle-new-go": "जाने",
+	"timedmedia-file": "फाइल"
+}

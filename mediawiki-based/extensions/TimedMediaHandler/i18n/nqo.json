@@ -1,0 +1,36 @@
+{
+	"@metadata": {
+		"authors": [
+			"Lancine.kounfantoh.fofana",
+			"Lanciné.kounfantoh.fofana",
+			"Nafadji Mory Diané",
+			"ߒߓߋ߫ ߝߏߝߣߊ߫"
+		]
+	},
+	"timedmedia-ogg-short-audio": "ߏ.ߜ߭.ߜ߭ (Ogg) $1 ߡߍ߲ߞߊ߲ ߞߐߕߐ߮߸ ߖߊ߲߰ߧߊ $2",
+	"timedmedia-ogg-short-video": "ߏ߬.ߜ߭.ߜ߭ (Ogg) $1 ߖߌ߬ߦߊ߬ߖߟߎ ߞߐߕߐ߮ ߖߊ߲߰ߧߊ߸ $2",
+	"timedmedia-ogg-short-general": "ߏ.ߜ߭.ߜ߭ (Ogg) $1 ߞߟߋߞߟߋ ߞߐߕߐ߮ ߖߊ߲߰ߧߊ߸ $2",
+	"timedmedia-mp3-short-audio": "MP3 ߡߍ߲ߞߊ߲߫ ߞߐߕߐ߮، $1",
+	"timedmedia-more": "ߡߊߞߊ߬ߝߏ߬ ߜߘߍ ߟߎ߬...",
+	"timedmedia-dismiss": "ߊ߬ ߘߊߕߎ߲߯",
+	"timedmedia-download": "ߞߐߕߐ߮ ߟߊߖߌ߰ ߌ ߞߎ߲߬",
+	"timedmedia-desc-link": "ߞߊ߬ ߓߍ߲߬ ߞߐߕߐ߮ ߣߌ߲߬ ߡߊ߬",
+	"timedmedia-transcodeinfo": "ߖߙߎߡߎ߲",
+	"timedmedia-actions": "ߞߍߟߌ ߟߎ߬",
+	"timedmedia-direct-link": "ߟߊ߬ߖߌ߰ߒ߬ߞߎ߲߬ߠߌ߲",
+	"timedmedia-not-ready": "ߡߊ߫ ߓߌ߫",
+	"timedmedia-completed-on": "ߘߝߊ߫ ߘߊ߫ $1 ߟߋ߬",
+	"timedmedia-error-on": "ߝߌ߬ߟߌ߸ $1 ߡߊ߬",
+	"timedmedia-started-transcode": "ߘߊߡߌ߬ߣߊ $1 ߟߋ߬ ߣߌ߲߬. $2",
+	"timedmedia-percent-done": "ߘߝߊߣߍ߲ $1 ߖߊ߬ߕߋ",
+	"timedmedia-reset-button-dismiss": "ߓߙߐߕߐ߫",
+	"timedmedia-reset-button-reset": "ߊ߬ ߡߊߛߊ߬ߦߌ߬",
+	"timedmedia-error-dismiss": "ߓߙߐߕߐ߫",
+	"timedmedia-subtitle-new-go": "ߕߊ߯",
+	"timedmedia-subtitle-no-video": "ߖߌ߬ߦߊ߬ߖߟߎ߬ ߛߌ߫ ߞߏߟߏ߲ߛߏߣߍ߲߫ ߕߍ߫ ߕߋ߲߭ߕߋ߲߭ ߞߎ߲߬ߕߐ߰ߟߋ߲߬ ߞߐߜߍ ߟߊ߫.",
+	"timedmedia-file": "ߞߐߕߐ߮",
+	"videojs-more-information": "ߞߎ߲߬ߠߊ߬ߝߏ߬ߣߌ߲߬ ߜߘߍ ߟߎ߬",
+	"videojs-quality": "ߖߌ߬ߦߊ߬ߖߟߎ ߛߎ߯ߦߊ",
+	"videojs-subtitles-create": "ߞߎ߲߬ߕߐ߰ߟߋ߲ ߠߎ߬ ߛߌ߲ߘߌ߫",
+	"videojs-captions-create": "ߝߍ߬ߛߓߍߟߌ ߟߎ߫ ߛߌ߲ߘߌ߫"
+}

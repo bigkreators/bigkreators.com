@@ -1,0 +1,10 @@
+.git
+.gitignore
+.DS_Store
+*.md
+*.sql
+Dockerfile
+.dockerignore
+docker-compose*.yml
+cache/*
+!cache/.htaccess

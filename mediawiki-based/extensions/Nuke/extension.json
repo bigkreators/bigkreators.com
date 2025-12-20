@@ -1,0 +1,110 @@
+{
+	"name": "Nuke",
+	"author": [
+		"Brion Vibber",
+		"Jeroen De Dauw"
+	],
+	"url": "https://www.mediawiki.org/wiki/Extension:Nuke",
+	"descriptionmsg": "nuke-desc",
+	"license-name": "GPL-2.0-or-later",
+	"requires": {
+		"MediaWiki": ">= 1.44"
+	},
+	"type": "specialpage",
+	"ExtensionMessagesFiles": {
+		"NukeAlias": "Nuke.alias.php"
+	},
+	"MessagesDirs": {
+		"Nuke": [
+			"i18n"
+		]
+	},
+	"HookHandlers": {
+		"main": {
+			"class": "MediaWiki\\Extension\\Nuke\\Hooks"
+		}
+	},
+	"Hooks": {
+		"ContributionsToolLinks": "main",
+		"ListDefinedTags": "MediaWiki\\Extension\\Nuke\\Hooks::onRegisterTags",
+		"ChangeTagsListActive": "MediaWiki\\Extension\\Nuke\\Hooks::onRegisterTags"
+	},
+	"config": {
+		"NukeMaxAge": {
+			"value": 0,
+			"description": "The maximum age of a new page creation or file upload before it becomes ineligible for mass deletion. Defaults to the value of $wgRCMaxAge."
+		},
+		"NukeUIType": {
+			"value": "htmlform",
+			"description": "The UI type to use for Special:Nuke."
+		}
+	},
+	"ResourceModules": {
+		"ext.nuke.styles": {
+			"localBasePath": "modules/ext.nuke.styles",
+			"styles": [
+				"nuke.less"
+			]
+		},
+		"ext.nuke.fields.NukeDateTimeField": {
+			"packageFiles": [
+				"ext.nuke.fields.NukeDateTimeField/init.js"
+			],
+			"messages": [
+				"nuke-date-limited"
+			],
+			"dependencies": [
+				"moment",
+				"mediawiki.widgets.DateInputWidget"
+			]
+		}
+	},
+	"ResourceFileModulePaths": {
+		"localBasePath": "modules",
+		"remoteExtPath": "Nuke/modules"
+	},
+	"GroupPermissions": {
+		"sysop": {
+			"nuke": true
+		}
+	},
+	"AvailableRights": [
+		"nuke"
+	],
+	"GrantPermissions": {
+		"delete": {
+			"nuke": true
+		}
+	},
+	"SpecialPages": {
+		"Nuke": {
+			"class": "MediaWiki\\Extension\\Nuke\\SpecialNuke",
+			"services": [
+				"JobQueueGroup",
+				"DBLoadBalancerFactory",
+				"PermissionManager",
+				"RepoGroup",
+				"UserOptionsLookup",
+				"UserNamePrefixSearch",
+				"UserNameUtils",
+				"NamespaceInfo",
+				"ContentLanguage",
+				"RedirectLookup",
+				"NukeIPLookup"
+			],
+			"styles": [
+				"mediawiki.special.special"
+			]
+		}
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\Extension\\Nuke\\": "includes/"
+	},
+	"TestAutoloadNamespaces": {
+		"MediaWiki\\Extension\\Nuke\\Test\\": "tests/phpunit/"
+	},
+	"ServiceWiringFiles": [
+		"includes/ServiceWiring.php"
+	],
+	"manifest_version": 2
+}

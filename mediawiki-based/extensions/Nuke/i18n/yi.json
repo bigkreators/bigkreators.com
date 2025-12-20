@@ -1,0 +1,21 @@
+{
+	"@metadata": {
+		"authors": [
+			"Imre",
+			"פוילישער"
+		]
+	},
+	"nuke": "מאסן־אויסמעקונג",
+	"action-nuke": "אויסמעקן א סך בלעטער",
+	"nuke-desc": "גיט סיסאפן די מעגלעכקייט [[Special:Nuke|מאסן אויסמעקן]] בלעטער",
+	"nuke-multiplepeople": "מאסן־אויסמעקן פון לעצטנס צוגעלייגטע בלעטער",
+	"nuke-submit-list": "מאכן א רשימה פון בלעטער",
+	"nuke-submit-delete": "אויסמעקן אויסגעוויילטע",
+	"right-nuke": "מאסן-אויסמעקן בלעטער",
+	"nuke-userorip": "באניצער־נאמען, IP אדרעס אדער ליידיג:",
+	"nuke-maxpages": "מאקסימום צאל בלעטער:",
+	"nuke-editby": "געשאפֿן דורך [[Special:Contributions/$1|{{GENDER:$1|$1}}]]",
+	"nuke-deleted": "בלאט '''$1''' איז געווארן אויסגעמעקט.",
+	"nuke-viewchanges": "באקוקן ענדערונגען",
+	"nuke-linkoncontribs": "מאסן־אויסמעקונג"
+}

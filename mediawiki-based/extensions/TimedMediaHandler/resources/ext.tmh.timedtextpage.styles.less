@@ -1,0 +1,21 @@
+.mw-timedtextpage-layout {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1em;
+
+	.mw-timedtextpage-video {
+		flex: 0 0 auto;
+	}
+
+	.mw-timedtextpage-video:empty {
+		display: none;
+	}
+
+	.mw-timedtextpage-tt {
+		flex: 1 1 30em;
+
+		pre {
+			margin: 0;
+		}
+	}
+}

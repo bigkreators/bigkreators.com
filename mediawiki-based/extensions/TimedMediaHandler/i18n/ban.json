@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Chinamoonroll",
+			"Joseagush",
+			"NoiX180"
+		]
+	},
+	"timedmedia-reset": "Jumu transkode",
+	"timedmedia-reset-button-cancel": "Sampunang nyumu",
+	"timedmedia-reset-button-reset": "Jumu",
+	"action-transcode-reset": "jumu transkode",
+	"videojs-more-information": "Pidarta lianan"
+}

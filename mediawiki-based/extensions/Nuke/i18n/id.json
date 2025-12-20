@@ -1,0 +1,36 @@
+{
+	"@metadata": {
+		"authors": [
+			"Bagas Chrisara",
+			"Bennylin",
+			"Daud I.F. Argana",
+			"Diki Ananta",
+			"IvanLanin",
+			"Iwan Novirion",
+			"Rex",
+			"Sumbukompor"
+		]
+	},
+	"nuke": "Penghapusan massal",
+	"action-nuke": "menghapus massal halaman",
+	"nuke-desc": "Memberikan kemampuan bagi pengurus untuk [[Special:Nuke|menghapus halaman secara massal]]",
+	"nuke-defaultreason": "Penghapusan masal halaman-halaman yang dibuat oleh [[Special:Contributions/$1|{{GENDER:$1|$1}}]]",
+	"nuke-multiplepeople": "Penghapusan masal halaman yang baru saja ditambahkan",
+	"nuke-tools": "Perkakas ini memungkinkan penghapusan massal halaman-halaman yang baru saja dibuat oleh seorang pengguna ataupun alamat IP.\nMasukkan nama pengguna atau alamat IP untuk mendapat daftar halaman yang dapat dihapus atau kosongkan untuk semua pengguna.",
+	"nuke-submit-list": "Daftar halaman",
+	"nuke-submit-delete": "Hapus yang terpilih",
+	"right-nuke": "Melakukan penghapusan massal halaman",
+	"nuke-userorip": "Nama pengguna, alamat IP, atau kosong:",
+	"nuke-maxpages": "Jumlah maksimum halaman:",
+	"nuke-editby": "Dibuat oleh [[Special:Contributions/$1|{{GENDER:$1|$1}}]]",
+	"nuke-deleted": "Halaman '''$1''' sudah dihapus.",
+	"nuke-deletion-queued": "Halaman '''$1''' telah diantrekan untuk dihapus.",
+	"nuke-not-deleted": "Halaman [[:$1]] '''tidak bisa''' dihapus.",
+	"nuke-delete-more": "[[Special:Nuke|Hapus lagi]]",
+	"nuke-pattern": "Pola SQL LIKE (mis. %) untuk nama halaman:",
+	"nuke-nopages-global": "Tidak ditemukan halaman baru yang cocok dengan pencarian Anda.",
+	"nuke-viewchanges": "lihat perubahan",
+	"nuke-namespace": "Batasan dari ruang nama:",
+	"nuke-linkoncontribs": "hapus massal",
+	"nuke-linkoncontribs-text": "Hapus massal halaman-halaman yang kontributornya hanya {{GENDER:$1|pengguna ini}}"
+}

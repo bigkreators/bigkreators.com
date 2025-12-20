@@ -1,0 +1,405 @@
+<!-- File: templates/wiki_base.html -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="no-js">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ article.title if article else 'Main Page' }} - Kryptopedia{% endblock %}</title>
+    
+    <!-- Wikipedia-style CSS -->
+    <link rel="stylesheet" href="/static/wiki-style.css">
+    
+    <!-- Keep your existing CSS for compatibility -->
+    <link rel="stylesheet" href="/static/style.css">
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    
+    <!-- K̡̓ONTRIB Token Integration Script -->
+    <script>
+        window.kontribConfig = {
+            userBalance: {{ current_user.kontrib_balance if current_user else 0 }},
+            isLoggedIn: {{ 'true' if current_user else 'false' }},
+            tokenSymbol: 'K̡̓ontrib'
+        };
+    </script>
+</head>
+<body class="mediawiki ltr sitedir-ltr mw-hide-empty-elt ns-0 ns-subject page-{{ page_name|default('main_page')|replace(' ', '_')|lower }} skin-vector action-view">
+
+    <!-- Skip to content links for accessibility -->
+    <div class="mw-jump-link">
+        <a href="#bodyContent">Jump to navigation</a>
+        <a href="#bodyContent">Jump to search</a>
+    </div>
+
+    <!-- Header -->
+    <header id="mw-head" class="noprint">
+        <div class="mw-head-container">
+            <!-- Logo section -->
+            <div id="p-logo" class="mw-portlet">
+                <a href="/" class="mw-wiki-logo" title="Visit the main page">
+                    <img src="/static/images/kryptopedia-logo.png" alt="Kryptopedia" width="135" height="135">
+                </a>
+            </div>
+
+            <!-- Search -->
+            <div id="p-search" class="mw-portlet">
+                <h3>
+                    <label for="searchInput">Search</label>
+                </h3>
+                <form action="/search" id="searchform" method="GET">
+                    <div id="simpleSearch">
+                        <input type="search" name="q" placeholder="Search Kryptopedia" title="Search Kryptopedia [alt-shift-f]" accesskey="f" id="searchInput" autocomplete="off" value="{{ request.query_params.get('q', '') }}">
+                        <input type="submit" name="fulltext" value="Search" title="Search Kryptopedia for this text" id="mw-searchButton" class="searchButton mw-fallbackSearchButton">
+                        <input type="submit" name="go" value="Go" title="Go to a page with this exact name if it exists" id="searchButton" class="searchButton">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Personal tools -->
+            <div id="p-personal" class="mw-portlet">
+                <h3>Personal tools</h3>
+                <ul class="mw-personal-tools">
+                    {% if current_user %}
+                        <li id="pt-userpage">
+                            <a href="/user/{{ current_user.username }}" class="mw-userlink">
+                                <span>{{ current_user.username }}</span>
+                            </a>
+                        </li>
+                        <li id="pt-kontrib-balance">
+                            <span class="kontrib-balance" title="Your K̡̓ONTRIB token balance">
+                                {{ "%.2f"|format(current_user.kontrib_balance|default(0)) }} K̡̓ontrib
+                            </span>
+                        </li>
+                        <li id="pt-mytalk">
+                            <a href="/user/{{ current_user.username }}/talk" title="Your talk page">Talk</a>
+                        </li>
+                        <li id="pt-preferences">
+                            <a href="/user/{{ current_user.username }}/preferences" title="Your preferences">Preferences</a>
+                        </li>
+                        <li id="pt-watchlist">
+                            <a href="/special/watchlist" title="A list of pages you are monitoring for changes">Watchlist</a>
+                        </li>
+                        <li id="pt-mycontris">
+                            <a href="/special/contributions/{{ current_user.username }}" title="A list of your contributions">Contributions</a>
+                        </li>
+                        <li id="pt-kontrib-dashboard">
+                            <a href="/kontrib/dashboard" title="Your K̡̓ONTRIB token dashboard" class="kontrib-link">
+                                K̡̓ontrib Dashboard
+                            </a>
+                        </li>
+                        <li id="pt-logout">
+                            <a href="/auth/logout" title="Log out">Log out</a>
+                        </li>
+                    {% else %}
+                        <li id="pt-login">
+                            <a href="/auth/login" title="You are encouraged to log in; however, it is not mandatory">Log in</a>
+                        </li>
+                        <li id="pt-createaccount">
+                            <a href="/auth/register" title="You are encouraged to create an account and log in; however, it is not mandatory">Create account</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content area -->
+    <div id="mw-page-base" class="noprint"></div>
+    <div id="mw-head-base" class="noprint"></div>
+
+    <div id="content" class="mw-body" role="main">
+        <a id="top"></a>
+        <div id="siteNotice" class="mw-body-content">
+            <!-- Site notices go here -->
+            {% if flash_messages %}
+                {% for message in flash_messages %}
+                    <div class="mw-message-box mw-message-box-{{ message.type }}">
+                        {{ message.content }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Page title and subtitle -->
+        <h1 id="firstHeading" class="firstHeading mw-first-heading">
+            <span class="mw-page-title-main">{% block page_title %}{{ article.title if article else 'Main Page' }}{% endblock %}</span>
+        </h1>
+
+        <div id="bodyContent" class="mw-body-content">
+            <!-- Subtitle -->
+            <div id="contentSub" class="mw-contentSub">
+                {% block content_subtitle %}
+                    {% if article and article.category %}
+                        From Kryptopedia, the free encyclopedia
+                    {% endif %}
+                {% endblock %}
+            </div>
+
+            <!-- Article content -->
+            <div id="mw-content-text" class="mw-body-content mw-content-ltr" lang="en" dir="ltr">
+                {% block content %}
+                    <p>Welcome to Kryptopedia!</p>
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Left sidebar -->
+    <div id="mw-panel" class="noprint">
+        <div id="p-logo" role="banner">
+            <a href="/" class="mw-wiki-logo" title="Visit the main page"></a>
+        </div>
+
+        <!-- Navigation -->
+        <nav id="p-navigation" class="mw-portlet mw-portlet-navigation" role="navigation">
+            <h3>Navigation</h3>
+            <div class="mw-portlet-body">
+                <ul>
+                    <li id="n-mainpage-description">
+                        <a href="/" title="Visit the main page [z]" accesskey="z">Main page</a>
+                    </li>
+                    <li id="n-contents">
+                        <a href="/special/allpages" title="Guides to browsing Kryptopedia">Contents</a>
+                    </li>
+                    <li id="n-currentevents">
+                        <a href="/special/recentchanges" title="Find background information on current events">Current events</a>
+                    </li>
+                    <li id="n-randompage">
+                        <a href="/special/random" title="Load a random article [x]" accesskey="x">Random article</a>
+                    </li>
+                    <li id="n-about">
+                        <a href="/about" title="Find out about Kryptopedia">About Kryptopedia</a>
+                    </li>
+                    <li id="n-contact">
+                        <a href="/contact" title="How to contact Kryptopedia">Contact us</a>
+                    </li>
+                    <li id="n-donate">
+                        <a href="/donate" title="Support us">Donate</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- K̡̓ONTRIB Token Section -->
+        <nav id="p-kontrib" class="mw-portlet mw-portlet-kontrib" role="navigation">
+            <h3>K̡̓ONTRIB Token</h3>
+            <div class="mw-portlet-body">
+                <ul>
+                    {% if current_user %}
+                        <li id="n-token-balance">
+                            <a href="/kontrib/balance" title="View your token balance">
+                                Token Balance: {{ "%.2f"|format(current_user.kontrib_balance|default(0)) }}
+                            </a>
+                        </li>
+                        <li id="n-earning-history">
+                            <a href="/kontrib/history" title="View your earning history">Earning History</a>
+                        </li>
+                        <li id="n-rewards-program">
+                            <a href="/kontrib/rewards" title="Learn about rewards">Rewards Program</a>
+                        </li>
+                        <li id="n-staking">
+                            <a href="/kontrib/staking" title="Stake your tokens">Staking</a>
+                        </li>
+                        <li id="n-governance">
+                            <a href="/kontrib/governance" title="Participate in governance">Governance</a>
+                        </li>
+                    {% else %}
+                        <li id="n-token-info">
+                            <a href="/kontrib/about" title="Learn about K̡̓ONTRIB tokens">About K̡̓ONTRIB</a>
+                        </li>
+                        <li id="n-earn-tokens">
+                            <a href="/auth/register" title="Sign up to earn tokens">Start Earning</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Interaction -->
+        <nav id="p-interaction" class="mw-portlet mw-portlet-interaction" role="navigation">
+            <h3>Interaction</h3>
+            <div class="mw-portlet-body">
+                <ul>
+                    <li id="n-help">
+                        <a href="/help" title="Guidance on how to use and edit Kryptopedia">Help</a>
+                    </li>
+                    <li id="n-aboutsite">
+                        <a href="/about" title="Find out about Kryptopedia">About Kryptopedia</a>
+                    </li>
+                    <li id="n-portal">
+                        <a href="/community" title="About the project, what you can do, where to find things">Community portal</a>
+                    </li>
+                    <li id="n-recentchanges">
+                        <a href="/special/recentchanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a>
+                    </li>
+                    <li id="n-upload">
+                        <a href="/upload" title="Upload files [u]" accesskey="u">Upload file</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Tools -->
+        <nav id="p-tb" class="mw-portlet mw-portlet-tb" role="navigation">
+            <h3>Tools</h3>
+            <div class="mw-portlet-body">
+                <ul>
+                    <li id="t-whatlinkshere">
+                        <a href="/special/whatlinkshere/{{ article.slug if article else 'Main_Page' }}" title="A list of all wiki pages that link here">What links here</a>
+                    </li>
+                    <li id="t-related">
+                        <a href="/special/related/{{ article.slug if article else 'Main_Page' }}" title="A list of related pages">Related changes</a>
+                    </li>
+                    <li id="t-specialpages">
+                        <a href="/special/specialpages" title="A list of all special pages">Special pages</a>
+                    </li>
+                    <li id="t-print">
+                        <a href="{{ request.url }}?printable=yes" rel="alternate" title="Printable version of this page">Printable version</a>
+                    </li>
+                    <li id="t-permalink">
+                        <a href="/wiki/{{ article.slug if article }}?oldid={{ article.revision_id if article }}" title="Permanent link to this revision of the page">Permanent link</a>
+                    </li>
+                    <li id="t-info">
+                        <a href="/special/pageinfo/{{ article.slug if article else 'Main_Page' }}" title="More information about this page">Page information</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Article tabs -->
+    <div id="left-navigation">
+        <div id="p-namespaces" role="navigation" class="mw-portlet mw-portlet-namespaces" title="Browse contents of this page">
+            <h3>Namespaces</h3>
+            <div class="mw-portlet-body">
+                <ul>
+                    <li id="ca-nstab-main" class="selected new">
+                        <a href="/wiki/{{ article.slug if article else 'Main_Page' }}" title="View the content page">Article</a>
+                    </li>
+                    <li id="ca-talk">
+                        <a href="/talk/{{ article.slug if article else 'Main_Page' }}" title="Discussion about the content page" rel="discussion">Talk</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div id="p-variants" role="navigation" class="mw-portlet mw-portlet-variants emptyPortlet" title="Change the variant of this page">
+            <h3>Variants</h3>
+            <div class="mw-portlet-body">
+                <ul></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="right-navigation">
+        <div id="p-views" role="navigation" class="mw-portlet mw-portlet-views" title="More actions for this page">
+            <h3>Views</h3>
+            <div class="mw-portlet-body">
+                <ul>
+                    <li id="ca-view" class="collapsible selected">
+                        <a href="/wiki/{{ article.slug if article else 'Main_Page' }}">Read</a>
+                    </li>
+                    {% if current_user %}
+                        <li id="ca-edit" class="collapsible">
+                            <a href="/edit/{{ article.slug if article else 'Main_Page' }}" title="Edit this page [e]" accesskey="e">Edit</a>
+                        </li>
+                    {% else %}
+                        <li id="ca-edit" class="collapsible">
+                            <a href="/auth/login?redirect=/edit/{{ article.slug if article else 'Main_Page' }}" title="Log in to edit this page">Edit</a>
+                        </li>
+                    {% endif %}
+                    <li id="ca-history" class="collapsible">
+                        <a href="/history/{{ article.slug if article else 'Main_Page' }}" title="Past revisions of this page [h]" accesskey="h">View history</a>
+                    </li>
+                    {% if article and current_user %}
+                        <li id="ca-kontrib-earnings" class="collapsible kontrib-earnings-tab">
+                            <a href="/kontrib/article/{{ article.slug }}" title="View K̡̓ONTRIB earnings for this article">
+                                Earnings (+{{ article.kontrib_earned|default(0) }} K̡̓ontrib)
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div id="p-cactions" role="navigation" class="mw-portlet mw-portlet-cactions emptyPortlet" title="More actions for this page">
+            <h3>More</h3>
+            <div class="mw-portlet-body">
+                <ul>
+                    {% if current_user and (current_user.role == 'admin' or current_user.role == 'editor') %}
+                        <li id="ca-move">
+                            <a href="/move/{{ article.slug if article else 'Main_Page' }}" title="Move this page">Move</a>
+                        </li>
+                        <li id="ca-protect">
+                            <a href="/protect/{{ article.slug if article else 'Main_Page' }}" title="Protect this page">Protect</a>
+                        </li>
+                        {% if current_user.role == 'admin' %}
+                            <li id="ca-delete">
+                                <a href="/delete/{{ article.slug if article else 'Main_Page' }}" title="Delete this page">Delete</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer" role="contentinfo" class="mw-footer">
+        <ul id="footer-info">
+            <li id="footer-info-lastmod">This page was last edited on {{ article.updated_at.strftime('%d %B %Y at %H:%M') if article and article.updated_at else 'unknown date' }}.</li>
+            <li id="footer-info-copyright">
+                Content is available under 
+                <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>
+                unless otherwise noted.
+            </li>
+        </ul>
+        <ul id="footer-places">
+            <li id="footer-places-privacy">
+                <a href="/privacy" title="Kryptopedia:Privacy policy">Privacy policy</a>
+            </li>
+            <li id="footer-places-about">
+                <a href="/about" title="Kryptopedia:About">About Kryptopedia</a>
+            </li>
+            <li id="footer-places-disclaimer">
+                <a href="/disclaimer" title="Kryptopedia:General disclaimer">Disclaimers</a>
+            </li>
+            <li id="footer-places-contact">
+                <a href="/contact" title="Kryptopedia:Contact us">Contact Kryptopedia</a>
+            </li>
+            <li id="footer-places-terms">
+                <a href="/terms" title="Kryptopedia:Terms of Use">Terms of Use</a>
+            </li>
+            <li id="footer-places-kontrib">
+                <a href="/kontrib/about" title="K̡̓ONTRIB Token Information">K̡̓ONTRIB Token Info</a>
+            </li>
+            <li id="footer-places-developers">
+                <a href="/developers" title="Kryptopedia:Developers">Developers</a>
+            </li>
+            <li id="footer-places-stats">
+                <a href="/special/statistics" title="Kryptopedia:Statistics">Statistics</a>
+            </li>
+        </ul>
+        <ul id="footer-icons" class="noprint">
+            <li id="footer-copyrightico">
+                <a href="https://creativecommons.org/licenses/by-sa/3.0/">
+                    <img src="/static/images/cc-by-sa.png" alt="Creative Commons Attribution-ShareAlike License" width="80" height="15">
+                </a>
+            </li>
+            <li id="footer-poweredbyico">
+                <a href="https://kryptopedia.com/">
+                    <img src="/static/images/powered-by-kryptopedia.png" alt="Powered by Kryptopedia" width="80" height="15">
+                </a>
+            </li>
+        </ul>
+    </footer>
+
+    <!-- K̡̓ONTRIB Token Integration JavaScript -->
+    <script src="/static/script.js"></script>
+    <script src="/static/kontrib-integration.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,22 @@
+[
+	{
+		"resourceModule": "skins.minerva.styles",
+		"maxSize": "10.8KB"
+	},
+	{
+		"resourceModule": "skins.minerva.content.styles.images",
+		"maxSize": "0.3KB"
+	},
+	{
+		"resourceModule": "mediawiki.hlist",
+		"maxSize": "0.3KB"
+	},
+	{
+		"resourceModule": "skins.minerva.icons",
+		"maxSize": "0.6KB"
+	},
+	{
+		"resourceModule": "skins.minerva.scripts",
+		"maxSize": "14.5KB"
+	}
+]

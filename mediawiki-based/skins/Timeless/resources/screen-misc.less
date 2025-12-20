@@ -1,0 +1,16 @@
+@import 'variables.less';
+
+// Prevent logo text overlapping icons on small displays
+@media screen and ( max-width: 550px ) {
+	#p-logo-text {
+		position: static;
+
+		a {
+			padding-top: 0;
+		}
+
+		a.long {
+			padding-bottom: 0.2em;
+		}
+	}
+}

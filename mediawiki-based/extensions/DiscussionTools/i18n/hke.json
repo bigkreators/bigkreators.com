@@ -1,0 +1,38 @@
+{
+	"@metadata": {
+		"authors": [
+			"Muisha wiki hke"
+		]
+	},
+	"discussiontools-autotopicsubpopup-body": "{{GENDER:|}} Ukaangirira mwatsi mwakashangi hakaba mundu yatumao mwa \"Discussion\". Wangatondeka asa \"notifications\" sawe mwa meni ya koushashire.",
+	"discussiontools-autotopicsubpopup-dismiss": "OK, nameumpfa",
+	"discussiontools-autotopicsubpopup-preferences": "Hingya meni koushashashire",
+	"discussiontools-autotopicsubpopup-title": "Uhara {{GENDER:|uiandikisitse}}!",
+	"discussiontools-defaultsummary-reply": "Xubitsa",
+	"discussiontoolsdebug-pagetitle": "Itsina ra kashashali",
+	"discussiontools-newtopic-missing-title": "Unishashire, leta itsina ra {{GENDER:|}} kishambalo kyawe.",
+	"discussiontools-newtopic-placeholder-title": "Mushambalo",
+	"discussiontools-replylink": "{{GENDER:|xubitsa}}",
+	"discussiontools-replywidget-advanced": "Ixondwere",
+	"discussiontools-replywidget-cancel": "Fuluka",
+	"discussiontools-replywidget-mode-source": "Xoko",
+	"discussiontools-replywidget-mode-visual": "Mu biteo",
+	"discussiontools-replywidget-newtopic": "{{GENDER:|Ongerera}} mushambalo",
+	"discussiontools-replywidget-placeholder-newtopic": "Nganuliro",
+	"discussiontools-replywidget-placeholder-reply": "{{GENDER:|Xubitsa}} {{BIDI:$1}}",
+	"discussiontools-replywidget-preview": "Nshondotsi",
+	"discussiontools-replywidget-reply": "{{GENDER:|Xubitsa}}",
+	"discussiontools-replywidget-summary": "Kaleke",
+	"discussiontools-replywidget-watchthis": "Ongerera akashashali kano kwa [[Special:Watchlist|mutondeko wa byonikakulikira]]",
+	"discussiontools-topicheader-authorcount": "$1 {{PLURAL:$1|mundu yakubisa|bandu babakubisa}}",
+	"discussiontools-topicheader-commentcount": "$1 {{PLURAL:$1|muanikire|mianikire}}",
+	"discussiontools-topicheader-latestcomment": "Mianikire yoyameletwa hake: $1",
+	"discussiontools-topicsubscription-button-subscribe": "iandikise",
+	"discussiontools-topicsubscription-button-subscribe-label": "Iandikise",
+	"discussiontools-topicsubscription-button-unsubscribe": "tsimya aretsina rawe",
+	"discussiontools-topicsubscription-button-unsubscribe-label": "Tsimya aretsina rawe",
+	"discussiontools-topicsubscription-notify-subscribed-body": "{{GENDER:|iwe}}Ukaangirira mwatsi kuluenda mianikire mihya kwa kishambalo kino.",
+	"discussiontools-topicsubscription-notify-subscribed-title": "Uhara {{GENDER:|uiandikisitse}}!",
+	"discussiontools-topicsubscription-notify-unsubscribed-body": "{{GENDER:|Utikibaangirire}} myatsi kuluenda mianikire mihyakwa kishambalo kino.",
+	"discussiontools-topicsubscription-notify-unsubscribed-title": "{{GENDER:|Wameitengya}}."
+}

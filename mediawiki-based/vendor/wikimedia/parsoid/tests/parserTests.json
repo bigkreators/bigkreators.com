@@ -1,0 +1,132 @@
+{
+	"parsoid": {
+		"project": "mediawiki/services/parsoid",
+		"targets": {
+			"annotationParserTests.txt": {},
+			"attributeExpanderTests.txt": {},
+			"domNormalizerTests.txt": {},
+			"encapParserTests.txt": {},
+			"i18nParserTests.txt": {},
+			"pFragmentHandlerTests.txt": {},
+			"regressions.txt": {},
+			"sectionWrappingParserTests.txt": {},
+			"selserWrappingParserTests.txt": {},
+			"separatorTests.txt": {},
+			"tableFixupsParserTests.txt": {},
+			"treeBuilder.txt": {},
+			"v3ParserFunctions.txt": {}
+		}
+	},
+	"core": {
+		"project": "mediawiki/core",
+		"latestCommit": "940c55eb33f4ebd26d333746e4225d3cad371951",
+		"targets": {
+			"comments.txt": {
+				"path": "tests/parser/comments.txt",
+				"expectedSHA1": "38288b6baa071579b9cbb410175c07ad92d6c56a"
+			},
+			"badCharacters.txt": {
+				"path": "tests/parser/badCharacters.txt",
+				"expectedSHA1": "9594789e80e678a291ce91700d33c8225fa759b9"
+			},
+			"definitionLists.txt": {
+				"path": "tests/parser/definitionLists.txt",
+				"expectedSHA1": "4158678ae2ef52ea1a078e74a2eb2c0c89012d41"
+			},
+			"extLinks.txt": {
+				"path": "tests/parser/extLinks.txt",
+				"expectedSHA1": "931716fd87bc85fc7f7f38269f7053976bdf135f"
+			},
+			"headings.txt": {
+				"path": "tests/parser/headings.txt",
+				"expectedSHA1": "c7f920d4d7c5b086767b5c81df5f33579bfaf3cf"
+			},
+			"indentPre.txt": {
+				"path": "tests/parser/indentPre.txt",
+				"expectedSHA1": "319114cd7afc669fc180c8bc77ecbaec04fc6878"
+			},
+			"indicators.txt": {
+				"path": "tests/parser/indicators.txt",
+				"expectedSHA1": "ce4a7b5106c4ad884d806bb046e2dac23650e909"
+			},
+			"interlanguageLinks.txt": {
+				"path": "tests/parser/interlanguageLinks.txt",
+				"expectedSHA1": "56b3b85ad5dc3f2f20ae9b8c9bb6b729c003a144"
+			},
+			"interwikiLinks.txt": {
+				"path": "tests/parser/interwikiLinks.txt",
+				"expectedSHA1": "4369fcf68ad20c12e8bd8d43449e5df5f8bbf7ef"
+			},
+			"langParserTests.txt": {
+				"path": "tests/parser/langParserTests.txt",
+				"expectedSHA1": "4fe17dc6ecf53c7990891d07839d0bf53844abcd"
+			},
+			"legacyHeadings.txt": {
+				"path": "tests/parser/legacyHeadings.txt",
+				"expectedSHA1": "ac56efd0f60086ef05ce566120e77c8346fe30a5"
+			},
+			"legacyMedia.txt": {
+				"path": "tests/parser/legacyMedia.txt",
+				"expectedSHA1": "117fa9748bb4bef4a267e9f2cc523af8a35ef999"
+			},
+			"magicLinks.txt": {
+				"path": "tests/parser/magicLinks.txt",
+				"expectedSHA1": "e6fad7c8d28ab33cc151b4fd0f5eece05729348c"
+			},
+			"magicWords.txt": {
+				"path": "tests/parser/magicWords.txt",
+				"expectedSHA1": "68679f4e5606c966e1b85c0d708fcfac5e4783b7"
+			},
+			"media.txt": {
+				"path": "tests/parser/media.txt",
+				"expectedSHA1": "527322242f90486fa7600a50e562576d38976d12"
+			},
+			"parserTests.txt": {
+				"path": "tests/parser/parserTests.txt",
+				"expectedSHA1": "41481183bec81392b80e51b5baafb09086b40e13"
+			},
+			"preTags.txt": {
+				"path": "tests/parser/preTags.txt",
+				"expectedSHA1": "70988a24e37005f2f5be8010d5e9aa90009d5b10"
+			},
+			"pst.txt": {
+				"path": "tests/parser/pst.txt",
+				"expectedSHA1": "1f112b32b59b8792c4d23c968452a3b3eaad2d68"
+			},
+			"pWrapping.txt": {
+				"path": "tests/parser/pWrapping.txt",
+				"expectedSHA1": "bad78b2ff3d23283b417f91483909b58db695098"
+			},
+			"preprocessor.txt": {
+				"path": "tests/parser/preprocessor.txt",
+				"expectedSHA1": "cd277668331ac87d58c3f3ec3a48749b0fecdce6"
+			},
+			"quotes.txt": {
+				"path": "tests/parser/quotes.txt",
+				"expectedSHA1": "1d6681c2fc8570dd136072b40fdaf45d6d96b950"
+			},
+			"redirects.txt": {
+				"path": "tests/parser/redirects.txt",
+				"expectedSHA1": "0bdeb1119ff7043550752e9cca49ade2e5698b72"
+			},
+			"tables.txt": {
+				"path": "tests/parser/tables.txt",
+				"expectedSHA1": "e1eafd4c1f3cd9501eb8a896d998ab7cddda70e3"
+			},
+			"wtEscaping.txt": {
+				"path": "tests/parser/wtEscaping.txt",
+				"expectedSHA1": "aa1e274249c2379d31930b0c6a9e93fb44c7ebeb"
+			}
+		}
+	},
+	"TMH": {
+		"project": "mediawiki/extensions/TimedMediaHandler",
+		"latestCommit": "45745d6d3facc08d92980c69d690a673eb1125fc",
+		"targets": {
+			"timedMediaHandlerParserTests.txt": {
+				"path": "tests/parser/parserTests.txt",
+				"expectedSHA1": "fbf20107153b3c6c7e8d6f8b4125855f52443bd6"
+			}
+		}
+	}
+}

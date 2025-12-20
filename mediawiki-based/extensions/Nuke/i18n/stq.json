@@ -1,0 +1,14 @@
+{
+	"@metadata": {
+		"authors": [
+			"Pyt"
+		]
+	},
+	"nuke": "Massen-Läskenge",
+	"nuke-desc": "Moaket Administratore ju [[Special:Nuke|Massenlöösenge]] fon Sieden muugelk",
+	"nuke-defaultreason": "Massen-Läskenge fon Sieden, do der fon $1 anlaid wuden",
+	"nuke-tools": "Disse Reewe moaket ju Massen-Läskenge muugelk fon Sieden, do der fon een IP-Adresse of aan Benutser anlaid wuuden. Reek ju IP-Adresse/die Benutsernoome ien, uum ne Lieste tou kriegen:",
+	"nuke-submit-list": "Hoalje Lieste",
+	"nuke-submit-delete": "Läskje",
+	"right-nuke": "Massenlöösenge fon Sieden"
+}

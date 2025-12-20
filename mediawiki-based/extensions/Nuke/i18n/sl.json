@@ -1,0 +1,31 @@
+{
+	"@metadata": {
+		"authors": [
+			"Dbc334",
+			"Eleassar",
+			"Upwinxp"
+		]
+	},
+	"nuke": "Množični izbris",
+	"action-nuke": "množično brisanje",
+	"nuke-desc": "Administratorjem omogoča [[Special:Nuke|množičen izbris]] strani",
+	"nuke-defaultreason": "Množično brisanje strani, ki jih je {{GENDER:$1|dodal|dodala|dodal_a}} [[Special:Contributions/$1|$1]]",
+	"nuke-multiplepeople": "Množični izbris nedavno dodanih strani",
+	"nuke-tools": "To orodje omogoča množični izbris strani, ki jih je nedavno ustvaril določen uporabnik ali IP.\nVnesite uporabniško ime ali IP, da pridobite seznam strani za izbris, ali pustite prazno za vse uporabnike.",
+	"nuke-submit-list": "Navedi strani",
+	"nuke-submit-delete": "Izbriši izbrano",
+	"right-nuke": "Množično brisanje strani",
+	"nuke-userorip": "Uporabniško ime, IP-naslov ali prazno:",
+	"nuke-maxpages": "Število strani za pridobitev (največ 500):",
+	"nuke-editby": "{{GENDER:$1|Ustvaril|Ustvarila|Ustvaril_a}} [[Special:Contributions/$1|$1]].",
+	"nuke-deleted": "Stran '''$1''' je izbrisana.",
+	"nuke-deletion-queued": "Stran '''$1''' je v čakalni vrsti za izbris.",
+	"nuke-not-deleted": "Strani [[:$1]] '''ni bilo mogoče''' izbrisati.",
+	"nuke-delete-more": "[[Special:Nuke|Izbriši več strani]]",
+	"nuke-pattern": "Vzorec SQL LIKE (npr. %) za ime strani:",
+	"nuke-nopages-global": "Z vašim iskanjem se ne ujema noben naslov strani.",
+	"nuke-viewchanges": "zgodovina",
+	"nuke-namespace": "Omeji na imenski prostor:",
+	"nuke-linkoncontribs": "množični izbris",
+	"nuke-linkoncontribs-text": "Množični izbris strani, katerih {{GENDER:$1|edini avtor je ta uporabnik|edina avtorica je ta uporabnica|edini_a avtor_ica je ts uporabnik_ca}}"
+}

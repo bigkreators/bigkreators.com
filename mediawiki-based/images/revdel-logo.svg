@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Main red circle -->
+  <circle cx="100" cy="85" r="70" fill="#E84B30"/>
+  
+  <!-- Bird silhouette -->
+  <g fill="#1a1a1a">
+    <!-- Bird body -->
+    <ellipse cx="95" cy="90" rx="35" ry="28" transform="rotate(-15 95 90)"/>
+    <!-- Bird head -->
+    <circle cx="65" cy="70" r="22"/>
+    <!-- Long beak -->
+    <polygon points="45,68 5,58 45,72"/>
+    <!-- Tail feathers -->
+    <polygon points="130,75 175,45 170,55 178,62 135,85"/>
+  </g>
+  
+  <!-- White wing accent lines -->
+  <g stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" fill="none">
+    <line x1="85" y1="82" x2="115" y2="72"/>
+    <line x1="88" y1="90" x2="120" y2="82"/>
+    <line x1="90" y1="98" x2="118" y2="92"/>
+  </g>
+  
+  <!-- RevDel badge - singly crossed-out eye -->
+  <g transform="translate(145, 140)">
+    <!-- Circle background -->
+    <circle cx="0" cy="-5" r="24" fill="#5a5a5a" stroke="#1a1a1a" stroke-width="2"/>
+    
+    <!-- Eye shape -->
+    <path d="M-15,-5 Q0,-18 15,-5 Q0,8 -15,-5 Z" fill="#ffffff" stroke="#1a1a1a" stroke-width="1"/>
+    <!-- Pupil -->
+    <circle cx="0" cy="-5" r="5" fill="#1a1a1a"/>
+    
+    <!-- Single strikethrough line -->
+    <line x1="-15" y1="10" x2="15" y2="-16" stroke="#E84B30" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

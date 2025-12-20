@@ -1,0 +1,33 @@
+{
+	"@metadata": {
+		"authors": [
+			"Brad Jorsch",
+			"Brooke Vibber",
+			"Umherirrender"
+		]
+	},
+	"apihelp-query+transcodestatus-summary": "{{doc-apihelp-summary|query+transcodestatus}}",
+	"apihelp-query+transcodestatus-example-1": "{{doc-apihelp-example|query+transcodestatus}}",
+	"apihelp-query+videoinfo-summary": "{{doc-apihelp-summary|query+videoinfo}}",
+	"apihelp-query+videoinfo-example-1": "{{doc-apihelp-example|query+videoinfo}}",
+	"apihelp-query+videoinfo-paramvalue-prop-derivatives": "{{doc-apihelp-paramvalue|query+videoinfo|prop|derivatives}}",
+	"apihelp-query+videoinfo-paramvalue-prop-timedtext": "{{doc-apihelp-paramvalue|query+videoinfo|prop|timedtext}}",
+	"apihelp-timedtext-summary": "{{doc-apihelp-summary|timedtext}}",
+	"apihelp-timedtext-param-title": "{{doc-apihelp-param|timedtext|title}}",
+	"apihelp-timedtext-param-pageid": "{{doc-apihelp-param|timedtext|pageid}}",
+	"apihelp-timedtext-param-trackformat": "{{doc-apihelp-param|timedtext|trackformat}}",
+	"apihelp-timedtext-param-lang": "{{doc-apihelp-param|timedtext|lang}}",
+	"apihelp-timedtext-example-1": "{{doc-apihelp-example|timedtext}}",
+	"apihelp-transcodereset-summary": "{{doc-apihelp-summary|transcodereset}}",
+	"apihelp-transcodereset-param-title": "{{doc-apihelp-param|transcodereset|title}}",
+	"apihelp-transcodereset-param-transcodekey": "{{doc-apihelp-param|transcodereset|transcodekey}}",
+	"apihelp-transcodereset-example-1": "{{doc-apihelp-example|transcodereset}}",
+	"apihelp-transcodereset-example-2": "{{doc-apihelp-example|transcodereset}}",
+	"apierror-timedmedia-disabledtranscode": "{{doc-apierror}}",
+	"apierror-timedmedia-invalidtranscodetitle": "{{doc-apierror}}\n\nParameters:\n* $1 - Title supplied",
+	"apierror-timedmedia-badtranscodekey": "{{doc-apierror}}\n\nParameters:\n* $1 - Key supplied",
+	"apierror-timedmedia-notenoughtimereset": "{{doc-apierror}}\n\nParameters:\n* $1 - Time until reset (e.g. \"{{int:timedmedia-minutes|1}}{{int:comma-separator}}{{int:timedmedia-seconds|42}}\"), uses the following messages:\n** {{msg-mw|Timedmedia-days}}\n** {{msg-mw|Timedmedia-hours}}\n** {{msg-mw|Timedmedia-minutes}}\n** {{msg-mw|Timedmedia-seconds}}\n** {{msg-mw|Comma-separator}}",
+	"apierror-timedmedia-lang-notfound": "{{doc-apierror}}",
+	"apierror-timedmedia-no-timedtext-support": "{{doc-apierror}}",
+	"apierror-timedmedia-notlocal": "{{doc-apierror}}"
+}

@@ -1,0 +1,4 @@
+/**
+ * @namespace
+ */
+mw.echo.dm = {};

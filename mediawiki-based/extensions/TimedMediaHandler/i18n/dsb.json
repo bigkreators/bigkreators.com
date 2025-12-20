@@ -1,0 +1,25 @@
+{
+	"@metadata": {
+		"authors": [
+			"Michawiki"
+		]
+	},
+	"timedmediahandler-desc": "Wóźeński program za awdio, wideo a timedText, z formatoweju pódpěru za WebM, Ogg Theora, Vorbis, srt",
+	"timedmedia-ogg-short-audio": "Ogg $1 awdiodataja, $2",
+	"timedmedia-ogg-short-video": "Ogg $1 wideodataja, $2",
+	"timedmedia-ogg-short-general": "Ogg $1 medijowa dataja, $2",
+	"timedmedia-ogg-long-audio": "Ogg $1 awdiodataja, dłujkosć $2, $3",
+	"timedmedia-ogg-long-video": "Ogg $1 wideodataja, dłujkosć $2, $4×$5 pikselow, $3",
+	"timedmedia-ogg-long-multiplexed": "ogg multipleksowa awdio-/wideodataja, $1, dłujkosć $2, $4×$5 pikselow, $3 dogromady",
+	"timedmedia-ogg-long-general": "Ogg medijowa dataja, dłujkosć $2, $3",
+	"timedmedia-ogg-long-error": "Njepłaśiwa Ogg-dataja: $1",
+	"timedmedia-webm-short-video": "WebM $1 wideodataja, $2",
+	"timedmedia-webm-long-video": "WebM dataja awdio/wideo, $1, dłujkosć $2, $4 x $5, $3 dogromady",
+	"timedmedia-more": "Wěcej...",
+	"timedmedia-dismiss": "Zacyniś",
+	"timedmedia-download": "Dataju ześěgnuś",
+	"timedmedia-desc-link": "Wó toś tej dataji",
+	"timedmedia-derivative-desc-160p.ogv": "Niska šyrokosć pasma Ogg-widea (200p)",
+	"timedmedia-timedtext-title-edit-subtitles": "Pódtitele w rěcy $1 za klip: $2",
+	"timedmedia-timedtext-title-create-subtitles": "Žedne pódtitele $1 su se za klip namakali: $2"
+}

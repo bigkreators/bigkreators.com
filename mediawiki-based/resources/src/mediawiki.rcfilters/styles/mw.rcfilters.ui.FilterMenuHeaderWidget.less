@@ -1,0 +1,56 @@
+@import 'mediawiki.skin.variables.less';
+@import 'mw.rcfilters.variables.less';
+@import 'mediawiki.mixins.less';
+
+.mw-rcfilters-ui-filterMenuHeaderWidget {
+	&-title {
+		font-size: 1.2em;
+		color: @color-subtle;
+	}
+
+	&-header {
+		background-color: @background-color-neutral-subtle;
+		border-bottom: @border-subtle;
+
+		.mw-rcfilters-ui-row {
+			justify-content: space-between;
+			padding: (8 / @font-size-system-ui / @font-size-vector);
+			// Using the same padding that the filter item
+			// uses, so the highlight button is aligned with the highlight
+			// buttons for the filters
+			gap: (12 / @font-size-system-ui / @font-size-vector);
+			padding-right: (12 / @font-size-system-ui / @font-size-vector);
+			padding-left: 0;
+		}
+
+		// One of these buttons is always hidden, so hide the gap visually
+		&-invert + &-invert {
+			margin-left: (-12 / @font-size-system-ui / @font-size-vector);
+		}
+
+		&-back {
+			.mw-rcfilters-ui-filterMenuHeaderWidget-backButton:first-child {
+				// Overwrite `.oo-ui-buttonElement-frameless.oo-ui-iconElement:first-child`
+				margin-left: 0;
+			}
+		}
+
+		&-title {
+			display: flex;
+			flex-grow: 1;
+			align-items: center;
+		}
+
+		&-highlight,
+		&-invert {
+			.oo-ui-buttonElement > .oo-ui-buttonElement-button {
+				// T356467
+				white-space: normal;
+			}
+		}
+	}
+
+	.mw-rcfilters-ui-cell {
+		align-self: center;
+	}
+}

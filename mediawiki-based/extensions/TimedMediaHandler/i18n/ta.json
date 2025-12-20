@@ -1,0 +1,28 @@
+{
+	"@metadata": {
+		"authors": [
+			"Balajijagadesh",
+			"Fahimrazick",
+			"Jayarathina",
+			"Karthi.dr",
+			"MinecraftAustralia",
+			"Shanmugamp7",
+			"Siddhan",
+			"மதனாஹரன்"
+		]
+	},
+	"timedmedia-ogg-long-general": "Ogg  ஊடக கோப்பு,  நீளம்   $2 , $3",
+	"timedmedia-ogg-long-error": "செல்லாத ogg கோப்பு: $1",
+	"timedmedia-more": "மேலும்...",
+	"timedmedia-dismiss": "மூடு",
+	"timedmedia-download": "கோப்பை பதிவிறக்கம் செய்",
+	"timedmedia-desc-link": "இந்தக் கோப்பைப் பற்றி",
+	"timedmedia-status": "நிலை",
+	"timedmedia-status-unknown": "தெரியாத நிலை",
+	"timedmedia-actions": "செயல்கள்",
+	"timedmedia-not-ready": "தயாராக இல்லை",
+	"timedmedia-percent-done": "ஏறத்தாழ $1% முடிந்தது",
+	"timedmedia-subtitle-new": "புதிய மொழிபெயர்ப்பை ஆக்கு அல்லது உள்ளதைத் தொகு",
+	"timedmedia-subtitle-new-go": "செல்",
+	"timedmedia-file": "கோப்பு"
+}

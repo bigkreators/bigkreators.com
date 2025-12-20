@@ -1,0 +1,14 @@
+{
+    "3. Leading whitespace in indent-pre suppressing contexts should not be escaped": {
+        "html2wt": "<blockquote>\n\n a\n <span>b</span>\n c\n</blockquote>"
+    },
+    "HRs: 1. Single line": {
+        "html2wt": "--------\n----=foo=\n----*foo"
+    },
+    "Lists: 4. No escapes needed": {
+        "html2wt": "* foo*bar\n\n* ''foo''*bar\n\n* [[Foo]]: bar\n\n* [[Foo]]*bar\n"
+    },
+    "Tables: 4d. No escaping needed": {
+        "html2wt": "{|\n|[[Foo]]-bar\n|| +1\n|| -2\n|}"
+    }
+}

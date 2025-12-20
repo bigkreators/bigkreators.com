@@ -1,0 +1,207 @@
+/**
+ * This WAS the original styles only module for inline playback
+ * But is now used for all player styling
+ * FIXME
+ */
+.client-js {
+	.video-js {
+		// We want a larger fontsize (than the default of 10px) to have bigger controls..
+		// Except when we are an audioplayer being loaded inline,
+		// where we need the height to be exactly 30px (3em 10px)
+		// (first is media dialog and embedplayer)
+		&.vjs-fill,
+		&:not( .vjs-audio ) {
+			// TODO: Re-evaluate we can use Codex design token like `@font-size-small`,
+			// which would mean to bump the size up by equal to 14px in Vector 2022 and MinervaNeue.
+			// `0.8125rem` equals `13px` at `16px` base font size.
+			font-size: 0.8125rem;
+		}
+
+		.vjs-custom-control-spacer {
+			flex: 1 1 auto;
+			min-width: 0;
+			/* nbsp takes up space on Safari and this would not size to 0 */
+			font-size: 0;
+		}
+
+		/* Allow controlbar to overflow to 2 rows of controls */
+		.vjs-control-bar {
+			flex-wrap: wrap;
+			height: auto;
+			min-height: 3em;
+		}
+
+		.vjs-control {
+			height: 3em;
+		}
+	}
+	/* We force the size of player to avoid reflows after loading the JS */
+	audio.video-js {
+		min-height: 3em;
+		// TODO: Re-evaluate we can use Codex design token like `@font-size-x-small`,
+		// which would mean to bump the size up by equal to 12px in Vector 2022 and MinervaNeue.
+		// `0.625rem` equals `10px` at `16px` base font size.
+		font-size: 0.625rem;
+	}
+
+	/* We hide the native controls, before we load the custom controls  */
+	audio.video-js::-webkit-media-controls-panel,
+	video.video-js::-webkit-media-controls-panel {
+		display: none;
+	}
+}
+
+.video-js.vjs-high-controls:not( .vjs-audio ) {
+	/* Position the progress control above the other controls */
+	.vjs-control-bar {
+		min-height: 5em;
+	}
+
+	.vjs-progress-control {
+		flex: 1 0 100%;
+		height: 2em;
+		order: -1;
+		padding-top: 0.5em;
+	}
+	/* push other controls to be right aligned */
+	.vjs-custom-control-spacer {
+		display: flex;
+	}
+	/* Show time position and duration */
+	.vjs-time-control {
+		display: block;
+		min-width: unset;
+		padding-left: 0.3em;
+		padding-right: 0.3em;
+	}
+
+	&.vjs-user-active.vjs-playing .vjs-text-track-display {
+		bottom: 5em;
+	}
+}
+
+/* TODO this button needs to be reworked */
+.video-js:not( .vjs-fullscreen ).vjs-layout-small,
+.video-js:not( .vjs-fullscreen ).vjs-layout-x-small,
+.video-js:not( .vjs-fullscreen ).vjs-layout-tiny {
+	div[ aria-label='Quality' ] {
+		display: none;
+	}
+}
+
+/* stylelint-disable no-descending-specificity */
+.video-js:not( .vjs-fullscreen ):not( .vjs-audio ).vjs-layout-large .vjs-subs-caps-button,
+.video-js:not( .vjs-fullscreen ):not( .vjs-audio ).vjs-layout-medium .vjs-subs-caps-button,
+.video-js:not( .vjs-fullscreen ).vjs-layout-medium .vjs-remaining-time,
+.video-js:not( .vjs-fullscreen ).vjs-layout-small .vjs-subs-caps-button,
+.video-js:not( .vjs-fullscreen ).vjs-audio.vjs-layout-small .vjs-progress-control,
+.video-js:not( .vjs-fullscreen ).vjs-layout-x-small .vjs-picture-in-picture-control,
+.video-js:not( .vjs-fullscreen ).vjs-layout-x-small .vjs-subs-caps-button,
+.video-js:not( .vjs-fullscreen ).vjs-layout-x-small .vjs-progress-control,
+.video-js:not( .vjs-fullscreen ).vjs-audio.vjs-layout-x-small .mw-info-button,
+.video-js:not( .vjs-fullscreen ).vjs-layout-tiny .vjs-picture-in-picture-control,
+.video-js:not( .vjs-fullscreen ).vjs-layout-tiny .vjs-subs-caps-button,
+.video-js:not( .vjs-fullscreen ).vjs-layout-tiny .vjs-volume-panel,
+.video-js:not( .vjs-fullscreen ).vjs-layout-tiny .mw-info-button {
+	display: none;
+}
+/* stylelint-enable */
+
+.video-js:not( .vjs-fullscreen ).vjs-layout-small .vjs-custom-control-spacer,
+.video-js:not( .vjs-fullscreen ).vjs-layout-x-small .vjs-custom-control-spacer {
+	flex: auto;
+	display: block;
+}
+
+/* Audio player skin */
+.video-js.vjs-audio {
+	&:not( .vjs-fill ) {
+		display: flex;
+		height: 3em; /* videojs sets this to 32px */
+	}
+
+	/* stylelint-disable-next-line no-descending-specificity */
+	.vjs-control-bar {
+		display: flex;
+	}
+
+	.vjs-loading-spinner {
+		display: none;
+	}
+
+	&.vjs-waiting .vjs-progress-holder:not( .vjs-seeking ) {
+		height: 0.5em;
+		background-image: repeating-linear-gradient( -45deg, #73859f, #73859f 11px, #eee 10px, #eee 20px );
+		border-radius: 3px;
+		background-size: 28px 28px;
+		transition: height 0.5s;
+		animation: vjs-slider-indeterminate 0.5s linear infinite;
+
+		.vjs-play-progress {
+			display: none;
+		}
+	}
+
+	/* stylelint-disable-next-line no-descending-specificity */
+	&.vjs-user-inactive.vjs-playing .vjs-text-track-display { //.vjs-text-track-cue {
+		// Compensate for the fact that cue offset calculation is off,
+		// because it doesn't account for us force displaying the controlbar when user is inactive
+		bottom: 3em;
+	}
+}
+
+.vjs-menu-button-popup .vjs-menu {
+	// Fit menu to its contents
+	width: initial;
+	min-width: 10em;
+	max-width: 20em;
+	/* @noflip */
+	left: unset;
+	/* @noflip */
+	right: 0;
+
+	.vjs-menu-content {
+		overflow-x: hidden;
+		width: initial;
+		/* @noflip */
+		right: 0;
+	}
+
+	li {
+		padding: 0.2em 0.5em;
+		text-align: left;
+		white-space: nowrap;
+		justify-content: left;
+	}
+}
+
+.vjs-user-inactive {
+	cursor: none;
+}
+
+html[ dir='rtl' ] {
+	.vjs-menu,
+	.vjs-menu-item-text,
+	.vjs-control-text,
+	.vjs-modal-dialog {
+		/* @noflip */
+		direction: rtl;
+	}
+
+	// T307363
+	// https://github.com/videojs/video.js/issues/7743
+	.video-js .vjs-volume-panel .vjs-volume-control.vjs-volume-vertical {
+		/* @noflip */
+		left: -3.5em;
+	}
+}
+
+@keyframes vjs-slider-indeterminate {
+	0% {
+		background-position: 0 0;
+	}
+
+	100% {
+		background-position: 28px 0;
+	}
+}

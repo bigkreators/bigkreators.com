@@ -1,0 +1,22 @@
+{
+	"@metadata": {
+		"authors": [
+			"Arbhatt",
+			"Ashok modhvadia",
+			"Dsvyas",
+			"KartikMistry",
+			"Kevin Kovadia",
+			"NehalDaveND"
+		]
+	},
+	"timedmedia-more": "વધુ...",
+	"timedmedia-dismiss": "બંધ કરો",
+	"timedmedia-download": "ફાઈલ ડાઉનલોડ કરો",
+	"timedmedia-status": "સ્થિતિ",
+	"timedmedia-status-unknown": "અજ્ઞાત સ્થિતિ",
+	"timedmedia-actions": "ક્રિયાઓ",
+	"timedmedia-not-ready": "તૈયાર નથી",
+	"timedmedia-subtitle-new-go": "જાઓ",
+	"timedmedia-file": "ફાઇલ",
+	"action-transcode-reset": "રીસેટ ટ્રાંસ્કોડ કરો"
+}

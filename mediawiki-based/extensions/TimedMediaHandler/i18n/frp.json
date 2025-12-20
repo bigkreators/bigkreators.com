@@ -1,0 +1,30 @@
+{
+	"@metadata": {
+		"authors": [
+			"ChrisPtDe"
+		]
+	},
+	"timedmediahandler-desc": "Assistance por los fichiérs mèdia que dèfilont (ôdiô, vidèô et tèxto sincronisâ) avouéc transcodâjo en WebM, Ogg Theora, Vorbis et srt.",
+	"timedmedia-ogg-short-audio": "Fichiér son Ogg $1, $2",
+	"timedmedia-ogg-short-video": "Fichiér vidèô Ogg $1, $2",
+	"timedmedia-ogg-short-general": "Fichiér mèdia Ogg $1, $2",
+	"timedmedia-ogg-long-audio": "Fichiér son Ogg $1, temps $2, $3",
+	"timedmedia-ogg-long-video": "Fichiér vidèô Ogg $1, temps $2, $4×$5 pixèls, $3",
+	"timedmedia-ogg-long-multiplexed": "Fichiér multiplèxo ôdiô / vidèô Ogg, $1, temps $2, $4×$5 pixèls, $3",
+	"timedmedia-ogg-long-general": "Fichiér mèdia Ogg, temps $2, $3",
+	"timedmedia-ogg-long-error": "Fichiér Ogg envalido : $1",
+	"timedmedia-webm-short-video": "Fichiér vidèô WebM $1, $2",
+	"timedmedia-webm-long-video": "Fichiér ôdiô / vidèô WebM, $1, longior $2, $4 x $5 pixèls, en tot $3",
+	"timedmedia-more": "De ples...",
+	"timedmedia-dismiss": "Cllôre",
+	"timedmedia-download": "Tèlèchargiér lo fichiér",
+	"timedmedia-desc-link": "Sur ceti fichiér",
+	"timedmedia-status": "statut",
+	"timedmedia-status-unknown": "statut encognu",
+	"timedmedia-actions": "Accions",
+	"timedmedia-not-ready": "Pas prèst",
+	"timedmedia-percent-done": "A pou prés $1 % complètâ",
+	"timedmedia-file": "Fichiér",
+	"timedmedia-timedtext-title-edit-subtitles": "$1 sot-titros por clipe : $2",
+	"timedmedia-timedtext-title-create-subtitles": "Nion sot-titro $1 at étâ trovâ por lo clipe : $2"
+}

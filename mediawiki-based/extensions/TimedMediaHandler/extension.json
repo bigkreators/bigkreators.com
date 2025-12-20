@@ -1,0 +1,605 @@
+{
+	"name": "TimedMediaHandler",
+	"namemsg": "timedmediahandler-extensionname",
+	"version": "0.6.0",
+	"author": [
+		"Michael Dale",
+		"Jan Gerber",
+		"Derk-Jan Hartman",
+		"Brooke Vibber",
+		"Tim Starling",
+		"..."
+	],
+	"url": "https://www.mediawiki.org/wiki/Extension:TimedMediaHandler",
+	"descriptionmsg": "timedmediahandler-desc",
+	"license-name": "GPL-2.0-or-later",
+	"type": "media",
+	"requires": {
+		"MediaWiki": ">= 1.44"
+	},
+	"APIModules": {
+		"timedtext": {
+			"class": "MediaWiki\\TimedMediaHandler\\ApiTimedText",
+			"services": [
+				"LanguageNameUtils",
+				"RepoGroup",
+				"MainWANObjectCache",
+				"WikiPageFactory"
+			]
+		},
+		"transcodereset": {
+			"class": "MediaWiki\\TimedMediaHandler\\ApiTranscodeReset",
+			"services": [
+				"DBLoadBalancerFactory",
+				"RepoGroup"
+			]
+		}
+	},
+	"APIPropModules": {
+		"videoinfo": "MediaWiki\\TimedMediaHandler\\ApiQueryVideoInfo",
+		"transcodestatus": {
+			"class": "MediaWiki\\TimedMediaHandler\\ApiTranscodeStatus",
+			"services": [
+				"RepoGroup"
+			]
+		}
+	},
+	"AvailableRights": [
+		"transcode-reset",
+		"transcode-status"
+	],
+	"ExtensionFunctions": [
+		"MediaWiki\\TimedMediaHandler\\Hooks::register"
+	],
+	"GroupPermissions": {
+		"sysop": {
+			"transcode-reset": true,
+			"transcode-status": true
+		},
+		"autoconfirmed": {
+			"transcode-reset": true,
+			"transcode-status": true
+		}
+	},
+	"GrantPermissions": {
+		"uploadeditmovefile": {
+			"transcode-reset": true
+		}
+	},
+	"LogActionsHandlers": {
+		"timedmediahandler/resettranscode": "LogFormatter"
+	},
+	"LogTypes": [
+		"timedmediahandler"
+	],
+	"SpecialPages": {
+		"OrphanedTimedText": {
+			"class": "MediaWiki\\TimedMediaHandler\\SpecialOrphanedTimedText",
+			"services": [
+				"DBLoadBalancerFactory",
+				"LanguageConverterFactory",
+				"RepoGroup"
+			]
+		},
+		"TranscodeStatistics": {
+			"class": "MediaWiki\\TimedMediaHandler\\SpecialTranscodeStatistics",
+			"services": [
+				"DBLoadBalancerFactory",
+				"MainWANObjectCache"
+			]
+		}
+	},
+	"MessagesDirs": {
+		"TimedMediaHandler": [
+			"i18n",
+			"i18n/api"
+		]
+	},
+	"ExtensionMessagesFiles": {
+		"TimedMediaHandlerMagic": "i18n/TimedMediaHandler.i18n.magic.php",
+		"TimedMediaHandlerAliases": "i18n/TimedMediaHandler.i18n.alias.php"
+	},
+	"AutoloadClasses": {
+		"File_Ogg": "includes/Handlers/OggHandler/File_Ogg/File/Ogg.php",
+		"File_Ogg_Bitstream": "includes/Handlers/OggHandler/File_Ogg/File/Ogg/Bitstream.php",
+		"File_Ogg_Flac": "includes/Handlers/OggHandler/File_Ogg/File/Ogg/Flac.php",
+		"File_Ogg_Media": "includes/Handlers/OggHandler/File_Ogg/File/Ogg/Media.php",
+		"File_Ogg_Opus": "includes/Handlers/OggHandler/File_Ogg/File/Ogg/Opus.php",
+		"File_Ogg_Speex": "includes/Handlers/OggHandler/File_Ogg/File/Ogg/Speex.php",
+		"File_Ogg_Theora": "includes/Handlers/OggHandler/File_Ogg/File/Ogg/Theora.php",
+		"File_Ogg_Vorbis": "includes/Handlers/OggHandler/File_Ogg/File/Ogg/Vorbis.php",
+		"TimedMediaMaintenance": "maintenance/TimedMediaMaintenance.php"
+	},
+	"AutoloadNamespaces": {
+		"MediaWiki\\TimedMediaHandler\\": "includes/"
+	},
+	"TestAutoloadClasses": {
+		"ApiVideoUploadTestCase": "tests/phpunit/ApiVideoUploadTestCase.php",
+		"MockOggHandler": "tests/phpunit/mocks/MockOggHandler.php",
+		"TimedMediaHandlerTestCase": "tests/phpunit/TimedMediaHandlerTestCase.php"
+	},
+	"Hooks": {
+		"ArticleContentOnDiff": "main",
+		"ArticleFromTitle": "main",
+		"ArticlePurge": "main",
+		"BeforePageDisplay": "main",
+		"CanonicalNamespaces": "main",
+		"FileDeleteComplete": "main",
+		"FileUndeleteComplete": "main",
+		"FileUpload": "main",
+		"ImageOpenShowImageInlineBefore": "main",
+		"ImagePageAfterImageLinks": "main",
+		"ImagePageFileHistoryLine": "main",
+		"LoadExtensionSchemaUpdates": "installer",
+		"MediaWikiPerformAction": "iframe",
+		"PageMoveComplete": [
+			"main",
+			"timedtext"
+		],
+		"ParserTestGlobals": "main",
+		"SkinTemplateNavigation::Universal": "main",
+		"TitleMove": "main",
+		"wgQueryPages": "main",
+		"PageSaveComplete": "timedtext",
+		"PageDeleteComplete": "timedtext"
+	},
+	"HookHandlers": {
+		"main": {
+			"class": "MediaWiki\\TimedMediaHandler\\Hooks",
+			"services": [
+				"MainConfig",
+				"LinkRenderer",
+				"RepoGroup",
+				"SpecialPageFactory"
+			]
+		},
+		"timedtext": {
+			"class": "MediaWiki\\TimedMediaHandler\\TimedTextHooks",
+			"services": [
+				"JobQueueGroup"
+			]
+		},
+		"iframe": {
+			"class": "MediaWiki\\TimedMediaHandler\\TimedMediaIframeOutput",
+			"services": [
+				"MainConfig",
+				"RepoGroup"
+			]
+		},
+		"installer": {
+			"class": "MediaWiki\\TimedMediaHandler\\InstallerHooks"
+		}
+	},
+	"config": {
+		"WaitTimeForTranscodeReset": {
+			"description": "How long you have to wait between transcode resets for non-error transcodes",
+			"public": true,
+			"value": 3600
+		},
+		"MinimumVideoPlayerSize": {
+			"description": "The minimum size for an embed video player (smaller than this size, it uses a pop-up player)",
+			"public": true,
+			"value": 200
+		},
+		"MediaVideoTypes": {
+			"description": "Set the supported ogg codecs for video",
+			"public": true,
+			"value": [
+				"Theora",
+				"VP8"
+			]
+		},
+		"MediaAudioTypes": {
+			"description": "Set the supported ogg codecs for audio",
+			"public": true,
+			"value": [
+				"Vorbis",
+				"Speex",
+				"FLAC",
+				"Opus"
+			]
+		},
+		"EnableIframeEmbed": {
+			"description": "Support iframe for remote embedding",
+			"public": true,
+			"value": true
+		},
+		"EnableTranscode": {
+			"description": "If transcoding is enabled for this wiki (if disabled, no transcode jobs are added and no transcode status is displayed). Note if remote embedding an asset we will still check if the remote repo has transcoding enabled and associated flavors for that media embed.",
+			"public": true,
+			"value": true
+		},
+		"TranscodeBackgroundTimeLimit": {
+			"description": "The total amount of time a transcoding shell command can take",
+			"public": true,
+			"value": 28800
+		},
+		"TranscodeBackgroundMemoryLimit": {
+			"description": "Maximum amount of virtual memory available to transcoding processes in KiB. 2GiB. ffmpeg mmap resources, so virtual memory needs to be high enough",
+			"public": true,
+			"value": 2097152
+		},
+		"TranscodeBackgroundSizeLimit": {
+			"description": "Maximum file size transcoding processes can create, in KiB. 3GiB.",
+			"public": true,
+			"value": 3145728
+		},
+		"TranscodeSoftSizeLimit": {
+			"description": "Maximum estimated file size for transcodes without admin approval, in KiB. Larger files must be manually re-enqueued by an admin via web or CLI interfaces. 2GiB.",
+			"public": true,
+			"value": 2097152
+		},
+		"FFmpegThreads": {
+			"description": "Number of threads to use in ffmpeg for transcoding",
+			"public": true,
+			"value": 1
+		},
+		"FFmpegVP9RowMT": {
+			"description": "Whether to enable macroblock row multithreading for VP9 (-row-mt 1)\n\nThis allows increasing $wgFFmpegThreads to a larger number for VP9  transcodes; without it encoding will be limited to 4 threads for HD, or less for low resolution.\n\nThis requires libvpx 1.7 and a matching build of ffmpeg 3.3 or higher or it will fail with an unrecognized option error.",
+			"public": true,
+			"value": false
+		},
+		"FFmpegLocation": {
+			"description": "Location of the ffmpeg binary (used to encode WebM and for thumbnails)",
+			"public": false,
+			"value": "/usr/bin/ffmpeg"
+		},
+		"UseFFmpeg2": {
+			"description": "Compatible with ffmpeg 2",
+			"value": false
+		},
+		"TimedTextNS": {
+			"description": "The NS for TimedText (registered on MediaWiki.org) https://www.mediawiki.org/wiki/Extension_namespace_registration Note that Wikimedia Commons pre-dates TimedMediaHandler, and sets this to 102.",
+			"public": true,
+			"value": 710
+		},
+		"TimedTextForeignNamespaces": {
+			"description": "Set TimedText namespace for ForeignDBViaLBRepo on a per wikiID basis like `$wgTimedTextForeignNamespaces = [ 'commonswiki' => 102 ];`.",
+			"public": true,
+			"value": []
+		},
+		"EnabledTranscodeSet": {
+			"description": "Default enabled video transcodes\n\n- If set to empty array, no derivatives will be created\n- These transcodes are *in addition to* the source file.\n- Only derivatives with smaller width than the source asset size will be created\n- Regardless of source size at least one WebM and Ogg source will be created from the $wgEnabledTranscodeSet\n- Derivative jobs are added to the MediaWiki JobQueue the first time the asset is displayed\n- Derivative should be listed min to max\n\nAllowed values:\n* Values for WebM VP8/Vorbis, our primary free/open video format supported by Chrome/Firefox/Opera natively, and plays back in Safari/IE/Edge via ogv.js:\n** 160p.webm – Very low-bitrate web streamable WebM video\n** 240p.webm – Low-bitrate web streamable WebM video\n** 360p.webm – Medium-bitrate web streamable WebM video\n** 480p.webm – Moderate-bitrate web streamable WebM video\n** 720p.webm – A high quality WebM stream\n** 1080p.webm – A full-HD high quality WebM stream\n** 1440p.webm – A 2K full high quality WebM stream\n** 2160p.webm – A 4K full high quality WebM stream\n* Values for WebM VP9, our future free/open video format:\n** 160p.vp9.webm – Very low\n** 240p.vp9.webm – Low\n** 360p.vp9.webm – A least common denominator h.264 stream; first gen iPhone, iPods, early Android etc.\n** 480p.vp9.webm – A mid range h.264 stream; mid range phones and low end tablets\n** 720p.vp9.webm – An high quality HD stream; higher end phones, tablets, smart tvs\n** 1080p.vp9.webm – A full-HD high quality stream; higher end phones, tablets, smart tvs\n** 1440p.vp9.webm – A 2K high quality stream; higher end phones, tablets, smart tvs\n** 2160p.vp9.webm – A 4K high quality stream; higher end phones, tablets, smart tvs\n* Values for MP4 H.264/AAC, the primary format for the Apple/Microsoft world. Check patent licensing issues in your country before use! Similar to WebM in quality/bitrate:\n** 160p.mp4 – Very low\n** 240p.mp4 – Low\n** 320p.mp4 – Pretty low\n** 360p.mp4 – A least common denominator h.264 stream; first gen iPhone, iPods, early Android etc.\n** 480p.mp4 – A mid range h.264 stream; mid range phones and low end tablets\n** 720p.mp4 – An high quality HD stream; higher end phones, tablets, smart tvs\n** 1080p.mp4 – A full-HD high quality stream; higher end phones, tablets, smart tvs\n** 1440p.mp4 – A 2K high quality stream; higher end phones, tablets, smart tvs\n** 2160p.mp4 – A 4K high quality stream; higher end phones, tablets, smart tvs\n* Note: Ogg video profiles have been removed as of January 2018. Use WebM or HLS output for royalty-free codec output.",
+			"public": true,
+			"value": {
+				"160p.webm": false,
+				"240p.webm": false,
+				"360p.webm": false,
+				"480p.webm": false,
+				"720p.webm": false,
+				"1080p.webm": false,
+				"1440p.webm": false,
+				"2160p.webm": false,
+				"120p.vp9.webm": false,
+				"180p.vp9.webm": false,
+				"240p.vp9.webm": true,
+				"360p.vp9.webm": true,
+				"480p.vp9.webm": true,
+				"720p.vp9.webm": true,
+				"1080p.vp9.webm": true,
+				"1440p.vp9.webm": true,
+				"2160p.vp9.webm": true,
+				"160p.mp4": false,
+				"240p.mp4": false,
+				"320p.mp4": false,
+				"360p.mp4": false,
+				"480p.mp4": false,
+				"720p.mp4": false,
+				"1080p.mp4": false,
+				"1440p.mp4": false,
+				"2160p.mp4": false,
+				"144p.mjpeg.mov": false,
+				"360p.mpeg4.mov": false,
+				"stereo.audio.mp3": false,
+				"stereo.audio.opus.mp4": false,
+				"144p.video.mjpeg.mov": false,
+				"240p.video.vp9.mp4": false,
+				"360p.video.vp9.mp4": false,
+				"480p.video.vp9.mp4": false,
+				"720p.video.vp9.mp4": false,
+				"1080p.video.vp9.mp4": false,
+				"1440p.video.vp9.mp4": false,
+				"2160p.video.vp9.mp4": false
+			}
+		},
+		"EnabledAudioTranscodeSet": {
+			"description": "Default enabled audio transcodes\n\n If set to empty array, no derivatives will be created\n- These transcodes are *in addition to* the source file.\n- Derivative should be listed min to max\n\nllowed values:\n* ogg – Ogg Vorbis\n* opus – Note that Opus support must be available in ffmpeg\n* mp3 – Note that fmpeg needs libmp3lame support\n* m4a – Note that ffmpeg needs libvo_aacenc support",
+			"public": true,
+			"value": {
+				"ogg": true,
+				"opus": false,
+				"mp3": true,
+				"m4a": false
+			}
+		},
+		"TmhEnableMp4Uploads": {
+			"description": "If MP4 source assets can be ingested",
+			"public": true,
+			"value": false
+		},
+		"TmhFileExtensions": {
+			"description": "List of extensions handled by Timed Media Handler since its referenced in a few places. You should not modify this variable.",
+			"public": true,
+			"value": [
+				"ogg",
+				"ogv",
+				"oga",
+				"flac",
+				"opus",
+				"wav",
+				"webm",
+				"mp4",
+				"mp3",
+				"midi",
+				"mid",
+				"mpg",
+				"mpeg"
+			]
+		},
+		"TmhPriorityResolutionThreshold": {
+			"description": "Transcode resolutions higher than this will run in the low-priority queue. This'll give us SD transcodes as fast as possible, then do HD later.",
+			"public": true,
+			"value": 480
+		},
+		"TmhPriorityLengthThreshold": {
+			"description": "Transcodes of files longer than this (seconds) will run in the low-priority queue; defaults to 15 minutes. This'll mean long videos won't flood the high-priority queue.",
+			"public": true,
+			"value": 900
+		},
+		"ParserTestMediaHandlers": {
+			"description": "MockOggHandler::class",
+			"public": true,
+			"value": {
+				"application/ogg": "MockOggHandler"
+			}
+		},
+		"TmhFluidsynthLocation": {
+			"description": "Path of a Fluidsynth executable for MIDI conversion to audio formats",
+			"public": true,
+			"value": null
+		},
+		"TmhSoundfontLocation": {
+			"description": "Path of a soundfont to use for MIDI-converted audio",
+			"public": true,
+			"value": null
+		}
+	},
+	"ForeignResourcesDir": "resources/lib",
+	"ResourceFileModulePaths": {
+		"localBasePath": "resources",
+		"remoteExtPath": "TimedMediaHandler/resources"
+	},
+	"ResourceModules": {
+		"ext.tmh.video-js": {
+			"localBasePath": "resources/lib/video.js",
+			"remoteExtPath": "TimedMediaHandler/resources/lib/video.js",
+			"scripts": "alt/video.core.min.js",
+			"styles": "video-js.css",
+			"noflip": true,
+			"languageScripts": {
+				"ar": "lang/ar.js",
+				"az": "lang/az.js",
+				"ba": "lang/ba.js",
+				"bn": "lang/bn.js",
+				"bg": "lang/bg.js",
+				"ca": "lang/ca.js",
+				"cs": "lang/cs.js",
+				"cy": "lang/cy.js",
+				"da": "lang/da.js",
+				"de": "lang/de.js",
+				"el": "lang/el.js",
+				"en": "lang/en.js",
+				"en-GB": "lang/en-GB.js",
+				"es": "lang/es.js",
+				"et": "lang/et.js",
+				"eu": "lang/eu.js",
+				"fa": "lang/fa.js",
+				"fi": "lang/fi.js",
+				"fr": "lang/fr.js",
+				"gd": "lang/gd.js",
+				"gl": "lang/gl.js",
+				"he": "lang/he.js",
+				"hi": "lang/hi.js",
+				"hr": "lang/hr.js",
+				"hu": "lang/hu.js",
+				"it": "lang/it.js",
+				"ja": "lang/ja.js",
+				"ko": "lang/ko.js",
+				"lv": "lang/lv.js",
+				"mr": "lang/mr.js",
+				"nb": "lang/nb.js",
+				"nl": "lang/nl.js",
+				"nn": "lang/nn.js",
+				"np": "lang/np.js",
+				"oc": "lang/oc.js",
+				"pl": "lang/pl.js",
+				"pt": "lang/pt-PT.js",
+				"pt-br": "lang/pt-BR.js",
+				"ro": "lang/ro.js",
+				"ru": "lang/ru.js",
+				"sk": "lang/sk.js",
+				"sl": "lang/sl.js",
+				"sr": "lang/sr.js",
+				"sv": "lang/sv.js",
+				"te": "lang/te.js",
+				"th": "lang/th.js",
+				"tr": "lang/tr.js",
+				"uk": "lang/uk.js",
+				"vi": "lang/vi.js",
+				"zh-cn": "lang/zh-CN.js",
+				"zh-hans": "lang/zh-Hans.js",
+				"zh-hant": "lang/zh-Hant.js",
+				"zh-tw": "lang/zh-TW.js"
+			}
+		},
+		"ext.tmh.videojs-ogvjs": {
+			"scripts": "videojs-ogvjs/videojs-ogvjs.js",
+			"dependencies": [
+				"ext.tmh.video-js",
+				"ext.tmh.OgvJs"
+			]
+		},
+		"ext.tmh.player": {
+			"packageFiles": [
+				"ext.tmh.player.js",
+				"ext.tmh.player.element.js",
+				{
+					"name": "config.json",
+					"config": [
+						"ParserEnableLegacyMediaDOM"
+					]
+				}
+			],
+			"dependencies": [
+				"ext.tmh.player.styles",
+				"ext.tmh.OgvJsSupport",
+				"mediawiki.Title"
+			],
+			"messages": [
+				"timedmedia-play-audio",
+				"timedmedia-play-video",
+				"timedmedia-subtitles-available",
+				"timedmedia-duration",
+				"timedmedia-duration-hms",
+				"timedmedia-duration-ms",
+				"timedmedia-duration-s"
+			]
+		},
+		"ext.tmh.player.dialog": {
+			"packageFiles": [
+				"ext.tmh.player.dialog.loader.js",
+				"ext.tmh.player.dialog.js"
+			],
+			"styles": [
+				"ext.tmh.player.dialog.less"
+			],
+			"dependencies": [
+				"oojs-ui-core",
+				"oojs-ui-windows",
+				"ext.tmh.player.inline"
+			],
+			"messages": [
+				"timedmedia-dialog-close"
+			]
+		},
+		"ext.tmh.player.inline": {
+			"packageFiles": [
+				"ext.tmh.player.inline.js",
+				"mw-info-button/mw-info-button-plugin.js",
+				"mw-info-button/mw-info-button.js",
+				"videojs-resolution-switcher/videojs-resolution-switcher.js",
+				"videojs-resolution-switcher/ResolutionMenuItem.js",
+				"videojs-resolution-switcher/ResolutionMenuButton.js",
+				"mw-subtitles-button/mw-subtitles-create.js",
+				"mw-subtitles-button/mw-subtitles-button.js"
+			],
+			"styles": [
+				"ext.tmh.player.inline.styles.less",
+				"mw-info-button/mw-info-button.css",
+				"videojs-resolution-switcher/videojs-resolution-switcher.css",
+				"ext.tmh.player.inline.styles.less"
+			],
+			"dependencies": [
+				"ext.tmh.video-js",
+				"ext.tmh.OgvJsSupport",
+				"mediawiki.Title"
+			],
+			"messages": [
+				"timedmedia-resolution-120",
+				"timedmedia-resolution-144",
+				"timedmedia-resolution-160",
+				"timedmedia-resolution-180",
+				"timedmedia-resolution-240",
+				"timedmedia-resolution-360",
+				"timedmedia-resolution-480",
+				"timedmedia-resolution-720",
+				"timedmedia-resolution-1080",
+				"timedmedia-resolution-1440",
+				"timedmedia-resolution-2160",
+				"timedmedia-source-original",
+				"videojs-more-information",
+				"videojs-quality",
+				"videojs-subtitles-create",
+				"videojs-captions-create"
+			]
+		},
+		"ext.tmh.player.styles": {
+			"styles": "ext.tmh.player.styles.less"
+		},
+		"ext.tmh.transcodetable": {
+			"scripts": "transcode-table/transcode-table.js",
+			"styles": "transcode-table/transcode-table.less",
+			"dependencies": [
+				"mediawiki.api",
+				"oojs-ui"
+			],
+			"messages": [
+				"timedmedia-reset-button-cancel",
+				"timedmedia-reset-button-dismiss",
+				"timedmedia-reset-button-reset",
+				"timedmedia-reset-error",
+				"timedmedia-reset",
+				"timedmedia-reset-areyousure",
+				"timedmedia-reset-explanation",
+				"timedmedia-error-details",
+				"timedmedia-error-dismiss"
+			]
+		},
+		"ext.tmh.timedtextpage.styles": {
+			"styles": "ext.tmh.timedtextpage.styles.less"
+		},
+		"ext.tmh.OgvJsSupport": {
+			"packageFiles": [
+				"ext.tmh.OgvJsSupport.js",
+				"lib/ogv.js/ogv-support.js"
+			]
+		},
+		"ext.tmh.OgvJs": {
+			"scripts": [
+				"lib/ogv.js/ogv.js"
+			],
+			"dependencies": "ext.tmh.OgvJsSupport"
+		},
+		"embedPlayerIframeStyle": {
+			"styles": "embedPlayerIframe.css"
+		}
+	},
+	"MediaHandlers": {
+		"application/ogg": "MediaWiki\\TimedMediaHandler\\Handlers\\OggHandler\\OggHandler",
+		"audio/flac": "MediaWiki\\TimedMediaHandler\\Handlers\\FLACHandler\\FLACHandler",
+		"audio/midi": "MediaWiki\\TimedMediaHandler\\Handlers\\MIDIHandler\\MIDIHandler",
+		"audio/mp4": "MediaWiki\\TimedMediaHandler\\Handlers\\MP4Handler\\MP4Handler",
+		"audio/mpeg": "MediaWiki\\TimedMediaHandler\\Handlers\\MP3Handler\\MP3Handler",
+		"audio/wav": "MediaWiki\\TimedMediaHandler\\Handlers\\WAVHandler\\WAVHandler",
+		"audio/webm": "MediaWiki\\TimedMediaHandler\\Handlers\\WebMHandler\\WebMHandler",
+		"audio/x-flac": "MediaWiki\\TimedMediaHandler\\Handlers\\FLACHandler\\FLACHandler",
+		"video/mp4": "MediaWiki\\TimedMediaHandler\\Handlers\\MP4Handler\\MP4Handler",
+		"video/mpeg": "MediaWiki\\TimedMediaHandler\\Handlers\\MPEGHandler\\MPEGHandler",
+		"video/webm": "MediaWiki\\TimedMediaHandler\\Handlers\\WebMHandler\\WebMHandler"
+	},
+	"ServiceWiringFiles": [
+		"includes/ServiceWiring.php"
+	],
+	"JobClasses": {
+		"webVideoTranscode": {
+			"class": "MediaWiki\\TimedMediaHandler\\WebVideoTranscode\\WebVideoTranscodeJob",
+			"services": [
+				"ShellCommandFactory",
+				"MainConfig",
+				"DBLoadBalancerFactory",
+				"RepoGroup"
+			]
+		},
+		"webVideoTranscodePrioritized": {
+			"class": "MediaWiki\\TimedMediaHandler\\WebVideoTranscode\\WebVideoTranscodeJob",
+			"services": [
+				"ShellCommandFactory",
+				"MainConfig",
+				"DBLoadBalancerFactory",
+				"RepoGroup"
+			]
+		}
+	},
+	"load_composer_autoloader": true,
+	"manifest_version": 2
+}

@@ -1,0 +1,43 @@
+{
+	"@metadata": {
+		"authors": [
+			"Afalau",
+			"Ceirios",
+			"Ham II",
+			"Lloffiwr",
+			"Robin Owain",
+			"Xxglennxx"
+		]
+	},
+	"timedmedia-ogg-short-audio": "Ffeil sain Ogg $1, $2",
+	"timedmedia-ogg-short-video": "Ffeil fideo Ogg $1, $2",
+	"timedmedia-ogg-short-general": "Ffeil gyfrwng Ogg $1, $2",
+	"timedmedia-ogg-long-audio": "Ffeil sain Ogg $1, yn para $2, $3, maint y ffeil: $6",
+	"timedmedia-ogg-long-video": "Ffeil fideo Ogg $1, yn para $2, $4 × $5 picsel, $3, maint y ffeil: $6",
+	"timedmedia-ogg-long-error": "Ffeil Ogg annilys: $1, maint y ffeil: $6",
+	"timedmedia-more": "Mwy…",
+	"timedmedia-dismiss": "Caeer",
+	"timedmedia-download": "Lawrlwytho ffeil",
+	"timedmedia-desc-link": "Ynglŷn â'r ffeil hon",
+	"timedmedia-status-header": "Statws trawsgodio",
+	"timedmedia-update-status": "Diweddaru'r statws trawsgodio",
+	"timedmedia-status": "Statws",
+	"timedmedia-status-unknown": "Statws anhysbys",
+	"timedmedia-actions": "Gweithredoedd",
+	"timedmedia-not-ready": "Ddim yn barod",
+	"timedmedia-started-transcode": "Dechreuodd y trawsgodio $1 yn ôl. $2",
+	"timedmedia-percent-done": "Tua $1% wedi ei wneud",
+	"timedmedia-in-job-queue": "Ychwanegwyd i'r ciw tasgiau $1 yn ôl",
+	"timedmedia-unknown-target-size": "Maint anhysbys i'r gwrthrych, $1 wedi ei amgodio",
+	"timedmedia-reset": "Ailosod y trawsgodio",
+	"timedmedia-source-original": "Ffynhonnell",
+	"timedmedia-derivative-desc-160p.ogv": "Fideo Ogg (160P) o led band isel",
+	"timedmedia-derivative-1440p.video.vp9.mp4": "Ffrydio 1440p (VP9)",
+	"timedmedia-subtitle-new-desc": "Dewiswch iaith a gwasgu'r botwm '''{{int:Timedmedia-subtitle-new-go}}'''",
+	"timedmedia-subtitle-new-go": "Gwneler",
+	"timedmedia-subtitle-remote-link": "Gallwch [$1 weld tudalen ddisgrifio'r] ffeil hon ar $2",
+	"timedmedia-file": "Ffeil",
+	"action-transcode-status": "gweld statws presennol y trawsgodio",
+	"timedmedia-timedtext-title-edit-subtitles": "$1 isdeitl ar gael ar gyfer clip: $2",
+	"timedmedia-timedtext-title-create-subtitles": "Dim $1 isdeitl ar gael ar gyfer: $2"
+}

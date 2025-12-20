@@ -1,0 +1,16 @@
+{
+	"@metadata": {
+		"authors": [
+			"Ezagren"
+		]
+	},
+	"cite_error": "Kasalahan pangutipan: $1",
+	"cite-reference-previews-gadget-conflict-info-navpopups": "Pian sudah manyalaakan pakakas [[$1|Navigation popups]], jadi Pian kada pacangan maniring titilikan nang disadiaakan ulih fitur ini. Tagantung wiki Pian, pakakas ini pinanya baisi ngaran nang sahikit babida. Amun Pian tarus maalami ungkara, tulung janaki pulang pakakas wan skrip pamakai Pian, tamasuk nang sipatnya global.",
+	"cite-reference-previews-gadget-conflict-info-reftooltips": "Pian sudah manyalaakan pakakas [[$1|Reference Tooltips]], jadi Pian kada pacangan maniring titilikan bahan acuan, tagal tatap pacangan maniring titilikan laman. Tagantung wiki Pian, pakakas ini pinanya baisi ngaran nang sahikit babida. Amun Pian tarus maalami ungkara, tulung janaki pulang pakakas wan skrip pamakai Pian, tamasuk nang sipatnya global.",
+	"cite-reference-previews-gadget-conflict-info-navpopups-reftooltips": "Pian sudah manyalaakan pakakas [[$1|Navigation popups]] wan [[$1|Reference Tooltips]], jadi Pian kada pacangan maniring titilikan nang disadiaakan ulih fitur ini. Tagantung wiki Pian, pakakas ini pinanya baisi ngaran nang sahikit babida. Amun Pian tarus maalami ungkara, tulung janaki pulang pakakas wan skrip pamakai Pian, tamasuk nang sipatnya global.",
+	"cite-reference-previews-preference-label": "Nyalaakan titilikan bahan acuan (dapatakan titilikan bahan acuan nang lakas wayah mambaca laman)",
+	"cite-wikieditor-tool-reference": "Rujukan",
+	"cite-wikieditor-help-page-references": "Rujukan",
+	"cite-wikieditor-help-content-reference-description": "Rujukan",
+	"cite-wikieditor-help-content-showreferences-description": "Manampaiakan rujukan"
+}

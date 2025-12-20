@@ -1,0 +1,24 @@
+{
+	"@metadata": {
+		"authors": [
+			"Aram",
+			"Asoxor",
+			"Calak",
+			"Muhammed taha",
+			"ئارام بکر"
+		]
+	},
+	"timedmedia-more": "زیاتر...",
+	"timedmedia-dismiss": "داخستن",
+	"timedmedia-download": "داگرتنی پەڕگە",
+	"timedmedia-desc-link": "دەربارەی ئەم پەڕگە",
+	"timedmedia-status": "ڕەوش",
+	"timedmedia-status-unknown": "ڕەوشی نەزاندراو",
+	"timedmedia-actions": "کردەوەکان",
+	"timedmedia-direct-link": "داگرتن",
+	"timedmedia-not-ready": "ئامادە نییە",
+	"timedmedia-subtitle-new-go": "بڕۆ",
+	"timedmedia-file": "پەڕگە",
+	"right-transcode-reset": "ڕێکخستنەوەی ڤیدیۆ سەرنەکوتووەکان یان ترانسکۆدکراوەکان ھەتا دیسان بچنەوە ناو ڕیزی کارەوە.",
+	"right-transcode-status": "دیتنی [[تایبەت:TimedMediaHandler|زانیاری لەمەڕ چالاکیی ترانسکۆدی ھەنووکەیی]]"
+}

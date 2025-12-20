@@ -1,0 +1,792 @@
+/* File: static/wiki-style.css */
+/* Wikipedia-style CSS for Kryptopedia with K̡̓ONTRIB integration */
+
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Lato, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #222;
+    background: #fff;
+}
+
+/* Wikipedia Vector skin layout */
+.mw-body {
+    margin-left: 176px;
+    padding: 1em;
+    border: 1px solid #a2a9b1;
+    border-right-width: 0;
+    margin-top: 160px;
+    position: relative;
+    background: #fff;
+}
+
+/* Header */
+#mw-head {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    left: 0;
+    background-color: #fff;
+    border-bottom: 1px solid #a2a9b1;
+    height: 69px;
+    z-index: 5;
+}
+
+.mw-head-container {
+    position: relative;
+    margin-left: 176px;
+    height: 69px;
+}
+
+/* Logo */
+#p-logo {
+    position: absolute;
+    top: -160px;
+    left: -176px;
+    width: 176px;
+    height: 160px;
+}
+
+.mw-wiki-logo {
+    display: block;
+    width: 176px;
+    height: 160px;
+    background: #fff;
+    text-align: center;
+    line-height: 160px;
+}
+
+.mw-wiki-logo img {
+    max-width: 135px;
+    max-height: 135px;
+    margin-top: 12px;
+}
+
+/* Search */
+#p-search {
+    float: left;
+    margin-left: 0.5em;
+    margin-top: 0.4em;
+}
+
+#p-search h3 {
+    display: none;
+}
+
+#simpleSearch {
+    position: relative;
+    background: #fff;
+    border: 1px solid #a2a9b1;
+    margin-top: 0.4em;
+    height: 31px;
+    margin-right: 1em;
+}
+
+#searchInput {
+    color: #222;
+    direction: ltr;
+    font-size: 13px;
+    background: transparent;
+    border: 0;
+    padding: 0.3em 0.5em;
+    width: 25em;
+    height: 1.9em;
+    outline: none;
+}
+
+.searchButton {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.9em;
+    height: 100%;
+    border: 0;
+    background: #fff;
+    cursor: pointer;
+    font-size: 13px;
+    color: #0645ad;
+}
+
+/* Personal tools */
+#p-personal {
+    position: absolute;
+    top: 0.33em;
+    right: 0.75em;
+    font-size: 12px;
+}
+
+#p-personal h3 {
+    display: none;
+}
+
+.mw-personal-tools {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.mw-personal-tools li {
+    float: left;
+    margin-left: 0.75em;
+    line-height: 1.125em;
+}
+
+.mw-personal-tools a {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+.mw-personal-tools a:hover {
+    text-decoration: underline;
+}
+
+/* K̡̓ONTRIB Balance styling */
+.kontrib-balance {
+    color: #d33;
+    font-weight: bold;
+    font-size: 11px;
+    background: #ffe6e6;
+    padding: 2px 6px;
+    border-radius: 3px;
+    border: 1px solid #fcc;
+}
+
+/* Sidebar */
+#mw-panel {
+    position: absolute;
+    top: 160px;
+    padding-top: 1em;
+    width: 176px;
+    left: 0;
+    background: #f6f6f6;
+    border-right: 1px solid #a2a9b1;
+    height: calc(100vh - 160px);
+    overflow-y: auto;
+}
+
+.mw-portlet {
+    margin-bottom: 1.5em;
+}
+
+.mw-portlet h3 {
+    color: #4a4a4a;
+    font-size: 0.75em;
+    font-weight: normal;
+    margin: 0.5em 0 0 0.75em;
+    padding: 0.25em 0;
+    border-bottom: 1px solid #a2a9b1;
+    cursor: default;
+}
+
+.mw-portlet-body ul {
+    list-style: none;
+    margin: 0;
+    padding: 0.3em 0 0.5em 0;
+}
+
+.mw-portlet-body li {
+    padding: 0;
+    margin: 0;
+    font-size: 0.75em;
+    line-height: 1.125em;
+}
+
+.mw-portlet-body a {
+    color: #0645ad;
+    text-decoration: none;
+    padding: 0.25em 0.75em;
+    display: block;
+}
+
+.mw-portlet-body a:hover {
+    background: #e6e6e6;
+    text-decoration: underline;
+}
+
+/* K̡̓ONTRIB portlet styling */
+.mw-portlet-kontrib h3 {
+    color: #d33;
+    font-weight: bold;
+}
+
+.mw-portlet-kontrib .kontrib-link {
+    color: #d33 !important;
+    font-weight: bold;
+}
+
+/* Navigation tabs */
+#left-navigation {
+    position: absolute;
+    left: 176px;
+    top: 127px;
+    z-index: 3;
+}
+
+#right-navigation {
+    position: absolute;
+    right: 0;
+    top: 127px;
+    z-index: 3;
+}
+
+.mw-portlet-namespaces ul,
+.mw-portlet-views ul,
+.mw-portlet-cactions ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(to bottom, #ffffff 0%, #f6f6f6 100%);
+    border: 1px solid #a2a9b1;
+    border-bottom: 0;
+    height: 2.5em;
+    white-space: nowrap;
+    font-size: 0.875em;
+}
+
+.mw-portlet-namespaces li,
+.mw-portlet-views li,
+.mw-portlet-cactions li {
+    float: left;
+    margin: 0;
+    padding: 0;
+    background-image: linear-gradient(to bottom, #ffffff 0%, #f6f6f6 100%);
+    border-right: 1px solid #a2a9b1;
+}
+
+.mw-portlet-namespaces a,
+.mw-portlet-views a,
+.mw-portlet-cactions a {
+    color: #0645ad;
+    text-decoration: none;
+    padding: 0.8em 0.8em 0.7em;
+    display: block;
+    height: 1.9em;
+    line-height: 1.125em;
+}
+
+.mw-portlet-namespaces .selected a,
+.mw-portlet-views .selected a {
+    background: #fff;
+    color: #222;
+    text-decoration: none;
+    border-bottom: 1px solid #fff;
+}
+
+/* K̡̓ONTRIB earnings tab */
+.kontrib-earnings-tab a {
+    color: #d33 !important;
+    font-weight: bold;
+    background: #ffe6e6 !important;
+}
+
+/* Content area */
+#content {
+    color: #222;
+    direction: ltr;
+    background: #fff;
+}
+
+.firstHeading {
+    color: #000;
+    font-family: Georgia, serif;
+    font-size: 1.8em;
+    line-height: 1.3;
+    margin-bottom: 0.25em;
+    padding: 0;
+    overflow: hidden;
+    font-weight: normal;
+    border-bottom: 1px solid #a2a9b1;
+    padding-bottom: 2px;
+}
+
+.mw-contentSub {
+    color: #72777d;
+    font-size: 84%;
+    line-height: 1.2em;
+    margin: 0 0 1.4em 1px;
+    width: auto;
+}
+
+#mw-content-text {
+    color: #222;
+    font-size: 0.875em;
+    line-height: 1.6;
+}
+
+/* Links */
+a {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #0b0080;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+a.new {
+    color: #d33;
+}
+
+a.new:visited {
+    color: #a55858;
+}
+
+/* Paragraphs and content */
+p {
+    margin: 0.5em 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #000;
+    font-family: Georgia, serif;
+    font-weight: normal;
+    margin: 0;
+    padding-top: 0.5em;
+    padding-bottom: 0.17em;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 1.8em;
+}
+
+h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #a2a9b1;
+}
+
+h3 {
+    font-size: 1.2em;
+}
+
+h4 {
+    font-size: 1.1em;
+}
+
+h5, h6 {
+    font-size: 1em;
+}
+
+/* Lists */
+ul, ol {
+    margin: 0.3em 0 0 1.5em;
+    padding: 0;
+}
+
+ul {
+    list-style-type: disc;
+}
+
+ol {
+    list-style-type: decimal;
+}
+
+li {
+    margin-bottom: 0.1em;
+}
+
+/* Tables */
+table {
+    border-collapse: collapse;
+    font-size: 100%;
+}
+
+th, td {
+    border: 1px solid #a2a9b1;
+    padding: 0.2em 0.4em;
+}
+
+th {
+    background: #eaecf0;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Infoboxes */
+.infobox {
+    border: 1px solid #a2a9b1;
+    border-spacing: 3px;
+    background: #f8f9fa;
+    color: #222;
+    margin: 0.5em 0 0.5em 1em;
+    padding: 0.2em;
+    float: right;
+    clear: right;
+    font-size: 88%;
+    line-height: 1.5em;
+    width: 22em;
+}
+
+.infobox caption {
+    font-size: 125%;
+    font-weight: bold;
+    padding: 0.2em;
+    text-align: center;
+}
+
+.infobox th {
+    text-align: left;
+    vertical-align: top;
+    width: 120px;
+}
+
+.infobox td {
+    vertical-align: top;
+}
+
+/* Footer */
+#footer {
+    margin-left: 176px;
+    margin-top: 0;
+    padding: 1.25em;
+    direction: ltr;
+    background: #f8f9fa;
+    border-top: 1px solid #a2a9b1;
+    font-size: 12px;
+}
+
+#footer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+#footer li {
+    margin: 0;
+    padding: 0;
+    color: #72777d;
+    font-size: 12px;
+    line-height: 1.4em;
+}
+
+#footer-info {
+    float: left;
+    width: 50%;
+}
+
+#footer-places {
+    float: left;
+    width: 50%;
+}
+
+#footer-icons {
+    float: right;
+    width: auto;
+}
+
+#footer a {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+#footer a:hover {
+    text-decoration: underline;
+}
+
+/* Messages and notices */
+.mw-message-box {
+    border: 1px solid;
+    padding: 8px 12px;
+    margin: 8px 0;
+    border-radius: 2px;
+}
+
+.mw-message-box-success {
+    border-color: #14866d;
+    background-color: #d5fdf4;
+    color: #14866d;
+}
+
+.mw-message-box-warning {
+    border-color: #fc3;
+    background-color: #fef6e7;
+    color: #ac6600;
+}
+
+.mw-message-box-error {
+    border-color: #d33;
+    background-color: #fee7e6;
+    color: #d33;
+}
+
+/* K̡̓ONTRIB-specific styles */
+.kontrib-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: #d5fdf4;
+    border: 1px solid #14866d;
+    color: #14866d;
+    padding: 12px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.kontrib-earn-potential {
+    background: #ffe6e6;
+    border: 1px solid #fcc;
+    color: #d33;
+    padding: 12px;
+    margin: 16px 0;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.kontrib-earn-potential h3 {
+    margin: 0 0 8px 0;
+    font-size: 16px;
+    color: #d33;
+}
+
+.kontrib-earn-potential ul {
+    margin: 8px 0 0 20px;
+}
+
+.kontrib-earn-potential li {
+    margin-bottom: 4px;
+}
+
+/* Responsive design */
+@media screen and (max-width: 982px) {
+    .mw-body {
+        margin-left: 0;
+        margin-top: 120px;
+        border: 0;
+        padding: 0.5em;
+    }
+    
+    #mw-panel {
+        display: none;
+    }
+    
+    .mw-head-container {
+        margin-left: 0;
+    }
+    
+    #p-logo {
+        position: static;
+        width: auto;
+        height: auto;
+        float: left;
+        margin: 8px;
+    }
+    
+    .mw-wiki-logo {
+        width: auto;
+        height: auto;
+        line-height: normal;
+    }
+    
+    .mw-wiki-logo img {
+        max-width: 100px;
+        max-height: 100px;
+        margin: 0;
+    }
+    
+    #footer {
+        margin-left: 0;
+    }
+    
+    #left-navigation,
+    #right-navigation {
+        position: static;
+        float: left;
+        margin: 8px 0;
+    }
+    
+    .mw-portlet-namespaces ul,
+    .mw-portlet-views ul {
+        float: left;
+        margin-right: 8px;
+    }
+    
+    #p-search {
+        clear: both;
+        float: none;
+        margin: 8px;
+    }
+    
+    #searchInput {
+        width: 200px;
+    }
+    
+    #p-personal {
+        position: static;
+        float: right;
+        margin: 8px;
+    }
+    
+    .kontrib-notification {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin: 8px 0;
+        width: 100%;
+    }
+}
+
+/* Print styles */
+@media print {
+    .noprint {
+        display: none !important;
+    }
+    
+    #mw-head,
+    #mw-panel,
+    #left-navigation,
+    #right-navigation,
+    #footer {
+        display: none !important;
+    }
+    
+    .mw-body {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+    
+    body {
+        background: white;
+        color: black;
+        font-size: 12pt;
+        line-height: 1.4;
+    }
+    
+    a {
+        color: black;
+        text-decoration: none;
+    }
+    
+    a[href]:after {
+        content: " (" attr(href) ")";
+        font-size: 90%;
+    }
+}
+
+/* Jump links for accessibility */
+.mw-jump-link {
+    position: absolute;
+    top: -9999px;
+}
+
+.mw-jump-link:focus {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    z-index: 999999;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1px solid #0645ad;
+    color: #0645ad;
+    text-decoration: none;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+/* Additional Wikipedia-like elements */
+.mw-editsection {
+    font-size: small;
+    font-weight: normal;
+    margin-left: 5px;
+    vertical-align: baseline;
+    line-height: 1em;
+    display: inline;
+    white-space: nowrap;
+    unicode-bidi: isolate;
+}
+
+.mw-editsection a {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+.mw-editsection a:hover {
+    text-decoration: underline;
+}
+
+/* References */
+.references {
+    font-size: 90%;
+    margin-bottom: 0.5em;
+}
+
+.references ol {
+    list-style-type: decimal;
+}
+
+.reference {
+    font-size: 85%;
+    line-height: 1.4em;
+    margin-bottom: 0.1em;
+}
+
+/* Categories */
+#catlinks {
+    border: 1px solid #a2a9b1;
+    background: #f8f9fa;
+    padding: 5px;
+    margin-top: 1em;
+    clear: both;
+}
+
+#catlinks p {
+    margin: 0;
+}
+
+#catlinks a {
+    color: #0645ad;
+    text-decoration: none;
+}
+
+#catlinks a:hover {
+    text-decoration: underline;
+}
+
+/* Hide certain elements */
+.mw-hide-empty-elt:empty {
+    display: none;
+}
+
+/* Page does not exist styling */
+.page-not-exist-message {
+    border: 1px solid #fc3;
+    background: #fef6e7;
+    padding: 12px;
+    margin: 16px 0;
+    border-radius: 4px;
+}
+
+.page-not-exist-message .warning-icon {
+    color: #fc3;
+    font-size: 18px;
+    margin-right: 8px;
+    vertical-align: top;
+}

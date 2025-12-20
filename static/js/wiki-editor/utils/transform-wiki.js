@@ -1,4 +1,4 @@
-// File: static/js/wiki-editor/utils/transform-wiki.js (EXPANDED)
+// File: static/js/wiki-editor/utils/transform-wiki.js
 /**
  * Enhanced Wiki Transformation Utilities
  * 

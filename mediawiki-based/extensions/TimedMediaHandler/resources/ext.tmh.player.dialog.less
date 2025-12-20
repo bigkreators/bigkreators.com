@@ -1,0 +1,66 @@
+.mw-tmh-media-dialog .oo-ui-dialog-content > .oo-ui-window-body {
+	/**
+	 * Hide the mysterious overflow that ends up in this dialog
+	 * in IE and EdgeHTML.
+	 *
+	 * Support: IE 11
+	 * Support: Edge 12
+	 */
+	overflow: hidden;
+
+	.oo-ui-layout {
+		// VideoJS has a solid black background, so avoid flicker.
+		background-color: #000;
+	}
+
+	video {
+		// We need the video element to fill the parent BEFORE videojs styling loads
+		// This influences resolution source picking in the dialog JS and avoids relayouting
+		background-color: #000;
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+	}
+}
+
+.oo-ui-windowManager-size-full .mw-tmh-media-dialog {
+	.oo-ui-window-head {
+		opacity: 1;
+		transition: all 0.1s ease-in;
+	}
+
+	.oo-ui-window-body {
+		transition: top 0.1s ease-in;
+	}
+
+	// OO.ui windows have an outline on the foot, even if the foot is empty
+	.oo-ui-window-foot {
+		display: none;
+	}
+
+	/* Hide dialog ui when idling */
+	.mw-tmh-inactive {
+		> .oo-ui-window-head {
+			min-height: 0;
+			max-height: 0;
+			opacity: 0;
+			transition: all 1s ease-out;
+		}
+
+		> .oo-ui-window-body {
+			top: 0;
+			transition: top 1s ease-out;
+		}
+	}
+
+	&.mw-tmh-desktop-on-mobile,
+	&.mw-tmh-desktop-on-mobile .video-js.vjs-fill {
+		// The .video-js element has a fixed font-size, so it won't inherit from the dialog
+		font-size: 3vmin;
+	}
+}
+
+// This is to ensure the background area for the safe areas (notch) is black in fullscreen mode
+body:has( .oo-ui-windowManager-fullscreen .mw-tmh-media-dialog.oo-ui-window-active ) {
+	background-color: #000;
+}

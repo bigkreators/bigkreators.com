@@ -1,0 +1,27 @@
+{
+	"@metadata": {
+		"authors": [
+			"Joao Xavier",
+			"Malafaya"
+		]
+	},
+	"timedmedia-ogg-long-error": "Ne-valida Ogg-arkivo: $1",
+	"timedmedia-midi-short-audio": "Arkivo MIDI, $1",
+	"timedmedia-midi-long-audio": "Arkivo MIDI, longeso $1, entote $2",
+	"timedmedia-more": "Plus…",
+	"timedmedia-dismiss": "Klozar",
+	"timedmedia-desc-link": "Pri ca arkivo",
+	"timedmedia-status": "Stando",
+	"timedmedia-actions": "Agadi",
+	"timedmedia-direct-link": "Deskargar",
+	"timedmedia-in-job-queue": "Adjuntita a la serio di taski $1",
+	"timedmedia-reset-button-dismiss": "Eskartar",
+	"timedmedia-reset-button-reset": "Restaurez",
+	"timedmedia-resolution-120": "Infra 120p",
+	"timedmedia-resolution-180": "Infra 180p",
+	"timedmedia-subtitle-new": "Krear nova tradukuro, o modifikar ula existanta",
+	"timedmedia-subtitle-new-go": "Irez",
+	"timedmedia-file": "Arkivo",
+	"orphanedtimedtext": "Orfana pagini ''TimedText''",
+	"transcodestatistics": "Transkodexigar* statistiki"
+}

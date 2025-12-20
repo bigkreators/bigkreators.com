@@ -1,0 +1,203 @@
+/**
+ * Styles-only module, added to all pages which include videojs mode
+ * Both click to load and inline page modes.
+ * This CSS should work both with and without JS and determines sizing etc
+ */
+
+/* Shrink videos to fit rather than overflowing containers */
+video[ data-mw-tmh ] {
+	// This breaks Chrome when we late load the video
+	// See comments in ext.tmh.player.element.js
+	height: auto;
+	max-width: 100%;
+}
+/* Force a fixed size for audio to reduce FOUC */
+audio[ data-mw-tmh ],
+.mw-tmh-player.audio {
+	height: 30px;
+	// Apple enforces a 31px height.. go away Apple.
+	--inline-controls-bar-height: 30px;
+	// Fallback width for Score and other widthless <audio> elements
+	width: 300px;
+}
+
+figure {
+	// needs a lot of specificity to overcome figure selectors
+	[ data-mw-tmh ][ data-mw-tmh ][ data-mw-tmh ],
+	.mw-tmh-player.mw-file-element.mw-file-element {
+		// Borders just look ugly on audio and video players
+		border: 0;
+	}
+}
+
+/* inline with text */
+span[ typeof~='mw:File' ] .video-js {
+	vertical-align: initial;
+}
+
+.fullImageLink .mw-file-element.mw-tmh-player {
+	vertical-align: top;
+}
+
+/* Galleryboxes are usually smaller than 220px, but can be different sizes. (T258622) */
+.gallerybox .mw-tmh-player.audio {
+	width: 90%;
+}
+
+/* Added by the ext.tmh.player after transforming the player */
+.mw-tmh-player {
+	display: inline-block;
+	position: relative;
+	/* fix height of inline-block T259549 */
+	line-height: 0;
+
+	.mw-tmh-play {
+		display: block;
+		position: absolute;
+		left: 0;
+		right: 0;
+		top: 0;
+		bottom: 0;
+	}
+}
+
+/* Labels on top of the placeholder */
+.mw-tmh-label {
+	display: inline-block;
+	line-height: 1;
+	position: absolute;
+	/* @noflip */
+	right: 1em;
+	font-weight: bold;
+	background-color: rgba( 0, 0, 0, 0.8 );
+	color: #fff;
+	border-radius: 0.3em;
+	padding: 0.5em;
+	cursor: pointer;
+
+	.sr-only {
+		clip: rect( 0 0 0 0 );
+		clip-path: inset( 50% );
+		height: 1px;
+		overflow: hidden;
+		position: absolute;
+		white-space: nowrap;
+		width: 1px;
+	}
+}
+
+.mw-tmh-player.video .mw-tmh-label {
+	&.mw-tmh-duration {
+		bottom: 1em;
+	}
+
+	&.mw-tmh-cc {
+		font-size: 110%;
+		top: 1em;
+	}
+}
+
+.mw-tmh-player.audio .mw-tmh-label {
+	font-size: 80%;
+	top: 0.35em;
+
+	&.mw-tmh-cc {
+		/* @noflip */
+		right: 5em;
+	}
+}
+
+/* Play button to load and play the video and audio file in a media dialog */
+.mw-tmh-player.video .mw-tmh-play .mw-tmh-play-icon {
+	/* @embed */
+	background: rgba( 0, 0, 0, 0.8 ) url( play-invert.svg ) center no-repeat;
+	display: block;
+	margin: auto;
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate( -50%, -50% );
+	transition: transform 120ms ease-out, background-color 120ms ease-out;
+}
+
+.mw-tmh-player.audio .mw-tmh-play .mw-tmh-play-icon {
+	/* @embed */
+	background: rgba( 0, 0, 0, 0.5 ) url( play-invert.svg ) no-repeat 10px;
+	transition: background-color 120ms ease-out;
+	display: block;
+	height: 100%;
+	width: 100%;
+}
+
+.mw-tmh-player.video .mw-tmh-play:hover,
+.mw-tmh-player.video .mw-tmh-play:focus,
+.mw-tmh-player.video .mw-tmh-play:active {
+	.mw-tmh-play-icon {
+		background-color: rgba( 0, 0, 0, 0.8 );
+		transform: translate( -50%, -50% ) scale( 1.1 );
+	}
+}
+
+.mw-tmh-player.audio .mw-tmh-play:hover,
+.mw-tmh-player.audio .mw-tmh-play:focus,
+.mw-tmh-player.audio .mw-tmh-play:active {
+	.mw-tmh-play-icon {
+		background-color: rgba( 0, 0, 0, 0.8 );
+	}
+}
+
+@supports ( aspect-ratio: 1 / 1 ) {
+	.mw-tmh-player.video > .mw-tmh-play .mw-tmh-play-icon {
+		width: auto;
+		height: ~'min( 50px, 70% )';
+		aspect-ratio: 1 / 1;
+	}
+}
+
+/* All interstitial and progress loading is for the
+   load phase between click and opening of the MediaDialog */
+.mw-tmh-player-interstitial {
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	background-color: rgba( 255, 255, 255, 0.5 );
+	text-align: center;
+}
+
+.mw-tmh-player-progress {
+	// Duplicated from OOUI's ProgressBar widget
+	// Needed since we have to use it before loading OOUI
+	box-sizing: border-box;
+	background-color: #fff;
+	border: 1px solid #a2a9b1;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.mw-tmh-player-progress-bar {
+	height: 1em;
+	transition: width 100ms;
+
+	// Indeterminate mode animation
+	animation: mw-tmh-player-progress-bar-slide 2s infinite linear;
+	width: 40%;
+	transform: translate( -25% );
+
+	// Enabled.
+	background-color: #36c;
+}
+
+@keyframes mw-tmh-player-progress-bar-slide {
+	from {
+		transform: translate( -100% );
+	}
+
+	to {
+		transform: translate( 350% );
+	}
+}

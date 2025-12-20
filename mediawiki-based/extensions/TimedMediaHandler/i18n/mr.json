@@ -1,0 +1,26 @@
+{
+	"@metadata": {
+		"authors": [
+			"Htt",
+			"Kaustubh",
+			"V.narsikar"
+		]
+	},
+	"timedmediahandler-desc": "वेबएम ऑग थियोरा, व्हॉर्बिस व एसआरटी संचिकांसाठी आकार‌-साहाय्यासह (format support) असणारा, दृक, श्राव्य व टाईम्ड मजकूर  हाताळणारे उपकरण",
+	"timedmedia-ogg-short-audio": "ऑग $1 ध्वनी संचिका, $2",
+	"timedmedia-ogg-short-video": "ऑग $1 चलतचित्र संचिका, $2",
+	"timedmedia-ogg-short-general": "ऑग $1 मीडिया संचिका, $2",
+	"timedmedia-ogg-long-audio": "ऑग $1 ध्वनी संचिका, लांबी $2, $3",
+	"timedmedia-ogg-long-video": "ऑग $1 चलतचित्र संचिका, लांबी $2, $4×$5 पीक्सेल्स, $3",
+	"timedmedia-ogg-long-multiplexed": "ऑग ध्वनी/चित्र संचिका, $1, लांबी $2, $4×$5 पिक्सेल्स, $3 एकूण",
+	"timedmedia-ogg-long-general": "ऑग मीडिया संचिका, लांबी $2, $3",
+	"timedmedia-ogg-long-error": "चुकीची ऑग संचिका: $1",
+	"timedmedia-more": "आणखी...",
+	"timedmedia-dismiss": "बंद करा",
+	"timedmedia-download": "संचिका अधिभारण करा",
+	"timedmedia-desc-link": "या संचिकेबद्दलची माहिती",
+	"timedmedia-reset-areyousure": "आपण पुढे जाणे नक्की करता काय?",
+	"timedmedia-reset-button-cancel": "पूर्ववत करु नका",
+	"timedmedia-reset-button-dismiss": "खारीज करा",
+	"timedmedia-reset-button-reset": "पूर्ववत करा"
+}

@@ -1,0 +1,24 @@
+{
+	"@metadata": {
+		"authors": [
+			"Ajeje Brazorf",
+			"Pippinu",
+			"Sarvaturi"
+		]
+	},
+	"timedmedia-more": "Àutru...",
+	"timedmedia-dismiss": "Chiudi",
+	"timedmedia-desc-link": "Nfurmazzioni supra stu file",
+	"timedmedia-status": "Statu",
+	"timedmedia-status-unknown": "Statu scanusciutu",
+	"timedmedia-actions": "Azzioni",
+	"timedmedia-direct-link": "Scàrrica",
+	"timedmedia-resolution-120": "Vascia 120p",
+	"timedmedia-resolution-160": "Vascia 160p",
+	"timedmedia-resolution-180": "Vascia 180p",
+	"timedmedia-resolution-240": "Vascia 240p",
+	"timedmedia-file": "File",
+	"orphanedtimedtext": "Pàggini suttatìtuli òrfani",
+	"videojs-more-information": "Àutri nfurmazzioni",
+	"videojs-subtitles-create": "Crea suttatìtuli"
+}

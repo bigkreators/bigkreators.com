@@ -1,0 +1,204 @@
+<!-- File: templates/page_not_found.html -->
+{% extends "wiki_base.html" %}
+
+{% block title %}{{ page_title }} - Kryptopedia{% endblock %}
+
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block content_subtitle %}{% endblock %}
+
+{% block content %}
+<div class="page-not-exist-message">
+    <span class="warning-icon">⚠️</span>
+    <strong>This page does not exist.</strong> The deletion, protection, and move log for the page are provided below for reference.
+</div>
+
+<!-- K̡̓ONTRIB Earning Opportunity Section -->
+<div class="kontrib-earn-potential">
+    <h3>💰 EARN K̡̓ONTRIB TOKENS</h3>
+    <p><strong>Creating this article could earn you 50-100 K̡̓ontrib tokens!</strong></p>
+    
+    <div style="margin: 12px 0;">
+        <strong>📊 Token Earning Potential:</strong>
+        <ul>
+            <li><strong>New article creation:</strong> 50 K̡̓ontrib</li>
+            <li><strong>500+ words:</strong> +20 K̡̓ontrib</li>
+            <li><strong>Add images/media:</strong> +15 K̡̓ontrib</li>
+            <li><strong>Proper categories:</strong> +10 K̡̓ontrib</li>
+            <li><strong>Quality references:</strong> +25 K̡̓ontrib</li>
+            <li style="border-top: 1px solid #fcc; padding-top: 4px; margin-top: 4px; font-size: 16px;">
+                <strong>TOTAL POTENTIAL: 120 K̡̓ontrib tokens! 💎</strong>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div style="margin: 20px 0;">
+    <p><strong>Kryptopedia does not have an article with this exact name.</strong> Please 
+    <a href="/search?q={{ page_title|urlencode }}">search for <em>{{ page_title }}</em> in Kryptopedia</a> 
+    to check for alternative titles or spellings.</p>
+</div>
+
+<div style="background: #f8f9fa; border: 1px solid #a2a9b1; padding: 16px; margin: 16px 0; border-radius: 4px;">
+    <h3 style="color: #d33; margin-bottom: 12px;">🚀 HIGH REWARD OPPORTUNITY:</h3>
+    
+    <ul style="margin-left: 20px;">
+        <li style="margin-bottom: 8px;">
+            {% if current_user %}
+                <strong><a href="/edit/{{ page_title|replace(' ', '_') }}" style="color: #d33; font-weight: bold;">
+                    Start the <em>{{ page_title }}</em> article</a></strong> and earn 50 K̡̓ontrib tokens for creation
+            {% else %}
+                <strong><a href="/auth/login?redirect=/edit/{{ page_title|replace(' ', '_') }}" style="color: #d33; font-weight: bold;">
+                    Log in to start the <em>{{ page_title }}</em> article</a></strong> and earn 50 K̡̓ontrib tokens for creation
+            {% endif %}
+        </li>
+        <li style="margin-bottom: 8px;">
+            Add quality content to earn up to 50 additional tokens
+        </li>
+        <li style="margin-bottom: 8px;">
+            <strong>First article on this topic gets bonus rewards!</strong>
+        </li>
+    </ul>
+
+    <ul style="margin: 16px 0 0 20px; color: #555;">
+        <li style="margin-bottom: 4px;">
+            <a href="/search?q={{ page_title|urlencode }}">Search for "<em>{{ page_title }}</em>"</a> in existing articles.
+        </li>
+        <li style="margin-bottom: 4px;">
+            Look for pages within Kryptopedia that link to this title.
+        </li>
+    </ul>
+</div>
+
+<!-- Sister Projects Section (like Wikipedia) -->
+<div style="float: right; width: 300px; margin: 0 0 16px 16px; background: #f8f9fa; border: 1px solid #a2a9b1; padding: 12px;">
+    <h4>Look for <strong>{{ page_title }}</strong> on one of Kryptopedia's sister projects:</h4>
+    <ul style="list-style: none; margin: 8px 0 0 0; padding: 0;">
+        <li style="margin: 4px 0; font-size: 13px;">
+            📖 <a href="/wiki/{{ page_title|replace(' ', '_') }}">Kryptionary</a> (dictionary)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            📚 <a href="/books/{{ page_title|replace(' ', '_') }}">Kryptobooks</a> (textbooks)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            💬 <a href="/quotes/{{ page_title|replace(' ', '_') }}">Kryptoquote</a> (quotations)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            📊 <a href="/source/{{ page_title|replace(' ', '_') }}">Kryptosource</a> (library)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            🎓 <a href="/university/{{ page_title|replace(' ', '_') }}">Kryptiversity</a> (learning resources)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            📷 <a href="/commons/{{ page_title|replace(' ', '_') }}">Commons</a> (media)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            🌍 <a href="/voyage/{{ page_title|replace(' ', '_') }}">Kryptovoyage</a> (travel guide)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            📰 <a href="/news/{{ page_title|replace(' ', '_') }}">Kryptonews</a> (news source)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            📊 <a href="/data/{{ page_title|replace(' ', '_') }}">Kryptodata</a> (linked database)
+        </li>
+        <li style="margin: 4px 0; font-size: 13px;">
+            🧬 <a href="/species/{{ page_title|replace(' ', '_') }}">Kryptospecies</a> (species directory)
+        </li>
+    </ul>
+</div>
+
+<div style="clear: both;">
+    <h3>Other reasons this message may be displayed:</h3>
+    <ul style="margin-left: 20px;">
+        <li style="margin-bottom: 8px;">
+            If a page was recently created here, it may not be visible yet because of a delay in 
+            updating the database; wait a few minutes or 
+            <a href="javascript:location.reload();">try the purge function</a>.
+        </li>
+        <li style="margin-bottom: 8px;">
+            Titles on Kryptopedia are <strong>case sensitive</strong> except for the first character; 
+            please check alternative capitalizations and consider adding a redirect here to the correct title.
+        </li>
+        <li style="margin-bottom: 8px;">
+            If the page has been deleted, check the 
+            <a href="/special/log/delete?page={{ page_title|replace(' ', '_') }}">deletion log</a>,
+            and see <a href="/help/why-was-page-deleted">Why was the page I created deleted?</a>
+        </li>
+    </ul>
+</div>
+
+<!-- Show recent log events if any -->
+{% if log_events %}
+<div style="margin-top: 24px;">
+    <h3>Deletion, protection, and move log</h3>
+    <div style="border: 1px solid #a2a9b1; background: #f8f9fa;">
+        {% for event in log_events %}
+        <div style="padding: 8px; border-bottom: 1px solid #eee;">
+            <span style="font-size: 12px; color: #555;">
+                {{ event.timestamp.strftime('%H:%M, %d %B %Y') }}
+            </span>
+            <a href="/user/{{ event.user }}">{{ event.user }}</a>
+            (<a href="/user/{{ event.user }}/talk">talk</a> | 
+            <a href="/special/contributions/{{ event.user }}">contribs</a>)
+            {{ event.action }} page {{ page_title }}
+            {% if event.comment %}
+                (<em>{{ event.comment }}</em>)
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if current_user %}
+<!-- Quick creation form for logged-in users -->
+<div style="margin-top: 24px; padding: 16px; background: #d5fdf4; border: 1px solid #14866d; border-radius: 4px;">
+    <h3 style="color: #14866d; margin-bottom: 12px;">💰 Quick Start - Earn K̡̓ontrib Now!</h3>
+    <form action="/create" method="post" style="margin: 0;">
+        <input type="hidden" name="title" value="{{ page_title }}">
+        <p style="margin-bottom: 8px;">
+            <strong>Start with a brief description to earn your first 50 K̡̓ontrib tokens:</strong>
+        </p>
+        <textarea name="content" rows="4" cols="80" placeholder="Write a brief description of {{ page_title }}. Even a short paragraph will earn you tokens!" style="width: 100%; margin-bottom: 8px; padding: 8px; border: 1px solid #14866d; border-radius: 3px;"></textarea>
+        <br>
+        <input type="submit" value="Create Article & Earn 50 K̡̓ontrib!" style="background: #14866d; color: white; padding: 12px 24px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 14px;">
+    </form>
+    <p style="margin: 8px 0 0 0; font-size: 12px; color: #555;">
+        You can always expand and improve the article later to earn more tokens!
+    </p>
+</div>
+{% endif %}
+
+<!-- Related suggestions based on title -->
+{% if suggestions %}
+<div style="margin-top: 24px;">
+    <h3>You might be looking for:</h3>
+    <ul style="margin-left: 20px;">
+        {% for suggestion in suggestions %}
+        <li style="margin-bottom: 4px;">
+            <a href="/wiki/{{ suggestion.slug }}">{{ suggestion.title }}</a>
+            {% if suggestion.summary %}
+                - {{ suggestion.summary|truncate(100) }}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<script>
+// Track page not found events for analytics
+if (window.kontribConfig && window.kontribConfig.isLoggedIn) {
+    // Could send analytics event here
+    console.log('Page not found - potential earning opportunity tracked');
+}
+
+// Auto-focus the quick creation textarea if present
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.querySelector('textarea[name="content"]');
+    if (textarea) {
+        textarea.focus();
+    }
+});
+</script>
+{% endblock %}

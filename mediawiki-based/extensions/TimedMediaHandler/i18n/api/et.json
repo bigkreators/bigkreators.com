@@ -1,0 +1,13 @@
+{
+	"@metadata": {
+		"authors": [
+			"Pikne"
+		]
+	},
+	"apihelp-query+transcodestatus-example-1": "Hangi faili [[:File:Clip.webm|Clip.webm]] ümberkodeerimise olek",
+	"apihelp-query+videoinfo-example-1": "Faili [[:File:Folgers.ogv|Folgers.ogv]] teabe väljavõtt",
+	"apihelp-transcodereset-param-title": "Meediumifaili pealkiri.",
+	"apihelp-transcodereset-param-transcodekey": "Lähtestatava ümberkodeerimise võti. Leitav päringuga [[Special:ApiHelp/query+transcodestatus|action=query&prop=transcodestatus]].",
+	"apihelp-transcodereset-example-1": "Lähtesta kõik faili [[:File:Clip.webm|Clip.webm]] ümberkodeeringud",
+	"apihelp-transcodereset-example-2": "Lähtesta faili [[:File:Clip.webm|Clip.webm]] ümberkodeerimisvõti '360_560kbs.webm'"
+}

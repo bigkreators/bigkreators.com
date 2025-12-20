@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": [
+			"Otokoume",
+			"ひまり"
+		]
+	},
+	"apihelp-transcodereset-param-title": "メディアファイルのタイトル。",
+	"apierror-timedmedia-disabledtranscode": "このウィキではトランスコードは無効になっています。"
+}

@@ -1,0 +1,45 @@
+@import 'mediawiki.mixins.less';
+@import 'mediawiki.skin.variables.less';
+
+/*
+ * CSS for WikiEditor jQuery plugin
+ */
+
+.wikiEditor-ui {
+	position: relative;
+	clear: both;
+	width: 100%;
+
+	textarea {
+		width: 100%;
+		border: 0;
+
+		&:focus {
+			outline: 0;
+		}
+	}
+
+	.wikiEditor-ui-clear {
+		clear: both;
+	}
+
+	.wikiEditor-ui-view {
+		border: @border-subtle;
+	}
+
+	.wikiEditor-ui-top {
+		position: relative;
+		border-bottom: @border-subtle;
+	}
+
+	.wikiEditor-ui-left {
+		float: left;
+		width: 100%;
+	}
+
+	.wikiEditor-ui-right {
+		float: right;
+		background: @background-color-neutral-subtle;
+		overflow: hidden;
+	}
+}

@@ -21,6 +21,15 @@
         margin-bottom: 30px;
     }
     
+    .error-details {
+        margin-bottom: 30px;
+        color: #666;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+    
     .error-actions {
         margin-top: 30px;
     }
@@ -38,6 +47,21 @@
     .error-actions a:hover {
         background-color: #053a7a;
     }
+
+    .wiki-suggestion {
+        background: #e6f3ff;
+        border: 1px solid #0645ad;
+        padding: 20px;
+        border-radius: 4px;
+        margin: 20px auto;
+        max-width: 600px;
+        text-align: left;
+    }
+
+    .wiki-suggestion h3 {
+        color: #0645ad;
+        margin: 0 0 10px 0;
+    }
 </style>
 {% endblock %}
 
@@ -45,14 +69,40 @@
 
 {% block content %}
 <div class="error-actions">
-        <span style="background: gray; padding: 10px 20px; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Article</span>
-        <a href="/articles/67fb0c490cc9c8e686f34f07/talk">Discussion</a>
-        <a href="/create-article" style="float: right;">Create Article</a>
-    </div>
+    <span style="background: gray; padding: 10px 20px; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">Article</span>
+    <a href="/articles/67fb0c490cc9c8e686f34f07/talk">Discussion</a>
+    <a href="/create-article" style="float: right;">Create Article</a>
+</div>
+
 <div class="error-container">
     <div class="error-code">404</div>
     <div class="error-message">{{ message or 'Page Not Found' }}</div>
-    <p>The page you are looking for doesn't exist or has been moved.</p>
-    <a href="/">Go to Homepage</a>
+    
+    <div class="error-details">
+        <p>The page you are looking for doesn't exist or has been moved.</p>
+        
+        <!-- Explain the difference between 404 and wiki page not found -->
+        <p><strong>Note:</strong> This is a system-level error for invalid URLs or missing resources. 
+        If you're looking for a wiki article that might not exist yet, try searching for it or visiting the wiki directly.</p>
+    </div>
+
+    <!-- Suggestion for wiki content -->
+    <div class="wiki-suggestion">
+        <h3>🔍 Looking for wiki content?</h3>
+        <p>If you were trying to access a wiki article, try these options:</p>
+        <ul style="margin: 10px 0 0 20px;">
+            <li>Use the search function to find similar articles</li>
+            <li>Check if the article title is spelled correctly</li>
+            <li>Browse existing categories and pages</li>
+            <li>Create the article if it doesn't exist</li>
+        </ul>
+    </div>
+
+    <div class="error-actions">
+        <a href="/">🏠 Homepage</a>
+        <a href="/search">🔍 Search</a>
+        <a href="/special/allpages">📚 Browse Articles</a>
+        <a href="/special/recentchanges">📝 Recent Changes</a>
+    </div>
 </div>
 {% endblock %}

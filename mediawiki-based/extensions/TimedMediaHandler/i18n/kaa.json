@@ -1,0 +1,12 @@
+{
+	"@metadata": {
+		"authors": [
+			"Ajiniyaz Nurniyazov",
+			"Inabat Allanova",
+			"Nurlan"
+		]
+	},
+	"timedmedia-subtitle-new": "Jańa awdarma baslaw yamasa redaktorlaw",
+	"timedmedia-subtitle-new-go": "Ótiw",
+	"timedmedia-duration-ms": "{{PLURAL:$1|$1 minut|$1 minut}} hám {{PLURAL:$2|$2 sekund|$1 sekund}}"
+}

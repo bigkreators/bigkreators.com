@@ -1,0 +1,15 @@
+{
+	"@metadata": {
+		"authors": [
+			"Joanmp17"
+		]
+	},
+	"timedmedia-dismiss": "ዕጸው",
+	"timedmedia-download": "ፋይል ኣውርድ",
+	"timedmedia-direct-link": "ምውራድ",
+	"timedmedia-file": "ፋይል",
+	"timedmedia-dialog-close": "ተጻዋታይ ሜድያ ዕጸው",
+	"timedmedia-duration-s": "{{PLURAL:$1|$1 ካልኢት|$1 ካልኢታት}}",
+	"videojs-more-information": "ተወሳኺ ሓበሬታ",
+	"videojs-subtitles-create": "ንኡስ ኣርእስትታት ፍጠር"
+}
