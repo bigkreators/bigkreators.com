@@ -111,6 +111,12 @@ app.include_router(page_router)
 # Add error handlers
 add_error_handlers(app)
 
+# Health check endpoint for Railway/Docker
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for container orchestration."""
+    return {"status": "healthy"}
+
 # Add a redirect for the misaddressed CSS file
 @app.get("/style.css")
 async def redirect_to_css():
